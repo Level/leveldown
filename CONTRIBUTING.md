@@ -1,4 +1,4 @@
-# LevelUP is an OPEN Open Source Project
+# LevelDOWN is an OPEN Open Source Project
 
 -----------------------------------------
 
