@@ -4,8 +4,33 @@ LevelDOWN
 A Node.js LevelDB binding (currently being extracted from LevelUP)
 -------------------------
 
+## READ THIS FIRST
+
+LevelDOWN is currently undergoing API development to prepare it for general use. Version 0.0.0 represents the API as it has been used internally within [LevelUP](https://github.com/rvagg/node-levelup) but this API is not ideal for public consumption.
+
+If you wish to contribute towards improving this API, please submit your suggestions in the form of a pull request against *this* README.md file, highlighting changes you believe ought to be made; discussion will then ensue!
+
+LevelDOWN is stable for general use as long as you are careful what arguments you provide (LevelUP sanitises most inputs prior to feeing them to the binding). You also need to be aware of the ongoing work on the API. Each time a breaking change is made to the API, the *Major* version will be incremented (i.e. where [semver](http://semver.org) specifies Major.Minor.Patch), so be careful with your npm dependencies!
+
+In general, the current API is fairly brittle and each method must be fed the right number and type of arguments; failing to adhere to the requirements of each method call may result in process death. Making the API more resilient will be a top priority.
+
+The other major priority for API-change will be to make it as easy and natural to use without unnecessary fluff (the fluff can go in LevelUP if it's really needed). The API will be as minimal as possible while still providing enough async access to LevelDB for efficient use.
+
 <a name="api"></a>
 ## API
+
+  * <a href="#createDatabase"><code><b>createDatabase()</b></code></a>
+  * <a href="#createIterator"><code><b>createIterator()</b></code></a>
+  * <a href="#leveldown_open"><code><b>leveldown#open()</b></code></a>
+  * <a href="#leveldown_close"><code><b>leveldown#close()</b></code></a>
+  * <a href="#leveldown_put"><code><b>leveldown#put()</b></code></a>
+  * <a href="#leveldown_get"><code><b>leveldown#get()</b></code></a>
+  * <a href="#leveldown_del"><code><b>leveldown#del()</b></code></a>
+  * <a href="#leveldown_batch"><code><b>leveldown#batch()</b></code></a>
+  * <a href="#leveldown_approximateSize"><code><b>leveldown#approximateSize()</b></code></a>
+  * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
+  * <a href="#iterator_end"><code><b>iterator#end()</b></code></a>
+
 
 --------------------------------------------------------
 <a name="createDatabase"></a>
@@ -15,7 +40,9 @@ A Node.js LevelDB binding (currently being extracted from LevelUP)
 --------------------------------------------------------
 <a name="createIterator"></a>
 ### leveldown.createIterator(database, options)
-<code>createIterator()</code> returns a new **Iterator** instance for the given database instance.
+<code>createIterator()</code> returns a new **Iterator** instance for the given `database` instance. Both arguments are required.
+
+#### `options`
 
 The `options` object may contain:
 
@@ -33,11 +60,17 @@ The `options` object may contain:
 
 * `'fillCache'` *(boolean, default: `false`)*: wheather LevelDB's LRU-cache should be filled with data read.
 
+* `'keyAsBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `key` of each entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UFT8 string) then you should fetch it as one.
+
+* `'valueAsBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `value` of each entry as a `String` or a Node.js `Buffer` object.
+
 
 --------------------------------------------------------
 <a name="leveldown_open"></a>
 ### leveldown#open(location, options, callback)
 <code>open()</code> is an instance method on an existing database object. `location` is a String pointing to the LevelDB location to be opened.
+
+#### `options`
 
 The `options` object may contain:
 
@@ -49,48 +82,120 @@ The `options` object may contain:
 
 * `'cacheSize'` *(number, default: `8 * 1024 * 1024`)*: The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents. 
 
-The `callback` function will be called with no arguments when the database has been successfully opened, or with a single, `error` argument if the open operation failed for any reason.
+The `callback` function will be called with no arguments when the database has been successfully opened, or with a single `error` argument if the open operation failed for any reason.
+
+All 3 arguments are required.
 
 --------------------------------------------------------
 <a name="leveldown_close"></a>
-### leveldown#close()
-<code>close()</code> is an instance method on an existing database object. 
+### leveldown#close(callback)
+<code>close()</code> is an instance method on an existing database object. The underlying LevelDB database will be closed and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
+The `callback` argument is required.
 
 --------------------------------------------------------
 <a name="leveldown_put"></a>
-### leveldown#put()
-<code>put()</code> is an instance method on an existing database object. 
+### leveldown#put(key, value, options, callback)
+<code>put()</code> is an instance method on an existing database object, used to store new entries, or overwrite existing entries in the LevelDB store.
+
+The `key` and `value` objects may either be `String`s or Node.js `Buffer` objects and cannot be `undefined` or `null`.
+
+#### `options`
+
+The only property currently available on the `options` object is `'sync'` *(boolean, default: `false`)*. If you provide a `'sync'` value of `true` in your `options` object, LevelDB will perform a synchronous write of the data; although the operation will be asynchronous as far as Node is concerned. Normally, LevelDB passes the data to the operating system for writing and returns immediately, however a synchronous write will use `fsync()` or equivalent so your callback won't be triggered until the data is actually on disk. Synchronous filesystem writes are **significantly** slower than asynchronous writes but if you want to be absolutely sure that the data is flushed then you can use `'sync': true`.
+
+The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+All 4 arguments are required.
 
 
 --------------------------------------------------------
 <a name="leveldown_get"></a>
-### leveldown#get()
-<code>get()</code> is an instance method on an existing database object. 
+### leveldown#get(key, options, callback)
+<code>get()</code> is an instance method on an existing database object, used to fetch individual entries from the LevelDB store.
+
+The `key` object may either be a `String` or a Node.js `Buffer` object and cannot be `undefined` or `null`.
+
+#### `options`
+
+The `options` object may contain:
+
+* `'fillCache'` *(boolean, default: `true`)*: LevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`.
+
+* `'asBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UFT8 string) then you should fetch it as one.
+
+The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+All 3 arguments are required.
 
 
 --------------------------------------------------------
 <a name="leveldown_del"></a>
-### leveldown#batch()
-<code>batch()</code> is an instance method on an existing database object. 
+### leveldown#del(key, options, callback)
+<code>del()</code> is an instance method on an existing database object, used to delete entries from the LevelDB store.
+
+The `key` object may either be a `String` or a Node.js `Buffer` object and cannot be `undefined` or `null`.
+
+#### `options`
+
+The only property currently available on the `options` object is `'sync'` *(boolean, default: `false`)*. See <a href="#leveldown_put">leveldown#put()</a> for details about this option.
+
+The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+All 3 arguments are required.
 
 
 --------------------------------------------------------
+<a name="leveldown_batch"></a>
+### leveldown#batch(operations, options, callback)
+<code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should contain a list of operations to be executed sequentially. Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. See [LevelUP](https://github.com/rvagg/node-levelup#batch) for full documentation on how this works in practice.
+
+#### `options`
+
+The only property currently available on the `options` object is `'sync'` *(boolean, default: `false`)*. See <a href="#leveldown_put">leveldown#put()</a> for details about this option.
+
+The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+All 3 arguments are required.
+
+Callback
+--------------------------------------------------------
 <a name="leveldown_approximateSize"></a>
-### leveldown#approximateSize()
-<code>approximateSize()</code> is an instance method on an existing database object. 
+### leveldown#approximateSize(start, end, callback)
+<code>approximateSize()</code> is an instance method on an existing database object. Used to get the approximate number of bytes of file system space used by the range `[start..end)`. The result may not include recently written data.
+
+The `start` and `end` parameters may be either `String` or Node.js `Buffer` objects representing keys in the LevelDB store.
+
+The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+All 3 arguments are required.
 
 
 --------------------------------------------------------
 <a name="iterator_next"></a>
-### iterator#next()
-<code>next()</code> is an instance method on an existing iterator object. 
+### iterator#next(endCallback, nextCallback)
+<code>next()</code> is an instance method on an existing iterator object, used to increment the underlying LevelDB iterator and return the entry at that location.
 
+The `endCallback` function will be called with no arguments in any of the following situations:
+
+* the iterator comes to the end of the store
+* the `end` key has been reached; or
+* the `limit` has been reached
+
+Otherwise, `nextCallback` will be called with the following 3 arguments:
+
+* `null`
+* `key` - either a `String` or a Node.js `Buffer` object depending on the `keyAsBuffer` argument when the `createIterator()` was called.
+* `value` - either a `String` or a Node.js `Buffer` object depending on the `valueAsBuffer` argument when the `createIterator()` was called.
+
+Both `endCallback` and `nextCallback` arguments are required.
 
 --------------------------------------------------------
 <a name="iterator_end"></a>
-### iterator#end()
-<code>end()</code> is an instance method on an existing iterator object. 
+### iterator#end(callback)
+<code>end()</code> is an instance method on an existing iterator object. The underlying LevelDB iterator will be deleted and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+The `callback` argument is required.
 
 
 <a name="contributing"></a>
