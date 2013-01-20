@@ -1,6 +1,6 @@
-/* Copyright (c) 2012-2013 LevelUP contributors
- * See list at <https://github.com/rvagg/node-levelup#contributing>
- * MIT +no-false-attribs License <https://github.com/rvagg/node-levelup/blob/master/LICENSE>
+/* Copyright (c) 2012-2013 LevelDOWN contributors
+ * See list at <https://github.com/rvagg/node-leveldown#contributing>
+ * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
 #include <cstdlib>
@@ -16,9 +16,9 @@
 using namespace std;
 using namespace v8;
 using namespace node;
-using namespace levelup;
+using namespace leveldown;
 
-bool levelup::Iterator::GetIterator () {
+bool leveldown::Iterator::GetIterator () {
   if (dbIterator == NULL) {
     dbIterator = database->NewIterator(options);
     if (start != NULL)
@@ -32,7 +32,7 @@ bool levelup::Iterator::GetIterator () {
   return false;
 }
 
-bool levelup::Iterator::IteratorNext (string& key, string& value) {
+bool leveldown::Iterator::IteratorNext (string& key, string& value) {
   if (!GetIterator()) {
     if (reverse)
       dbIterator->Prev();
@@ -58,18 +58,18 @@ bool levelup::Iterator::IteratorNext (string& key, string& value) {
   }
 }
 
-Status levelup::Iterator::IteratorStatus () {
+Status leveldown::Iterator::IteratorStatus () {
   return dbIterator->status();
 }
 
-void levelup::Iterator::IteratorEnd () {
+void leveldown::Iterator::IteratorEnd () {
   //TODO: could return it->status()
   delete dbIterator;
   dbIterator = NULL;
 }
 
 //void *ctx, void (*callback)(void *ctx, Slice key, Slice value)
-Handle<Value> levelup::Iterator::Next (const Arguments& args) {
+Handle<Value> leveldown::Iterator::Next (const Arguments& args) {
   HandleScope scope;
   Iterator* iterator = ObjectWrap::Unwrap<Iterator>(args.This());
   Persistent<Function> endCallback = Persistent<Function>::New(Local<Function>::Cast(args[0]));
@@ -83,7 +83,7 @@ Handle<Value> levelup::Iterator::Next (const Arguments& args) {
   return Undefined();
 }
 
-Handle<Value> levelup::Iterator::End (const Arguments& args) {
+Handle<Value> leveldown::Iterator::End (const Arguments& args) {
   HandleScope scope;
   Iterator* iterator = ObjectWrap::Unwrap<Iterator>(args.This());
   Persistent<Function> endCallback = Persistent<Function>::New(Local<Function>::Cast(args[0]));
@@ -95,9 +95,9 @@ Handle<Value> levelup::Iterator::End (const Arguments& args) {
   return Undefined();
 }
 
-Persistent<Function> levelup::Iterator::constructor;
+Persistent<Function> leveldown::Iterator::constructor;
 
-void levelup::Iterator::Init () {
+void leveldown::Iterator::Init () {
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
   tpl->SetClassName(String::NewSymbol("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(2);
@@ -106,7 +106,7 @@ void levelup::Iterator::Init () {
   constructor = Persistent<Function>::New(tpl->GetFunction());
 }
 
-Handle<Value> levelup::Iterator::NewInstance (const Arguments& args) {
+Handle<Value> leveldown::Iterator::NewInstance (const Arguments& args) {
   HandleScope scope;
 
   Handle<Value> argv[2] = {
@@ -118,7 +118,7 @@ Handle<Value> levelup::Iterator::NewInstance (const Arguments& args) {
   return scope.Close(instance);
 }
 
-Handle<Value> levelup::Iterator::New (const Arguments& args) {
+Handle<Value> leveldown::Iterator::New (const Arguments& args) {
   HandleScope scope;
 
   Database* database = ObjectWrap::Unwrap<Database>(args[0]->ToObject());
@@ -153,7 +153,7 @@ Handle<Value> levelup::Iterator::New (const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> levelup::CreateIterator (const Arguments& args) {
+Handle<Value> leveldown::CreateIterator (const Arguments& args) {
   HandleScope scope;
-  return scope.Close(levelup::Iterator::NewInstance(args));
+  return scope.Close(leveldown::Iterator::NewInstance(args));
 }

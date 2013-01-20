@@ -1,1 +1,1 @@
-module.exports = require('bindings')('levelup.node')
+module.exports = require('bindings')('leveldown.node')

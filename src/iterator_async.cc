@@ -1,6 +1,6 @@
-/* Copyright (c) 2012-2013 LevelUP contributors
- * See list at <https://github.com/rvagg/node-levelup#contributing>
- * MIT +no-false-attribs License <https://github.com/rvagg/node-levelup/blob/master/LICENSE>
+/* Copyright (c) 2012-2013 LevelDOWN contributors
+ * See list at <https://github.com/rvagg/node-leveldown#contributing>
+ * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
 #include <cstdlib>
@@ -11,7 +11,7 @@
 
 #include "database.h"
 
-#include "levelup.h"
+#include "leveldown.h"
 #include "async.h"
 #include "iterator_async.h"
 
@@ -23,7 +23,7 @@ using namespace leveldb;
 /** NEXT WORKER **/
 
 NextWorker::NextWorker (
-    levelup::Iterator* iterator
+    leveldown::Iterator* iterator
   , Persistent<Function> dataCallback
   , Persistent<Function> endCallback
 ) : AsyncWorker(database, dataCallback)
@@ -66,7 +66,7 @@ void NextWorker::HandleOKCallback () {
 /** END WORKER **/
 
 EndWorker::EndWorker (
-    levelup::Iterator* iterator
+    leveldown::Iterator* iterator
   , Persistent<Function> endCallback
 ) : AsyncWorker(database, endCallback)
   , iterator(iterator)

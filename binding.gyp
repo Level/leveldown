@@ -1,6 +1,6 @@
 {
     "targets": [{
-        "target_name": "levelup"
+        "target_name": "leveldown"
       , "dependencies": [
             "<(module_root_dir)/deps/leveldb/leveldb.gyp:leveldb"
         ]
@@ -11,7 +11,7 @@
           , "src/database_async.cc"
           , "src/iterator.cc"
           , "src/iterator_async.cc"
-          , "src/levelup.cc"
+          , "src/leveldown.cc"
         ]
     }]
 }

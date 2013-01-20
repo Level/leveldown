@@ -1,6 +1,6 @@
-/* Copyright (c) 2012-2013 LevelUP contributors
- * See list at <https://github.com/rvagg/node-levelup#contributing>
- * MIT +no-false-attribs License <https://github.com/rvagg/node-levelup/blob/master/LICENSE>
+/* Copyright (c) 2012-2013 LevelDOWN contributors
+ * See list at <https://github.com/rvagg/node-leveldown#contributing>
+ * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
 #ifndef LU_DATABASE_H
@@ -11,7 +11,7 @@
 
 #include "leveldb/db.h"
 
-#include "levelup.h"
+#include "leveldown.h"
 
 using namespace std;
 using namespace v8;

@@ -1,6 +1,6 @@
-/* Copyright (c) 2012-2013 LevelUP contributors
- * See list at <https://github.com/rvagg/node-levelup#contributing>
- * MIT +no-false-attribs License <https://github.com/rvagg/node-levelup/blob/master/LICENSE>
+/* Copyright (c) 2012-2013 LevelDOWN contributors
+ * See list at <https://github.com/rvagg/node-leveldown#contributing>
+ * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
 var ba      = require('buster').assertions
@@ -8,7 +8,7 @@ var ba      = require('buster').assertions
   , rimraf  = require('rimraf')
   , fs      = require('fs')
   , path    = require('path')
-  , levelup = require('../lib/levelup.js')
+  , leveldown = require('../lib/leveldown.js')
   , child_process = require('child_process')
   , dbidx   = 0
 
@@ -35,7 +35,7 @@ ba.add('isUndefined', {
 })
 
 module.exports.nextLocation = function () {
-  return path.join(__dirname, 'levelup_test_db_' + dbidx++)
+  return path.join(__dirname, 'leveldown_test_db_' + dbidx++)
 }
 
 module.exports.openTestDatabase = function () {
@@ -46,7 +46,7 @@ module.exports.openTestDatabase = function () {
   rimraf(location, function (err) {
     refute(err)
     this.cleanupDirs.push(location)
-    levelup(location, options, function (err, db) {
+    leveldown(location, options, function (err, db) {
       refute(err)
       if (!err) {
         this.closeableDatabases.push(db)

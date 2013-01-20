@@ -1,6 +1,6 @@
-/* Copyright (c) 2012-2013 LevelUP contributors
- * See list at <https://github.com/rvagg/node-levelup#contributing>
- * MIT +no-false-attribs License <https://github.com/rvagg/node-levelup/blob/master/LICENSE>
+/* Copyright (c) 2012-2013 LevelDOWN contributors
+ * See list at <https://github.com/rvagg/node-leveldown#contributing>
+ * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
 #ifndef LU_ITERATOR_ASYNC_H
@@ -19,7 +19,7 @@ using namespace leveldb;
 class NextWorker : public AsyncWorker {
 public:
   NextWorker (
-      levelup::Iterator* iterator
+      leveldown::Iterator* iterator
     , Persistent<Function> dataCallback
     , Persistent<Function> endCallback
   );
@@ -29,7 +29,7 @@ public:
   virtual void HandleOKCallback ();
 
 private:
-  levelup::Iterator* iterator;
+  leveldown::Iterator* iterator;
   Persistent<Function> endCallback;
   string key;
   string value;
@@ -39,7 +39,7 @@ private:
 class EndWorker : public AsyncWorker {
 public:
   EndWorker (
-      levelup::Iterator* iterator
+      leveldown::Iterator* iterator
     , Persistent<Function> endCallback
   );
 
@@ -47,7 +47,7 @@ public:
   virtual void Execute ();
 
 private:
-  levelup::Iterator* iterator;
+  leveldown::Iterator* iterator;
 };
 
 #endif
