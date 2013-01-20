@@ -149,9 +149,7 @@ Handle<Value> Database::Close (const Arguments& args) {
   HandleScope scope;
 
   Database* database = ObjectWrap::Unwrap<Database>(args.This());
-  Persistent<Function> callback;
-  if (args.Length() > 0)
-    callback = Persistent<Function>::New(Local<Function>::Cast(args[0]));
+  Persistent<Function> callback = Persistent<Function>::New(Local<Function>::Cast(args[0]));
 
   CloseWorker* worker = new CloseWorker(database, callback);
   AsyncQueueWorker(worker);
