@@ -19,8 +19,8 @@ The other major priority for API-change will be to make it as easy and natural t
 <a name="api"></a>
 ## API
 
-  * <a href="#createDatabase"><code><b>createDatabase()</b></code></a>
-  * <a href="#createIterator"><code><b>createIterator()</b></code></a>
+  * <a href="#ctor"><code><b>leveldown()</b></code></a>
+  * <a href="#iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#leveldown_open"><code><b>leveldown#open()</b></code></a>
   * <a href="#leveldown_close"><code><b>leveldown#close()</b></code></a>
   * <a href="#leveldown_put"><code><b>leveldown#put()</b></code></a>
@@ -33,14 +33,14 @@ The other major priority for API-change will be to make it as easy and natural t
 
 
 --------------------------------------------------------
-<a name="createDatabase"></a>
-### leveldown.createDatabase()
-<code>createDatabase()</code> returns a new **LevelDOWN** instance.
+<a name="ctor"></a>
+### leveldown()
+<code>leveldown()</code> returns a new **LevelDOWN** instance. It must first be <a href="#leveldown_open">opened</a> before it can be used.
 
 --------------------------------------------------------
-<a name="createIterator"></a>
-### leveldown.createIterator(database, options)
-<code>createIterator()</code> returns a new **Iterator** instance for the given `database` instance. Both arguments are required.
+<a name="iterator"></a>
+### leveldown.iterator(options)
+<code>iterator()</code> returns a new **Iterator** instance for the current LevelDOWN instance. Both arguments are required.
 
 #### `options`
 
@@ -185,8 +185,8 @@ The `endCallback` function will be called with no arguments in any of the follow
 Otherwise, `nextCallback` will be called with the following 3 arguments:
 
 * `null`
-* `key` - either a `String` or a Node.js `Buffer` object depending on the `keyAsBuffer` argument when the `createIterator()` was called.
-* `value` - either a `String` or a Node.js `Buffer` object depending on the `valueAsBuffer` argument when the `createIterator()` was called.
+* `key` - either a `String` or a Node.js `Buffer` object depending on the `keyAsBuffer` argument when the `iterator()` was called.
+* `value` - either a `String` or a Node.js `Buffer` object depending on the `valueAsBuffer` argument when the `iterator()` was called.
 
 Both `endCallback` and `nextCallback` arguments are required.
 
