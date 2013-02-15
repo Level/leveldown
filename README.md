@@ -70,6 +70,8 @@ The `options` object may contain:
 ### leveldown#open(location, options, callback)
 <code>open()</code> is an instance method on an existing database object. `location` is a String pointing to the LevelDB location to be opened.
 
+The `location` argument is available as a read-only property on the returned LevelUP instance.
+
 #### `options`
 
 The `options` object may contain:
