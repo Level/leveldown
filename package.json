@@ -25,16 +25,15 @@
         "bindings"        : "~1.0.0"
     }
   , "devDependencies" : {
-        "buster"          : "*"
+        "tap"             : "*"
+      , "rimraf"          : "*"
     }
   , "repository"      : {
         "type"            : "git"
       , "url"             : "https://github.com/rvagg/node-leveldown.git"
     }
   , "scripts"         : {
-        "test"            : "buster-test"
-      , "functionaltests" : "node ./test/functional/fstream-test.js && node ./test/functional/binary-data-test.js && node ./test/functional/compat-test.js"
-      , "alltests"        : "npm test && npm run-script functionaltests"
+        "test"            : "tap test/*-test.js"
     }
   , "license"         : "MIT"
   , "gypfile"         : true

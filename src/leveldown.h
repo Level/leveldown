@@ -24,6 +24,14 @@
     return Undefined(); \
   }
 
+#define FROM_V8_STRING(to, from) \
+  size_t to ## Sz_; \
+  char* to; \
+  Local<String> to ## Str = from->ToString(); \
+  to ## Sz_ = to ## Str->Utf8Length(); \
+  to = new char[to ## Sz_ + 1]; \
+  to ## Str->WriteUtf8(to, -1, NULL, String::NO_OPTIONS);
+
 #define STRING_OR_BUFFER_TO_SLICE(to, from) \
   size_t to ## Sz_; \
   char* to ## Ch_; \
@@ -39,11 +47,62 @@
   Slice to(to ## Ch_, to ## Sz_);
 
 #define BOOLEAN_OPTION_VALUE(optionsObj, opt) \
-  bool opt = optionsObj->Has(option_ ## opt) && optionsObj->Get(option_ ## opt)->BooleanValue();
+  bool opt = !optionsObj.IsEmpty() \
+    && optionsObj->Has(option_ ## opt) \
+    && optionsObj->Get(option_ ## opt)->BooleanValue();
+
 #define BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, opt) \
-  bool opt = !optionsObj->Has(option_ ## opt) || optionsObj->Get(option_ ## opt)->BooleanValue();
+  bool opt = optionsObj.IsEmpty() \
+    || !optionsObj->Has(option_ ## opt) \
+    || optionsObj->Get(option_ ## opt)->BooleanValue();
+
 #define UINT32_OPTION_VALUE(optionsObj, opt, default) \
-  uint32_t opt = optionsObj->Has(option_ ## opt) && optionsObj->Get(option_ ## opt)->IsUint32() ? optionsObj->Get(option_ ## opt)->Uint32Value() : default;
+  uint32_t opt = !optionsObj.IsEmpty() \
+    && optionsObj->Has(option_ ## opt) \
+    && optionsObj->Get(option_ ## opt)->IsUint32() \
+      ? optionsObj->Get(option_ ## opt)->Uint32Value() \
+      : default;
+
+#define RUN_CALLBACK(callback, length, argv) \
+  TryCatch try_catch; \
+  callback->Call(Context::GetCurrent()->Global(), length, argv); \
+  if (try_catch.HasCaught()) { \
+    FatalException(try_catch); \
+  }
+
+#define THROW_RETURN(msg) \
+  ThrowException(Exception::Error(String::New(#msg))); \
+  return Undefined();
+
+/* METHOD_SETUP_COMMON setup the following objects:
+ *  - Database* database
+ *  - Local<Object> optionsObj (may be empty)
+ *  - Persistent<Function> callback (won't be empty)
+ * Will THROW_RETURN if there isn't a callback in arg 0 or 1
+ */
+#define METHOD_SETUP_COMMON(name, optionPos, callbackPos) \
+  if (args.Length() == 0) { \
+    THROW_RETURN(name() requires a callback argument 2) \
+  } \
+  Database* database = ObjectWrap::Unwrap<Database>(args.This()); \
+  Local<Object> optionsObj; \
+  Persistent<Function> callback; \
+  if (optionPos == -1) { \
+    callback = Persistent<Function>::New(Local<Function>::Cast(args[callbackPos])); \
+  } else if (args[callbackPos - 1]->IsFunction()) { \
+    callback = Persistent<Function>::New(Local<Function>::Cast(args[callbackPos - 1])); \
+  } else if (args[optionPos]->IsObject()) { \
+    optionsObj = Local<Object>::Cast(args[optionPos]); \
+    callback = Persistent<Function>::New(Local<Function>::Cast(args[callbackPos])); \
+  } else { \
+    THROW_RETURN(name() requires a callback argument 3) \
+  }
+
+#define METHOD_SETUP_COMMON_ONEARG(name) \
+  if (!args[0]->IsFunction()) { \
+    THROW_RETURN(name() requires a callback argument 1) \
+  } \
+  METHOD_SETUP_COMMON(name, -1, 0)
 
 void RunCallback (v8::Persistent<v8::Function> callback, v8::Local<v8::Value> argv[], int length);
 

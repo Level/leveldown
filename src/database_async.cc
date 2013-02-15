@@ -26,13 +26,11 @@ using namespace leveldb;
 OpenWorker::OpenWorker (
     Database* database
   , Persistent<Function> callback
-  , string location
   , bool createIfMissing
   , bool errorIfExists
   , bool compression
   , uint32_t cacheSize
 ) : AsyncWorker(database, callback)
-  , location(location)
 {
   options = new Options();
   options->create_if_missing = createIfMissing;
@@ -46,7 +44,7 @@ OpenWorker::~OpenWorker () {
 }
 
 void OpenWorker::Execute () {
-  status = database->OpenDatabase(options, location);
+  status = database->OpenDatabase(options, database->Location());
 }
 
 /** CLOSE WORKER **/

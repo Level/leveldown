@@ -22,7 +22,6 @@ public:
   OpenWorker (
       Database* database
     , Persistent<Function> callback
-    , string location
     , bool createIfMissing
     , bool errorIfExists
     , bool compression
@@ -33,7 +32,6 @@ public:
   virtual void Execute ();
 
 private:
-  string location;
   Options* options;
 };
 

@@ -1,6 +1,7 @@
 /* Copyright (c) 2012-2013 LevelDOWN contributors
  * See list at <https://github.com/rvagg/node-leveldown#contributing>
- * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
+ * MIT +no-false-attribs License
+ * <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
 #include <cstdlib>
@@ -24,7 +25,7 @@ using namespace v8;
 using namespace node;
 using namespace leveldb;
 
-Database::Database () {
+Database::Database (char* location) : location(location) {
   db = NULL;
 };
 
@@ -32,6 +33,8 @@ Database::~Database () {
   if (db != NULL)
     delete db;
 };
+
+const char* Database::Location() const { return location; }
 
 /* Calls from worker threads, NO V8 HERE *****************************/
 
@@ -43,7 +46,8 @@ Status Database::PutToDatabase (WriteOptions* options, Slice key, Slice value) {
   return db->Put(*options, key, value);
 }
 
-Status Database::GetFromDatabase (ReadOptions* options, Slice key, string& value) {
+Status Database::GetFromDatabase
+    (ReadOptions* options, Slice key, string& value) {
   return db->Get(*options, key, &value);
 }
 
@@ -51,7 +55,8 @@ Status Database::DeleteFromDatabase (WriteOptions* options, Slice key) {
   return db->Delete(*options, key);
 }
 
-Status Database::WriteBatchToDatabase (WriteOptions* options, WriteBatch* batch) {
+Status Database::WriteBatchToDatabase
+    (WriteOptions* options, WriteBatch* batch) {
   return db->Write(*options, batch);
 }
 
@@ -82,7 +87,7 @@ void Database::CloseDatabase () {
 
 Persistent<Function> Database::constructor;
 
-Handle<Value> CreateDatabase (const Arguments& args) {
+Handle<Value> LevelDOWN (const Arguments& args) {
   HandleScope scope;
   return scope.Close(Database::NewInstance(args));
 }
@@ -91,20 +96,37 @@ void Database::Init () {
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
   tpl->SetClassName(String::NewSymbol("Database"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("open")     , FunctionTemplate::New(Open)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("close")    , FunctionTemplate::New(Close)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("put")      , FunctionTemplate::New(Put)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("get")      , FunctionTemplate::New(Get)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("del")      , FunctionTemplate::New(Delete)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("batch")    , FunctionTemplate::New(Batch)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("approximateSize"), FunctionTemplate::New(ApproximateSize)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("open")
+      , FunctionTemplate::New(Open)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("close")
+      , FunctionTemplate::New(Close)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("put")
+      , FunctionTemplate::New(Put)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("get")
+      , FunctionTemplate::New(Get)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("del")
+      , FunctionTemplate::New(Delete)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("batch")
+      , FunctionTemplate::New(Batch)->GetFunction());
+  tpl->PrototypeTemplate()->Set(String::NewSymbol("approximateSize")
+      , FunctionTemplate::New(ApproximateSize)->GetFunction());
   constructor = Persistent<Function>::New(tpl->GetFunction());
 }
 
 Handle<Value> Database::New (const Arguments& args) {
   HandleScope scope;
 
-  Database* obj = new Database();
+  if (args.Length() == 0) {
+    THROW_RETURN("leveldown() requires at least a location argument")
+  }
+
+  if (!args[0]->IsString()) {
+    THROW_RETURN("leveldown() requires a location string argument")
+  }
+
+  FROM_V8_STRING(location, Handle<String>::Cast(args[0]))
+
+  Database* obj = new Database(location);
   obj->Wrap(args.This());
 
   return args.This();
@@ -113,8 +135,11 @@ Handle<Value> Database::New (const Arguments& args) {
 Handle<Value> Database::NewInstance (const Arguments& args) {
   HandleScope scope;
 
-  Handle<Value> argv[0];
-  Local<Object> instance = constructor->NewInstance(0, argv);
+  Handle<Value> argv[args.Length()];
+  for (int i = 0; i < args.Length(); i++)
+    argv[i] = args[i];
+
+  Local<Object> instance = constructor->NewInstance(args.Length(), argv);
 
   return scope.Close(instance);
 }
@@ -122,24 +147,22 @@ Handle<Value> Database::NewInstance (const Arguments& args) {
 Handle<Value> Database::Open (const Arguments& args) {
   HandleScope scope;
 
-  Database* database = ObjectWrap::Unwrap<Database>(args.This());
-  String::Utf8Value location(args[0]->ToString());
-  Local<Object> optionsObj = Local<Object>::Cast(args[1]);
-  BOOLEAN_OPTION_VALUE(optionsObj, createIfMissing)
+  METHOD_SETUP_COMMON(open, 0, 1)
+
+  BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, createIfMissing)
   BOOLEAN_OPTION_VALUE(optionsObj, errorIfExists)
   BOOLEAN_OPTION_VALUE(optionsObj, compression)
   UINT32_OPTION_VALUE(optionsObj, cacheSize, 8 << 20)
-  Persistent<Function> callback = Persistent<Function>::New(Local<Function>::Cast(args[2]));
 
   OpenWorker* worker = new OpenWorker(
       database
     , callback
-    , *location
     , createIfMissing
     , errorIfExists
     , compression
     , cacheSize
   );
+
   AsyncQueueWorker(worker);
 
   return Undefined();
@@ -148,8 +171,7 @@ Handle<Value> Database::Open (const Arguments& args) {
 Handle<Value> Database::Close (const Arguments& args) {
   HandleScope scope;
 
-  Database* database = ObjectWrap::Unwrap<Database>(args.This());
-  Persistent<Function> callback = Persistent<Function>::New(Local<Function>::Cast(args[0]));
+  METHOD_SETUP_COMMON_ONEARG(close)
 
   CloseWorker* worker = new CloseWorker(database, callback);
   AsyncQueueWorker(worker);
@@ -161,7 +183,8 @@ Handle<Value> Database::Put (const Arguments& args) {
   HandleScope scope;
 
   Database* database = ObjectWrap::Unwrap<Database>(args.This());
-  Persistent<Function> callback = Persistent<Function>::New(Local<Function>::Cast(args[3]));
+  Persistent<Function> callback =
+      Persistent<Function>::New(Local<Function>::Cast(args[3]));
 
   CB_ERR_IF_NULL_OR_UNDEFINED(0, "Key")
   CB_ERR_IF_NULL_OR_UNDEFINED(1, "Value")
@@ -191,7 +214,8 @@ Handle<Value> Database::Get (const Arguments& args) {
   HandleScope scope;
 
   Database* database = ObjectWrap::Unwrap<Database>(args.This());
-  Persistent<Function> callback = Persistent<Function>::New(Local<Function>::Cast(args[2]));
+  Persistent<Function> callback =
+      Persistent<Function>::New(Local<Function>::Cast(args[2]));
 
   CB_ERR_IF_NULL_OR_UNDEFINED(0, "Key")
 
@@ -218,7 +242,8 @@ Handle<Value> Database::Delete (const Arguments& args) {
   HandleScope scope;
 
   Database* database = ObjectWrap::Unwrap<Database>(args.This());
-  Persistent<Function> callback = Persistent<Function>::New(Local<Function>::Cast(args[2]));
+  Persistent<Function> callback =
+      Persistent<Function>::New(Local<Function>::Cast(args[2]));
 
   CB_ERR_IF_NULL_OR_UNDEFINED(0, "Key")
 
@@ -246,7 +271,8 @@ Handle<Value> Database::Batch (const Arguments& args) {
   Local<Array> array = Local<Array>::Cast(args[0]);
   Local<Object> optionsObj = Local<Object>::Cast(args[1]);
   BOOLEAN_OPTION_VALUE(optionsObj, sync)
-  Persistent<Function> callback = Persistent<Function>::New(Local<Function>::Cast(args[2]));
+  Persistent<Function> callback =
+      Persistent<Function>::New(Local<Function>::Cast(args[2]));
 
   vector<BatchOp*>* operations = new vector<BatchOp*>;
   for (unsigned int i = 0; i < array->Length(); i++) {
@@ -261,14 +287,23 @@ Handle<Value> Database::Batch (const Arguments& args) {
 
     if (obj->Get(str_type)->StrictEquals(str_del)) {
       STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
-      operations->push_back(new BatchDelete(key, Persistent<Value>::New(keyBuffer)));
-    } else if (obj->Get(str_type)->StrictEquals(str_put) && obj->Has(str_value)) {
+      operations->push_back(new BatchDelete(
+          key
+        , Persistent<Value>::New(keyBuffer)
+      ));
+    } else if (obj->Get(str_type)->StrictEquals(str_put)
+        && obj->Has(str_value)) {
       if (!obj->Has(str_value))
         continue;
       Local<Value> valueBuffer = obj->Get(str_value);
       STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
       STRING_OR_BUFFER_TO_SLICE(value, valueBuffer)
-      operations->push_back(new BatchWrite(key, value, Persistent<Value>::New(keyBuffer), Persistent<Value>::New(valueBuffer)));
+      operations->push_back(new BatchWrite(
+          key
+        , value
+        , Persistent<Value>::New(keyBuffer)
+        , Persistent<Value>::New(valueBuffer)
+      ));
     }
   }
 
@@ -286,7 +321,8 @@ Handle<Value> Database::ApproximateSize (const Arguments& args) {
   HandleScope scope;
 
   Database* database = ObjectWrap::Unwrap<Database>(args.This());
-  Persistent<Function> callback = Persistent<Function>::New(Local<Function>::Cast(args[2]));
+  Persistent<Function> callback =
+      Persistent<Function>::New(Local<Function>::Cast(args[2]));
 
   CB_ERR_IF_NULL_OR_UNDEFINED(0, "start")
   CB_ERR_IF_NULL_OR_UNDEFINED(1, "end")

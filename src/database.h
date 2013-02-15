@@ -32,7 +32,7 @@ LU_STR    ( put   );
 
 struct AsyncDescriptor;
 
-Handle<Value> CreateDatabase (const Arguments& args);
+Handle<Value> LevelDOWN (const Arguments& args);
 
 class Database : public node::ObjectWrap {
 public:
@@ -49,12 +49,14 @@ public:
   const leveldb::Snapshot* NewSnapshot ();
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
   void CloseDatabase ();
+  const char* Location() const;
 
 private:
-  Database ();
+  Database (char* location);
   ~Database ();
 
   DB* db;
+  char* location;
 
   static v8::Persistent<v8::Function> constructor;
 

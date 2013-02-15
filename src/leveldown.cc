@@ -17,15 +17,21 @@ void Init (Handle<Object> target) {
   Database::Init();
   leveldown::Iterator::Init();
 
-  target->Set(String::NewSymbol("createDatabase"), FunctionTemplate::New(CreateDatabase)->GetFunction());
-  target->Set(String::NewSymbol("createIterator"), FunctionTemplate::New(CreateIterator)->GetFunction());
+  target->Set(String::NewSymbol("leveldown")
+      , FunctionTemplate::New(LevelDOWN)->GetFunction());
+  target->Set(String::NewSymbol("createIterator")
+      , FunctionTemplate::New(CreateIterator)->GetFunction());
 }
 
 NODE_MODULE(leveldown, Init)
 
 // util
 
-void RunCallback (Persistent<Function> callback, Local<Value> argv[], int length) {
+void RunCallback (
+      Persistent<Function> callback
+    , Local<Value> argv[]
+    , int length) {
+
   TryCatch try_catch;
  
   callback->Call(Context::GetCurrent()->Global(), length, argv);
