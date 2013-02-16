@@ -14,7 +14,7 @@
 #include "async.h"
 #include "batch.h"
 
-namespace levelup {
+namespace leveldown {
 
 class OpenWorker : public AsyncWorker {
 public:
@@ -162,6 +162,6 @@ public:
     uint64_t size;
 };
 
-} // namespace levelup
+} // namespace leveldown
 
 #endif

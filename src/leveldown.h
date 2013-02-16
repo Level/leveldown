@@ -20,7 +20,7 @@
 #define CB_ERR_IF_NULL_OR_UNDEFINED(index, name) \
   if (args[index]->IsNull() || args[index]->IsUndefined()) { \
     v8::Local<v8::Value> argv[] = { \
-      v8::Local<v8::Value>::New(Exception::Error( \
+      v8::Local<v8::Value>::New(v8::Exception::Error( \
         v8::String::New("#name cannot be `null` or `undefined`")) \
       ) \
     }; \
@@ -31,7 +31,7 @@
 #define FROM_V8_STRING(to, from) \
   size_t to ## Sz_; \
   char* to; \
-  v8::Local<v8::String> to ## Str = from->Tov8::String(); \
+  v8::Local<v8::String> to ## Str = from->ToString(); \
   to ## Sz_ = to ## Str->Utf8Length(); \
   to = new char[to ## Sz_ + 1]; \
   to ## Str->WriteUtf8(to, -1, NULL, v8::String::NO_OPTIONS);
@@ -39,11 +39,11 @@
 #define STRING_OR_BUFFER_TO_SLICE(to, from) \
   size_t to ## Sz_; \
   char* to ## Ch_; \
-  if (Buffer::HasInstance(from->ToObject())) { \
-    to ## Sz_ = Buffer::Length(from->ToObject()); \
-    to ## Ch_ = Buffer::Data(from->ToObject()); \
+  if (node::Buffer::HasInstance(from->ToObject())) { \
+    to ## Sz_ = node::Buffer::Length(from->ToObject()); \
+    to ## Ch_ = node::Buffer::Data(from->ToObject()); \
   } else { \
-    v8::Local<v8::String> to ## Str = from->Tov8::String(); \
+    v8::Local<v8::String> to ## Str = from->ToString(); \
     to ## Sz_ = to ## Str->Utf8Length(); \
     to ## Ch_ = new char[to ## Sz_]; \
     to ## Str->WriteUtf8(to ## Ch_, -1, NULL, v8::String::NO_NULL_TERMINATION); \
@@ -53,12 +53,12 @@
 #define BOOLEAN_OPTION_VALUE(optionsObj, opt) \
   bool opt = !optionsObj.IsEmpty() \
     && optionsObj->Has(option_ ## opt) \
-    && optionsObj->Get(option_ ## opt)->Booleanv8::Value();
+    && optionsObj->Get(option_ ## opt)->BooleanValue();
 
 #define BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, opt) \
   bool opt = optionsObj.IsEmpty() \
     || !optionsObj->Has(option_ ## opt) \
-    || optionsObj->Get(option_ ## opt)->Booleanv8::Value();
+    || optionsObj->Get(option_ ## opt)->BooleanValue();
 
 #define UINT32_OPTION_VALUE(optionsObj, opt, default) \
   uint32_t opt = !optionsObj.IsEmpty() \
@@ -68,14 +68,14 @@
       : default;
 
 #define RUN_CALLBACK(callback, argv, length) \
-  TryCatch try_catch; \
-  callback->Call(Context::GetCurrent()->Global(), length, argv); \
+  v8::TryCatch try_catch; \
+  callback->Call(v8::Context::GetCurrent()->Global(), length, argv); \
   if (try_catch.HasCaught()) { \
-    FatalException(try_catch); \
+    node::FatalException(try_catch); \
   }
 
 #define THROW_RETURN(msg) \
-  ThrowException(Exception::Error(v8::String::New(#msg))); \
+  v8::ThrowException(v8::Exception::Error(v8::String::New(#msg))); \
   return Undefined();
 
 /* METHOD_SETUP_COMMON setup the following objects:
@@ -95,7 +95,7 @@
     callback = v8::Persistent<v8::Function>::New( \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
     ); \
-  } else if (args[callbackPos - 1]->Isv8::Function()) { \
+  } else if (args[callbackPos - 1]->IsFunction()) { \
     callback = v8::Persistent<v8::Function>::New( \
       v8::Local<v8::Function>::Cast(args[callbackPos - 1]) \
     ); \
@@ -109,7 +109,7 @@
   }
 
 #define METHOD_SETUP_COMMON_ONEARG(name) \
-  if (!args[0]->Isv8::Function()) { \
+  if (!args[0]->IsFunction()) { \
     THROW_RETURN(name() requires a callback argument 1) \
   } \
   METHOD_SETUP_COMMON(name, -1, 0)

@@ -16,7 +16,7 @@
 #include "batch.h"
 #include "iterator.h"
 
-namespace levelup {
+namespace leveldown {
 
 Database::Database (char* location) : location(location) {
   db = NULL;
@@ -352,4 +352,4 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   return v8::Undefined();
 }
 
-} // namespace LevelUP
+} // namespace leveldown

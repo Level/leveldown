@@ -12,7 +12,7 @@
 #include "database_async.h"
 #include "batch.h"
 
-namespace levelup {
+namespace leveldown {
 
 /** OPEN WORKER **/
 
@@ -235,4 +235,4 @@ void ApproximateSizeWorker::HandleOKCallback () {
   RUN_CALLBACK(callback, argv, 2);
 }
 
-} // namespleveldb::ace LevelUP
+} // namespace leveldown

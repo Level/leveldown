@@ -10,7 +10,7 @@
 
 #include "database.h"
 
-namespace levelup {
+namespace leveldown {
 
 class BatchOp {
 public:
@@ -57,6 +57,6 @@ private:
   v8::Persistent<v8::Value> valuePtr;
 };
 
-} // namespace levelup
+} // namespace leveldown
 
 #endif

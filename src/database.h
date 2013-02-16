@@ -12,7 +12,7 @@
 
 #include "leveldown.h"
 
-namespace levelup {
+namespace leveldown {
 
 LU_OPTION ( createIfMissing ); // for open()
 LU_OPTION ( errorIfExists   ); // for open()
@@ -81,6 +81,6 @@ private:
   LU_V8_METHOD( ApproximateSize)
 };
 
-} // namespace levelup
+} // namespace leveldown
 
 #endif
