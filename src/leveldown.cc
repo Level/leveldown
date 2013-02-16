@@ -9,9 +9,9 @@
 #include "database.h"
 #include "iterator.h"
 
-namespace levelup {
+namespace leveldown {
 
-void Init (Handle<Object> target) {
+void Init (v8::Handle<v8::Object> target) {
   Database::Init();
   leveldown::Iterator::Init();
 
@@ -23,4 +23,4 @@ void Init (Handle<Object> target) {
 
 NODE_MODULE(leveldown, Init)
 
-} // namespace levelup
+} // namespace leveldown

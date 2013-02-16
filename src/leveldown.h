@@ -25,7 +25,7 @@
       ) \
     }; \
     RUN_CALLBACK(callback, argv, 1); \
-    return Undefined(); \
+    return v8::Undefined(); \
   }
 
 #define FROM_V8_STRING(to, from) \
@@ -48,7 +48,7 @@
     to ## Ch_ = new char[to ## Sz_]; \
     to ## Str->WriteUtf8(to ## Ch_, -1, NULL, v8::String::NO_NULL_TERMINATION); \
   } \
-  Slice to(to ## Ch_, to ## Sz_);
+  leveldb::Slice to(to ## Ch_, to ## Sz_);
 
 #define BOOLEAN_OPTION_VALUE(optionsObj, opt) \
   bool opt = !optionsObj.IsEmpty() \
@@ -64,7 +64,7 @@
   uint32_t opt = !optionsObj.IsEmpty() \
     && optionsObj->Has(option_ ## opt) \
     && optionsObj->Get(option_ ## opt)->IsUint32() \
-      ? optionsObj->Get(option_ ## opt)->Uint32v8::Value() \
+      ? optionsObj->Get(option_ ## opt)->Uint32Value() \
       : default;
 
 #define RUN_CALLBACK(callback, argv, length) \
@@ -76,11 +76,11 @@
 
 #define THROW_RETURN(msg) \
   v8::ThrowException(v8::Exception::Error(v8::String::New(#msg))); \
-  return Undefined();
+  return v8::Undefined();
 
 /* METHOD_SETUP_COMMON setup the following objects:
  *  - Database* database
- *  - v8::Local<Object> optionsObj (may be empty)
+ *  - v8::Local<v8::Object> optionsObj (may be empty)
  *  - v8::Persistent<v8::Function> callback (won't be empty)
  * Will THROW_RETURN if there isn't a callback in arg 0 or 1
  */
@@ -89,7 +89,7 @@
     THROW_RETURN(name() requires a callback argument 2) \
   } \
   Database* database = ObjectWrap::Unwrap<Database>(args.This()); \
-  v8::Local<Object> optionsObj; \
+  v8::Local<v8::Object> optionsObj; \
   v8::Persistent<v8::Function> callback; \
   if (optionPos == -1) { \
     callback = v8::Persistent<v8::Function>::New( \
@@ -100,7 +100,7 @@
       v8::Local<v8::Function>::Cast(args[callbackPos - 1]) \
     ); \
   } else if (args[optionPos]->IsObject()) { \
-    optionsObj = v8::Local<Object>::Cast(args[optionPos]); \
+    optionsObj = v8::Local<v8::Object>::Cast(args[optionPos]); \
     callback = v8::Persistent<v8::Function>::New( \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
     ); \

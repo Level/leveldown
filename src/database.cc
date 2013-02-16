@@ -95,7 +95,7 @@ void Database::CloseDatabase () {
 
 v8::Persistent<v8::Function> Database::constructor;
 
-v8::Handle<v8::Value> CreateDatabase (const v8::Arguments& args) {
+v8::Handle<v8::Value> LevelDOWN (const v8::Arguments& args) {
   v8::HandleScope scope;
   return scope.Close(Database::NewInstance(args));
 }
@@ -146,7 +146,7 @@ v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
     THROW_RETURN("leveldown() requires a location string argument")
   }
 
-  FROM_V8_STRING(location, Handle<String>::Cast(args[0]))
+  FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
 
   Database* obj = new Database(location);
   obj->Wrap(args.This());
@@ -264,9 +264,9 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  Database* database = ObjectWrap::Unwrap<Database>(args.This());
-  Persistent<Function> callback =
-      Persistent<Function>::New(Local<Function>::Cast(args[2]));
+  Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
+  v8::Persistent<v8::Function> callback =
+      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[2]));
 
   CB_ERR_IF_NULL_OR_UNDEFINED(0, "Key")
 
