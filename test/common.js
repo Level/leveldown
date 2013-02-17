@@ -20,10 +20,10 @@ var dbidx = 0
           return (/^_leveldown_test_db_/).test(f)
         })
 
-        var ret = 0
-
         if (!list.length)
           return callback()
+
+        var ret = 0
 
         list.forEach(function (f) {
           rimraf(f, function () {

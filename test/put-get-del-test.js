@@ -11,7 +11,7 @@ const fs         = require('fs')
 var db
 
   , makeGetDelErrorTests = function (type, key, expectedError) {
-      test('get() with ' + type + ' causes error', function (t) {
+      test('test get() with ' + type + ' causes error', function (t) {
         db.get(key, function (err) {
           t.ok(err, 'has error')
           t.type(err, Error)
@@ -20,7 +20,7 @@ var db
         })
       })
 
-      test('del() with ' + type + ' causes error', function (t) {
+      test('test del() with ' + type + ' causes error', function (t) {
         db.del(key, function (err) {
           t.ok(err, 'has error')
           t.type(err, Error)
@@ -31,7 +31,7 @@ var db
     }
 
   , makePutErrorTest = function (type, key, value, expectedError) {
-      test('put() with ' + type + ' causes error', function (t) {
+      test('test put() with ' + type + ' causes error', function (t) {
         db.put(key, value, function (err) {
           t.ok(err, 'has error')
           t.type(err, Error)
@@ -42,7 +42,7 @@ var db
     }
 
   , makePutGetDelSuccessfulTest = function (type, key, value) {
-      test('put()/get()/del() with ' + type, function (t) {
+      test('test put()/get()/del() with ' + type, function (t) {
         db.put(key, value, function (err) {
           t.notOk(err, 'no error')
           db.get(key, function (err, _value) {
@@ -69,9 +69,8 @@ var db
 /**** SETUP ENVIRONMENT ****/
 
 test('setUp', function (t) {
-  testCommon.setUp.apply(null, arguments)
   db = leveldown(testCommon.location())
-  db.open(t.end.bind(t))
+  db.open(testCommon.setUp.bind(null, t))
 })
 
 /**** TEST ERROR KEYS ****/
@@ -131,6 +130,5 @@ makePutGetDelSuccessfulTest('Array value', [1,2,3,4], 'foo')
 /**** CLEANUP ENVIRONMENT ****/
 
 test('tearDown', function (t) {
-  testCommon.tearDown.apply(null, arguments)
-  db.close(t.end.bind(t))
+  db.close(testCommon.tearDown.bind(null, t))
 })

@@ -10,6 +10,12 @@ test('test database open no-arg throws', function (t) {
   t.end()
 })
 
+test('test callback-less, 1-arg, open() throws', function (t) {
+  var db = leveldown(testCommon.location())
+  t.throws(db.open.bind(db, {}), 'callback-less, 1-arg open() throws')
+  t.end()
+})
+
 test('test database open', function (t) {
   var db = leveldown(testCommon.location())
 

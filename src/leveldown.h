@@ -104,7 +104,7 @@
  */
 #define METHOD_SETUP_COMMON(name, optionPos, callbackPos) \
   if (args.Length() == 0) { \
-    THROW_RETURN(name() requires a callback argument 2) \
+    THROW_RETURN(name() requires a callback argument) \
   } \
   Database* database = ObjectWrap::Unwrap<Database>(args.This()); \
   v8::Local<v8::Object> optionsObj; \
@@ -117,18 +117,18 @@
     callback = v8::Persistent<v8::Function>::New( \
       v8::Local<v8::Function>::Cast(args[callbackPos - 1]) \
     ); \
-  } else if (args[optionPos]->IsObject()) { \
+  } else if (args[optionPos]->IsObject() && args[callbackPos]->IsFunction()) { \
     optionsObj = v8::Local<v8::Object>::Cast(args[optionPos]); \
     callback = v8::Persistent<v8::Function>::New( \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
     ); \
   } else { \
-    THROW_RETURN(name() requires a callback argument 3) \
+    THROW_RETURN(name() requires a callback argument) \
   }
 
 #define METHOD_SETUP_COMMON_ONEARG(name) \
   if (!args[0]->IsFunction()) { \
-    THROW_RETURN(name() requires a callback argument 1) \
+    THROW_RETURN(name() requires a callback argument) \
   } \
   METHOD_SETUP_COMMON(name, -1, 0)
 
