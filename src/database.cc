@@ -239,7 +239,6 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
   METHOD_SETUP_COMMON(put, 1, 2)
 
   CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
-  CB_ERR_IF_NULL_OR_UNDEFINED(1, Value)
 
   v8::Local<v8::Value> keyBufferV = args[0];
   STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
@@ -265,15 +264,15 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
-  v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[2]));
+  METHOD_SETUP_COMMON(put, 1, 2)
 
-  CB_ERR_IF_NULL_OR_UNDEFINED(0, "Key")
+  CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
 
-  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(args[0]);
-  STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
-  v8::Local<v8::Object> optionsObj = v8::Local<v8::Object>::Cast(args[1]);
+  v8::Local<v8::Value> keyBufferV = args[0];
+  STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
+
+  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
+
   BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
   DeleteWorker* worker = new DeleteWorker(
