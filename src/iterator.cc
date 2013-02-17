@@ -155,6 +155,9 @@ v8::Handle<v8::Value> Iterator::NewInstance (const v8::Arguments& args) {
 v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
   v8::HandleScope scope;
 
+  //TODO: remove this, it's only here to make STRING_OR_BUFFER_TO_SLICE happy
+  v8::Local<v8::Function> callback;
+
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
   leveldb::Slice* start = NULL;
   if (args[1]->ToObject()->Has(option_start)
@@ -162,7 +165,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
         || args[1]->ToObject()->Get(option_start)->IsString())) {
     v8::Local<v8::Value> startBuffer =
       v8::Local<v8::Value>::New(args[1]->ToObject()->Get(option_start));
-    STRING_OR_BUFFER_TO_SLICE(_start, startBuffer)
+    STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, Start)
     start = new leveldb::Slice(_start.data(), _start.size());
   }
   std::string* end = NULL;
@@ -171,7 +174,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
         || args[1]->ToObject()->Get(option_end)->IsString())) {
     v8::Local<v8::Value> endBuffer =
       v8::Local<v8::Value>::New(args[1]->ToObject()->Get(option_end));
-    STRING_OR_BUFFER_TO_SLICE(_end, endBuffer)
+    STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, End)
     end = new std::string(_end.data(), _end.size());
   }
   v8::Local<v8::Object> optionsObj = v8::Local<v8::Object>::Cast(args[1]);

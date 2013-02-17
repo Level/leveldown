@@ -21,7 +21,7 @@
   if (args[index]->IsNull() || args[index]->IsUndefined()) { \
     v8::Local<v8::Value> argv[] = { \
       v8::Local<v8::Value>::New(v8::Exception::Error( \
-        v8::String::New("#name cannot be `null` or `undefined`")) \
+        v8::String::New(#name " argument cannot be `null` or `undefined`")) \
       ) \
     }; \
     RUN_CALLBACK(callback, argv, 1); \
@@ -36,15 +36,33 @@
   to = new char[to ## Sz_ + 1]; \
   to ## Str->WriteUtf8(to, -1, NULL, v8::String::NO_OPTIONS);
 
-#define STRING_OR_BUFFER_TO_SLICE(to, from) \
+#define STRING_OR_BUFFER_TO_SLICE(to, from, name) \
   size_t to ## Sz_; \
   char* to ## Ch_; \
   if (node::Buffer::HasInstance(from->ToObject())) { \
     to ## Sz_ = node::Buffer::Length(from->ToObject()); \
+    if (to ## Sz_ == 0) { \
+      v8::Local<v8::Value> argv[] = { \
+        v8::Local<v8::Value>::New(v8::Exception::Error( \
+          v8::String::New(#name " argument cannot be an empty Buffer")) \
+        ) \
+      }; \
+      RUN_CALLBACK(callback, argv, 1); \
+      return v8::Undefined(); \
+    } \
     to ## Ch_ = node::Buffer::Data(from->ToObject()); \
   } else { \
     v8::Local<v8::String> to ## Str = from->ToString(); \
     to ## Sz_ = to ## Str->Utf8Length(); \
+    if (to ## Sz_ == 0) { \
+      v8::Local<v8::Value> argv[] = { \
+        v8::Local<v8::Value>::New(v8::Exception::Error( \
+          v8::String::New(#name " argument cannot be an empty String")) \
+        ) \
+      }; \
+      RUN_CALLBACK(callback, argv, 1); \
+      return v8::Undefined(); \
+    } \
     to ## Ch_ = new char[to ## Sz_]; \
     to ## Str->WriteUtf8(to ## Ch_, -1, NULL, v8::String::NO_NULL_TERMINATION); \
   } \

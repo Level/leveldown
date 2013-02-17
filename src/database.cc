@@ -205,18 +205,18 @@ v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
-  v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[3]));
+  METHOD_SETUP_COMMON(put, 2, 3)
 
-  CB_ERR_IF_NULL_OR_UNDEFINED(0, "Key")
-  CB_ERR_IF_NULL_OR_UNDEFINED(1, "Value")
+  CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
+  CB_ERR_IF_NULL_OR_UNDEFINED(1, Value)
 
-  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(args[0]);
-  STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
-  v8::Persistent<v8::Value> valueBuffer = v8::Persistent<v8::Value>::New(args[1]);
-  STRING_OR_BUFFER_TO_SLICE(value, valueBuffer)
-  v8::Local<v8::Object> optionsObj = v8::Local<v8::Object>::Cast(args[2]);
+  v8::Local<v8::Value> keyBufferV = args[0];
+  v8::Local<v8::Value> valueBufferV = args[1];
+  STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
+  STRING_OR_BUFFER_TO_SLICE(value, valueBufferV, Value)
+
+  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
+  v8::Persistent<v8::Value> valueBuffer = v8::Persistent<v8::Value>::New(valueBufferV);
   BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
   WriteWorker* worker  = new WriteWorker(
@@ -236,15 +236,16 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
-  v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[2]));
+  METHOD_SETUP_COMMON(put, 1, 2)
 
-  CB_ERR_IF_NULL_OR_UNDEFINED(0, "Key")
+  CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
+  CB_ERR_IF_NULL_OR_UNDEFINED(1, Value)
 
-  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(args[0]);
-  STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
-  v8::Local<v8::Object> optionsObj = v8::Local<v8::Object>::Cast(args[1]);
+  v8::Local<v8::Value> keyBufferV = args[0];
+  STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
+
+  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
+
   BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, asBuffer)
   BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, fillCache)
 
@@ -271,7 +272,7 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   CB_ERR_IF_NULL_OR_UNDEFINED(0, "Key")
 
   v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(args[0]);
-  STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
+  STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
   v8::Local<v8::Object> optionsObj = v8::Local<v8::Object>::Cast(args[1]);
   BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
@@ -309,7 +310,7 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
     v8::Local<v8::Value> keyBuffer = obj->Get(str_key);
 
     if (obj->Get(str_type)->StrictEquals(str_del)) {
-      STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
+      STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
       operations->push_back(new BatchDelete(
           key
         , v8::Persistent<v8::Value>::New(keyBuffer)
@@ -318,8 +319,8 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       if (!obj->Has(str_value))
         continue;
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
-      STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
-      STRING_OR_BUFFER_TO_SLICE(value, valueBuffer)
+      STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
+      STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, Value)
       operations->push_back(new BatchWrite(
           key
         , value
@@ -350,9 +351,9 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   CB_ERR_IF_NULL_OR_UNDEFINED(1, "end")
 
   v8::Persistent<v8::Value> startBuffer = v8::Persistent<v8::Value>::New(args[0]);
-  STRING_OR_BUFFER_TO_SLICE(start, startBuffer)
+  STRING_OR_BUFFER_TO_SLICE(start, startBuffer, Start)
   v8::Persistent<v8::Value> endBuffer = v8::Persistent<v8::Value>::New(args[1]);
-  STRING_OR_BUFFER_TO_SLICE(end, endBuffer)
+  STRING_OR_BUFFER_TO_SLICE(end, endBuffer, End)
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(
       database
