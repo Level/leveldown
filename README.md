@@ -19,7 +19,7 @@ The other major priority for API-change will be to make it as easy and natural t
 <a name="api"></a>
 ## API
 
-  * <a href="#createDatabase"><code><b>createDatabase()</b></code></a>
+  * <a href="#ctor"><code><b>leveldown()</b></code></a>
   * <a href="#createIterator"><code><b>createIterator()</b></code></a>
   * <a href="#leveldown_open"><code><b>leveldown#open()</b></code></a>
   * <a href="#leveldown_close"><code><b>leveldown#close()</b></code></a>
@@ -33,9 +33,11 @@ The other major priority for API-change will be to make it as easy and natural t
 
 
 --------------------------------------------------------
-<a name="createDatabase"></a>
-### leveldown.createDatabase()
-<code>createDatabase()</code> returns a new **LevelDOWN** instance.
+<a name="ctor"></a>
+### leveldown(location)
+<code>leveldown()</code> returns a new **LevelDOWN** instance. `location` is a String pointing to the LevelDB location to be opened.
+
+The `location` argument is available as a read-only property on the returned LevelUP instance.
 
 --------------------------------------------------------
 <a name="createIterator"></a>
@@ -67,10 +69,8 @@ The `options` object may contain:
 
 --------------------------------------------------------
 <a name="leveldown_open"></a>
-### leveldown#open(location, options, callback)
-<code>open()</code> is an instance method on an existing database object. `location` is a String pointing to the LevelDB location to be opened.
-
-The `location` argument is available as a read-only property on the returned LevelUP instance.
+### leveldown#open(options, callback)
+<code>open()</code> is an instance method on an existing database object.
 
 #### `options`
 
