@@ -32,13 +32,18 @@ test('test simple get()', function (t) {
       t.type(value, Buffer)
       t.equal(value.toString(), 'bar')
 
-      db.get('foo', { asBuffer: false }, function (err, value) {
+      db.get('foo', {}, function (err, value) { // same but with {}
         t.notOk(err, 'no error')
-        t.type(value, 'string')
-        t.equal(value, 'bar')
-        t.end()
-      })
+        t.type(value, Buffer)
+        t.equal(value.toString(), 'bar')
 
+        db.get('foo', { asBuffer: false }, function (err, value) {
+          t.notOk(err, 'no error')
+          t.type(value, 'string')
+          t.equal(value, 'bar')
+          t.end()
+        })
+      })
     })
   })
 })

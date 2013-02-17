@@ -290,12 +290,11 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
-  v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
-  v8::Local<v8::Object> optionsObj = v8::Local<v8::Object>::Cast(args[1]);
+  METHOD_SETUP_COMMON(batch, 1, 2)
+
   BOOLEAN_OPTION_VALUE(optionsObj, sync)
-  v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[2]));
+
+  v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
   std::vector<BatchOp*>* operations = new std::vector<BatchOp*>;
   for (unsigned int i = 0; i < array->Length(); i++) {
@@ -342,17 +341,31 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
-  v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[2]));
+  v8::Local<v8::Value> startBufferV = args[0];
+  v8::Local<v8::Value> endBufferV = args[1];
 
-  CB_ERR_IF_NULL_OR_UNDEFINED(0, "start")
-  CB_ERR_IF_NULL_OR_UNDEFINED(1, "end")
+  if (startBufferV->IsNull()
+      || startBufferV->IsUndefined()
+      || startBufferV->IsFunction() // callback in pos 0?
+      || endBufferV->IsNull()
+      || endBufferV->IsUndefined()
+      || endBufferV->IsFunction() // callback in pos 1?
+      ) {
+    THROW_RETURN("approximateSize() requires valid `start`, `end` and `callback` arguments")
+  }
 
-  v8::Persistent<v8::Value> startBuffer = v8::Persistent<v8::Value>::New(args[0]);
-  STRING_OR_BUFFER_TO_SLICE(start, startBuffer, Start)
-  v8::Persistent<v8::Value> endBuffer = v8::Persistent<v8::Value>::New(args[1]);
-  STRING_OR_BUFFER_TO_SLICE(end, endBuffer, End)
+  METHOD_SETUP_COMMON(approximateSize, -1, 2)
+
+  CB_ERR_IF_NULL_OR_UNDEFINED(0, Start)
+  CB_ERR_IF_NULL_OR_UNDEFINED(1, End)
+
+  STRING_OR_BUFFER_TO_SLICE(start, startBufferV, Start)
+  STRING_OR_BUFFER_TO_SLICE(end, endBufferV, End)
+
+  v8::Persistent<v8::Value> startBuffer =
+      v8::Persistent<v8::Value>::New(startBufferV);
+  v8::Persistent<v8::Value> endBuffer =
+      v8::Persistent<v8::Value>::New(endBufferV);
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(
       database

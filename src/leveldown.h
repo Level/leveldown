@@ -64,7 +64,11 @@
       return v8::Undefined(); \
     } \
     to ## Ch_ = new char[to ## Sz_]; \
-    to ## Str->WriteUtf8(to ## Ch_, -1, NULL, v8::String::NO_NULL_TERMINATION); \
+    to ## Str->WriteUtf8( \
+        to ## Ch_ \
+      , -1 \
+      , NULL, v8::String::NO_NULL_TERMINATION \
+    ); \
   } \
   leveldb::Slice to(to ## Ch_, to ## Sz_);
 
@@ -109,15 +113,17 @@
   Database* database = ObjectWrap::Unwrap<Database>(args.This()); \
   v8::Local<v8::Object> optionsObj; \
   v8::Persistent<v8::Function> callback; \
-  if (optionPos == -1) { \
+  if (optionPos == -1 && args[callbackPos]->IsFunction()) { \
     callback = v8::Persistent<v8::Function>::New( \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
     ); \
-  } else if (args[callbackPos - 1]->IsFunction()) { \
+  } else if (optionPos != -1 && args[callbackPos - 1]->IsFunction()) { \
     callback = v8::Persistent<v8::Function>::New( \
       v8::Local<v8::Function>::Cast(args[callbackPos - 1]) \
     ); \
-  } else if (args[optionPos]->IsObject() && args[callbackPos]->IsFunction()) { \
+  } else if (optionPos != -1 \
+        && args[optionPos]->IsObject() \
+        && args[callbackPos]->IsFunction()) { \
     optionsObj = v8::Local<v8::Object>::Cast(args[optionPos]); \
     callback = v8::Persistent<v8::Function>::New( \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
@@ -126,10 +132,6 @@
     THROW_RETURN(name() requires a callback argument) \
   }
 
-#define METHOD_SETUP_COMMON_ONEARG(name) \
-  if (!args[0]->IsFunction()) { \
-    THROW_RETURN(name() requires a callback argument) \
-  } \
-  METHOD_SETUP_COMMON(name, -1, 0)
+#define METHOD_SETUP_COMMON_ONEARG(name) METHOD_SETUP_COMMON(name, -1, 0)
 
 #endif

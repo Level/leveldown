@@ -4,12 +4,13 @@ const test       = require('tap').test
 
 test('setUp', testCommon.setUp)
 
-test('test database close', function (t) {
+test('test close()', function (t) {
   var db = leveldown(testCommon.location())
 
   db.open(function (err) {
     t.notOk(err, 'no error')
     t.throws(db.close.bind(db), 'no-arg close() throws')
+    t.throws(db.close.bind(db, 'foo'), 'non-callback close() throws')
 
     db.close(function (err) {
       t.notOk(err, 'no error')
