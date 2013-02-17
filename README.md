@@ -4,6 +4,8 @@ LevelDOWN
 A Node.js LevelDB binding (currently being extracted from LevelUP)
 -------------------------
 
+[![Build Status](https://secure.travis-ci.org/rvagg/node-leveldown.png)](http://travis-ci.org/rvagg/node-leveldown)
+
 ## READ THIS FIRST
 
 LevelDOWN is currently undergoing API development to prepare it for general use. Version 0.0.0 represents the API as it has been used internally within [LevelUP](https://github.com/rvagg/node-levelup) but this API is not ideal for public consumption.
