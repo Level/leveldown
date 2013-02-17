@@ -33,7 +33,7 @@
       , "url"             : "https://github.com/rvagg/node-leveldown.git"
     }
   , "scripts"         : {
-        "test"            : "tap test/*-test.js"
+        "test"            : "tap test/*-test.js --stderr"
     }
   , "license"         : "MIT"
   , "gypfile"         : true
