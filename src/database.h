@@ -78,7 +78,7 @@ private:
   LU_V8_METHOD( Delete   )
   LU_V8_METHOD( Get      )
   LU_V8_METHOD( Batch    )
-  LU_V8_METHOD( ApproximateSize)
+  LU_V8_METHOD( ApproximateSize )
 };
 
 } // namespace leveldown

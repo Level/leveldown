@@ -162,7 +162,8 @@ v8::Handle<v8::Value> Database::NewInstance (const v8::Arguments& args) {
   for (int i = 0; i < args.Length(); i++)
     argv[i] = args[i];
 
-  v8::Local<v8::Object> instance = constructor->NewInstance(args.Length(), argv);
+  v8::Local<v8::Object> instance =
+      constructor->NewInstance(args.Length(), argv);
 
   return scope.Close(instance);
 }
@@ -215,8 +216,11 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
   STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
   STRING_OR_BUFFER_TO_SLICE(value, valueBufferV, Value)
 
-  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
-  v8::Persistent<v8::Value> valueBuffer = v8::Persistent<v8::Value>::New(valueBufferV);
+  v8::Persistent<v8::Value> keyBuffer =
+      v8::Persistent<v8::Value>::New(keyBufferV);
+  v8::Persistent<v8::Value> valueBuffer =
+      v8::Persistent<v8::Value>::New(valueBufferV);
+
   BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
   WriteWorker* worker  = new WriteWorker(
@@ -271,7 +275,8 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   v8::Local<v8::Value> keyBufferV = args[0];
   STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
 
-  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
+  v8::Persistent<v8::Value> keyBuffer =
+      v8::Persistent<v8::Value>::New(keyBufferV);
 
   BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
@@ -351,7 +356,9 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
       || endBufferV->IsUndefined()
       || endBufferV->IsFunction() // callback in pos 1?
       ) {
-    THROW_RETURN("approximateSize() requires valid `start`, `end` and `callback` arguments")
+    THROW_RETURN( \
+      "approximateSize() requires valid `start`, `end` and `callback` arguments" \
+    )
   }
 
   METHOD_SETUP_COMMON(approximateSize, -1, 2)
