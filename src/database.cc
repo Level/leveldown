@@ -290,6 +290,12 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
   v8::HandleScope scope;
 
+  LU_STR ( key   );
+  LU_STR ( value );
+  LU_STR ( type  );
+  LU_STR ( del   );
+  LU_STR ( put   );
+
   Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
   v8::Local<v8::Object> optionsObj = v8::Local<v8::Object>::Cast(args[1]);
