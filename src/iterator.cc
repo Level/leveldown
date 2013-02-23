@@ -48,6 +48,8 @@ Iterator::Iterator (
 Iterator::~Iterator () {
   delete options;
   startPtr.Dispose();
+  if (start != NULL)
+    delete start;
   if (end != NULL)
     delete end;
 };
@@ -223,7 +225,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
 
   v8::Local<v8::Object> optionsObj;
 
-  if (args.Length() > 0 && args[1]->IsObject()) {
+  if (args.Length() > 1 && args[1]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[1]);
 
     if (optionsObj->Has(option_start)
@@ -231,7 +233,8 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
           || optionsObj->Get(option_start)->IsString())) {
 
       startBuffer = v8::Local<v8::Value>::New(optionsObj->Get(option_start));
-      STRING_OR_BUFFER_TO_SLICE(start, startBuffer, Start)
+      STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, Start)
+      start = new leveldb::Slice(_start.data(), _start.size());
     }
 
     if (optionsObj->Has(option_end)

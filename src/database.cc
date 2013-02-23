@@ -403,8 +403,8 @@ v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
   v8::HandleScope scope;
 
   v8::Local<v8::Object> optionsObj;
-  if (args.Length() > 0 && args[1]->IsObject()) {
-    optionsObj = v8::Local<v8::Object>::Cast(args[1])  ;
+  if (args.Length() > 0 && args[0]->IsObject()) {
+    optionsObj = v8::Local<v8::Object>::Cast(args[0]);
   }
 
   return scope.Close(Iterator::NewInstance(args.This(), optionsObj));
