@@ -21,11 +21,6 @@ LU_OPTION ( cacheSize       ); // for open()
 LU_OPTION ( sync            ); // for put() and delete()
 LU_OPTION ( asBuffer        ); // for get()
 LU_OPTION ( fillCache       ); // for get() and readStream()
-LU_STR    ( key   );
-LU_STR    ( value );
-LU_STR    ( type  );
-LU_STR    ( del   );
-LU_STR    ( put   );
 
 struct AsyncDescriptor;
 
