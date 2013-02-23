@@ -132,6 +132,10 @@ void Database::Init () {
       v8::String::NewSymbol("approximateSize")
     , v8::FunctionTemplate::New(ApproximateSize)->GetFunction()
   );
+  tpl->PrototypeTemplate()->Set(
+      v8::String::NewSymbol("iterator")
+    , v8::FunctionTemplate::New(Iterator)->GetFunction()
+  );
   constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
 }
 
@@ -393,6 +397,17 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   AsyncQueueWorker(worker);
 
   return v8::Undefined();
+}
+
+v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
+  v8::HandleScope scope;
+
+  v8::Local<v8::Object> optionsObj;
+  if (args.Length() > 0 && args[1]->IsObject()) {
+    optionsObj = v8::Local<v8::Object>::Cast(args[1])  ;
+  }
+
+  return scope.Close(Iterator::NewInstance(args.This(), optionsObj));
 }
 
 } // namespace leveldown

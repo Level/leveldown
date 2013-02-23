@@ -28,7 +28,10 @@ v8::Handle<v8::Value> CreateIterator (const v8::Arguments& args);
 class Iterator : public node::ObjectWrap {
 public:
   static void Init ();
-  static v8::Handle<v8::Value> NewInstance (const v8::Arguments& args);
+  static v8::Handle<v8::Value> NewInstance (
+      v8::Handle<v8::Object> database
+    , v8::Handle<v8::Object> optionsObj
+  );
 
   bool IteratorNext (std::string& key, std::string& value);
   leveldb::Status IteratorStatus ();
@@ -45,32 +48,10 @@ public:
     , bool fillCache
     , bool keyAsBuffer
     , bool valueAsBuffer
-  ) : database(database)
-    , start(start)
-    , end(end)
-    , reverse(reverse)
-    , keys(keys)
-    , values(values)
-    , limit(limit)
-    , keyAsBuffer(keyAsBuffer)
-    , valueAsBuffer(valueAsBuffer)
-  {
-    options    = new leveldb::ReadOptions();
-    options->fill_cache = fillCache;
-    dbIterator = NULL;
-    count      = 0;
-    nexting    = false;
-    ended      = false;
-    endWorker  = NULL;
-  };
+    , v8::Persistent<v8::Value> startPtr
+  );
 
-  ~Iterator () {
-    delete options;
-    if (start != NULL)
-      delete start;
-    if (end != NULL)
-      delete end;
-  };
+  ~Iterator ();
 
 private:
   Database* database;
@@ -92,6 +73,8 @@ public:
   AsyncWorker* endWorker;
 
 private:
+  v8::Persistent<v8::Value> startPtr;
+
   bool GetIterator ();
 
   static v8::Persistent<v8::Function> constructor;

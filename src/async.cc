@@ -14,9 +14,13 @@ namespace leveldown {
 
 /** ASYNC BASE **/
 
-AsyncWorker::AsyncWorker (Database* database, v8::Persistent<v8::Function> callback)
-    : database(database), callback(callback) {
-  request.data = this;
+AsyncWorker::AsyncWorker (
+    Database* database
+  , v8::Persistent<v8::Function> callback
+) : database(database)
+  , callback(callback)
+{
+    request.data = this;
 };
 
 AsyncWorker::~AsyncWorker () {}

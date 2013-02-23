@@ -12,6 +12,46 @@
 
 namespace leveldown {
 
+Iterator::Iterator (
+    Database* database
+  , leveldb::Slice* start
+  , std::string* end
+  , bool reverse
+  , bool keys
+  , bool values
+  , int limit
+  , bool fillCache
+  , bool keyAsBuffer
+  , bool valueAsBuffer
+  , v8::Persistent<v8::Value> startPtr
+) : database(database)
+  , start(start)
+  , end(end)
+  , reverse(reverse)
+  , keys(keys)
+  , values(values)
+  , limit(limit)
+  , keyAsBuffer(keyAsBuffer)
+  , valueAsBuffer(valueAsBuffer)
+  , startPtr(startPtr)
+{
+  options    = new leveldb::ReadOptions();
+  options->fill_cache = fillCache;
+  dbIterator = NULL;
+  count      = 0;
+  nexting    = false;
+  ended      = false;
+  endWorker  = NULL;
+};
+
+
+Iterator::~Iterator () {
+  delete options;
+  startPtr.Dispose();
+  if (end != NULL)
+    delete end;
+};
+
 bool Iterator::GetIterator () {
   if (dbIterator == NULL) {
     dbIterator = database->NewIterator(options);
@@ -75,6 +115,10 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   v8::HandleScope scope;
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
+  if (args.Length() == 0 || !args[0]->IsFunction()) {
+    THROW_RETURN("next() requires a callback argument")
+  }
+
   if (iterator->ended) {
     THROW_RETURN("Cannot call next() after end()")
   }
@@ -83,19 +127,17 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
     THROW_RETURN("Cannot call next() before previous next() has completed")
   }
 
-  v8::Persistent<v8::Function> endCallback =
+  v8::Persistent<v8::Function> callback =
       v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[0]));
-  v8::Persistent<v8::Function> dataCallback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[1]));
 
   NextWorker* worker = new NextWorker(
       iterator
-    , dataCallback
-    , endCallback
+    , callback
     , checkEndCallback
   );
   iterator->nexting = true;
   AsyncQueueWorker(worker);
+
   return v8::Undefined();
 }
 
@@ -103,23 +145,30 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
   v8::HandleScope scope;
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
+  if (args.Length() == 0 || !args[0]->IsFunction()) {
+    THROW_RETURN("end() requires a callback argument")
+  }
+
   if (iterator->ended) {
     THROW_RETURN("end() already called on iterator")
   }
 
   v8::Persistent<v8::Function> callback =
       v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[0]));
+
   EndWorker* worker = new EndWorker(
       iterator
     , callback
   );
   iterator->ended = true;
+
   if (iterator->nexting) {
     // waiting for a next() to return, queue the end
     iterator->endWorker = worker;
   } else {
     AsyncQueueWorker(worker);
   }
+
   return v8::Undefined();
 }
 
@@ -128,7 +177,7 @@ v8::Persistent<v8::Function> Iterator::constructor;
 void Iterator::Init () {
   v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
   tpl->SetClassName(v8::String::NewSymbol("Iterator"));
-  tpl->InstanceTemplate()->SetInternalFieldCount(2);
+  tpl->InstanceTemplate()->SetInternalFieldCount(1);
   tpl->PrototypeTemplate()->Set(
       v8::String::NewSymbol("next")
     , v8::FunctionTemplate::New(Next)->GetFunction()
@@ -140,14 +189,21 @@ void Iterator::Init () {
   constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
 }
 
-v8::Handle<v8::Value> Iterator::NewInstance (const v8::Arguments& args) {
-  v8::HandleScope scope;
+v8::Handle<v8::Value> Iterator::NewInstance (
+        v8::Handle<v8::Object> database
+      , v8::Handle<v8::Object> optionsObj
+    ) {
 
-  v8::Handle<v8::Value> argv[2] = {
-      args[0]->ToObject()
-    , args[1]->ToObject()
-  };
-  v8::Local<v8::Object> instance = constructor->NewInstance(2, argv);
+  v8::HandleScope scope;
+  v8::Local<v8::Object> instance;
+
+  if (optionsObj.IsEmpty()) {
+    v8::Handle<v8::Value> argv[1] = { database };
+    instance = constructor->NewInstance(1, argv);
+  } else {
+    v8::Handle<v8::Value> argv[2] = { database, optionsObj };
+    instance = constructor->NewInstance(2, argv);
+  }
 
   return scope.Close(instance);
 }
@@ -159,36 +215,48 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
   v8::Local<v8::Function> callback;
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
+
+  v8::Local<v8::Value> startBuffer;
   leveldb::Slice* start = NULL;
-  if (args[1]->ToObject()->Has(option_start)
-      && (node::Buffer::HasInstance(args[1]->ToObject()->Get(option_start))
-        || args[1]->ToObject()->Get(option_start)->IsString())) {
-    v8::Local<v8::Value> startBuffer =
-      v8::Local<v8::Value>::New(args[1]->ToObject()->Get(option_start));
-    STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, Start)
-    start = new leveldb::Slice(_start.data(), _start.size());
-  }
   std::string* end = NULL;
-  if (args[1]->ToObject()->Has(option_end)
-      && (node::Buffer::HasInstance(args[1]->ToObject()->Get(option_end))
-        || args[1]->ToObject()->Get(option_end)->IsString())) {
-    v8::Local<v8::Value> endBuffer =
-      v8::Local<v8::Value>::New(args[1]->ToObject()->Get(option_end));
-    STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, End)
-    end = new std::string(_end.data(), _end.size());
+  int limit = -1;
+
+  v8::Local<v8::Object> optionsObj;
+
+  if (args.Length() > 0 && args[1]->IsObject()) {
+    optionsObj = v8::Local<v8::Object>::Cast(args[1]);
+
+    if (optionsObj->Has(option_start)
+        && (node::Buffer::HasInstance(optionsObj->Get(option_start))
+          || optionsObj->Get(option_start)->IsString())) {
+
+      startBuffer = v8::Local<v8::Value>::New(optionsObj->Get(option_start));
+      STRING_OR_BUFFER_TO_SLICE(start, startBuffer, Start)
+    }
+
+    if (optionsObj->Has(option_end)
+        && (node::Buffer::HasInstance(optionsObj->Get(option_end))
+          || optionsObj->Get(option_end)->IsString())) {
+
+      v8::Local<v8::Value> endBuffer =
+          v8::Local<v8::Value>::New(optionsObj->Get(option_end));
+      STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, End)
+      end = new std::string(_end.data(), _end.size());
+    }
+
+    if (!optionsObj.IsEmpty() && optionsObj->Has(option_limit)) {
+      limit =
+        v8::Local<v8::Integer>::Cast(optionsObj->Get(option_limit))->Value();
+    }
   }
-  v8::Local<v8::Object> optionsObj = v8::Local<v8::Object>::Cast(args[1]);
+
   BOOLEAN_OPTION_VALUE(optionsObj, reverse)
   BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, keys)
   BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, values)
   BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, keyAsBuffer)
   BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, valueAsBuffer)
   BOOLEAN_OPTION_VALUE(optionsObj, fillCache)
-  int limit = -1;
-  if (args[1]->ToObject()->Has(option_limit)) {
-    limit = v8::Local<v8::
-    Integer>::Cast(args[1]->ToObject()->Get(option_limit))->Value();
-  }
+
   Iterator* iterator = new Iterator(
       database
     , start
@@ -200,15 +268,11 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
     , fillCache
     , keyAsBuffer
     , valueAsBuffer
+    , v8::Persistent<v8::Value>::New(startBuffer)
   );
   iterator->Wrap(args.This());
 
   return args.This();
-}
-
-v8::Handle<v8::Value> CreateIterator (const v8::Arguments& args) {
-  v8::HandleScope scope;
-  return scope.Close(Iterator::NewInstance(args));
 }
 
 } // namespace leveldown

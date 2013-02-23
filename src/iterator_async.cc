@@ -17,18 +17,14 @@ namespace leveldown {
 
 NextWorker::NextWorker (
     Iterator* iterator
-  , v8::Persistent<v8::Function> dataCallback
-  , v8::Persistent<v8::Function> endCallback
+  , v8::Persistent<v8::Function> callback
   , void (*localCallback)(Iterator*)
-) : AsyncWorker(database, dataCallback)
+) : AsyncWorker(NULL, callback)
   , iterator(iterator)
-  , endCallback(endCallback)
   , localCallback(localCallback)
 {};
 
-NextWorker::~NextWorker () {
-  endCallback.Dispose();
-}
+NextWorker::~NextWorker () {}
 
 void NextWorker::Execute () {
   ok = iterator->IteratorNext(key, value);
@@ -45,6 +41,7 @@ void NextWorker::HandleOKCallback () {
   } else {
     returnKey = v8::String::New((char*)key.data(), key.size());
   }
+
   v8::Local<v8::Value> returnValue;
   if (iterator->valueAsBuffer) {
     returnValue = v8::Local<v8::Value>::New(
@@ -66,7 +63,7 @@ void NextWorker::HandleOKCallback () {
     RUN_CALLBACK(callback, argv, 3);
   } else {
     v8::Local<v8::Value> argv[0];
-    RUN_CALLBACK(endCallback, argv, 0);
+    RUN_CALLBACK(callback, argv, 0);
   }
 }
 
@@ -74,8 +71,8 @@ void NextWorker::HandleOKCallback () {
 
 EndWorker::EndWorker (
     Iterator* iterator
-  , v8::Persistent<v8::Function> endCallback
-) : AsyncWorker(database, endCallback)
+  , v8::Persistent<v8::Function> callback
+) : AsyncWorker(NULL, callback)
   , iterator(iterator)
 {};
 

@@ -17,8 +17,6 @@ void Init (v8::Handle<v8::Object> target) {
 
   target->Set(v8::String::NewSymbol("leveldown")
       , v8::FunctionTemplate::New(LevelDOWN)->GetFunction());
-  target->Set(v8::String::NewSymbol("createIterator")
-      , v8::FunctionTemplate::New(CreateIterator)->GetFunction());
 }
 
 NODE_MODULE(leveldown, Init)

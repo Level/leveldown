@@ -2,7 +2,6 @@
  * See list at <https://github.com/rvagg/node-leveldown#contributing>
  * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
-
 #ifndef LU_LEVELDOWN_H
 #define LU_LEVELDOWN_H
 
@@ -38,26 +37,14 @@
   if (node::Buffer::HasInstance(from->ToObject())) { \
     to ## Sz_ = node::Buffer::Length(from->ToObject()); \
     if (to ## Sz_ == 0) { \
-      v8::Local<v8::Value> argv[] = { \
-        v8::Local<v8::Value>::New(v8::Exception::Error( \
-          v8::String::New(#name " argument cannot be an empty Buffer")) \
-        ) \
-      }; \
-      RUN_CALLBACK(callback, argv, 1); \
-      return v8::Undefined(); \
+      RETURN_CALLBACK_OR_ERROR(callback, #name " argument cannot be an empty Buffer") \
     } \
     to ## Ch_ = node::Buffer::Data(from->ToObject()); \
   } else { \
     v8::Local<v8::String> to ## Str = from->ToString(); \
     to ## Sz_ = to ## Str->Utf8Length(); \
     if (to ## Sz_ == 0) { \
-      v8::Local<v8::Value> argv[] = { \
-        v8::Local<v8::Value>::New(v8::Exception::Error( \
-          v8::String::New(#name " argument cannot be an empty String")) \
-        ) \
-      }; \
-      RUN_CALLBACK(callback, argv, 1); \
-      return v8::Undefined(); \
+      RETURN_CALLBACK_OR_ERROR(callback, #name " argument cannot be an empty String") \
     } \
     to ## Ch_ = new char[to ## Sz_]; \
     to ## Str->WriteUtf8( \
@@ -84,6 +71,18 @@
     && optionsObj->Get(option_ ## opt)->IsUint32() \
       ? optionsObj->Get(option_ ## opt)->Uint32Value() \
       : default;
+
+#define RETURN_CALLBACK_OR_ERROR(callback, msg) \
+  if (callback->IsFunction()) { \
+    v8::Local<v8::Value> argv[] = { \
+      v8::Local<v8::Value>::New(v8::Exception::Error( \
+        v8::String::New(msg)) \
+      ) \
+    }; \
+    RUN_CALLBACK(callback, argv, 1) \
+    return v8::Undefined(); \
+  } \
+  THROW_RETURN(msg)
 
 #define RUN_CALLBACK(callback, argv, length) \
   v8::TryCatch try_catch; \

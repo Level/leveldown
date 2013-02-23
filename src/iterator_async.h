@@ -17,8 +17,7 @@ class NextWorker : public AsyncWorker {
 public:
   NextWorker (
       Iterator* iterator
-    , v8::Persistent<v8::Function> dataCallback
-    , v8::Persistent<v8::Function> endCallback
+    , v8::Persistent<v8::Function> callback
     , void (*localCallback)(Iterator*)
   );
 
@@ -28,7 +27,6 @@ public:
 
 private:
   Iterator* iterator;
-  v8::Persistent<v8::Function> endCallback;
   void (*localCallback)(Iterator*);
   std::string key;
   std::string value;
@@ -39,7 +37,7 @@ class EndWorker : public AsyncWorker {
 public:
   EndWorker (
       Iterator* iterator
-    , v8::Persistent<v8::Function> endCallback
+    , v8::Persistent<v8::Function> callback
   );
 
   virtual ~EndWorker ();
