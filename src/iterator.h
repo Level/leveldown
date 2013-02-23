@@ -14,14 +14,14 @@
 
 namespace leveldown {
 
-LU_OPTION ( start         );
-LU_OPTION ( end           );
-LU_OPTION ( limit         );
-LU_OPTION ( reverse       );
-LU_OPTION ( keys          );
-LU_OPTION ( values        );
-LU_OPTION ( keyAsBuffer   );
-LU_OPTION ( valueAsBuffer );
+LU_SYMBOL ( option_start         , start         );
+LU_SYMBOL ( option_end           , end           );
+LU_SYMBOL ( option_limit         , limit         );
+LU_SYMBOL ( option_reverse       , reverse       );
+LU_SYMBOL ( option_keys          , keys          );
+LU_SYMBOL ( option_values        , values        );
+LU_SYMBOL ( option_keyAsBuffer   , keyAsBuffer   );
+LU_SYMBOL ( option_valueAsBuffer , valueAsBuffer );
 
 v8::Handle<v8::Value> CreateIterator (const v8::Arguments& args);
 

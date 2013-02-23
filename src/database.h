@@ -14,13 +14,13 @@
 
 namespace leveldown {
 
-LU_OPTION ( createIfMissing ); // for open()
-LU_OPTION ( errorIfExists   ); // for open()
-LU_OPTION ( compression     ); // for open()
-LU_OPTION ( cacheSize       ); // for open() 
-LU_OPTION ( sync            ); // for put() and delete()
-LU_OPTION ( asBuffer        ); // for get()
-LU_OPTION ( fillCache       ); // for get() and readStream()
+LU_SYMBOL ( option_createIfMissing , createIfMissing ); // for open()
+LU_SYMBOL ( option_errorIfExists   , errorIfExists   ); // for open()
+LU_SYMBOL ( option_compression     , compression     ); // for open()
+LU_SYMBOL ( option_cacheSize       , cacheSize       ); // for open() 
+LU_SYMBOL ( option_sync            , sync            ); // for put() and delete()
+LU_SYMBOL ( option_asBuffer        , asBuffer        ); // for get()
+LU_SYMBOL ( option_fillCache       , fillcache       ); // for get() and readStream()
 
 struct AsyncDescriptor;
 

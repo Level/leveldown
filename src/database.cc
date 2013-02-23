@@ -293,11 +293,11 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
 }
 
 /* property key & value strings for elements of the array sent to batch() */
-LU_STR ( key   );
-LU_STR ( value );
-LU_STR ( type  );
-LU_STR ( del   );
-LU_STR ( put   );
+LU_SYMBOL ( str_key   , key   );
+LU_SYMBOL ( str_value , value );
+LU_SYMBOL ( str_type  , type  );
+LU_SYMBOL ( str_del   , del   );
+LU_SYMBOL ( str_put   , put   );
 
 v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
   v8::HandleScope scope;
@@ -314,7 +314,7 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       continue;
 
     v8::Local<v8::Object> obj = v8::Local<v8::Object>::Cast(array->Get(i));
-    if (!obj->Has(str_type) && !obj->Has(str_key))
+    if (!obj->Has(str_type) || !obj->Has(str_key))
       continue;
 
     v8::Local<v8::Value> keyBuffer = obj->Get(str_key);

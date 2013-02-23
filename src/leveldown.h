@@ -6,13 +6,9 @@
 #ifndef LU_LEVELDOWN_H
 #define LU_LEVELDOWN_H
 
-#define LU_STR(key) \
-  static const v8::Persistent<v8::String> str_ ## key = \
-    v8::Persistent<v8::String>::New(v8::String::New(#key));
-
-#define LU_OPTION(key) \
-  static const v8::Persistent<v8::String> option_ ## key = \
-    v8::Persistent<v8::String>::New(v8::String::New(#key));
+#define LU_SYMBOL(var, key) \
+  static const v8::Persistent<v8::String> var = \
+    v8::Persistent<v8::String>::New(v8::String::NewSymbol(#key));
 
 #define LU_V8_METHOD(name) \
   static v8::Handle<v8::Value> name (const v8::Arguments& args);
