@@ -77,6 +77,44 @@ test('test batch() with missing `key` and `value`', function (t) {
   })
 })
 
+test('test multiple batch()', function (t) {
+  db.batch([
+      { type: 'put', key: 'foobatch1', value: 'bar1' }
+    , { type: 'put', key: 'foobatch2', value: 'bar2' }
+    , { type: 'put', key: 'foobatch3', value: 'bar3' }
+    , { type: 'del', key: 'foobatch2' }
+  ], function (err) {
+    t.notOk(err, 'no error')
+
+    var r = 0
+      , done = function () {
+          if (++r == 3)
+            t.end()
+        }
+
+    db.get('foobatch1', function (err, value) {
+      t.notOk(err, 'no error')
+      t.type(value, Buffer)
+      t.equal(value.toString(), 'bar1')
+      done()
+    })
+
+    db.get('foobatch2', function (err, value) {
+      t.ok(err, 'entry not found')
+      t.notOk(value, 'value not returned')
+      t.like(err.message, /NotFound/)
+      done()
+    })
+
+    db.get('foobatch3', function (err, value) {
+      t.notOk(err, 'no error')
+      t.type(value, Buffer)
+      t.equal(value.toString(), 'bar3')
+      done()
+    })
+  })
+})
+
 test('tearDown', function (t) {
   db.close(testCommon.tearDown.bind(null, t))
 })

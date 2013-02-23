@@ -321,14 +321,17 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 
     if (obj->Get(str_type)->StrictEquals(str_del)) {
       STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
+
       operations->push_back(new BatchDelete(
           key
         , v8::Persistent<v8::Value>::New(keyBuffer)
       ));
     } else if (obj->Get(str_type)->StrictEquals(str_put) && obj->Has(str_value)) {
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
+
       STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
       STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, Value)
+
       operations->push_back(new BatchWrite(
           key
         , value
