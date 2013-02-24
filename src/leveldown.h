@@ -129,4 +129,8 @@
 
 #define METHOD_SETUP_COMMON_ONEARG(name) METHOD_SETUP_COMMON(name, -1, 0)
 
+#define BEGIN_NAMESPACE(name) namespace name {
+
+#define END_NAMESPACE(name) }
+
 #endif

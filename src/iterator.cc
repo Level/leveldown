@@ -10,7 +10,7 @@
 #include "iterator.h"
 #include "iterator_async.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 Iterator::Iterator (
     Database* database
@@ -278,4 +278,4 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
   return args.This();
 }
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)

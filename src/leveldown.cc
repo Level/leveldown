@@ -9,7 +9,7 @@
 #include "database.h"
 #include "iterator.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 void Init (v8::Handle<v8::Object> target) {
   Database::Init();
@@ -21,4 +21,4 @@ void Init (v8::Handle<v8::Object> target) {
 
 NODE_MODULE(leveldown, Init)
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)

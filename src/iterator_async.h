@@ -11,7 +11,7 @@
 #include "async.h"
 #include "iterator.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 class NextWorker : public AsyncWorker {
 public:
@@ -47,6 +47,6 @@ private:
   Iterator* iterator;
 };
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)
 
 #endif

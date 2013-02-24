@@ -16,7 +16,7 @@
 #include "batch.h"
 #include "iterator.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 Database::Database (char* location) : location(location) {
   db = NULL;
@@ -410,4 +410,4 @@ v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
   return scope.Close(Iterator::NewInstance(args.This(), optionsObj));
 }
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)

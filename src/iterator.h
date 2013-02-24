@@ -12,7 +12,7 @@
 #include "database.h"
 #include "async.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 LU_SYMBOL ( option_start         , start         );
 LU_SYMBOL ( option_end           , end           );
@@ -84,6 +84,6 @@ private:
   LU_V8_METHOD( End  )
 };
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)
 
 #endif

@@ -12,7 +12,7 @@
 
 #include "leveldown.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 LU_SYMBOL ( option_createIfMissing , createIfMissing ); // for open()
 LU_SYMBOL ( option_errorIfExists   , errorIfExists   ); // for open()
@@ -77,6 +77,6 @@ private:
   LU_V8_METHOD( ApproximateSize )
 };
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)
 
 #endif
