@@ -11,12 +11,12 @@
   , 'type': 'static_library'
   , 'include_dirs': [
         '<(os_include)'
-      , 'snappy-1.0.5'
+      , 'snappy-1.1.0'
     ]
   , 'direct_dependent_settings': {
         'include_dirs': [
             '<(os_include)'
-          , 'snappy-1.0.5'
+          , 'snappy-1.1.0'
         ]
     }
   , 'conditions': [
@@ -42,12 +42,12 @@
         }]
     ]
   , 'sources': [
-        'snappy-1.0.5/snappy-internal.h'
-      , 'snappy-1.0.5/snappy-sinksource.cc'
-      , 'snappy-1.0.5/snappy-sinksource.h'
-      , 'snappy-1.0.5/snappy-stubs-internal.cc'
-      , 'snappy-1.0.5/snappy-stubs-internal.h'
-      , 'snappy-1.0.5/snappy.cc'
-      , 'snappy-1.0.5/snappy.h'
+        'snappy-1.1.0/snappy-internal.h'
+      , 'snappy-1.1.0/snappy-sinksource.cc'
+      , 'snappy-1.1.0/snappy-sinksource.h'
+      , 'snappy-1.1.0/snappy-stubs-internal.cc'
+      , 'snappy-1.1.0/snappy-stubs-internal.h'
+      , 'snappy-1.1.0/snappy.cc'
+      , 'snappy-1.1.0/snappy.h'
     ]
 }]}

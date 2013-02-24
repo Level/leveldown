@@ -1,7 +1,7 @@
 {'targets': [{
     'target_name': 'leveldb'
   , 'variables': {
-        'ldbversion': '1.7.0'
+        'ldbversion': '1.9.0'
     }
   , 'type': 'static_library'
   , 'dependencies': [
