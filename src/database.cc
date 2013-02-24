@@ -161,13 +161,15 @@ v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::NewInstance (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  v8::Handle<v8::Value> argv[args.Length()];
+  v8::Handle<v8::Value>* argv = new v8::Handle<v8::Value>[args.Length()];
 
   for (int i = 0; i < args.Length(); i++)
     argv[i] = args[i];
 
   v8::Local<v8::Object> instance =
       constructor->NewInstance(args.Length(), argv);
+
+  delete[] argv;
 
   return scope.Close(instance);
 }
