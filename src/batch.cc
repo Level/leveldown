@@ -7,7 +7,7 @@
 
 #include "batch.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 BatchOp::~BatchOp () {}
 
@@ -28,4 +28,4 @@ void BatchWrite::Execute (leveldb::WriteBatch* batch) {
   batch->Put(key, value);
 }
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)

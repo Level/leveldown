@@ -10,7 +10,7 @@
 #include "async.h"
 #include "batch.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 /** ASYNC BASE **/
 
@@ -67,4 +67,4 @@ void AsyncQueueWorker (AsyncWorker* worker) {
   );
 }
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)

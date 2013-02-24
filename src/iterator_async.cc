@@ -11,7 +11,7 @@
 #include "async.h"
 #include "iterator_async.h"
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 /** NEXT WORKER **/
 
@@ -82,4 +82,4 @@ void EndWorker::Execute () {
   iterator->IteratorEnd();
 }
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)

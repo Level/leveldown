@@ -8,7 +8,7 @@
 
 #include <node.h>
 
-namespace leveldown {
+BEGIN_NAMESPACE(leveldown)
 
 /* abstract */ class AsyncWorker {
 public:
@@ -34,6 +34,6 @@ void AsyncExecute (uv_work_t* req);
 void AsyncExecuteComplete (uv_work_t* req);
 void AsyncQueueWorker (AsyncWorker* worker);
 
-} // namespace leveldown
+END_NAMESPACE(leveldown)
 
 #endif
