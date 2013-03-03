@@ -118,15 +118,15 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
-    THROW_RETURN("next() requires a callback argument")
+    LD_THROW_RETURN("next() requires a callback argument")
   }
 
   if (iterator->ended) {
-    THROW_RETURN("Cannot call next() after end()")
+    LD_THROW_RETURN("Cannot call next() after end()")
   }
 
   if (iterator->nexting) {
-    THROW_RETURN("Cannot call next() before previous next() has completed")
+    LD_THROW_RETURN("Cannot call next() before previous next() has completed")
   }
 
   v8::Persistent<v8::Function> callback =
@@ -148,11 +148,11 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
-    THROW_RETURN("end() requires a callback argument")
+    LD_THROW_RETURN("end() requires a callback argument")
   }
 
   if (iterator->ended) {
-    THROW_RETURN("end() already called on iterator")
+    LD_THROW_RETURN("end() already called on iterator")
   }
 
   v8::Persistent<v8::Function> callback =
@@ -213,7 +213,7 @@ v8::Handle<v8::Value> Iterator::NewInstance (
 v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  //TODO: remove this, it's only here to make STRING_OR_BUFFER_TO_SLICE happy
+  //TODO: remove this, it's only here to make LD_STRING_OR_BUFFER_TO_SLICE happy
   v8::Local<v8::Function> callback;
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
@@ -233,7 +233,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
           || optionsObj->Get(option_start)->IsString())) {
 
       startBuffer = v8::Local<v8::Value>::New(optionsObj->Get(option_start));
-      STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, Start)
+      LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, Start)
       start = new leveldb::Slice(_start.data(), _start.size());
     }
 
@@ -243,7 +243,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
 
       v8::Local<v8::Value> endBuffer =
           v8::Local<v8::Value>::New(optionsObj->Get(option_end));
-      STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, End)
+      LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, End)
       end = new std::string(_end.data(), _end.size());
     }
 
@@ -253,12 +253,12 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
     }
   }
 
-  BOOLEAN_OPTION_VALUE(optionsObj, reverse)
-  BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, keys)
-  BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, values)
-  BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, keyAsBuffer)
-  BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, valueAsBuffer)
-  BOOLEAN_OPTION_VALUE(optionsObj, fillCache)
+  LD_BOOLEAN_OPTION_VALUE(optionsObj, reverse)
+  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, keys)
+  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, values)
+  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, keyAsBuffer)
+  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, valueAsBuffer)
+  LD_BOOLEAN_OPTION_VALUE(optionsObj, fillCache)
 
   Iterator* iterator = new Iterator(
       database

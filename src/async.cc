@@ -36,7 +36,7 @@ void AsyncWorker::WorkComplete () {
 
 void AsyncWorker::HandleOKCallback () {
   v8::Local<v8::Value> argv[0];
-  RUN_CALLBACK(callback, argv, 0);  
+  LD_RUN_CALLBACK(callback, argv, 0);  
 }
 
 void AsyncWorker::HandleErrorCallback () {
@@ -45,7 +45,7 @@ void AsyncWorker::HandleErrorCallback () {
         v8::Exception::Error(v8::String::New(status.ToString().c_str()))
       )
   };
-  RUN_CALLBACK(callback, argv, 1);
+  LD_RUN_CALLBACK(callback, argv, 1);
 }
 
 void AsyncExecute (uv_work_t* req) {

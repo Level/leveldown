@@ -60,10 +60,10 @@ void NextWorker::HandleOKCallback () {
       , returnKey
       , returnValue
     };
-    RUN_CALLBACK(callback, argv, 3);
+    LD_RUN_CALLBACK(callback, argv, 3);
   } else {
     v8::Local<v8::Value> argv[0];
-    RUN_CALLBACK(callback, argv, 0);
+    LD_RUN_CALLBACK(callback, argv, 0);
   }
 }
 

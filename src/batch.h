@@ -3,8 +3,8 @@
  * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
-#ifndef LU_BATCH_H
-#define LU_BATCH_H
+#ifndef LD_BATCH_H
+#define LD_BATCH_H
 
 #include "leveldb/write_batch.h"
 

@@ -143,14 +143,14 @@ v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
   v8::HandleScope scope;
 
   if (args.Length() == 0) {
-    THROW_RETURN("leveldown() requires at least a location argument")
+    LD_THROW_RETURN("leveldown() requires at least a location argument")
   }
 
   if (!args[0]->IsString()) {
-    THROW_RETURN("leveldown() requires a location string argument")
+    LD_THROW_RETURN("leveldown() requires a location string argument")
   }
 
-  FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
+  LD_FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
 
   Database* obj = new Database(location);
   obj->Wrap(args.This());
@@ -177,12 +177,12 @@ v8::Handle<v8::Value> Database::NewInstance (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  METHOD_SETUP_COMMON(open, 0, 1)
+  LD_METHOD_SETUP_COMMON(open, 0, 1)
 
-  BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, createIfMissing)
-  BOOLEAN_OPTION_VALUE(optionsObj, errorIfExists)
-  BOOLEAN_OPTION_VALUE(optionsObj, compression)
-  UINT32_OPTION_VALUE(optionsObj, cacheSize, 8 << 20)
+  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, createIfMissing)
+  LD_BOOLEAN_OPTION_VALUE(optionsObj, errorIfExists)
+  LD_BOOLEAN_OPTION_VALUE(optionsObj, compression)
+  LD_UINT32_OPTION_VALUE(optionsObj, cacheSize, 8 << 20)
 
   OpenWorker* worker = new OpenWorker(
       database
@@ -201,7 +201,7 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  METHOD_SETUP_COMMON_ONEARG(close)
+  LD_METHOD_SETUP_COMMON_ONEARG(close)
 
   CloseWorker* worker = new CloseWorker(database, callback);
   AsyncQueueWorker(worker);
@@ -212,22 +212,22 @@ v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  METHOD_SETUP_COMMON(put, 2, 3)
+  LD_METHOD_SETUP_COMMON(put, 2, 3)
 
-  CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
-  CB_ERR_IF_NULL_OR_UNDEFINED(1, Value)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(1, Value)
 
   v8::Local<v8::Value> keyBufferV = args[0];
   v8::Local<v8::Value> valueBufferV = args[1];
-  STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
-  STRING_OR_BUFFER_TO_SLICE(value, valueBufferV, Value)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
+  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBufferV, Value)
 
   v8::Persistent<v8::Value> keyBuffer =
       v8::Persistent<v8::Value>::New(keyBufferV);
   v8::Persistent<v8::Value> valueBuffer =
       v8::Persistent<v8::Value>::New(valueBufferV);
 
-  BOOLEAN_OPTION_VALUE(optionsObj, sync)
+  LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
   WriteWorker* worker  = new WriteWorker(
       database
@@ -246,17 +246,17 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  METHOD_SETUP_COMMON(put, 1, 2)
+  LD_METHOD_SETUP_COMMON(put, 1, 2)
 
-  CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
-  STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
 
   v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
 
-  BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, asBuffer)
-  BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, fillCache)
+  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, asBuffer)
+  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, fillCache)
 
   ReadWorker* worker = new ReadWorker(
       database
@@ -274,17 +274,17 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  METHOD_SETUP_COMMON(put, 1, 2)
+  LD_METHOD_SETUP_COMMON(put, 1, 2)
 
-  CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
-  STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
 
   v8::Persistent<v8::Value> keyBuffer =
       v8::Persistent<v8::Value>::New(keyBufferV);
 
-  BOOLEAN_OPTION_VALUE(optionsObj, sync)
+  LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
   DeleteWorker* worker = new DeleteWorker(
       database
@@ -299,18 +299,18 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
 }
 
 /* property key & value strings for elements of the array sent to batch() */
-LU_SYMBOL ( str_key   , key   );
-LU_SYMBOL ( str_value , value );
-LU_SYMBOL ( str_type  , type  );
-LU_SYMBOL ( str_del   , del   );
-LU_SYMBOL ( str_put   , put   );
+LD_SYMBOL ( str_key   , key   );
+LD_SYMBOL ( str_value , value );
+LD_SYMBOL ( str_type  , type  );
+LD_SYMBOL ( str_del   , del   );
+LD_SYMBOL ( str_put   , put   );
 
 v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  METHOD_SETUP_COMMON(batch, 1, 2)
+  LD_METHOD_SETUP_COMMON(batch, 1, 2)
 
-  BOOLEAN_OPTION_VALUE(optionsObj, sync)
+  LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
@@ -326,7 +326,7 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
     v8::Local<v8::Value> keyBuffer = obj->Get(str_key);
 
     if (obj->Get(str_type)->StrictEquals(str_del)) {
-      STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
+      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
 
       operations->push_back(new BatchDelete(
           key
@@ -335,8 +335,8 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
     } else if (obj->Get(str_type)->StrictEquals(str_put) && obj->Has(str_value)) {
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
 
-      STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
-      STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, Value)
+      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
+      LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, Value)
 
       operations->push_back(new BatchWrite(
           key
@@ -370,18 +370,18 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
       || endBufferV->IsUndefined()
       || endBufferV->IsFunction() // callback in pos 1?
       ) {
-    THROW_RETURN( \
+    LD_THROW_RETURN( \
       "approximateSize() requires valid `start`, `end` and `callback` arguments" \
     )
   }
 
-  METHOD_SETUP_COMMON(approximateSize, -1, 2)
+  LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
 
-  CB_ERR_IF_NULL_OR_UNDEFINED(0, Start)
-  CB_ERR_IF_NULL_OR_UNDEFINED(1, End)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(0, Start)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(1, End)
 
-  STRING_OR_BUFFER_TO_SLICE(start, startBufferV, Start)
-  STRING_OR_BUFFER_TO_SLICE(end, endBufferV, End)
+  LD_STRING_OR_BUFFER_TO_SLICE(start, startBufferV, Start)
+  LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV, End)
 
   v8::Persistent<v8::Value> startBuffer =
       v8::Persistent<v8::Value>::New(startBufferV);

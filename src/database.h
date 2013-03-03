@@ -3,8 +3,8 @@
  * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
-#ifndef LU_DATABASE_H
-#define LU_DATABASE_H
+#ifndef LD_DATABASE_H
+#define LD_DATABASE_H
 
 #include <node.h>
 
@@ -14,13 +14,13 @@
 
 namespace leveldown {
 
-LU_SYMBOL ( option_createIfMissing , createIfMissing ); // for open()
-LU_SYMBOL ( option_errorIfExists   , errorIfExists   ); // for open()
-LU_SYMBOL ( option_compression     , compression     ); // for open()
-LU_SYMBOL ( option_cacheSize       , cacheSize       ); // for open() 
-LU_SYMBOL ( option_sync            , sync            ); // for put() and delete()
-LU_SYMBOL ( option_asBuffer        , asBuffer        ); // for get()
-LU_SYMBOL ( option_fillCache       , fillcache       ); // for get() and readStream()
+LD_SYMBOL ( option_createIfMissing , createIfMissing ); // for open()
+LD_SYMBOL ( option_errorIfExists   , errorIfExists   ); // for open()
+LD_SYMBOL ( option_compression     , compression     ); // for open()
+LD_SYMBOL ( option_cacheSize       , cacheSize       ); // for open() 
+LD_SYMBOL ( option_sync            , sync            ); // for put() and delete()
+LD_SYMBOL ( option_asBuffer        , asBuffer        ); // for get()
+LD_SYMBOL ( option_fillCache       , fillcache       ); // for get() and readStream()
 
 struct AsyncDescriptor;
 
@@ -66,15 +66,15 @@ private:
 
   static v8::Persistent<v8::Function> constructor;
 
-  LU_V8_METHOD( New      )
-  LU_V8_METHOD( Open     )
-  LU_V8_METHOD( Close    )
-  LU_V8_METHOD( Put      )
-  LU_V8_METHOD( Delete   )
-  LU_V8_METHOD( Get      )
-  LU_V8_METHOD( Batch    )
-  LU_V8_METHOD( Iterator )
-  LU_V8_METHOD( ApproximateSize )
+  LD_V8_METHOD( New      )
+  LD_V8_METHOD( Open     )
+  LD_V8_METHOD( Close    )
+  LD_V8_METHOD( Put      )
+  LD_V8_METHOD( Delete   )
+  LD_V8_METHOD( Get      )
+  LD_V8_METHOD( Batch    )
+  LD_V8_METHOD( Iterator )
+  LD_V8_METHOD( ApproximateSize )
 };
 
 } // namespace leveldown

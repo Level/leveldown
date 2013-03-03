@@ -3,8 +3,8 @@
  * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
-#ifndef LU_DATABASE_ASYNC_H
-#define LU_DATABASE_ASYNC_H
+#ifndef LD_DATABASE_ASYNC_H
+#define LD_DATABASE_ASYNC_H
 
 #include <vector>
 #include <node.h>

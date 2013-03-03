@@ -3,8 +3,8 @@
  * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
-#ifndef LU_ITERATOR_H
-#define LU_ITERATOR_H
+#ifndef LD_ITERATOR_H
+#define LD_ITERATOR_H
 
 #include <node.h>
 
@@ -14,14 +14,14 @@
 
 namespace leveldown {
 
-LU_SYMBOL ( option_start         , start         );
-LU_SYMBOL ( option_end           , end           );
-LU_SYMBOL ( option_limit         , limit         );
-LU_SYMBOL ( option_reverse       , reverse       );
-LU_SYMBOL ( option_keys          , keys          );
-LU_SYMBOL ( option_values        , values        );
-LU_SYMBOL ( option_keyAsBuffer   , keyAsBuffer   );
-LU_SYMBOL ( option_valueAsBuffer , valueAsBuffer );
+LD_SYMBOL ( option_start         , start         );
+LD_SYMBOL ( option_end           , end           );
+LD_SYMBOL ( option_limit         , limit         );
+LD_SYMBOL ( option_reverse       , reverse       );
+LD_SYMBOL ( option_keys          , keys          );
+LD_SYMBOL ( option_values        , values        );
+LD_SYMBOL ( option_keyAsBuffer   , keyAsBuffer   );
+LD_SYMBOL ( option_valueAsBuffer , valueAsBuffer );
 
 v8::Handle<v8::Value> CreateIterator (const v8::Arguments& args);
 
@@ -79,9 +79,9 @@ private:
 
   static v8::Persistent<v8::Function> constructor;
 
-  LU_V8_METHOD( New  )
-  LU_V8_METHOD( Next )
-  LU_V8_METHOD( End  )
+  LD_V8_METHOD( New  )
+  LD_V8_METHOD( Next )
+  LD_V8_METHOD( End  )
 };
 
 } // namespace leveldown
