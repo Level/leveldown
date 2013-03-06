@@ -6,6 +6,7 @@
 #ifndef LD_DATABASE_H
 #define LD_DATABASE_H
 
+#include <vector>
 #include <node.h>
 
 #include "leveldb/db.h"
@@ -21,6 +22,8 @@ LD_SYMBOL ( option_cacheSize       , cacheSize       ); // for open()
 LD_SYMBOL ( option_sync            , sync            ); // for put() and delete()
 LD_SYMBOL ( option_asBuffer        , asBuffer        ); // for get()
 LD_SYMBOL ( option_fillCache       , fillcache       ); // for get() and readStream()
+
+extern std::vector<Plugin*> plugins;
 
 struct AsyncDescriptor;
 

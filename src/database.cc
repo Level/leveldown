@@ -18,6 +18,8 @@
 
 namespace leveldown {
 
+std::vector<Plugin*> plugins;
+
 Database::Database (char* location) : location(location) {
   db = NULL;
 };
@@ -136,6 +138,7 @@ void Database::Init () {
       v8::String::NewSymbol("iterator")
     , v8::FunctionTemplate::New(Iterator)->GetFunction()
   );
+
   constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
 }
 
@@ -154,6 +157,12 @@ v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
 
   Database* obj = new Database(location);
   obj->Wrap(args.This());
+
+  for (std::vector<Plugin*>::iterator it = plugins.begin()
+    ; it != plugins.end()
+    ; ++it) {
+      (*it)->Init(args.This());
+  }
 
   return args.This();
 }

@@ -5,6 +5,28 @@
 #ifndef LD_LEVELDOWN_H
 #define LD_LEVELDOWN_H
 
+#include <v8.h>
+
+namespace leveldown {
+
+class Plugin {
+public:
+  Plugin () {};
+  virtual void Init (v8::Local<v8::Object> database) =0;
+  virtual const char* Name () =0;
+};
+
+typedef Plugin* CreatePlugin();
+
+} // namespace leveldown
+
+#define LD_PLUGIN(name, clazz)                                \
+  extern "C" {                                                \
+    NODE_MODULE_EXPORT leveldown::Plugin* name ## _plugin() { \
+      return new clazz();                                     \
+    }                                                         \
+  }
+
 #define LD_SYMBOL(var, key) \
   static const v8::Persistent<v8::String> var = \
     v8::Persistent<v8::String>::New(v8::String::NewSymbol(#key));
@@ -105,7 +127,8 @@
   if (args.Length() == 0) { \
     LD_THROW_RETURN(name() requires a callback argument) \
   } \
-  Database* database = ObjectWrap::Unwrap<Database>(args.This()); \
+  leveldown::Database* database = \
+      node::ObjectWrap::Unwrap<leveldown::Database>(args.This()); \
   v8::Local<v8::Object> optionsObj; \
   v8::Persistent<v8::Function> callback; \
   if (optionPos == -1 && args[callbackPos]->IsFunction()) { \
