@@ -14,6 +14,7 @@
 #include "async.h"
 #include "database_async.h"
 #include "batch.h"
+#include "cbatch.h"
 #include "iterator.h"
 
 namespace leveldown {
@@ -136,6 +137,10 @@ void Database::Init () {
       v8::String::NewSymbol("iterator")
     , v8::FunctionTemplate::New(Iterator)->GetFunction()
   );
+  tpl->PrototypeTemplate()->Set(
+      v8::String::NewSymbol("write")
+    , v8::FunctionTemplate::New(Write)->GetFunction()
+  );
   constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
 }
 
@@ -242,6 +247,59 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
   return v8::Undefined();
 }
 
+Handle<Value> Database::Write(const Arguments& args) {
+  HandleScope scope;
+
+  Database* database = ObjectWrap::Unwrap<Database>(args.This());
+
+  if (args.Length() < 1) {
+    ThrowException(Exception::Error(String::New("batch required")));
+    return scope.Close(Undefined());
+  }
+
+  WriteParams *params = new WriteParams();
+  params->request.data = params;
+  params->db = database->db;
+  params->cb = Persistent<Function>::New(Local<Function>::Cast(args[1]));
+
+  params->batch = ObjectWrap::Unwrap<CBatch>(args[0]->ToObject());
+
+  uv_queue_work(uv_default_loop(), &params->request, WriteDoing, WriteAfter);
+
+  return scope.Close(args.Holder());
+}
+
+void Database::WriteDoing (uv_work_t *req) {
+  WriteParams *params = (WriteParams *)req->data;
+  leveldb::WriteBatch wb = params->batch->batch;
+
+  params->status = params->db->Write(leveldb::WriteOptions(), &wb);
+}
+
+void Database::WriteAfter (uv_work_t *req) {
+  HandleScope scope;
+  WriteParams *params = (WriteParams *)req->data;
+
+  Handle<Value> argv[1];
+
+  if (params->status.ok()) {
+    argv[0] = Local<Value>::New(Undefined());
+  } else {
+    argv[0] = Local<Value>::New(String::New(params->status.ToString().data()));
+  }
+
+  if (params->cb->IsFunction()) {
+    TryCatch try_catch;
+    params->cb->Call(Context::GetCurrent()->Global(), 1, argv);
+    if (try_catch.HasCaught()) {
+      FatalException(try_catch);
+    }
+  }
+
+  params->cb.Dispose();
+  delete params;
+  scope.Close(Undefined());
+}
 v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
   v8::HandleScope scope;
 
@@ -412,5 +470,6 @@ v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
 
   return scope.Close(Iterator::NewInstance(args.This(), optionsObj));
 }
+
 
 } // namespace leveldown
