@@ -7,13 +7,14 @@
 #define LD_ASYNC_H
 
 #include <node.h>
+#include "database.h"
 
 namespace leveldown {
 
 /* abstract */ class AsyncWorker {
 public:
   AsyncWorker (
-      Database* database
+      leveldown::Database* database
     , v8::Persistent<v8::Function> callback
   );
 
@@ -23,7 +24,7 @@ public:
   virtual void Execute () =0;
 
 protected:
-  Database* database;
+  leveldown::Database* database;
   v8::Persistent<v8::Function> callback;
   leveldb::Status status;
   virtual void HandleOKCallback ();
