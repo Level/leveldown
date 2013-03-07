@@ -8,12 +8,14 @@
 #include "leveldown.h"
 #include "database.h"
 #include "iterator.h"
+#include "cbatch.h"
 
 namespace leveldown {
 
 void Init (v8::Handle<v8::Object> target) {
   Database::Init();
   leveldown::Iterator::Init();
+  CBatch::Initialize(target);
 
   target->Set(v8::String::NewSymbol("leveldown")
       , v8::FunctionTemplate::New(LevelDOWN)->GetFunction());
