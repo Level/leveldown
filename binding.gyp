@@ -9,7 +9,7 @@
       , "conditions"        : [
             ["OS=='mac'", {
                 "libraries": [
-                    "-Wl,-force_load,<(module_root_dir)/build/$(BUILDTYPE)/leveldown.a"
+                    "-Wl,-force_load,<(module_root_dir)/build/$(BUILDTYPE)/leveldb.a"
                 ]
             }]
           , ["OS=='win'", {
