@@ -4,6 +4,8 @@
         'ldbversion': '1.9.0'
     }
   , 'type': 'static_library'
+		# Overcomes an issue with the linker and thin .a files on SmartOS
+  , 'standalone_static_library': 1
   , 'dependencies': [
         '../snappy/snappy.gyp:snappy'
     ]
