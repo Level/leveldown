@@ -214,8 +214,8 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(put, 2, 3)
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(1, Value)
+  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(0, Key)
+  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(1, Value)
 
   v8::Local<v8::Value> keyBufferV = args[0];
   v8::Local<v8::Value> valueBufferV = args[1];
@@ -248,7 +248,7 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(put, 1, 2)
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
+  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(0, Key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
@@ -276,7 +276,7 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(put, 1, 2)
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(0, Key)
+  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(0, Key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
@@ -320,10 +320,11 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       continue;
 
     v8::Local<v8::Object> obj = v8::Local<v8::Object>::Cast(array->Get(i));
-    if (!obj->Has(str_type) || !obj->Has(str_key))
-      continue;
+
+    LD_CB_ERR_IF_NULL_OR_UNDEFINED(obj->Get(str_type), type)
 
     v8::Local<v8::Value> keyBuffer = obj->Get(str_key);
+    LD_CB_ERR_IF_NULL_OR_UNDEFINED(keyBuffer, key)
 
     if (obj->Get(str_type)->StrictEquals(str_del)) {
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
@@ -332,8 +333,9 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
           key
         , v8::Persistent<v8::Value>::New(keyBuffer)
       ));
-    } else if (obj->Get(str_type)->StrictEquals(str_put) && obj->Has(str_value)) {
+    } else if (obj->Get(str_type)->StrictEquals(str_put)) {
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
+      LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
 
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, Key)
       LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, Value)
@@ -377,8 +379,8 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(0, Start)
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(1, End)
+  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(0, Start)
+  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(1, End)
 
   LD_STRING_OR_BUFFER_TO_SLICE(start, startBufferV, Start)
   LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV, End)

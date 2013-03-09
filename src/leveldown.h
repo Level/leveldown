@@ -12,16 +12,19 @@
 #define LD_V8_METHOD(name) \
   static v8::Handle<v8::Value> name (const v8::Arguments& args);
 
-#define LD_CB_ERR_IF_NULL_OR_UNDEFINED(index, name) \
-  if (args[index]->IsNull() || args[index]->IsUndefined()) { \
+#define LD_CB_ERR_IF_NULL_OR_UNDEFINED(thing, name) \
+  if (thing->IsNull() || thing->IsUndefined()) { \
     v8::Local<v8::Value> argv[] = { \
       v8::Local<v8::Value>::New(v8::Exception::Error( \
-        v8::String::New(#name " argument cannot be `null` or `undefined`")) \
+        v8::String::New(#name " cannot be `null` or `undefined`")) \
       ) \
     }; \
     LD_RUN_CALLBACK(callback, argv, 1); \
     return v8::Undefined(); \
   }
+
+#define LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(index, name) \
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[index], name argument)
 
 #define LD_FROM_V8_STRING(to, from) \
   size_t to ## Sz_; \
