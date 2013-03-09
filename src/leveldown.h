@@ -23,9 +23,6 @@
     return v8::Undefined(); \
   }
 
-#define LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(index, name) \
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[index], name argument)
-
 #define LD_FROM_V8_STRING(to, from) \
   size_t to ## Sz_; \
   char* to; \

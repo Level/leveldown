@@ -214,8 +214,8 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(put, 2, 3)
 
-  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(0, Key)
-  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(1, Value)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], Key)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], Value)
 
   v8::Local<v8::Value> keyBufferV = args[0];
   v8::Local<v8::Value> valueBufferV = args[1];
@@ -248,7 +248,7 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(put, 1, 2)
 
-  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(0, Key)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], Key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
@@ -276,7 +276,7 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(put, 1, 2)
 
-  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(0, Key)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], Key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, Key)
@@ -379,8 +379,8 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
 
-  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(0, Start)
-  LD_CB_ERR_IF_OPTION_NULL_OR_UNDEFINED(1, End)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], Start)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], End)
 
   LD_STRING_OR_BUFFER_TO_SLICE(start, startBufferV, Start)
   LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV, End)
