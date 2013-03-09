@@ -1,3 +1,7 @@
+0.1.3 @ Mar 9 2013
+==================
+  * add 'standalone_static_library':1 in dependency gyp files to fix SmartOS build problems (@wolfeidau)
+
 0.1.2 @ Jan 25 2013
 ===================
   * upgrade to LevelDB 1.9.0, fairly minor changes since 1.7.0 (@rvagg)
