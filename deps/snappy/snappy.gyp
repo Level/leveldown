@@ -9,6 +9,8 @@
     }
   , 'target_name': 'snappy'
   , 'type': 'static_library'
+		# Overcomes an issue with the linker and thin .a files on SmartOS
+  , 'standalone_static_library': 1
   , 'include_dirs': [
         '<(os_include)'
       , 'snappy-1.1.0'
