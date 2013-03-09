@@ -52,27 +52,35 @@ test('test simple batch()', function (t) {
 
 test('test batch() with missing `value`', function (t) {
   db.batch([{ type: 'put', key: 'foo1' }], function (err) {
-    t.notOk(err, 'no error')
+    t.like(err.message, /value cannot be `null` or `undefined`/, 'correct error message')
+    t.end()
+  })
+})
 
-    db.get('foo1', function (err, value) {
-      t.ok(err, 'entry not found')
-      t.notOk(value, 'value not returned')
-      t.like(err.message, /NotFound/)
-      t.end()
-    })
+test('test batch() with null `value`', function (t) {
+  db.batch([{ type: 'put', key: 'foo1', value: null }], function (err) {
+    t.like(err.message, /value cannot be `null` or `undefined`/, 'correct error message')
+    t.end()
   })
 })
 
 test('test batch() with missing `key`', function (t) {
   db.batch([{ type: 'put', value: 'foo1' }], function (err) {
-    t.notOk(err, 'no error')
+    t.like(err.message, /key cannot be `null` or `undefined`/, 'correct error message')
+    t.end()
+  })
+})
+
+test('test batch() with null `key`', function (t) {
+  db.batch([{ type: 'put', key: null, value: 'foo1' }], function (err) {
+    t.like(err.message, /key cannot be `null` or `undefined`/, 'correct error message')
     t.end()
   })
 })
 
 test('test batch() with missing `key` and `value`', function (t) {
   db.batch([{ type: 'put' }], function (err) {
-    t.notOk(err, 'no error')
+    t.like(err.message, /key cannot be `null` or `undefined`/, 'correct error message')
     t.end()
   })
 })
