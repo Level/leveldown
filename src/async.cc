@@ -8,7 +8,6 @@
 #include "database.h"
 #include "leveldown.h"
 #include "async.h"
-#include "batch.h"
 
 namespace leveldown {
 
