@@ -1,3 +1,7 @@
+0.1.4 @ Mar 11 2013
+===================
+  * return error when batch ops contain null or undefined (@rvagg / @ralphtheninja / @dominictarr) (additional tests in LevelUP for this)
+
 0.1.3 @ Mar 9 2013
 ==================
   * add 'standalone_static_library':1 in dependency gyp files to fix SmartOS build problems (@wolfeidau)
