@@ -12,11 +12,11 @@
 #define LD_V8_METHOD(name) \
   static v8::Handle<v8::Value> name (const v8::Arguments& args);
 
-#define LD_CB_ERR_IF_NULL_OR_UNDEFINED(index, name) \
-  if (args[index]->IsNull() || args[index]->IsUndefined()) { \
+#define LD_CB_ERR_IF_NULL_OR_UNDEFINED(thing, name) \
+  if (thing->IsNull() || thing->IsUndefined()) { \
     v8::Local<v8::Value> argv[] = { \
       v8::Local<v8::Value>::New(v8::Exception::Error( \
-        v8::String::New(#name " argument cannot be `null` or `undefined`")) \
+        v8::String::New(#name " cannot be `null` or `undefined`")) \
       ) \
     }; \
     LD_RUN_CALLBACK(callback, argv, 1); \
@@ -31,20 +31,20 @@
   to = new char[to ## Sz_ + 1]; \
   to ## Str->WriteUtf8(to, -1, NULL, v8::String::NO_OPTIONS);
 
-#define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name) \
+#define LD_STRING_OR_BUFFER_TO_SLICE(to, from) \
   size_t to ## Sz_; \
   char* to ## Ch_; \
   if (node::Buffer::HasInstance(from->ToObject())) { \
     to ## Sz_ = node::Buffer::Length(from->ToObject()); \
     if (to ## Sz_ == 0) { \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " argument cannot be an empty Buffer") \
+      LD_RETURN_CALLBACK_OR_ERROR(callback, #to " argument cannot be an empty Buffer") \
     } \
     to ## Ch_ = node::Buffer::Data(from->ToObject()); \
   } else { \
     v8::Local<v8::String> to ## Str = from->ToString(); \
     to ## Sz_ = to ## Str->Utf8Length(); \
     if (to ## Sz_ == 0) { \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " argument cannot be an empty String") \
+      LD_RETURN_CALLBACK_OR_ERROR(callback, #to " argument cannot be an empty String") \
     } \
     to ## Ch_ = new char[to ## Sz_]; \
     to ## Str->WriteUtf8( \

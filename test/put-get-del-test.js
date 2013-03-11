@@ -75,11 +75,11 @@ test('setUp', function (t) {
 
 /**** TEST ERROR KEYS ****/
 
-makeErrorKeyTest('null key', null, /Key argument cannot be `null` or `undefined`/)
-makeErrorKeyTest('undefined key', undefined, /Key argument cannot be `null` or `undefined`/)
-makeErrorKeyTest('empty String key', '', /Key argument cannot be an empty String/)
-makeErrorKeyTest('empty Buffer key', new Buffer(0), /Key argument cannot be an empty Buffer/)
-makeErrorKeyTest('empty Array key', [], /Key argument cannot be an empty String/)
+makeErrorKeyTest('null key', null, /key cannot be `null` or `undefined`/)
+makeErrorKeyTest('undefined key', undefined, /key cannot be `null` or `undefined`/)
+makeErrorKeyTest('empty String key', '', /key argument cannot be an empty String/)
+makeErrorKeyTest('empty Buffer key', new Buffer(0), /key argument cannot be an empty Buffer/)
+makeErrorKeyTest('empty Array key', [], /key argument cannot be an empty String/)
 
 /**** TEST NON-ERROR KEYS ****/
 
@@ -103,11 +103,11 @@ makePutGetDelSuccessfulTest('Array value', 'foo', [1,2,3,4])
 
 /**** TEST ERROR VALUES ****/
 
-makePutErrorTest('null value', 'foo', null, /Value argument cannot be `null` or `undefined`/)
-makePutErrorTest('undefined value', 'foo', undefined, /Value argument cannot be `null` or `undefined`/)
-makePutErrorTest('empty String value', 'foo', '', /Value argument cannot be an empty String/)
-makePutErrorTest('empty Buffer value', 'foo', new Buffer(0), /Value argument cannot be an empty Buffer/)
-makePutErrorTest('empty Array value', 'foo', [], /Value argument cannot be an empty String/)
+makePutErrorTest('null value', 'foo', null, /value cannot be `null` or `undefined`/)
+makePutErrorTest('undefined value', 'foo', undefined, /value cannot be `null` or `undefined`/)
+makePutErrorTest('empty String value', 'foo', '', /value argument cannot be an empty String/)
+makePutErrorTest('empty Buffer value', 'foo', new Buffer(0), /value argument cannot be an empty Buffer/)
+makePutErrorTest('empty Array value', 'foo', [], /value argument cannot be an empty String/)
 
 // valid falsey values
 makePutGetDelSuccessfulTest('`false` value', 'foo false', false)
