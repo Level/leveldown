@@ -1,6 +1,8 @@
 LevelDOWN
 =========
 
+![LevelDB Logo](https://twimg0-a.akamaihd.net/profile_images/3360574989/92fc472928b444980408147e5e5db2fa_bigger.png)
+
 A Low-level Node.js LevelDB binding
 -------------------------
 
@@ -109,7 +111,7 @@ The `callback` function will be called with no arguments if the operation is suc
 --------------------------------------------------------
 <a name="leveldown_batch"></a>
 ### leveldown#batch(operations[, options], callback)
-<code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should be an `Array` containing a list of operations to be executed sequentially. Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. See [LevelUP](https://github.com/rvagg/node-levelup#batch) for full documentation on how this works in practice.
+<code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should be an `Array` containing a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation inside LevelDB. Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback` and any `'type': 'put'` entry with a `'value'` of `null` or `undefined` will return an error. See [LevelUP](https://github.com/rvagg/node-levelup#batch) for full documentation on how this works in practice.
 
 #### `options`
 
