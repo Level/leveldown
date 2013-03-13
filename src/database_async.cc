@@ -10,7 +10,6 @@
 #include "leveldown.h"
 #include "async.h"
 #include "database_async.h"
-#include "batch.h"
 
 namespace leveldown {
 
@@ -173,30 +172,30 @@ void WriteWorker::WorkComplete () {
 BatchWorker::BatchWorker (
     Database* database
   , v8::Persistent<v8::Function> callback
-  , std::vector<BatchOp*>* operations
+  , leveldb::WriteBatch* batch
+  , std::vector< v8::Persistent<v8::Value> >* references
   , bool sync
 ) : AsyncWorker(database, callback)
-  , operations(operations)
+  , batch(batch)
+  , references(references)
 {
   options = new leveldb::WriteOptions();
   options->sync = sync;
 };
 
 BatchWorker::~BatchWorker () {
-  for (std::vector<BatchOp*>::iterator it = operations->begin(); it != operations->end();) {
-    delete *it;
-    it = operations->erase(it);
+  for (std::vector< v8::Persistent<v8::Value> >::iterator it = references->begin()
+      ; it != references->end()
+      ; ) {
+    it->Dispose();
+    it = references->erase(it);
   }
-  delete operations;
+  delete references;
   delete options;
 }
 
 void BatchWorker::Execute () {
-  leveldb::WriteBatch batch;
-  for (std::vector<BatchOp*>::iterator it = operations->begin(); it != operations->end();) {
-    (*it++)->Execute(&batch);
-  }
-  status = database->WriteBatchToDatabase(options, &batch);
+  status = database->WriteBatchToDatabase(options, batch);
 }
 
 /** APPROXIMATE SIZE WORKER **/

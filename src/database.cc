@@ -8,12 +8,12 @@
 #include <node_buffer.h>
 
 #include "leveldb/db.h"
+#include "leveldb/write_batch.h"
 
 #include "leveldown.h"
 #include "database.h"
 #include "async.h"
 #include "database_async.h"
-#include "batch.h"
 #include "iterator.h"
 
 namespace leveldown {
@@ -314,7 +314,10 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
-  std::vector<BatchOp*>* operations = new std::vector<BatchOp*>;
+  std::vector< v8::Persistent<v8::Value> >* references =
+      new std::vector< v8::Persistent<v8::Value> >;
+  leveldb::WriteBatch* batch = new leveldb::WriteBatch();
+
   for (unsigned int i = 0; i < array->Length(); i++) {
     if (!array->Get(i)->IsObject())
       continue;
@@ -329,10 +332,9 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
     if (obj->Get(str_type)->StrictEquals(str_del)) {
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
 
-      operations->push_back(new BatchDelete(
-          key
-        , v8::Persistent<v8::Value>::New(keyBuffer)
-      ));
+      batch->Delete(key);
+      if (node::Buffer::HasInstance(keyBuffer->ToObject()))
+        references->push_back(v8::Persistent<v8::Value>::New(keyBuffer));
     } else if (obj->Get(str_type)->StrictEquals(str_put)) {
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
@@ -340,19 +342,19 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
       LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer)
 
-      operations->push_back(new BatchWrite(
-          key
-        , value
-        , v8::Persistent<v8::Value>::New(keyBuffer)
-        , v8::Persistent<v8::Value>::New(valueBuffer)
-      ));
+      batch->Put(key, value);
+      if (node::Buffer::HasInstance(keyBuffer->ToObject()))
+        references->push_back(v8::Persistent<v8::Value>::New(keyBuffer));
+      if (node::Buffer::HasInstance(valueBuffer->ToObject()))
+        references->push_back(v8::Persistent<v8::Value>::New(valueBuffer));
     }
   }
 
   AsyncQueueWorker(new BatchWorker(
       database
     , callback
-    , operations
+    , batch
+    , references
     , sync
   ));
 
