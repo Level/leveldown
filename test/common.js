@@ -45,9 +45,28 @@ var dbidx = 0
       setUp(t) // same cleanup!
     }
 
+  , collectEntries = function (iterator, callback) {
+      var data = []
+        , next = function () {
+            iterator.next(function (err, key, value) {
+              if (err) return callback(err)
+              if (!arguments.length) {
+                return iterator.end(function (err) {
+                  callback(err, data)
+                })
+              }
+              if (key == +key) key = +key
+              data.push({ key: key, value: value })
+              process.nextTick(next)
+            })
+          }
+      next()
+    }
+
 module.exports = {
-    location     : location
-  , lastLocation : lastLocation
-  , setUp        : setUp
-  , tearDown     : tearDown
+    location       : location
+  , lastLocation   : lastLocation
+  , setUp          : setUp
+  , tearDown       : tearDown
+  , collectEntries : collectEntries
 }
