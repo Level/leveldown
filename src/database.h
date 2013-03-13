@@ -11,6 +11,7 @@
 #include "leveldb/db.h"
 
 #include "leveldown.h"
+#include "cbatch.h"
 
 namespace leveldown {
 
@@ -65,6 +66,8 @@ private:
   char* location;
 
   static v8::Persistent<v8::Function> constructor;
+  static void WriteDoing(uv_work_t *req);
+  static void WriteAfter(uv_work_t *req);
 
   LD_V8_METHOD( New      )
   LD_V8_METHOD( Open     )
@@ -73,8 +76,17 @@ private:
   LD_V8_METHOD( Delete   )
   LD_V8_METHOD( Get      )
   LD_V8_METHOD( Batch    )
+  LD_V8_METHOD( Write    )
   LD_V8_METHOD( Iterator )
   LD_V8_METHOD( ApproximateSize )
+};
+
+struct WriteParams {
+  leveldb::DB* db;
+  CBatch* batch; 
+  Persistent<Function> cb;
+  leveldb::Status status;
+  uv_work_t request;
 };
 
 } // namespace leveldown

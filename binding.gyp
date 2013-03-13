@@ -6,6 +6,7 @@
         ]
       , "sources": [
             "src/async.cc"
+          , "src/cbatch.cc"
           , "src/database.cc"
           , "src/database_async.cc"
           , "src/iterator.cc"
