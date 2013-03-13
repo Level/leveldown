@@ -10,16 +10,16 @@ test('setUp', function (t) {
 })
 
 test('writes', function (t) {
-  var batch = new leveldown.CBatch()
-  batch.put('foo', 'bar')
-  db.write(batch, function (err) {
-    t.notOk(err, 'no error')
-    db.get('foo', function (err, value) {
+  db.batch()
+    .put('foo', 'bar')
+    .write(function (err) {
       t.notOk(err, 'no error')
-      t.equal(value.toString(), 'bar')
-      t.end()
+      db.get('foo', function (err, value) {
+        t.notOk(err, 'no error')
+        t.equal(value.toString(), 'bar')
+        t.end()
+      })
     })
-  })
 })
 
 test('tearDown', function (t) {

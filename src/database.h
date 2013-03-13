@@ -11,7 +11,6 @@
 #include "leveldb/db.h"
 
 #include "leveldown.h"
-#include "cbatch.h"
 
 namespace leveldown {
 
@@ -79,14 +78,6 @@ private:
   LD_V8_METHOD( Write    )
   LD_V8_METHOD( Iterator )
   LD_V8_METHOD( ApproximateSize )
-};
-
-struct WriteParams {
-  leveldb::DB* db;
-  CBatch* batch; 
-  Persistent<Function> cb;
-  leveldb::Status status;
-  uv_work_t request;
 };
 
 } // namespace leveldown
