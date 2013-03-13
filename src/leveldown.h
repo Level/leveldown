@@ -14,13 +14,7 @@
 
 #define LD_CB_ERR_IF_NULL_OR_UNDEFINED(thing, name) \
   if (thing->IsNull() || thing->IsUndefined()) { \
-    v8::Local<v8::Value> argv[] = { \
-      v8::Local<v8::Value>::New(v8::Exception::Error( \
-        v8::String::New(#name " cannot be `null` or `undefined`")) \
-      ) \
-    }; \
-    LD_RUN_CALLBACK(callback, argv, 1); \
-    return v8::Undefined(); \
+    LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be `null` or `undefined`") \
   }
 
 #define LD_FROM_V8_STRING(to, from) \
