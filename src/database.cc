@@ -265,7 +265,7 @@ Handle<Value> Database::Write(const Arguments& args) {
 
   params->batch = ObjectWrap::Unwrap<CBatch>(args[0]->ToObject());
 
-  uv_queue_work(uv_default_loop(), &params->request, WriteDoing, WriteAfter);
+  uv_queue_work(uv_default_loop(), &params->request, WriteDoing, (uv_after_work_cb)WriteAfter);
 
   return scope.Close(args.Holder());
 }
