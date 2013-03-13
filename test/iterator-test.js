@@ -1,6 +1,7 @@
 const test       = require('tap').test
     , testCommon = require('./common')
     , leveldown  = require('../')
+    , collectEntries = testCommon.collectEntries
 
 var db
   , sourceData = (function () {
@@ -18,23 +19,6 @@ var db
       return d
     }())
   , transformSource = function (d) { return { key: d.key, value: d.value } }
-  , collectEntries = function (iterator, callback) {
-      var data = []
-        , next = function () {
-            iterator.next(function (err, key, value) {
-              if (err) return callback(err)
-              if (!arguments.length) {
-                return iterator.end(function (err) {
-                  callback(err, data)
-                })
-              }
-              if (key == +key) key = +key
-              data.push({ key: key, value: value })
-              process.nextTick(next)
-            })
-          }
-      next()
-    }
 
 test('setUp', function (t) {
   db = leveldown(testCommon.location())
