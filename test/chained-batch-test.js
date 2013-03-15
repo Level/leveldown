@@ -4,9 +4,10 @@ const test       = require('tap').test
 
 var db
 
-test('setUp', function (t) {
+test('setUp common', testCommon.setUp)
+test('setUp db', function (t) {
   db = leveldown(testCommon.location())
-  db.open(testCommon.setUp.bind(null, t))
+  db.open(t.end.bind(t))
 })
 
 test('basic batch', function (t) {

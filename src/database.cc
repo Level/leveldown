@@ -144,11 +144,11 @@ v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
   v8::HandleScope scope;
 
   if (args.Length() == 0) {
-    LD_THROW_RETURN("leveldown() requires at least a location argument")
+    LD_THROW_RETURN(leveldown() requires at least a location argument)
   }
 
   if (!args[0]->IsString()) {
-    LD_THROW_RETURN("leveldown() requires a location string argument")
+    LD_THROW_RETURN(leveldown() requires a location string argument)
   }
 
   LD_FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
@@ -246,7 +246,7 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  LD_METHOD_SETUP_COMMON(put, 1, 2)
+  LD_METHOD_SETUP_COMMON(get, 1, 2)
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
@@ -274,7 +274,7 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  LD_METHOD_SETUP_COMMON(put, 1, 2)
+  LD_METHOD_SETUP_COMMON(del, 1, 2)
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
@@ -382,9 +382,7 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
       || endBufferV->IsUndefined()
       || endBufferV->IsFunction() // callback in pos 1?
       ) {
-    LD_THROW_RETURN( \
-      "approximateSize() requires valid `start`, `end` and `callback` arguments" \
-    )
+    LD_THROW_RETURN(approximateSize() requires valid `start`, `end` and `callback` arguments)
   }
 
   LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
