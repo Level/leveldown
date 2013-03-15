@@ -2,14 +2,77 @@ const test       = require('tap').test
     , testCommon = require('./common')
     , leveldown  = require('../')
 
-test('setUp', testCommon.setUp)
+var db
 
-test('test approximateSize()', function (t) {
-  var db   = leveldown(testCommon.location())
-    , data = Array.apply(null, Array(10000)).map(function () { return 'aaaaaaaaaa' }).join('')
+module.exports.setUp = function (leveldown) {
+  test('setUp common', testCommon.setUp)
+  test('setUp db', function (t) {
+    db = leveldown(testCommon.location())
+    db.open(t.end.bind(t))
+  })
+}
 
-  db.open(function (err) {
-    t.notOk(err, 'no error')
+module.exports.args = function () {
+  test('test argument-less approximateSize() throws', function (t) {
+    t.throws(
+        db.approximateSize.bind(db)
+      , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+      , 'no-arg approximateSize() throws'
+    )
+    t.end()
+  })
+
+  test('test callback-less, 1-arg, approximateSize() throws', function (t) {
+    t.throws(
+        db.approximateSize.bind(db, 'foo')
+      , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+      , 'callback-less, 1-arg approximateSize() throws'
+    )
+    t.end()
+  })
+
+  test('test callback-less, 2-arg, approximateSize() throws', function (t) {
+    t.throws(
+        db.approximateSize.bind(db, 'foo', 'bar')
+      , { name: 'Error', message: 'approximateSize() requires a callback argument' }
+      , 'callback-less, 2-arg approximateSize() throws'
+    )
+    t.end()
+  })
+
+  test('test callback-less, 3-arg, approximateSize() throws', function (t) {
+    t.throws(
+        db.approximateSize.bind(db, function () {})
+      , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+      , 'callback-only approximateSize() throws'
+    )
+    t.end()
+  })
+
+  test('test callback-only approximateSize() throws', function (t) {
+    t.throws(
+        db.approximateSize.bind(db, function () {})
+      , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+      , 'callback-only approximateSize() throws'
+    )
+    t.end()
+  })
+
+  test('test 1-arg + callback approximateSize() throws', function (t) {
+    t.throws(
+        db.approximateSize.bind(db, 'foo', function () {})
+      , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+      , '1-arg + callback approximateSize() throws'
+    )
+    t.end()
+  })
+}
+
+module.exports.approximateSize = function () {
+  test('test approximateSize()', function (t) {
+    var data = Array.apply(null, Array(10000)).map(function () {
+      return 'aaaaaaaaaa'
+    }).join('')
 
     db.batch(
         Array.apply(null, Array(10)).map(function (x, i) {
@@ -26,29 +89,14 @@ test('test approximateSize()', function (t) {
             db.open(function (err) {
               t.notOk(err, 'no error')
 
-              t.throws(db.approximateSize, 'arg-less approximateSize() throws')
-              t.throws(
-                  db.approximateSize.bind(db, 'foo')
-                , '1-arg approximateSize() throws'
-              )
-              t.throws(
-                  db.approximateSize.bind(db, 'foo', 'bar')
-                , '2-arg approximateSize() throws'
-              )
-              t.throws(
-                  db.approximateSize.bind(db, function () {})
-                , 'callback-only approximateSize() throws'
-              )
-              t.throws(
-                  db.approximateSize.bind(db, 'foo', function () {})
-                , '1-arg + callback approximateSize() throws'
-              )
-
-              db.approximateSize('foo', 'z', function (err, size) {
+              db.approximateSize('!', '~', function (err, size) {
                 t.notOk(err, 'no error')
 
                 t.type(size, 'number')
-                t.ok(size > 100000, 'size reports a reasonable amount (' + size + ')')
+                t.ok(
+                    size > 100000
+                  , 'size reports a reasonable amount (' + size + ')'
+                )
 
                 db.close(function (err) {
                   t.notOk(err, 'no error')
@@ -60,6 +108,20 @@ test('test approximateSize()', function (t) {
         }
     )
   })
-})
+}
 
-test('tearDown', testCommon.tearDown)
+module.exports.tearDown = function () {
+  test('tearDown', function (t) {
+    db.close(testCommon.tearDown.bind(null, t))
+  })
+}
+
+module.exports.all = function (leveldown) {
+  module.exports.setUp(leveldown)
+  module.exports.args()
+  module.exports.approximateSize()
+  module.exports.tearDown()
+}
+
+if (require.main === module)
+  module.exports.all(leveldown)

@@ -118,15 +118,15 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
-    LD_THROW_RETURN("next() requires a callback argument")
+    LD_THROW_RETURN(next() requires a callback argument)
   }
 
   if (iterator->ended) {
-    LD_THROW_RETURN("Cannot call next() after end()")
+    LD_THROW_RETURN(cannot call next() after end())
   }
 
   if (iterator->nexting) {
-    LD_THROW_RETURN("Cannot call next() before previous next() has completed")
+    LD_THROW_RETURN(cannot call next() before previous next() has completed)
   }
 
   v8::Persistent<v8::Function> callback =
@@ -148,11 +148,11 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
-    LD_THROW_RETURN("end() requires a callback argument")
+    LD_THROW_RETURN(end() requires a callback argument)
   }
 
   if (iterator->ended) {
-    LD_THROW_RETURN("end() already called on iterator")
+    LD_THROW_RETURN(end() already called on iterator)
   }
 
   v8::Persistent<v8::Function> callback =

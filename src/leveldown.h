@@ -85,8 +85,8 @@
     node::FatalException(try_catch); \
   }
 
-#define LD_THROW_RETURN(msg) \
-  v8::ThrowException(v8::Exception::Error(v8::String::New(#msg))); \
+#define LD_THROW_RETURN(...) \
+  v8::ThrowException(v8::Exception::Error(v8::String::New(#__VA_ARGS__))); \
   return v8::Undefined();
 
 /* LD_METHOD_SETUP_COMMON setup the following objects:
