@@ -25,20 +25,20 @@
   to = new char[to ## Sz_ + 1]; \
   to ## Str->WriteUtf8(to, -1, NULL, v8::String::NO_OPTIONS);
 
-#define LD_STRING_OR_BUFFER_TO_SLICE(to, from) \
+#define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name) \
   size_t to ## Sz_; \
   char* to ## Ch_; \
   if (node::Buffer::HasInstance(from->ToObject())) { \
     to ## Sz_ = node::Buffer::Length(from->ToObject()); \
     if (to ## Sz_ == 0) { \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #to " argument cannot be an empty Buffer") \
+      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty Buffer") \
     } \
     to ## Ch_ = node::Buffer::Data(from->ToObject()); \
   } else { \
     v8::Local<v8::String> to ## Str = from->ToString(); \
     to ## Sz_ = to ## Str->Utf8Length(); \
     if (to ## Sz_ == 0) { \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #to " argument cannot be an empty String") \
+      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty String") \
     } \
     to ## Ch_ = new char[to ## Sz_]; \
     to ## Str->WriteUtf8( \

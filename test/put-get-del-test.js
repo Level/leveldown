@@ -78,9 +78,9 @@ test('setUp db', function (t) {
 
 makeErrorKeyTest('null key', null, /key cannot be `null` or `undefined`/)
 makeErrorKeyTest('undefined key', undefined, /key cannot be `null` or `undefined`/)
-makeErrorKeyTest('empty String key', '', /key argument cannot be an empty String/)
-makeErrorKeyTest('empty Buffer key', new Buffer(0), /key argument cannot be an empty Buffer/)
-makeErrorKeyTest('empty Array key', [], /key argument cannot be an empty String/)
+makeErrorKeyTest('empty String key', '', /key cannot be an empty String/)
+makeErrorKeyTest('empty Buffer key', new Buffer(0), /key cannot be an empty Buffer/)
+makeErrorKeyTest('empty Array key', [], /key cannot be an empty String/)
 
 /**** TEST NON-ERROR KEYS ****/
 
@@ -106,9 +106,9 @@ makePutGetDelSuccessfulTest('Array value', 'foo', [1,2,3,4])
 
 makePutErrorTest('null value', 'foo', null, /value cannot be `null` or `undefined`/)
 makePutErrorTest('undefined value', 'foo', undefined, /value cannot be `null` or `undefined`/)
-makePutErrorTest('empty String value', 'foo', '', /value argument cannot be an empty String/)
-makePutErrorTest('empty Buffer value', 'foo', new Buffer(0), /value argument cannot be an empty Buffer/)
-makePutErrorTest('empty Array value', 'foo', [], /value argument cannot be an empty String/)
+makePutErrorTest('empty String value', 'foo', '', /value cannot be an empty String/)
+makePutErrorTest('empty Buffer value', 'foo', new Buffer(0), /value cannot be an empty Buffer/)
+makePutErrorTest('empty Array value', 'foo', [], /value cannot be an empty String/)
 
 // valid falsey values
 makePutGetDelSuccessfulTest('`false` value', 'foo false', false)

@@ -103,8 +103,8 @@ v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
 
   v8::Local<v8::Value> keyBuffer = args[0];
   v8::Local<v8::Value> valueBuffer = args[1];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
+  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
   if (node::Buffer::HasInstance(keyBuffer->ToObject()))
     batch->references->push_back(v8::Persistent<v8::Value>::New(keyBuffer));
@@ -125,7 +125,7 @@ v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
   v8::Local<v8::Value> keyBuffer = args[0];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
   if (node::Buffer::HasInstance(keyBuffer->ToObject()))
     batch->references->push_back(v8::Persistent<v8::Value>::New(keyBuffer));
