@@ -220,8 +220,8 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 
   v8::Local<v8::Value> keyBufferV = args[0];
   v8::Local<v8::Value> valueBufferV = args[1];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBufferV)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
+  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBufferV, value)
 
   v8::Persistent<v8::Value> keyBuffer =
       v8::Persistent<v8::Value>::New(keyBufferV);
@@ -252,7 +252,7 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
 
   v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
 
@@ -280,7 +280,7 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
 
   v8::Persistent<v8::Value> keyBuffer =
       v8::Persistent<v8::Value>::New(keyBufferV);
@@ -339,7 +339,7 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
     LD_CB_ERR_IF_NULL_OR_UNDEFINED(keyBuffer, key)
 
     if (obj->Get(str_type)->StrictEquals(str_del)) {
-      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
+      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
       batch->Delete(key);
       if (node::Buffer::HasInstance(keyBuffer->ToObject()))
@@ -348,8 +348,8 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
 
-      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
-      LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer)
+      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
+      LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
       batch->Put(key, value);
       if (node::Buffer::HasInstance(keyBuffer->ToObject()))
@@ -391,8 +391,8 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], start)
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], end)
 
-  LD_STRING_OR_BUFFER_TO_SLICE(start, startBufferV)
-  LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV)
+  LD_STRING_OR_BUFFER_TO_SLICE(start, startBufferV, start)
+  LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV, end)
 
   v8::Persistent<v8::Value> startBuffer =
       v8::Persistent<v8::Value>::New(startBufferV);

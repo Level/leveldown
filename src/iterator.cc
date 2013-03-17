@@ -233,7 +233,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
           || optionsObj->Get(option_start)->IsString())) {
 
       startBuffer = v8::Local<v8::Value>::New(optionsObj->Get(option_start));
-      LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer)
+      LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, start)
       start = new leveldb::Slice(_start.data(), _start.size());
     }
 
@@ -243,7 +243,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
 
       v8::Local<v8::Value> endBuffer =
           v8::Local<v8::Value>::New(optionsObj->Get(option_end));
-      LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer)
+      LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, end)
       end = new std::string(_end.data(), _end.size());
     }
 
