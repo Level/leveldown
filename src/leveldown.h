@@ -99,7 +99,8 @@
   if (args.Length() == 0) { \
     LD_THROW_RETURN(name() requires a callback argument) \
   } \
-  Database* database = ObjectWrap::Unwrap<Database>(args.This()); \
+  leveldown::Database* database = \
+    node::ObjectWrap::Unwrap<leveldown::Database>(args.This()); \
   v8::Local<v8::Object> optionsObj; \
   v8::Persistent<v8::Function> callback; \
   if (optionPos == -1 && args[callbackPos]->IsFunction()) { \
