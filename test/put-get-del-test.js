@@ -68,68 +68,92 @@ var db
 
 /**** SETUP ENVIRONMENT ****/
 
-test('setUp common', testCommon.setUp)
-test('setUp db', function (t) {
-  db = leveldown(testCommon.location())
-  db.open(t.end.bind(t))
-})
+module.exports.setUp = function (leveldown) {
+  test('setUp common', testCommon.setUp)
+  test('setUp db', function (t) {
+    db = leveldown(testCommon.location())
+    db.open(t.end.bind(t))
+  })
+}
 
 /**** TEST ERROR KEYS ****/
 
-makeErrorKeyTest('null key', null, /key cannot be `null` or `undefined`/)
-makeErrorKeyTest('undefined key', undefined, /key cannot be `null` or `undefined`/)
-makeErrorKeyTest('empty String key', '', /key cannot be an empty String/)
-makeErrorKeyTest('empty Buffer key', new Buffer(0), /key cannot be an empty Buffer/)
-makeErrorKeyTest('empty Array key', [], /key cannot be an empty String/)
+module.exports.errorKeys = function () {
+  makeErrorKeyTest('null key', null, /key cannot be `null` or `undefined`/)
+  makeErrorKeyTest('undefined key', undefined, /key cannot be `null` or `undefined`/)
+  makeErrorKeyTest('empty String key', '', /key cannot be an empty String/)
+  makeErrorKeyTest('empty Buffer key', new Buffer(0), /key cannot be an empty Buffer/)
+  makeErrorKeyTest('empty Array key', [], /key cannot be an empty String/)
+}
 
 /**** TEST NON-ERROR KEYS ****/
 
-// valid falsey keys
-makePutGetDelSuccessfulTest('`false` key', false, 'foo false')
-makePutGetDelSuccessfulTest('`0` key', 0, 'foo 0')
-makePutGetDelSuccessfulTest('`NaN` key', NaN, 'foo NaN')
+module.exports.nonErrorKeys = function () {
+  // valid falsey keys
+  makePutGetDelSuccessfulTest('`false` key', false, 'foo false')
+  makePutGetDelSuccessfulTest('`0` key', 0, 'foo 0')
+  makePutGetDelSuccessfulTest('`NaN` key', NaN, 'foo NaN')
 
-// standard String key
-makePutGetDelSuccessfulTest(
-    'long String key'
-  , 'some long string that I\'m using as a key for this unit test, cross your fingers dude, we\'re going in!'
-  , 'foo'
-)
+  // standard String key
+  makePutGetDelSuccessfulTest(
+      'long String key'
+    , 'some long string that I\'m using as a key for this unit test, cross your fingers dude, we\'re going in!'
+    , 'foo'
+  )
 
-// Buffer key
-makePutGetDelSuccessfulTest('Buffer key', testBuffer, 'foo')
+  // Buffer key
+  makePutGetDelSuccessfulTest('Buffer key', testBuffer, 'foo')
 
-// non-empty Array as a key
-makePutGetDelSuccessfulTest('Array value', 'foo', [1,2,3,4])
+  // non-empty Array as a key
+  makePutGetDelSuccessfulTest('Array value', 'foo', [1,2,3,4])
+}
 
 /**** TEST ERROR VALUES ****/
 
-makePutErrorTest('null value', 'foo', null, /value cannot be `null` or `undefined`/)
-makePutErrorTest('undefined value', 'foo', undefined, /value cannot be `null` or `undefined`/)
-makePutErrorTest('empty String value', 'foo', '', /value cannot be an empty String/)
-makePutErrorTest('empty Buffer value', 'foo', new Buffer(0), /value cannot be an empty Buffer/)
-makePutErrorTest('empty Array value', 'foo', [], /value cannot be an empty String/)
+module.exports.errorValues = function () {
+  makePutErrorTest('null value', 'foo', null, /value cannot be `null` or `undefined`/)
+  makePutErrorTest('undefined value', 'foo', undefined, /value cannot be `null` or `undefined`/)
+  makePutErrorTest('empty String value', 'foo', '', /value cannot be an empty String/)
+  makePutErrorTest('empty Buffer value', 'foo', new Buffer(0), /value cannot be an empty Buffer/)
+  makePutErrorTest('empty Array value', 'foo', [], /value cannot be an empty String/)
+}
 
-// valid falsey values
-makePutGetDelSuccessfulTest('`false` value', 'foo false', false)
-makePutGetDelSuccessfulTest('`0` value', 'foo 0', 0)
-makePutGetDelSuccessfulTest('`NaN` value', 'foo NaN', NaN)
+module.exports.nonErrorKeys = function () {
+  // valid falsey values
+  makePutGetDelSuccessfulTest('`false` value', 'foo false', false)
+  makePutGetDelSuccessfulTest('`0` value', 'foo 0', 0)
+  makePutGetDelSuccessfulTest('`NaN` value', 'foo NaN', NaN)
 
-// standard String value
-makePutGetDelSuccessfulTest(
-    'long String value'
-  , 'foo'
-  , 'some long string that I\'m using as a key for this unit test, cross your fingers dude, we\'re going in!'
-)
+  // standard String value
+  makePutGetDelSuccessfulTest(
+      'long String value'
+    , 'foo'
+    , 'some long string that I\'m using as a key for this unit test, cross your fingers dude, we\'re going in!'
+  )
 
-// standard Buffer value
-makePutGetDelSuccessfulTest('Buffer key', 'foo', testBuffer)
+  // standard Buffer value
+  makePutGetDelSuccessfulTest('Buffer key', 'foo', testBuffer)
 
-// non-empty Array as a value
-makePutGetDelSuccessfulTest('Array value', [1,2,3,4], 'foo')
+  // non-empty Array as a value
+  makePutGetDelSuccessfulTest('Array value', [1,2,3,4], 'foo')
+}
 
 /**** CLEANUP ENVIRONMENT ****/
 
-test('tearDown', function (t) {
-  db.close(testCommon.tearDown.bind(null, t))
-})
+module.exports.tearDown = function () {
+  test('tearDown', function (t) {
+    db.close(testCommon.tearDown.bind(null, t))
+  })
+}
+
+module.exports.all = function (leveldown) {
+  module.exports.setUp(leveldown)
+  module.exports.errorKeys()
+  module.exports.nonErrorKeys()
+  module.exports.errorValues()
+  module.exports.nonErrorKeys()
+  module.exports.tearDown()
+}
+
+if (require.main === module)
+  module.exports.all(leveldown)
