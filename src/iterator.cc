@@ -47,7 +47,7 @@ Iterator::Iterator (
 
 Iterator::~Iterator () {
   delete options;
-  startPtr.Dispose();
+  startPtr.Dispose(LD_NODE_ISOLATE);
   if (start != NULL)
     delete start;
   if (end != NULL)
@@ -130,7 +130,9 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   }
 
   v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[0]));
+      v8::Persistent<v8::Function>::New(
+          LD_NODE_ISOLATE_PRE
+          v8::Local<v8::Function>::Cast(args[0]));
 
   NextWorker* worker = new NextWorker(
       iterator
@@ -156,7 +158,9 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
   }
 
   v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[0]));
+      v8::Persistent<v8::Function>::New(
+          LD_NODE_ISOLATE_PRE
+          v8::Local<v8::Function>::Cast(args[0]));
 
   EndWorker* worker = new EndWorker(
       iterator
@@ -188,7 +192,9 @@ void Iterator::Init () {
       v8::String::NewSymbol("end")
     , v8::FunctionTemplate::New(End)->GetFunction()
   );
-  constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
+  constructor = v8::Persistent<v8::Function>::New(
+      LD_NODE_ISOLATE_PRE
+      tpl->GetFunction());
 }
 
 v8::Handle<v8::Value> Iterator::NewInstance (
@@ -271,7 +277,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
     , fillCache
     , keyAsBuffer
     , valueAsBuffer
-    , v8::Persistent<v8::Value>::New(startBuffer)
+    , v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE startBuffer)
   );
   iterator->Wrap(args.This());
 

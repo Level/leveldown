@@ -137,7 +137,9 @@ void Database::Init () {
       v8::String::NewSymbol("iterator")
     , v8::FunctionTemplate::New(Iterator)->GetFunction()
   );
-  constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
+  constructor = v8::Persistent<v8::Function>::New(
+      LD_NODE_ISOLATE_PRE
+      tpl->GetFunction());
 }
 
 v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
@@ -224,9 +226,9 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
   LD_STRING_OR_BUFFER_TO_SLICE(value, valueBufferV, value)
 
   v8::Persistent<v8::Value> keyBuffer =
-      v8::Persistent<v8::Value>::New(keyBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBufferV);
   v8::Persistent<v8::Value> valueBuffer =
-      v8::Persistent<v8::Value>::New(valueBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE valueBufferV);
 
   LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
@@ -254,7 +256,9 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
   v8::Local<v8::Value> keyBufferV = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
 
-  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
+  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(
+      LD_NODE_ISOLATE_PRE
+      keyBufferV);
 
   LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, asBuffer)
   LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, fillCache)
@@ -283,7 +287,7 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
 
   v8::Persistent<v8::Value> keyBuffer =
-      v8::Persistent<v8::Value>::New(keyBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBufferV);
 
   LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
@@ -343,7 +347,9 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 
       batch->Delete(key);
       if (node::Buffer::HasInstance(keyBuffer->ToObject()))
-        references->push_back(v8::Persistent<v8::Value>::New(keyBuffer));
+        references->push_back(v8::Persistent<v8::Value>::New(
+            LD_NODE_ISOLATE_PRE
+            keyBuffer));
     } else if (obj->Get(str_type)->StrictEquals(str_put)) {
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
@@ -353,9 +359,13 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 
       batch->Put(key, value);
       if (node::Buffer::HasInstance(keyBuffer->ToObject()))
-        references->push_back(v8::Persistent<v8::Value>::New(keyBuffer));
+        references->push_back(v8::Persistent<v8::Value>::New(
+            LD_NODE_ISOLATE_PRE
+            keyBuffer));
       if (node::Buffer::HasInstance(valueBuffer->ToObject()))
-        references->push_back(v8::Persistent<v8::Value>::New(valueBuffer));
+        references->push_back(v8::Persistent<v8::Value>::New(
+            LD_NODE_ISOLATE_PRE
+            valueBuffer));
     }
   }
 
@@ -395,9 +405,9 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV, end)
 
   v8::Persistent<v8::Value> startBuffer =
-      v8::Persistent<v8::Value>::New(startBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE startBufferV);
   v8::Persistent<v8::Value> endBuffer =
-      v8::Persistent<v8::Value>::New(endBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE endBufferV);
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(
       database

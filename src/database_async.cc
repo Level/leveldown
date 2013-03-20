@@ -58,7 +58,7 @@ void CloseWorker::Execute () {
 void CloseWorker::WorkComplete () {
   v8::HandleScope scope;
   HandleOKCallback();
-  callback.Dispose();
+  callback.Dispose(LD_NODE_ISOLATE);
 }
 
 /** IO WORKER (abstract) **/
@@ -77,7 +77,7 @@ IOWorker::~IOWorker () {}
 
 void IOWorker::WorkComplete () {
   AsyncWorker::WorkComplete();
-  keyPtr.Dispose();
+  keyPtr.Dispose(LD_NODE_ISOLATE);
 }
 
 /** READ WORKER **/
@@ -164,7 +164,7 @@ void WriteWorker::Execute () {
 
 void WriteWorker::WorkComplete () {
   IOWorker::WorkComplete();
-  valuePtr.Dispose();
+  valuePtr.Dispose(LD_NODE_ISOLATE);
 }
 
 /** BATCH WORKER **/
@@ -187,7 +187,7 @@ BatchWorker::~BatchWorker () {
   for (std::vector< v8::Persistent<v8::Value> >::iterator it = references->begin()
       ; it != references->end()
       ; ) {
-    it->Dispose();
+    it->Dispose(LD_NODE_ISOLATE);
     it = references->erase(it);
   }
   delete references;
@@ -221,8 +221,8 @@ void ApproximateSizeWorker::Execute () {
 
 void ApproximateSizeWorker::WorkComplete() {
   AsyncWorker::WorkComplete();
-  startPtr.Dispose();
-  endPtr.Dispose();
+  startPtr.Dispose(LD_NODE_ISOLATE);
+  endPtr.Dispose(LD_NODE_ISOLATE);
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {
