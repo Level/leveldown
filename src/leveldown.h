@@ -5,9 +5,20 @@
 #ifndef LD_LEVELDOWN_H
 #define LD_LEVELDOWN_H
 
+// node_isolate stuff introduced with V8 upgrade, see https://github.com/joyent/node/pull/5077
+#if NODE_MODULE_VERSION > 0x000B
+#  define LD_NODE_ISOLATE node::node_isolate
+#  define LD_NODE_ISOLATE_PRE node::node_isolate, 
+#  define LD_NODE_ISOLATE_POST , node::node_isolate 
+#else
+#  define LD_NODE_ISOLATE
+#  define LD_NODE_ISOLATE_PRE
+#  define LD_NODE_ISOLATE_POST
+#endif
+
 #define LD_SYMBOL(var, key) \
   static const v8::Persistent<v8::String> var = \
-    v8::Persistent<v8::String>::New(v8::String::NewSymbol(#key));
+    v8::Persistent<v8::String>::New(LD_NODE_ISOLATE_PRE v8::String::NewSymbol(#key));
 
 #define LD_V8_METHOD(name) \
   static v8::Handle<v8::Value> name (const v8::Arguments& args);
@@ -105,10 +116,12 @@
   v8::Persistent<v8::Function> callback; \
   if (optionPos == -1 && args[callbackPos]->IsFunction()) { \
     callback = v8::Persistent<v8::Function>::New( \
+      LD_NODE_ISOLATE_PRE \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
     ); \
   } else if (optionPos != -1 && args[callbackPos - 1]->IsFunction()) { \
     callback = v8::Persistent<v8::Function>::New( \
+      LD_NODE_ISOLATE_PRE \
       v8::Local<v8::Function>::Cast(args[callbackPos - 1]) \
     ); \
   } else if (optionPos != -1 \
@@ -116,6 +129,7 @@
         && args[callbackPos]->IsFunction()) { \
     optionsObj = v8::Local<v8::Object>::Cast(args[optionPos]); \
     callback = v8::Persistent<v8::Function>::New( \
+      LD_NODE_ISOLATE_PRE \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
     ); \
   } else { \

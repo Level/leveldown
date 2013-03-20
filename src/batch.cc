@@ -20,7 +20,7 @@ Batch::~Batch () {
   for (std::vector< v8::Persistent<v8::Value> >::iterator it = references->begin()
       ; it != references->end()
       ; ) {
-    it->Dispose();
+    it->Dispose(LD_NODE_ISOLATE);
     it = references->erase(it);
   }
   delete references;
@@ -52,7 +52,9 @@ void Batch::Init () {
       v8::String::NewSymbol("write")
     , v8::FunctionTemplate::New(Batch::Write)->GetFunction()
   );
-  constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
+  constructor = v8::Persistent<v8::Function>::New(
+      LD_NODE_ISOLATE_PRE
+      tpl->GetFunction());
 }
 
 v8::Handle<v8::Value> Batch::New (const v8::Arguments& args) {
@@ -107,9 +109,13 @@ v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
   LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
   if (node::Buffer::HasInstance(keyBuffer->ToObject()))
-    batch->references->push_back(v8::Persistent<v8::Value>::New(keyBuffer));
+    batch->references->push_back(v8::Persistent<v8::Value>::New(
+        LD_NODE_ISOLATE_PRE
+        keyBuffer));
   if (node::Buffer::HasInstance(valueBuffer->ToObject()))
-    batch->references->push_back(v8::Persistent<v8::Value>::New(valueBuffer));
+    batch->references->push_back(v8::Persistent<v8::Value>::New(
+        LD_NODE_ISOLATE_PRE
+        valueBuffer));
 
   batch->batch->Put(key, value);
 
@@ -128,7 +134,9 @@ v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
   if (node::Buffer::HasInstance(keyBuffer->ToObject()))
-    batch->references->push_back(v8::Persistent<v8::Value>::New(keyBuffer));
+    batch->references->push_back(v8::Persistent<v8::Value>::New(
+        LD_NODE_ISOLATE_PRE
+        keyBuffer));
 
   batch->batch->Delete(key);
 
@@ -152,6 +160,7 @@ v8::Handle<v8::Value> Batch::Write (const v8::Arguments& args) {
     LD_THROW_RETURN(name() requires a callback argument)
   }
   v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
+      LD_NODE_ISOLATE_PRE
       v8::Local<v8::Function>::Cast(args[0]));
 
   BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);

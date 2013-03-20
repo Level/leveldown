@@ -30,7 +30,7 @@ void AsyncWorker::WorkComplete () {
     HandleOKCallback();
   else
     HandleErrorCallback();
-  callback.Dispose();
+  callback.Dispose(LD_NODE_ISOLATE);
 }
 
 void AsyncWorker::HandleOKCallback () {
