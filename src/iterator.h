@@ -28,17 +28,15 @@ v8::Handle<v8::Value> CreateIterator (const v8::Arguments& args);
 class Iterator : public node::ObjectWrap {
 public:
   static void Init ();
-  static v8::Handle<v8::Value> NewInstance (
+  static v8::Handle<v8::Object> NewInstance (
       v8::Handle<v8::Object> database
+    , v8::Handle<v8::Number> id
     , v8::Handle<v8::Object> optionsObj
   );
 
-  bool IteratorNext (std::string& key, std::string& value);
-  leveldb::Status IteratorStatus ();
-  void IteratorEnd ();
-
   Iterator (
       Database* database
+    , uint32_t id
     , leveldb::Slice* start
     , std::string* end
     , bool reverse
@@ -53,8 +51,14 @@ public:
 
   ~Iterator ();
 
+  bool IteratorNext (std::string& key, std::string& value);
+  leveldb::Status IteratorStatus ();
+  void IteratorEnd ();
+  void Release ();
+
 private:
   Database* database;
+  uint32_t id;
   leveldb::Iterator* dbIterator;
   leveldb::ReadOptions* options;
   leveldb::Slice* start;
