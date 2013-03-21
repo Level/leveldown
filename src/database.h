@@ -6,6 +6,7 @@
 #ifndef LD_DATABASE_H
 #define LD_DATABASE_H
 
+#include <map>
 #include <node.h>
 
 #include "leveldb/db.h"
@@ -56,13 +57,18 @@ public:
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
   void CloseDatabase ();
   const char* Location() const;
+  void ReleaseIterator (uint32_t id);
 
-private:
   Database (char* location);
   ~Database ();
 
+private:
   leveldb::DB* db;
   char* location;
+  uint32_t currentIteratorId;
+  void(*pendingCloseWorker);
+
+  std::map< uint32_t, v8::Persistent<v8::Object> > iterators;
 
   static v8::Persistent<v8::Function> constructor;
   static void WriteDoing(uv_work_t *req);

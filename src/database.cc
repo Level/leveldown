@@ -21,6 +21,8 @@ namespace leveldown {
 
 Database::Database (char* location) : location(location) {
   db = NULL;
+  currentIteratorId = 0;
+  pendingCloseWorker = NULL;
 };
 
 Database::~Database () {
@@ -85,6 +87,19 @@ const leveldb::Snapshot* Database::NewSnapshot () {
 
 void Database::ReleaseSnapshot (const leveldb::Snapshot* snapshot) {
   return db->ReleaseSnapshot(snapshot);
+}
+
+void Database::ReleaseIterator (uint32_t id) {
+  // called each time an Iterator is End()ed, in the main thread
+  // we have to remove our reference to it and if it's the last iterator
+  // we have to invoke a pending CloseWorker if there is one
+  // if there is a pending CloseWorker it means that we're waiting for
+  // iterators to end before we can close them
+  iterators.erase(id);
+  if (iterators.size() == 0 && pendingCloseWorker != NULL) {
+    AsyncQueueWorker((AsyncWorker*)pendingCloseWorker);
+    pendingCloseWorker = NULL;
+  }
 }
 
 void Database::CloseDatabase () {
@@ -207,7 +222,45 @@ v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
   LD_METHOD_SETUP_COMMON_ONEARG(close)
 
   CloseWorker* worker = new CloseWorker(database, callback);
-  AsyncQueueWorker(worker);
+
+  if (database->iterators.size() > 0) {
+    // yikes, we still have iterators open! naughty naughty.
+    // we have to queue up a CloseWorker and manually close each of them.
+    // the CloseWorker will be invoked once they are all cleaned up
+    database->pendingCloseWorker = worker;
+
+    for (
+        std::map< uint32_t, v8::Persistent<v8::Object> >::iterator it
+            = database->iterators.begin()
+      ; it != database->iterators.end()
+      ; ++it) {
+
+        // for each iterator still open, first check if it's already in
+        // the process of ending (ended==true means an async End() is
+        // in progress), if not, then we call End() with an empty callback
+        // function and wait for it to hit ReleaseIterator() where our
+        // CloseWorker will be invoked
+
+        leveldown::Iterator* iterator =
+            node::ObjectWrap::Unwrap<leveldown::Iterator>(it->second);
+
+        if (!iterator->ended) {
+          v8::Local<v8::Function> end =
+              v8::Local<v8::Function>::Cast(it->second->Get(
+                  v8::String::NewSymbol("end")));
+          v8::Local<v8::Value> argv[] = {
+              v8::FunctionTemplate::New()->GetFunction() // empty callback
+          };
+          v8::TryCatch try_catch;
+          end->Call(it->second, 1, argv);
+          if (try_catch.HasCaught()) {
+            node::FatalException(try_catch);
+          }
+        }
+    }
+  } else {
+    AsyncQueueWorker(worker);
+  }
 
   return v8::Undefined();
 }
@@ -425,12 +478,26 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
   v8::HandleScope scope;
 
+  Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
+
   v8::Local<v8::Object> optionsObj;
   if (args.Length() > 0 && args[0]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[0]);
   }
 
-  return scope.Close(Iterator::NewInstance(args.This(), optionsObj));
+  // each iterator gets a unique id for this Database, so we can
+  // easily store & lookup on our `iterators` map
+  uint32_t id = database->currentIteratorId++;
+  v8::Handle<v8::Object> iterator = Iterator::NewInstance(
+      args.This()
+    , v8::Number::New(id)
+    , optionsObj
+  );
+  // register our iterator
+  database->iterators[id] =
+      node::ObjectWrap::Unwrap<leveldown::Iterator>(iterator)->handle_;
+
+  return scope.Close(iterator);
 }
 
 

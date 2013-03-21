@@ -65,6 +65,7 @@ var dbidx = 0
 
 module.exports = {
     location       : location
+  , cleanup        : cleanup
   , lastLocation   : lastLocation
   , setUp          : setUp
   , tearDown       : tearDown

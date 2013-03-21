@@ -14,6 +14,7 @@ namespace leveldown {
 
 Iterator::Iterator (
     Database* database
+  , uint32_t id
   , leveldb::Slice* start
   , std::string* end
   , bool reverse
@@ -25,6 +26,7 @@ Iterator::Iterator (
   , bool valueAsBuffer
   , v8::Persistent<v8::Value> startPtr
 ) : database(database)
+  , id(id)
   , start(start)
   , end(end)
   , reverse(reverse)
@@ -104,6 +106,10 @@ void Iterator::IteratorEnd () {
   dbIterator = NULL;
 }
 
+void Iterator::Release () {
+  database->ReleaseIterator(id);
+}
+
 void checkEndCallback (Iterator* iterator) {
   iterator->nexting = false;
   if (iterator->endWorker != NULL) {
@@ -142,7 +148,7 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   iterator->nexting = true;
   AsyncQueueWorker(worker);
 
-  return v8::Undefined();
+  return scope.Close(args.Holder());
 }
 
 v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
@@ -175,7 +181,7 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
     AsyncQueueWorker(worker);
   }
 
-  return v8::Undefined();
+  return scope.Close(args.Holder());
 }
 
 v8::Persistent<v8::Function> Iterator::constructor;
@@ -197,8 +203,9 @@ void Iterator::Init () {
       tpl->GetFunction());
 }
 
-v8::Handle<v8::Value> Iterator::NewInstance (
+v8::Handle<v8::Object> Iterator::NewInstance (
         v8::Handle<v8::Object> database
+      , v8::Handle<v8::Number> id
       , v8::Handle<v8::Object> optionsObj
     ) {
 
@@ -206,11 +213,11 @@ v8::Handle<v8::Value> Iterator::NewInstance (
   v8::Local<v8::Object> instance;
 
   if (optionsObj.IsEmpty()) {
-    v8::Handle<v8::Value> argv[1] = { database };
-    instance = constructor->NewInstance(1, argv);
-  } else {
-    v8::Handle<v8::Value> argv[2] = { database, optionsObj };
+    v8::Handle<v8::Value> argv[2] = { database, id };
     instance = constructor->NewInstance(2, argv);
+  } else {
+    v8::Handle<v8::Value> argv[3] = { database, id, optionsObj };
+    instance = constructor->NewInstance(3, argv);
   }
 
   return scope.Close(instance);
@@ -229,10 +236,12 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
   std::string* end = NULL;
   int limit = -1;
 
+  v8::Local<v8::Value> id = args[1];
+
   v8::Local<v8::Object> optionsObj;
 
-  if (args.Length() > 1 && args[1]->IsObject()) {
-    optionsObj = v8::Local<v8::Object>::Cast(args[1]);
+  if (args.Length() > 1 && args[2]->IsObject()) {
+    optionsObj = v8::Local<v8::Object>::Cast(args[2]);
 
     if (optionsObj->Has(option_start)
         && (node::Buffer::HasInstance(optionsObj->Get(option_start))
@@ -268,6 +277,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
 
   Iterator* iterator = new Iterator(
       database
+    , (uint32_t)id->Int32Value()
     , start
     , end
     , reverse
