@@ -66,7 +66,7 @@ makeTest('test multiple non-ended iterators', function (db, t, done) {
 })
 
 makeTest('test ending iterators', function (db, t, done) {
-  // no end() call on our iterator, cleanup should crash Node if not handled properly
+  // at least one end() should be in progress when we try to close the db
   var it1 = db.iterator().next(function () {
         it1.end(function () {})
       })
