@@ -6,28 +6,54 @@
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
   , 'standalone_static_library': 1
-  , 'dependencies': [
+  , 'xdependencies': [
         '../snappy/snappy.gyp:snappy'
     ]
   , 'direct_dependent_settings': {
         'include_dirs': [
             'leveldb-<(ldbversion)/include/'
+          , 'leveldb-<(ldbversion)/port/'
+          , 'leveldb-<(ldbversion)/util'
           , 'leveldb-<(ldbversion)/'
         ]
     }
   , 'defines': [
-        'SNAPPY=1'
+        'XSNAPPY=1'
+      , 'LEVELDB_PLATFORM_UV=1'
     ]
   , 'include_dirs': [
         'leveldb-<(ldbversion)/'
       , 'leveldb-<(ldbversion)/include/'
+      , 'leveldb-<(ldbversion)/libuv_port/'
     ]
   , 'conditions': [
         ['OS == "win"', {
             'include_dirs': [
                 'leveldb-<(ldbversion)/port/win'
             ]
+          , 'defines': [
+                'NOMINMAX=1'
+            ]
+          , 'sources': [
+                'leveldb-<(ldbversion)/libuv_port/port_uv.cc'
+              , 'leveldb-<(ldbversion)/libuv_port/env_win.cc'
+              , 'leveldb-<(ldbversion)/libuv_port/win_logger.cc'
+            ]
+          , 'msvs_settings': {
+                'VCCLCompilerTool': {
+                    'RuntimeTypeInfo': 'false'
+                  , 'EnableFunctionLevelLinking': 'true'
+                  , 'ExceptionHandling': '2'
+                }
+            }
+        }, { # OS != "win"
+            'sources': [
+                'leveldb-<(ldbversion)/port/port_posix.cc'
+              , 'leveldb-<(ldbversion)/port/port_posix.h'
+              , 'leveldb-<(ldbversion)/util/env_posix.cc'
+            ]
         }]
+
       , ['OS == "linux"', {
             'defines': [
                 'OS_LINUX=1'
@@ -129,8 +155,6 @@
       , 'leveldb-<(ldbversion)/include/leveldb/write_batch.h'
       , 'leveldb-<(ldbversion)/port/port.h'
       , 'leveldb-<(ldbversion)/port/port_example.h'
-      , 'leveldb-<(ldbversion)/port/port_posix.cc'
-      , 'leveldb-<(ldbversion)/port/port_posix.h'
       , 'leveldb-<(ldbversion)/table/block.cc'
       , 'leveldb-<(ldbversion)/table/block.h'
       , 'leveldb-<(ldbversion)/table/block_builder.cc'
@@ -157,7 +181,6 @@
       , 'leveldb-<(ldbversion)/util/crc32c.cc'
       , 'leveldb-<(ldbversion)/util/crc32c.h'
       , 'leveldb-<(ldbversion)/util/env.cc'
-      , 'leveldb-<(ldbversion)/util/env_posix.cc'
       , 'leveldb-<(ldbversion)/util/filter_policy.cc'
       , 'leveldb-<(ldbversion)/util/hash.cc'
       , 'leveldb-<(ldbversion)/util/hash.h'
