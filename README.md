@@ -14,6 +14,15 @@ It is **strongly recommended** that you use LevelUP in preference to LevelDOWN u
 
 See the section on <a href="#safety">safety</a> below for details of known unsafe operations with LevelDOWN.
 
+<a name="platforms"></a>
+Tested & supported platforms
+----------------------------
+
+  * **Linux** (including ARM platforms such as Raspberry Pi *and Kindle!*)
+  * **Mac OS**
+  * **Solaris** (SmartOS & Nodejitsu)
+  * **Windows** (Node 0.10 and above only, see [LevelUP issue #5](https://github.com/rvagg/node-levelup/issues/5) for more info)
+
 <a name="api"></a>
 ## API
 
@@ -222,6 +231,11 @@ LevelDOWN is only possible due to the excellent work of the following contributo
 <tr><th align="left">Julian Gruber</th><td><a href="https://github.com/juliangruber">GitHub/juliangruber</a></td><td><a href="http://twitter.com/juliangruber">Twitter/@juliangruber</a></td></tr>
 <tr><th align="left">Paolo Fragomeni</th><td><a href="https://github.com/hij1nx">GitHub/hij1nx</a></td><td><a href="http://twitter.com/hij1nx">Twitter/@hij1nx</a></td></tr>
 </tbody></table>
+
+### Windows
+
+A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using LevelUP on Windows, you should give him your thanks!
+
 
 <a name="licence"></a>
 Licence &amp; copyright
