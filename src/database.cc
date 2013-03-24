@@ -182,8 +182,7 @@ v8::Handle<v8::Value> Database::NewInstance (const v8::Arguments& args) {
   v8::Local<v8::Object> instance;
 
   if (args.Length() == 0) {
-    v8::Handle<v8::Value> argv[0];
-    instance = constructor->NewInstance(0, argv);
+    instance = constructor->NewInstance(0, NULL);
   } else {
     v8::Handle<v8::Value> argv[] = { args[0] };
     instance = constructor->NewInstance(1, argv);
