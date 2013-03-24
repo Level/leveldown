@@ -28,4 +28,22 @@ void DestroyWorker::Execute () {
   status = leveldb::DestroyDB(location, options);
 }
 
+/** REPAIR WORKER **/
+
+RepairWorker::RepairWorker (
+    char* location
+  , v8::Persistent<v8::Function> callback
+) : AsyncWorker(NULL, callback)
+  , location(location)
+{};
+
+RepairWorker::~RepairWorker () {
+  delete location;
+}
+
+void RepairWorker::Execute () {
+  leveldb::Options options;
+  status = leveldb::RepairDB(location, options);
+}
+
 } // namespace leveldown

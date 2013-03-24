@@ -26,6 +26,20 @@ private:
   char* location;
 };
 
+class RepairWorker : public AsyncWorker {
+public:
+  RepairWorker (
+      char* location
+    , v8::Persistent<v8::Function> callback
+  );
+
+  virtual ~RepairWorker ();
+  virtual void Execute ();
+
+private:
+  char* location;
+};
+
 } // namespace leveldown
 
 #endif

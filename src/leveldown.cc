@@ -45,6 +45,38 @@ v8::Handle<v8::Value> DestroyDB (const v8::Arguments& args) {
   return scope.Close(v8::Undefined());
 }
 
+v8::Handle<v8::Value> RepairDB (const v8::Arguments& args) {
+  v8::HandleScope scope;
+
+  if (args.Length() < 2) {
+    LD_THROW_RETURN(repair() requires `location` and `callback` arguments)
+  }
+
+  if (!args[0]->IsString()) {
+    LD_THROW_RETURN(leveldown() requires a location string argument)
+  }
+
+  if (!args[1]->IsFunction()) {
+    LD_THROW_RETURN(leveldown() requires a callback function argument)
+  }
+
+  LD_FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
+
+  v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
+      LD_NODE_ISOLATE_PRE
+      v8::Local<v8::Function>::Cast(args[1])
+  );
+
+  RepairWorker* worker = new RepairWorker(
+      location
+    , callback
+  );
+
+  AsyncQueueWorker(worker);
+
+  return scope.Close(v8::Undefined());
+}
+
 void Init (v8::Handle<v8::Object> target) {
   Database::Init();
   leveldown::Iterator::Init();
@@ -56,6 +88,11 @@ void Init (v8::Handle<v8::Object> target) {
   leveldown->Set(
       v8::String::NewSymbol("destroy")
     , v8::FunctionTemplate::New(DestroyDB)->GetFunction()
+  );
+
+  leveldown->Set(
+      v8::String::NewSymbol("repair")
+    , v8::FunctionTemplate::New(RepairDB)->GetFunction()
   );
 
   target->Set(v8::String::NewSymbol("leveldown"), leveldown);
