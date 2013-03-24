@@ -18,8 +18,7 @@
         ]
     }
   , 'defines': [
-        'XSNAPPY=1'
-      , 'LEVELDB_PLATFORM_UV=1'
+        'SNAPPY=1'
     ]
   , 'include_dirs': [
         'leveldb-<(ldbversion)/'
@@ -32,7 +31,8 @@
                 'leveldb-<(ldbversion)/port/win'
             ]
           , 'defines': [
-                'NOMINMAX=1'
+                'LEVELDB_PLATFORM_UV=1'
+              , 'NOMINMAX=1'
               , '_HAS_EXCEPTIONS=0'
             ]
           , 'sources': [
@@ -54,19 +54,11 @@
               , 'leveldb-<(ldbversion)/port/port_posix.h'
               , 'leveldb-<(ldbversion)/util/env_posix.cc'
             ]
-        }]
-
-      , ['OS == "linux"', {
-            'defines': [
-                'OS_LINUX=1'
-              , 'LEVELDB_PLATFORM_POSIX=1'
-            ]
-          , 'libraries': [
-                '-lpthread'
+          , 'defines': [
+                'LEVELDB_PLATFORM_POSIX=1'
             ]
           , 'ccflags': [
                 '-fno-builtin-memcmp'
-              , '-pthread'
               , '-fPIC'
             ]
           , 'cflags': [
@@ -74,35 +66,35 @@
               , '-Wno-unused-but-set-variable'
             ]
         }]
+      , ['OS == "linux"', {
+            'defines': [
+                'OS_LINUX=1'
+            ]
+          , 'libraries': [
+                '-lpthread'
+            ]
+          , 'ccflags': [
+                '-pthread'
+            ]
+        }]
       , ['OS == "solaris"', {
             'defines': [
                 'OS_SOLARIS=1'
-              , 'LEVELDB_PLATFORM_POSIX=1'
             ]
           , 'libraries': [
                 '-lrt'
               , '-lpthread'
             ]
           , 'ccflags': [
-                '-fno-builtin-memcmp'
-              , '-pthread'
-              , '-fPIC'
-            ]
-          , 'cflags': [
-                '-Wno-sign-compare'
-              , '-Wno-unused-but-set-variable'
+                '-pthread'
             ]
         }]
       , ['OS == "mac"', {
             'defines': [
                 'OS_MACOSX=1'
-              , 'LEVELDB_PLATFORM_POSIX=1'
             ]
           , 'libraries': []
-          , 'ccflags': [
-                '-fno-builtin-memcmp'
-              , '-fPIC'
-            ]
+          , 'ccflags': []
           , 'xcode_settings': {
                 'WARNING_CFLAGS': [
                     '-Wno-sign-compare'
