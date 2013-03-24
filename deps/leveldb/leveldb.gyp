@@ -6,7 +6,7 @@
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
   , 'standalone_static_library': 1
-  , 'xdependencies': [
+  , 'dependencies': [
         '../snappy/snappy.gyp:snappy'
     ]
   , 'direct_dependent_settings': {
@@ -33,6 +33,7 @@
             ]
           , 'defines': [
                 'NOMINMAX=1'
+              , '_HAS_EXCEPTIONS=0'
             ]
           , 'sources': [
                 'leveldb-<(ldbversion)/libuv_port/port_uv.cc'
@@ -44,6 +45,7 @@
                     'RuntimeTypeInfo': 'false'
                   , 'EnableFunctionLevelLinking': 'true'
                   , 'ExceptionHandling': '2'
+                  , 'DisableSpecificWarnings': [ '4355', '4530' ,'4267', '4244' ]
                 }
             }
         }, { # OS != "win"

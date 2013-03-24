@@ -31,7 +31,6 @@
   #define snprintf _snprintf
   #define close _close
   #define fread_unlocked _fread_nolock
-  #pragma warning(disable : 4355)
 #else
   #include <endian.h>
 #endif
