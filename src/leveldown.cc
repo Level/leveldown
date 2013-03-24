@@ -9,16 +9,56 @@
 #include "database.h"
 #include "iterator.h"
 #include "batch.h"
+#include "leveldown_async.h"
 
 namespace leveldown {
+
+v8::Handle<v8::Value> DestroyDB (const v8::Arguments& args) {
+  v8::HandleScope scope;
+
+  if (args.Length() < 2) {
+    LD_THROW_RETURN(destroy() requires `location` and `callback` arguments)
+  }
+
+  if (!args[0]->IsString()) {
+    LD_THROW_RETURN(leveldown() requires a location string argument)
+  }
+
+  if (!args[1]->IsFunction()) {
+    LD_THROW_RETURN(leveldown() requires a callback function argument)
+  }
+
+  LD_FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
+
+  v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
+      LD_NODE_ISOLATE_PRE
+      v8::Local<v8::Function>::Cast(args[1])
+  );
+
+  DestroyWorker* worker = new DestroyWorker(
+      location
+    , callback
+  );
+
+  AsyncQueueWorker(worker);
+
+  return scope.Close(v8::Undefined());
+}
 
 void Init (v8::Handle<v8::Object> target) {
   Database::Init();
   leveldown::Iterator::Init();
   leveldown::Batch::Init();
 
-  target->Set(v8::String::NewSymbol("leveldown")
-      , v8::FunctionTemplate::New(LevelDOWN)->GetFunction());
+  v8::Local<v8::Function> leveldown =
+      v8::FunctionTemplate::New(LevelDOWN)->GetFunction();
+
+  leveldown->Set(
+      v8::String::NewSymbol("destroy")
+    , v8::FunctionTemplate::New(DestroyDB)->GetFunction()
+  );
+
+  target->Set(v8::String::NewSymbol("leveldown"), leveldown);
 }
 
 NODE_MODULE(leveldown, Init)

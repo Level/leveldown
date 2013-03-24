@@ -28,6 +28,7 @@
           , "src/iterator.cc"
           , "src/iterator_async.cc"
           , "src/leveldown.cc"
+          , "src/leveldown_async.cc"
         ]
     }]
 }
