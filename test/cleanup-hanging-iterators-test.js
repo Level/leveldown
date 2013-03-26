@@ -1,34 +1,7 @@
 const test       = require('tap').test
     , testCommon = require('./common')
     , leveldown  = require('../')
-
-    , makeTest   = function (name, testFn) {
-        test(name, function (t) {
-          testCommon.cleanup(function () {
-            var db   = leveldown(testCommon.location())
-              , done = function () {
-                  db.close(function (err) {
-                    t.notOk(err, 'no error from close()')
-                    testCommon.cleanup(t.end.bind(t))
-                  })
-                }
-            db.open(function (err) {
-              t.notOk(err, 'no error from open()')
-              db.batch(
-                  [
-                      { type: 'put', key: 'one', value: '1' }
-                    , { type: 'put', key: 'two', value: '2' }
-                    , { type: 'put', key: 'three', value: '3' }
-                  ]
-                , function (err) {
-                    t.notOk(err, 'no error from batch()')
-                    testFn(db, t, done)
-                  }
-              )
-            })
-          })
-        })
-      }
+    , makeTest   = testCommon.makeExistingDbTest
 
 makeTest('test ended iterator', function (db, t, done) {
   // standard iterator with an end() properly called, easy
