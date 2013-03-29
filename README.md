@@ -39,6 +39,8 @@ Tested & supported platforms
   * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
   * <a href="#iterator_end"><code><b>iterator#end()</b></code></a>
+  * <a href="#leveldown_destroy"><code><b>leveldown.destroy()</b></code></a>
+  * <a href="#leveldown_repair"><code><b>leveldown.repair()</b></code></a>
 
 
 --------------------------------------------------------
@@ -191,6 +193,26 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 <a name="iterator_end"></a>
 ### iterator#end(callback)
 <code>end()</code> is an instance method on an existing iterator object. The underlying LevelDB iterator will be deleted and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+
+--------------------------------------------------------
+<a name="leveldown_destroy"></a>
+### leveldown.destroy(location, callback)
+<code>destroy()</code> is used to completely remove an existing LevelDB database directory. You can use this function in place of a full directory *rm* if you want to be sure to only remove LevelDB-related files. If the directory only contains LevelDB files, the directory itself will be removed as well. If there are additional, non-LevelDB files in the directory, those files, and the directory, will be left alone.
+
+The callback will be called when the destroy operation is complete, with a possible `error` argument.
+
+<a name="leveldown_repair"></a>
+### leveldown.repair(location, callback)
+<code>repair()</code> can be used to attempt a restoration of a damaged LevelDB store. From the LevelDB documentation:
+
+> If a DB cannot be opened, you may attempt to call this method to resurrect as much of the contents of the database as possible. Some data may be lost, so be careful when calling this function on a database that contains important information.
+
+You will find information on the *repair* operation in the *LOG* file inside the store directory. 
+
+A `repair()` can also be used to perform a compaction of the LevelDB log into table files.
+
+The callback will be called when the repair operation iscomplete, with a possible `error` argument.
 
 
 <a name="safety"></a>
