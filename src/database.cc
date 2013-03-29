@@ -199,7 +199,11 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
   LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, createIfMissing)
   LD_BOOLEAN_OPTION_VALUE(optionsObj, errorIfExists)
   LD_BOOLEAN_OPTION_VALUE(optionsObj, compression)
-  LD_UINT32_OPTION_VALUE(optionsObj, cacheSize, 8 << 20)
+  LD_UINT32_OPTION_VALUE(optionsObj, cacheSize            , 8 << 20 )
+  LD_UINT32_OPTION_VALUE(optionsObj, writeBufferSize      , 4 << 20 )
+  LD_UINT32_OPTION_VALUE(optionsObj, blockSize            , 4096    )
+  LD_UINT32_OPTION_VALUE(optionsObj, maxOpenFiles         , 1000    )
+  LD_UINT32_OPTION_VALUE(optionsObj, blockRestartInterval , 16      )
 
   OpenWorker* worker = new OpenWorker(
       database
@@ -208,6 +212,10 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
     , errorIfExists
     , compression
     , cacheSize
+    , writeBufferSize
+    , blockSize
+    , maxOpenFiles
+    , blockRestartInterval
   );
 
   AsyncQueueWorker(worker);
