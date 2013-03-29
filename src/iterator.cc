@@ -59,8 +59,15 @@ Iterator::~Iterator () {
 bool Iterator::GetIterator () {
   if (dbIterator == NULL) {
     dbIterator = database->NewIterator(options);
-    if (start != NULL)
+    if (start != NULL) {
       dbIterator->Seek(*start);
+      if (reverse) {
+        if (!dbIterator->Valid())
+          dbIterator->SeekToLast();
+        else if (start->compare(dbIterator->key()))
+          dbIterator->Prev();
+      }
+    }
     else if (reverse)
       dbIterator->SeekToLast();
     else
