@@ -1,3 +1,13 @@
+0.2.0 @ Mar 30 2013
+===================
+  * Windows support--using a combination of libuv and Windows-specific code. See README for details about what's required (@rvagg)
+  * leveldown.destroy(location, callback) to delete an existing LevelDB store, exposes LevelDB.DestroyDB() (@rvagg)
+  * leveldown.repair(location, callback) to repair an existing LevelDB store, exposes LevelDB.RepairDB() (@rvagg)
+  * advanced options: writeBufferSize, blockSize, maxOpenFiles, blockRestartInterval, exposes LevelDB options (@rvagg)
+  * chained-batch operations. Argument-less db.batch() will return a new Batch object that can .put() and .del() and then .write(). API in flux so not documented yet. (@juliangruber / @rvagg)
+  * auto-cleanup iterators that are left open when you close a database; any iterators left open when you close a database instance will kill your process so we now keep track of iterators and auto-close them before a db.close completes.
+  * Node 0.11 support (no compile warnings)
+
 0.1.4 @ Mar 11 2013
 ===================
   * return error when batch ops contain null or undefined (@rvagg / @ralphtheninja / @dominictarr) (additional tests in LevelUP for this)
