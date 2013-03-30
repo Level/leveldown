@@ -11,7 +11,7 @@
 // porting to a new platform, see "port_example.h" for documentation
 // of what the new port_<platform>.h file must provide.
 #if defined(LEVELDB_PLATFORM_UV)
-#  include "libuv_port/port_uv.h"
+#  include "port_uv.h"
 #elif defined(LEVELDB_PLATFORM_POSIX)
 #  include "port/port_posix.h"
 #elif defined(LEVELDB_PLATFORM_CHROMIUM)
