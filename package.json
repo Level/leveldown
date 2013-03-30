@@ -15,10 +15,10 @@
   , "keywords": [
         "leveldb"
     ]
-  , "version"         : "0.1.4"
+  , "version"         : "0.2.0"
   , "main"            : "index.js"
   , "dependencies"    : {
-        "bindings"        : "~1.0.0"
+        "bindings"        : "~1.1.0"
     }
   , "devDependencies" : {
         "tap"             : "*"
