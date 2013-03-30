@@ -22,15 +22,23 @@ OpenWorker::OpenWorker (
   , bool errorIfExists
   , bool compression
   , uint32_t cacheSize
+  , uint32_t writeBufferSize
+  , uint32_t blockSize
+  , uint32_t maxOpenFiles
+  , uint32_t blockRestartInterval
 ) : AsyncWorker(database, callback)
 {
   options = new leveldb::Options();
-  options->create_if_missing = createIfMissing;
-  options->error_if_exists = errorIfExists;
-  options->compression = compression
-    ? leveldb::kSnappyCompression
-    : leveldb::kNoCompression;
-  options->block_cache = leveldb::NewLRUCache(cacheSize);
+  options->create_if_missing      = createIfMissing;
+  options->error_if_exists        = errorIfExists;
+  options->compression            = compression
+      ? leveldb::kSnappyCompression
+      : leveldb::kNoCompression;
+  options->block_cache            = leveldb::NewLRUCache(cacheSize);
+  options->write_buffer_size      = writeBufferSize;
+  options->block_size             = blockSize;
+  options->max_open_files         = maxOpenFiles;
+  options->block_restart_interval = blockRestartInterval;
 };
 
 OpenWorker::~OpenWorker () {

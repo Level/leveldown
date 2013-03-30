@@ -1,6 +1,8 @@
-const path   = require('path')
-    , fs     = require('fs')
-    , rimraf = require('rimraf')
+const path      = require('path')
+    , fs        = require('fs')
+    , rimraf    = require('rimraf')
+    , test      = require('tap').test
+    , leveldown = require('../')
 
 var dbidx = 0
 
@@ -26,7 +28,7 @@ var dbidx = 0
         var ret = 0
 
         list.forEach(function (f) {
-          rimraf(f, function () {
+          rimraf(path.join(__dirname, f), function (err) {
             if (++ret == list.length)
               callback()
           })
@@ -63,6 +65,37 @@ var dbidx = 0
       next()
     }
 
+  , makeExistingDbTest = function (name, testFn) {
+      test(name, function (t) {
+        cleanup(function () {
+          var loc  = location()
+            , db   = leveldown(loc)
+            , done = function (close) {
+                if (close === false)
+                  return cleanup(t.end.bind(t))
+                db.close(function (err) {
+                  t.notOk(err, 'no error from close()')
+                  cleanup(t.end.bind(t))
+                })
+              }
+          db.open(function (err) {
+           t.notOk(err, 'no error from open()')
+            db.batch(
+                [
+                    { type: 'put', key: 'one', value: '1' }
+                  , { type: 'put', key: 'two', value: '2' }
+                  , { type: 'put', key: 'three', value: '3' }
+                ]
+              , function (err) {
+                  t.notOk(err, 'no error from batch()')
+                  testFn(db, t, done, loc)
+                }
+            )
+          })
+        })
+      })
+    }
+
 module.exports = {
     location       : location
   , cleanup        : cleanup
@@ -70,4 +103,5 @@ module.exports = {
   , setUp          : setUp
   , tearDown       : tearDown
   , collectEntries : collectEntries
+  , makeExistingDbTest : makeExistingDbTest
 }

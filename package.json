@@ -23,6 +23,8 @@
   , "devDependencies" : {
         "tap"             : "*"
       , "rimraf"          : "*"
+      , "mkfiletree"      : "*"
+      , "readfiletree"    : "*"
     }
   , "repository"      : {
         "type"            : "git"

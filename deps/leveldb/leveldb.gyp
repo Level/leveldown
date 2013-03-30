@@ -23,12 +23,12 @@
   , 'include_dirs': [
         'leveldb-<(ldbversion)/'
       , 'leveldb-<(ldbversion)/include/'
-      , 'leveldb-<(ldbversion)/libuv_port/'
     ]
   , 'conditions': [
         ['OS == "win"', {
             'include_dirs': [
                 'leveldb-<(ldbversion)/port/win'
+              , 'port-libuv/'
             ]
           , 'defines': [
                 'LEVELDB_PLATFORM_UV=1'
@@ -36,9 +36,9 @@
               , '_HAS_EXCEPTIONS=0'
             ]
           , 'sources': [
-                'leveldb-<(ldbversion)/libuv_port/port_uv.cc'
-              , 'leveldb-<(ldbversion)/libuv_port/env_win.cc'
-              , 'leveldb-<(ldbversion)/libuv_port/win_logger.cc'
+                'port-libuv/port_uv.cc'
+              , 'port-libuv/env_win.cc'
+              , 'port-libuv/win_logger.cc'
             ]
           , 'msvs_settings': {
                 'VCCLCompilerTool': {
@@ -148,7 +148,6 @@
       , 'leveldb-<(ldbversion)/include/leveldb/table_builder.h'
       , 'leveldb-<(ldbversion)/include/leveldb/write_batch.h'
       , 'leveldb-<(ldbversion)/port/port.h'
-      , 'leveldb-<(ldbversion)/port/port_example.h'
       , 'leveldb-<(ldbversion)/table/block.cc'
       , 'leveldb-<(ldbversion)/table/block.h'
       , 'leveldb-<(ldbversion)/table/block_builder.cc'

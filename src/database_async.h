@@ -24,6 +24,10 @@ public:
     , bool errorIfExists
     , bool compression
     , uint32_t cacheSize
+    , uint32_t writeBufferSize
+    , uint32_t blockSize
+    , uint32_t maxOpenFiles
+    , uint32_t blockRestartInterval
   );
 
   virtual ~OpenWorker ();
