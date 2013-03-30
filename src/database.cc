@@ -8,6 +8,7 @@
 #include <node_buffer.h>
 
 #include "leveldb/db.h"
+#include "leveldb/write_batch.h"
 
 #include "leveldown.h"
 #include "database.h"
@@ -20,6 +21,8 @@ namespace leveldown {
 
 Database::Database (char* location) : location(location) {
   db = NULL;
+  currentIteratorId = 0;
+  pendingCloseWorker = NULL;
 };
 
 Database::~Database () {
@@ -86,6 +89,19 @@ void Database::ReleaseSnapshot (const leveldb::Snapshot* snapshot) {
   return db->ReleaseSnapshot(snapshot);
 }
 
+void Database::ReleaseIterator (uint32_t id) {
+  // called each time an Iterator is End()ed, in the main thread
+  // we have to remove our reference to it and if it's the last iterator
+  // we have to invoke a pending CloseWorker if there is one
+  // if there is a pending CloseWorker it means that we're waiting for
+  // iterators to end before we can close them
+  iterators.erase(id);
+  if (iterators.size() == 0 && pendingCloseWorker != NULL) {
+    AsyncQueueWorker((AsyncWorker*)pendingCloseWorker);
+    pendingCloseWorker = NULL;
+  }
+}
+
 void Database::CloseDatabase () {
   delete db;
   db = NULL;
@@ -136,18 +152,20 @@ void Database::Init () {
       v8::String::NewSymbol("iterator")
     , v8::FunctionTemplate::New(Iterator)->GetFunction()
   );
-  constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
+  constructor = v8::Persistent<v8::Function>::New(
+      LD_NODE_ISOLATE_PRE
+      tpl->GetFunction());
 }
 
 v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
   v8::HandleScope scope;
 
   if (args.Length() == 0) {
-    LD_THROW_RETURN("leveldown() requires at least a location argument")
+    LD_THROW_RETURN(leveldown() requires at least a location argument)
   }
 
   if (!args[0]->IsString()) {
-    LD_THROW_RETURN("leveldown() requires a location string argument")
+    LD_THROW_RETURN(leveldown() requires a location string argument)
   }
 
   LD_FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
@@ -164,8 +182,7 @@ v8::Handle<v8::Value> Database::NewInstance (const v8::Arguments& args) {
   v8::Local<v8::Object> instance;
 
   if (args.Length() == 0) {
-    v8::Handle<v8::Value> argv[0];
-    instance = constructor->NewInstance(0, argv);
+    instance = constructor->NewInstance(0, NULL);
   } else {
     v8::Handle<v8::Value> argv[] = { args[0] };
     instance = constructor->NewInstance(1, argv);
@@ -182,7 +199,11 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
   LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, createIfMissing)
   LD_BOOLEAN_OPTION_VALUE(optionsObj, errorIfExists)
   LD_BOOLEAN_OPTION_VALUE(optionsObj, compression)
-  LD_UINT32_OPTION_VALUE(optionsObj, cacheSize, 8 << 20)
+  LD_UINT32_OPTION_VALUE(optionsObj, cacheSize            , 8 << 20 )
+  LD_UINT32_OPTION_VALUE(optionsObj, writeBufferSize      , 4 << 20 )
+  LD_UINT32_OPTION_VALUE(optionsObj, blockSize            , 4096    )
+  LD_UINT32_OPTION_VALUE(optionsObj, maxOpenFiles         , 1000    )
+  LD_UINT32_OPTION_VALUE(optionsObj, blockRestartInterval , 16      )
 
   OpenWorker* worker = new OpenWorker(
       database
@@ -191,6 +212,10 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
     , errorIfExists
     , compression
     , cacheSize
+    , writeBufferSize
+    , blockSize
+    , maxOpenFiles
+    , blockRestartInterval
   );
 
   AsyncQueueWorker(worker);
@@ -204,7 +229,45 @@ v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
   LD_METHOD_SETUP_COMMON_ONEARG(close)
 
   CloseWorker* worker = new CloseWorker(database, callback);
-  AsyncQueueWorker(worker);
+
+  if (database->iterators.size() > 0) {
+    // yikes, we still have iterators open! naughty naughty.
+    // we have to queue up a CloseWorker and manually close each of them.
+    // the CloseWorker will be invoked once they are all cleaned up
+    database->pendingCloseWorker = worker;
+
+    for (
+        std::map< uint32_t, v8::Persistent<v8::Object> >::iterator it
+            = database->iterators.begin()
+      ; it != database->iterators.end()
+      ; ++it) {
+
+        // for each iterator still open, first check if it's already in
+        // the process of ending (ended==true means an async End() is
+        // in progress), if not, then we call End() with an empty callback
+        // function and wait for it to hit ReleaseIterator() where our
+        // CloseWorker will be invoked
+
+        leveldown::Iterator* iterator =
+            node::ObjectWrap::Unwrap<leveldown::Iterator>(it->second);
+
+        if (!iterator->ended) {
+          v8::Local<v8::Function> end =
+              v8::Local<v8::Function>::Cast(it->second->Get(
+                  v8::String::NewSymbol("end")));
+          v8::Local<v8::Value> argv[] = {
+              v8::FunctionTemplate::New()->GetFunction() // empty callback
+          };
+          v8::TryCatch try_catch;
+          end->Call(it->second, 1, argv);
+          if (try_catch.HasCaught()) {
+            node::FatalException(try_catch);
+          }
+        }
+    }
+  } else {
+    AsyncQueueWorker(worker);
+  }
 
   return v8::Undefined();
 }
@@ -219,13 +282,13 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 
   v8::Local<v8::Value> keyBufferV = args[0];
   v8::Local<v8::Value> valueBufferV = args[1];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBufferV)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
+  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBufferV, value)
 
   v8::Persistent<v8::Value> keyBuffer =
-      v8::Persistent<v8::Value>::New(keyBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBufferV);
   v8::Persistent<v8::Value> valueBuffer =
-      v8::Persistent<v8::Value>::New(valueBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE valueBufferV);
 
   LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
@@ -246,14 +309,16 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  LD_METHOD_SETUP_COMMON(put, 1, 2)
+  LD_METHOD_SETUP_COMMON(get, 1, 2)
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
 
-  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(keyBufferV);
+  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(
+      LD_NODE_ISOLATE_PRE
+      keyBufferV);
 
   LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, asBuffer)
   LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, fillCache)
@@ -274,15 +339,15 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  LD_METHOD_SETUP_COMMON(put, 1, 2)
+  LD_METHOD_SETUP_COMMON(del, 1, 2)
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
   v8::Local<v8::Value> keyBufferV = args[0];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
 
   v8::Persistent<v8::Value> keyBuffer =
-      v8::Persistent<v8::Value>::New(keyBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBufferV);
 
   LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
@@ -308,13 +373,24 @@ LD_SYMBOL ( str_put   , put   );
 v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
   v8::HandleScope scope;
 
+  if ((args.Length() == 0 || args.Length() == 1) && !args[0]->IsArray()) {
+    v8::Local<v8::Object> optionsObj;
+    if (args.Length() > 0 && args[0]->IsObject()) {
+      optionsObj = v8::Local<v8::Object>::Cast(args[0]);
+    }
+    return scope.Close(Batch::NewInstance(args.This(), optionsObj));
+  }
+
   LD_METHOD_SETUP_COMMON(batch, 1, 2)
 
   LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
-  std::vector<BatchOp*>* operations = new std::vector<BatchOp*>;
+  std::vector< v8::Persistent<v8::Value> >* references =
+      new std::vector< v8::Persistent<v8::Value> >;
+  leveldb::WriteBatch* batch = new leveldb::WriteBatch();
+
   for (unsigned int i = 0; i < array->Length(); i++) {
     if (!array->Get(i)->IsObject())
       continue;
@@ -327,32 +403,37 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
     LD_CB_ERR_IF_NULL_OR_UNDEFINED(keyBuffer, key)
 
     if (obj->Get(str_type)->StrictEquals(str_del)) {
-      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
+      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
-      operations->push_back(new BatchDelete(
-          key
-        , v8::Persistent<v8::Value>::New(keyBuffer)
-      ));
+      batch->Delete(key);
+      if (node::Buffer::HasInstance(keyBuffer->ToObject()))
+        references->push_back(v8::Persistent<v8::Value>::New(
+            LD_NODE_ISOLATE_PRE
+            keyBuffer));
     } else if (obj->Get(str_type)->StrictEquals(str_put)) {
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
 
-      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer)
-      LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer)
+      LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
+      LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
-      operations->push_back(new BatchWrite(
-          key
-        , value
-        , v8::Persistent<v8::Value>::New(keyBuffer)
-        , v8::Persistent<v8::Value>::New(valueBuffer)
-      ));
+      batch->Put(key, value);
+      if (node::Buffer::HasInstance(keyBuffer->ToObject()))
+        references->push_back(v8::Persistent<v8::Value>::New(
+            LD_NODE_ISOLATE_PRE
+            keyBuffer));
+      if (node::Buffer::HasInstance(valueBuffer->ToObject()))
+        references->push_back(v8::Persistent<v8::Value>::New(
+            LD_NODE_ISOLATE_PRE
+            valueBuffer));
     }
   }
 
   AsyncQueueWorker(new BatchWorker(
       database
     , callback
-    , operations
+    , batch
+    , references
     , sync
   ));
 
@@ -372,9 +453,7 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
       || endBufferV->IsUndefined()
       || endBufferV->IsFunction() // callback in pos 1?
       ) {
-    LD_THROW_RETURN( \
-      "approximateSize() requires valid `start`, `end` and `callback` arguments" \
-    )
+    LD_THROW_RETURN(approximateSize() requires valid `start`, `end` and `callback` arguments)
   }
 
   LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
@@ -382,13 +461,13 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], start)
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], end)
 
-  LD_STRING_OR_BUFFER_TO_SLICE(start, startBufferV)
-  LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV)
+  LD_STRING_OR_BUFFER_TO_SLICE(start, startBufferV, start)
+  LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV, end)
 
   v8::Persistent<v8::Value> startBuffer =
-      v8::Persistent<v8::Value>::New(startBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE startBufferV);
   v8::Persistent<v8::Value> endBuffer =
-      v8::Persistent<v8::Value>::New(endBufferV);
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE endBufferV);
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(
       database
@@ -406,12 +485,27 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
 v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
   v8::HandleScope scope;
 
+  Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
+
   v8::Local<v8::Object> optionsObj;
   if (args.Length() > 0 && args[0]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[0]);
   }
 
-  return scope.Close(Iterator::NewInstance(args.This(), optionsObj));
+  // each iterator gets a unique id for this Database, so we can
+  // easily store & lookup on our `iterators` map
+  uint32_t id = database->currentIteratorId++;
+  v8::Handle<v8::Object> iterator = Iterator::NewInstance(
+      args.This()
+    , v8::Number::New(id)
+    , optionsObj
+  );
+  // register our iterator
+  database->iterators[id] =
+      node::ObjectWrap::Unwrap<leveldown::Iterator>(iterator)->handle_;
+
+  return scope.Close(iterator);
 }
+
 
 } // namespace leveldown

@@ -1,60 +1,40 @@
-/* Copyright (c) 2012-2013 LevelDOWN contributors
- * See list at <https://github.com/rvagg/node-leveldown#contributing>
- * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
- */
-
 #ifndef LD_BATCH_H
 #define LD_BATCH_H
 
-#include "leveldb/write_batch.h"
+#include <vector>
+#include <node.h>
+
+#include <leveldb/write_batch.h>
 
 #include "database.h"
 
 namespace leveldown {
 
-class BatchOp {
+class Batch : public node::ObjectWrap {
 public:
-  BatchOp () {};
-  virtual ~BatchOp ();
-  virtual void Execute (leveldb::WriteBatch* batch) =0;
-};
+  static void Init();
+  static v8::Handle<v8::Value> NewInstance (
+      v8::Handle<v8::Object> database
+    , v8::Handle<v8::Object> optionsObj
+  );
 
-class BatchDelete : public BatchOp {
-public:
-  BatchDelete (
-      leveldb::Slice key
-    , v8::Persistent<v8::Value> keyPtr
-  ) : key(key)
-    , keyPtr(keyPtr)
-  {};
-  ~BatchDelete ();
-  void Execute (leveldb::WriteBatch* batch);
+  Batch  (leveldown::Database* database, bool sync);
+  ~Batch ();
+  leveldb::Status Write ();
 
 private:
-  leveldb::Slice key;
-  v8::Persistent<v8::Value> keyPtr;
-};
+  leveldown::Database* database;
+  leveldb::WriteOptions* options;
+  leveldb::WriteBatch* batch;
+  std::vector< v8::Persistent<v8::Value> >* references;
 
-class BatchWrite : public BatchOp {
-public:
-  BatchWrite (
-      leveldb::Slice key
-    , leveldb::Slice value
-    , v8::Persistent<v8::Value> keyPtr
-    , v8::Persistent<v8::Value> valuePtr
-  ) : key(key)
-    , keyPtr(keyPtr)
-    , value(value)
-    , valuePtr(valuePtr)
-  {};
-  ~BatchWrite ();
-  void Execute (leveldb::WriteBatch* batch);
+  static v8::Persistent<v8::Function> constructor;
 
-private:
-  leveldb::Slice key;
-  v8::Persistent<v8::Value> keyPtr;
-  leveldb::Slice value;
-  v8::Persistent<v8::Value> valuePtr;
+  LD_V8_METHOD( New   )
+  LD_V8_METHOD( Put   )
+  LD_V8_METHOD( Del   )
+  LD_V8_METHOD( Clear )
+  LD_V8_METHOD( Write )
 };
 
 } // namespace leveldown

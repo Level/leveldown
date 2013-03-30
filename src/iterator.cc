@@ -14,6 +14,7 @@ namespace leveldown {
 
 Iterator::Iterator (
     Database* database
+  , uint32_t id
   , leveldb::Slice* start
   , std::string* end
   , bool reverse
@@ -25,6 +26,7 @@ Iterator::Iterator (
   , bool valueAsBuffer
   , v8::Persistent<v8::Value> startPtr
 ) : database(database)
+  , id(id)
   , start(start)
   , end(end)
   , reverse(reverse)
@@ -47,7 +49,7 @@ Iterator::Iterator (
 
 Iterator::~Iterator () {
   delete options;
-  startPtr.Dispose();
+  startPtr.Dispose(LD_NODE_ISOLATE);
   if (start != NULL)
     delete start;
   if (end != NULL)
@@ -104,6 +106,10 @@ void Iterator::IteratorEnd () {
   dbIterator = NULL;
 }
 
+void Iterator::Release () {
+  database->ReleaseIterator(id);
+}
+
 void checkEndCallback (Iterator* iterator) {
   iterator->nexting = false;
   if (iterator->endWorker != NULL) {
@@ -118,19 +124,21 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
-    LD_THROW_RETURN("next() requires a callback argument")
+    LD_THROW_RETURN(next() requires a callback argument)
   }
 
   if (iterator->ended) {
-    LD_THROW_RETURN("Cannot call next() after end()")
+    LD_THROW_RETURN(cannot call next() after end())
   }
 
   if (iterator->nexting) {
-    LD_THROW_RETURN("Cannot call next() before previous next() has completed")
+    LD_THROW_RETURN(cannot call next() before previous next() has completed)
   }
 
   v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[0]));
+      v8::Persistent<v8::Function>::New(
+          LD_NODE_ISOLATE_PRE
+          v8::Local<v8::Function>::Cast(args[0]));
 
   NextWorker* worker = new NextWorker(
       iterator
@@ -140,7 +148,7 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   iterator->nexting = true;
   AsyncQueueWorker(worker);
 
-  return v8::Undefined();
+  return scope.Close(args.Holder());
 }
 
 v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
@@ -148,15 +156,17 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
-    LD_THROW_RETURN("end() requires a callback argument")
+    LD_THROW_RETURN(end() requires a callback argument)
   }
 
   if (iterator->ended) {
-    LD_THROW_RETURN("end() already called on iterator")
+    LD_THROW_RETURN(end() already called on iterator)
   }
 
   v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(v8::Local<v8::Function>::Cast(args[0]));
+      v8::Persistent<v8::Function>::New(
+          LD_NODE_ISOLATE_PRE
+          v8::Local<v8::Function>::Cast(args[0]));
 
   EndWorker* worker = new EndWorker(
       iterator
@@ -171,7 +181,7 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
     AsyncQueueWorker(worker);
   }
 
-  return v8::Undefined();
+  return scope.Close(args.Holder());
 }
 
 v8::Persistent<v8::Function> Iterator::constructor;
@@ -188,11 +198,14 @@ void Iterator::Init () {
       v8::String::NewSymbol("end")
     , v8::FunctionTemplate::New(End)->GetFunction()
   );
-  constructor = v8::Persistent<v8::Function>::New(tpl->GetFunction());
+  constructor = v8::Persistent<v8::Function>::New(
+      LD_NODE_ISOLATE_PRE
+      tpl->GetFunction());
 }
 
-v8::Handle<v8::Value> Iterator::NewInstance (
+v8::Handle<v8::Object> Iterator::NewInstance (
         v8::Handle<v8::Object> database
+      , v8::Handle<v8::Number> id
       , v8::Handle<v8::Object> optionsObj
     ) {
 
@@ -200,11 +213,11 @@ v8::Handle<v8::Value> Iterator::NewInstance (
   v8::Local<v8::Object> instance;
 
   if (optionsObj.IsEmpty()) {
-    v8::Handle<v8::Value> argv[1] = { database };
-    instance = constructor->NewInstance(1, argv);
-  } else {
-    v8::Handle<v8::Value> argv[2] = { database, optionsObj };
+    v8::Handle<v8::Value> argv[2] = { database, id };
     instance = constructor->NewInstance(2, argv);
+  } else {
+    v8::Handle<v8::Value> argv[3] = { database, id, optionsObj };
+    instance = constructor->NewInstance(3, argv);
   }
 
   return scope.Close(instance);
@@ -223,17 +236,19 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
   std::string* end = NULL;
   int limit = -1;
 
+  v8::Local<v8::Value> id = args[1];
+
   v8::Local<v8::Object> optionsObj;
 
-  if (args.Length() > 1 && args[1]->IsObject()) {
-    optionsObj = v8::Local<v8::Object>::Cast(args[1]);
+  if (args.Length() > 1 && args[2]->IsObject()) {
+    optionsObj = v8::Local<v8::Object>::Cast(args[2]);
 
     if (optionsObj->Has(option_start)
         && (node::Buffer::HasInstance(optionsObj->Get(option_start))
           || optionsObj->Get(option_start)->IsString())) {
 
       startBuffer = v8::Local<v8::Value>::New(optionsObj->Get(option_start));
-      LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer)
+      LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, start)
       start = new leveldb::Slice(_start.data(), _start.size());
     }
 
@@ -243,7 +258,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
 
       v8::Local<v8::Value> endBuffer =
           v8::Local<v8::Value>::New(optionsObj->Get(option_end));
-      LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer)
+      LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, end)
       end = new std::string(_end.data(), _end.size());
     }
 
@@ -262,6 +277,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
 
   Iterator* iterator = new Iterator(
       database
+    , (uint32_t)id->Int32Value()
     , start
     , end
     , reverse
@@ -271,7 +287,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
     , fillCache
     , keyAsBuffer
     , valueAsBuffer
-    , v8::Persistent<v8::Value>::New(startBuffer)
+    , v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE startBuffer)
   );
   iterator->Wrap(args.This());
 

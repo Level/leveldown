@@ -2,3 +2,10 @@ node_modules/
 build/
 libleveldb.so
 libleveldb.a
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.tlog
+*.obj
+*.1sdk.pdb
+*.lastbuildstate

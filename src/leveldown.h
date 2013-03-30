@@ -5,22 +5,27 @@
 #ifndef LD_LEVELDOWN_H
 #define LD_LEVELDOWN_H
 
+// node_isolate stuff introduced with V8 upgrade, see https://github.com/joyent/node/pull/5077
+#if NODE_MODULE_VERSION > 0x000B
+#  define LD_NODE_ISOLATE node::node_isolate
+#  define LD_NODE_ISOLATE_PRE node::node_isolate, 
+#  define LD_NODE_ISOLATE_POST , node::node_isolate 
+#else
+#  define LD_NODE_ISOLATE
+#  define LD_NODE_ISOLATE_PRE
+#  define LD_NODE_ISOLATE_POST
+#endif
+
 #define LD_SYMBOL(var, key) \
   static const v8::Persistent<v8::String> var = \
-    v8::Persistent<v8::String>::New(v8::String::NewSymbol(#key));
+    v8::Persistent<v8::String>::New(LD_NODE_ISOLATE_PRE v8::String::NewSymbol(#key));
 
 #define LD_V8_METHOD(name) \
   static v8::Handle<v8::Value> name (const v8::Arguments& args);
 
 #define LD_CB_ERR_IF_NULL_OR_UNDEFINED(thing, name) \
   if (thing->IsNull() || thing->IsUndefined()) { \
-    v8::Local<v8::Value> argv[] = { \
-      v8::Local<v8::Value>::New(v8::Exception::Error( \
-        v8::String::New(#name " cannot be `null` or `undefined`")) \
-      ) \
-    }; \
-    LD_RUN_CALLBACK(callback, argv, 1); \
-    return v8::Undefined(); \
+    LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be `null` or `undefined`") \
   }
 
 #define LD_FROM_V8_STRING(to, from) \
@@ -31,20 +36,20 @@
   to = new char[to ## Sz_ + 1]; \
   to ## Str->WriteUtf8(to, -1, NULL, v8::String::NO_OPTIONS);
 
-#define LD_STRING_OR_BUFFER_TO_SLICE(to, from) \
+#define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name) \
   size_t to ## Sz_; \
   char* to ## Ch_; \
   if (node::Buffer::HasInstance(from->ToObject())) { \
     to ## Sz_ = node::Buffer::Length(from->ToObject()); \
     if (to ## Sz_ == 0) { \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #to " argument cannot be an empty Buffer") \
+      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty Buffer") \
     } \
     to ## Ch_ = node::Buffer::Data(from->ToObject()); \
   } else { \
     v8::Local<v8::String> to ## Str = from->ToString(); \
     to ## Sz_ = to ## Str->Utf8Length(); \
     if (to ## Sz_ == 0) { \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #to " argument cannot be an empty String") \
+      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty String") \
     } \
     to ## Ch_ = new char[to ## Sz_]; \
     to ## Str->WriteUtf8( \
@@ -91,8 +96,8 @@
     node::FatalException(try_catch); \
   }
 
-#define LD_THROW_RETURN(msg) \
-  v8::ThrowException(v8::Exception::Error(v8::String::New(#msg))); \
+#define LD_THROW_RETURN(...) \
+  v8::ThrowException(v8::Exception::Error(v8::String::New(#__VA_ARGS__))); \
   return v8::Undefined();
 
 /* LD_METHOD_SETUP_COMMON setup the following objects:
@@ -105,15 +110,18 @@
   if (args.Length() == 0) { \
     LD_THROW_RETURN(name() requires a callback argument) \
   } \
-  Database* database = ObjectWrap::Unwrap<Database>(args.This()); \
+  leveldown::Database* database = \
+    node::ObjectWrap::Unwrap<leveldown::Database>(args.This()); \
   v8::Local<v8::Object> optionsObj; \
   v8::Persistent<v8::Function> callback; \
   if (optionPos == -1 && args[callbackPos]->IsFunction()) { \
     callback = v8::Persistent<v8::Function>::New( \
+      LD_NODE_ISOLATE_PRE \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
     ); \
   } else if (optionPos != -1 && args[callbackPos - 1]->IsFunction()) { \
     callback = v8::Persistent<v8::Function>::New( \
+      LD_NODE_ISOLATE_PRE \
       v8::Local<v8::Function>::Cast(args[callbackPos - 1]) \
     ); \
   } else if (optionPos != -1 \
@@ -121,6 +129,7 @@
         && args[callbackPos]->IsFunction()) { \
     optionsObj = v8::Local<v8::Object>::Cast(args[optionPos]); \
     callback = v8::Persistent<v8::Function>::New( \
+      LD_NODE_ISOLATE_PRE \
       v8::Local<v8::Function>::Cast(args[callbackPos]) \
     ); \
   } else { \

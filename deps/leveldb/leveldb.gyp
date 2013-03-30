@@ -12,6 +12,8 @@
   , 'direct_dependent_settings': {
         'include_dirs': [
             'leveldb-<(ldbversion)/include/'
+          , 'leveldb-<(ldbversion)/port/'
+          , 'leveldb-<(ldbversion)/util'
           , 'leveldb-<(ldbversion)/'
         ]
     }
@@ -26,19 +28,37 @@
         ['OS == "win"', {
             'include_dirs': [
                 'leveldb-<(ldbversion)/port/win'
+              , 'port-libuv/'
             ]
-        }]
-      , ['OS == "linux"', {
-            'defines': [
-                'OS_LINUX=1'
-              , 'LEVELDB_PLATFORM_POSIX=1'
+          , 'defines': [
+                'LEVELDB_PLATFORM_UV=1'
+              , 'NOMINMAX=1'
+              , '_HAS_EXCEPTIONS=0'
             ]
-          , 'libraries': [
-                '-lpthread'
+          , 'sources': [
+                'port-libuv/port_uv.cc'
+              , 'port-libuv/env_win.cc'
+              , 'port-libuv/win_logger.cc'
+            ]
+          , 'msvs_settings': {
+                'VCCLCompilerTool': {
+                    'RuntimeTypeInfo': 'false'
+                  , 'EnableFunctionLevelLinking': 'true'
+                  , 'ExceptionHandling': '2'
+                  , 'DisableSpecificWarnings': [ '4355', '4530' ,'4267', '4244' ]
+                }
+            }
+        }, { # OS != "win"
+            'sources': [
+                'leveldb-<(ldbversion)/port/port_posix.cc'
+              , 'leveldb-<(ldbversion)/port/port_posix.h'
+              , 'leveldb-<(ldbversion)/util/env_posix.cc'
+            ]
+          , 'defines': [
+                'LEVELDB_PLATFORM_POSIX=1'
             ]
           , 'ccflags': [
                 '-fno-builtin-memcmp'
-              , '-pthread'
               , '-fPIC'
             ]
           , 'cflags': [
@@ -46,35 +66,35 @@
               , '-Wno-unused-but-set-variable'
             ]
         }]
+      , ['OS == "linux"', {
+            'defines': [
+                'OS_LINUX=1'
+            ]
+          , 'libraries': [
+                '-lpthread'
+            ]
+          , 'ccflags': [
+                '-pthread'
+            ]
+        }]
       , ['OS == "solaris"', {
             'defines': [
                 'OS_SOLARIS=1'
-              , 'LEVELDB_PLATFORM_POSIX=1'
             ]
           , 'libraries': [
                 '-lrt'
               , '-lpthread'
             ]
           , 'ccflags': [
-                '-fno-builtin-memcmp'
-              , '-pthread'
-              , '-fPIC'
-            ]
-          , 'cflags': [
-                '-Wno-sign-compare'
-              , '-Wno-unused-but-set-variable'
+                '-pthread'
             ]
         }]
       , ['OS == "mac"', {
             'defines': [
                 'OS_MACOSX=1'
-              , 'LEVELDB_PLATFORM_POSIX=1'
             ]
           , 'libraries': []
-          , 'ccflags': [
-                '-fno-builtin-memcmp'
-              , '-fPIC'
-            ]
+          , 'ccflags': []
           , 'xcode_settings': {
                 'WARNING_CFLAGS': [
                     '-Wno-sign-compare'
@@ -128,9 +148,6 @@
       , 'leveldb-<(ldbversion)/include/leveldb/table_builder.h'
       , 'leveldb-<(ldbversion)/include/leveldb/write_batch.h'
       , 'leveldb-<(ldbversion)/port/port.h'
-      , 'leveldb-<(ldbversion)/port/port_example.h'
-      , 'leveldb-<(ldbversion)/port/port_posix.cc'
-      , 'leveldb-<(ldbversion)/port/port_posix.h'
       , 'leveldb-<(ldbversion)/table/block.cc'
       , 'leveldb-<(ldbversion)/table/block.h'
       , 'leveldb-<(ldbversion)/table/block_builder.cc'
@@ -157,7 +174,6 @@
       , 'leveldb-<(ldbversion)/util/crc32c.cc'
       , 'leveldb-<(ldbversion)/util/crc32c.h'
       , 'leveldb-<(ldbversion)/util/env.cc'
-      , 'leveldb-<(ldbversion)/util/env_posix.cc'
       , 'leveldb-<(ldbversion)/util/filter_policy.cc'
       , 'leveldb-<(ldbversion)/util/hash.cc'
       , 'leveldb-<(ldbversion)/util/hash.h'

@@ -42,6 +42,7 @@ public:
 
   virtual ~EndWorker ();
   virtual void Execute ();
+  virtual void HandleOKCallback ();
 
 private:
   Iterator* iterator;

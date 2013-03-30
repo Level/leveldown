@@ -12,7 +12,6 @@
 #include "leveldb/cache.h"
 
 #include "async.h"
-#include "batch.h"
 
 namespace leveldown {
 
@@ -25,6 +24,10 @@ public:
     , bool errorIfExists
     , bool compression
     , uint32_t cacheSize
+    , uint32_t writeBufferSize
+    , uint32_t blockSize
+    , uint32_t maxOpenFiles
+    , uint32_t blockRestartInterval
   );
 
   virtual ~OpenWorker ();
@@ -127,7 +130,8 @@ public:
   BatchWorker (
       Database* database
     , v8::Persistent<v8::Function> callback
-    , std::vector<BatchOp*>* operations
+    , leveldb::WriteBatch* batch
+    , std::vector< v8::Persistent<v8::Value> >* references
     , bool sync
   );
 
@@ -136,7 +140,8 @@ public:
 
 private:
   leveldb::WriteOptions* options;
-  std::vector<BatchOp*>* operations;
+  leveldb::WriteBatch* batch;
+  std::vector< v8::Persistent<v8::Value> >* references;
 };
 
 class ApproximateSizeWorker : public AsyncWorker {

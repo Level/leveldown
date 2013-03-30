@@ -6,6 +6,7 @@
 #ifndef LD_DATABASE_H
 #define LD_DATABASE_H
 
+#include <map>
 #include <node.h>
 
 #include "leveldb/db.h"
@@ -18,6 +19,10 @@ LD_SYMBOL ( option_createIfMissing , createIfMissing ); // for open()
 LD_SYMBOL ( option_errorIfExists   , errorIfExists   ); // for open()
 LD_SYMBOL ( option_compression     , compression     ); // for open()
 LD_SYMBOL ( option_cacheSize       , cacheSize       ); // for open() 
+LD_SYMBOL ( option_writeBufferSize , writeBufferSize ); // for open() 
+LD_SYMBOL ( option_blockSize       , blockSize       ); // for open() 
+LD_SYMBOL ( option_maxOpenFiles    , maxOpenFiles    ); // for open() 
+LD_SYMBOL ( option_blockRestartInterval , blockRestartInterval ); // for open() 
 LD_SYMBOL ( option_sync            , sync            ); // for put() and delete()
 LD_SYMBOL ( option_asBuffer        , asBuffer        ); // for get()
 LD_SYMBOL ( option_fillCache       , fillcache       ); // for get() and readStream()
@@ -56,15 +61,22 @@ public:
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
   void CloseDatabase ();
   const char* Location() const;
+  void ReleaseIterator (uint32_t id);
 
-private:
   Database (char* location);
   ~Database ();
 
+private:
   leveldb::DB* db;
   char* location;
+  uint32_t currentIteratorId;
+  void(*pendingCloseWorker);
+
+  std::map< uint32_t, v8::Persistent<v8::Object> > iterators;
 
   static v8::Persistent<v8::Function> constructor;
+  static void WriteDoing(uv_work_t *req);
+  static void WriteAfter(uv_work_t *req);
 
   LD_V8_METHOD( New      )
   LD_V8_METHOD( Open     )
@@ -73,6 +85,7 @@ private:
   LD_V8_METHOD( Delete   )
   LD_V8_METHOD( Get      )
   LD_V8_METHOD( Batch    )
+  LD_V8_METHOD( Write    )
   LD_V8_METHOD( Iterator )
   LD_V8_METHOD( ApproximateSize )
 };

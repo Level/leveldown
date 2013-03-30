@@ -62,8 +62,7 @@ void NextWorker::HandleOKCallback () {
     };
     LD_RUN_CALLBACK(callback, argv, 3);
   } else {
-    v8::Local<v8::Value> argv[0];
-    LD_RUN_CALLBACK(callback, argv, 0);
+    LD_RUN_CALLBACK(callback, NULL, 0);
   }
 }
 
@@ -80,6 +79,11 @@ EndWorker::~EndWorker () {}
 
 void EndWorker::Execute () {
   iterator->IteratorEnd();
+}
+
+void EndWorker::HandleOKCallback () {
+  iterator->Release();
+  LD_RUN_CALLBACK(callback, NULL, 0);
 }
 
 } // namespace leveldown

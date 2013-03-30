@@ -8,7 +8,6 @@
 #include "database.h"
 #include "leveldown.h"
 #include "async.h"
-#include "batch.h"
 
 namespace leveldown {
 
@@ -31,12 +30,11 @@ void AsyncWorker::WorkComplete () {
     HandleOKCallback();
   else
     HandleErrorCallback();
-  callback.Dispose();
+  callback.Dispose(LD_NODE_ISOLATE);
 }
 
 void AsyncWorker::HandleOKCallback () {
-  v8::Local<v8::Value> argv[0];
-  LD_RUN_CALLBACK(callback, argv, 0);  
+  LD_RUN_CALLBACK(callback, NULL, 0);  
 }
 
 void AsyncWorker::HandleErrorCallback () {

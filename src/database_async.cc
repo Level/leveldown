@@ -10,7 +10,6 @@
 #include "leveldown.h"
 #include "async.h"
 #include "database_async.h"
-#include "batch.h"
 
 namespace leveldown {
 
@@ -23,15 +22,23 @@ OpenWorker::OpenWorker (
   , bool errorIfExists
   , bool compression
   , uint32_t cacheSize
+  , uint32_t writeBufferSize
+  , uint32_t blockSize
+  , uint32_t maxOpenFiles
+  , uint32_t blockRestartInterval
 ) : AsyncWorker(database, callback)
 {
   options = new leveldb::Options();
-  options->create_if_missing = createIfMissing;
-  options->error_if_exists = errorIfExists;
-  options->compression = compression
-    ? leveldb::kSnappyCompression
-    : leveldb::kNoCompression;
-  options->block_cache = leveldb::NewLRUCache(cacheSize);
+  options->create_if_missing      = createIfMissing;
+  options->error_if_exists        = errorIfExists;
+  options->compression            = compression
+      ? leveldb::kSnappyCompression
+      : leveldb::kNoCompression;
+  options->block_cache            = leveldb::NewLRUCache(cacheSize);
+  options->write_buffer_size      = writeBufferSize;
+  options->block_size             = blockSize;
+  options->max_open_files         = maxOpenFiles;
+  options->block_restart_interval = blockRestartInterval;
 };
 
 OpenWorker::~OpenWorker () {
@@ -59,7 +66,7 @@ void CloseWorker::Execute () {
 void CloseWorker::WorkComplete () {
   v8::HandleScope scope;
   HandleOKCallback();
-  callback.Dispose();
+  callback.Dispose(LD_NODE_ISOLATE);
 }
 
 /** IO WORKER (abstract) **/
@@ -78,7 +85,7 @@ IOWorker::~IOWorker () {}
 
 void IOWorker::WorkComplete () {
   AsyncWorker::WorkComplete();
-  keyPtr.Dispose();
+  keyPtr.Dispose(LD_NODE_ISOLATE);
 }
 
 /** READ WORKER **/
@@ -165,7 +172,7 @@ void WriteWorker::Execute () {
 
 void WriteWorker::WorkComplete () {
   IOWorker::WorkComplete();
-  valuePtr.Dispose();
+  valuePtr.Dispose(LD_NODE_ISOLATE);
 }
 
 /** BATCH WORKER **/
@@ -173,30 +180,30 @@ void WriteWorker::WorkComplete () {
 BatchWorker::BatchWorker (
     Database* database
   , v8::Persistent<v8::Function> callback
-  , std::vector<BatchOp*>* operations
+  , leveldb::WriteBatch* batch
+  , std::vector< v8::Persistent<v8::Value> >* references
   , bool sync
 ) : AsyncWorker(database, callback)
-  , operations(operations)
+  , batch(batch)
+  , references(references)
 {
   options = new leveldb::WriteOptions();
   options->sync = sync;
 };
 
 BatchWorker::~BatchWorker () {
-  for (std::vector<BatchOp*>::iterator it = operations->begin(); it != operations->end();) {
-    delete *it;
-    it = operations->erase(it);
+  for (std::vector< v8::Persistent<v8::Value> >::iterator it = references->begin()
+      ; it != references->end()
+      ; ) {
+    it->Dispose(LD_NODE_ISOLATE);
+    it = references->erase(it);
   }
-  delete operations;
+  delete references;
   delete options;
 }
 
 void BatchWorker::Execute () {
-  leveldb::WriteBatch batch;
-  for (std::vector<BatchOp*>::iterator it = operations->begin(); it != operations->end();) {
-    (*it++)->Execute(&batch);
-  }
-  status = database->WriteBatchToDatabase(options, &batch);
+  status = database->WriteBatchToDatabase(options, batch);
 }
 
 /** APPROXIMATE SIZE WORKER **/
@@ -222,8 +229,8 @@ void ApproximateSizeWorker::Execute () {
 
 void ApproximateSizeWorker::WorkComplete() {
   AsyncWorker::WorkComplete();
-  startPtr.Dispose();
-  endPtr.Dispose();
+  startPtr.Dispose(LD_NODE_ISOLATE);
+  endPtr.Dispose(LD_NODE_ISOLATE);
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {

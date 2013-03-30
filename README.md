@@ -14,6 +14,17 @@ It is **strongly recommended** that you use LevelUP in preference to LevelDOWN u
 
 See the section on <a href="#safety">safety</a> below for details of known unsafe operations with LevelDOWN.
 
+<a name="platforms"></a>
+Tested & supported platforms
+----------------------------
+
+  * **Linux** (including ARM platforms such as Raspberry Pi *and Kindle!*)
+  * **Mac OS**
+  * **Solaris** (SmartOS & Nodejitsu)
+  * **Windows**
+    * Node 0.10 and above only, see [issue #5](https://github.com/rvagg/node-levelup/issues/5) for more info
+    * See installation instructions for *node-gyp* dependencies [here](https://github.com/TooTallNate/node-gyp#installation), you'll need these (free) components from Microsoft to compile and run any native Node add-on in Windows.
+
 <a name="api"></a>
 ## API
 
@@ -28,6 +39,8 @@ See the section on <a href="#safety">safety</a> below for details of known unsaf
   * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
   * <a href="#iterator_end"><code><b>iterator#end()</b></code></a>
+  * <a href="#leveldown_destroy"><code><b>leveldown.destroy()</b></code></a>
+  * <a href="#leveldown_repair"><code><b>leveldown.repair()</b></code></a>
 
 
 --------------------------------------------------------
@@ -41,6 +54,8 @@ See the section on <a href="#safety">safety</a> below for details of known unsaf
 ### leveldown#open([options, ]callback)
 <code>open()</code> is an instance method on an existing database object.
 
+The `callback` function will be called with no arguments when the database has been successfully opened, or with a single `error` argument if the open operation failed for any reason.
+
 #### `options`
 
 The optional `options` argument may contain:
@@ -51,9 +66,21 @@ The optional `options` argument may contain:
 
 * `'compression'` *(boolean, default: `true`)*: If `true`, all *compressible* data will be run through the Snappy compression algorithm before being stored. Snappy is very fast and shouldn't gain much speed by disabling so leave this on unless you have good reason to turn it off.
 
-* `'cacheSize'` *(number, default: `8 * 1024 * 1024`)*: The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents. 
+* `'cacheSize'` *(number, default: `8 * 1024 * 1024` = 8MB)*: The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents. 
 
-The `callback` function will be called with no arguments when the database has been successfully opened, or with a single `error` argument if the open operation failed for any reason.
+**Advanced options**
+
+The following options are for advanced performance tuning. Modify them only if you can prove actual benefit for your particular application.
+
+* `'writeBufferSize'` *(number, default: `4 * 1024 * 1024` = 4MB)*: The maximum size (in bytes) of the log (in memory and stored in the .log file on disk). Beyond this size, LevelDB will convert the log data to the first level of sorted table files. From the LevelDB documentation:
+
+> Larger values increase performance, especially during bulk loads. Up to two write buffers may be held in memory at the same time, so you may wish to adjust this parameter to control memory usage. Also, a larger write buffer will result in a longer recovery time the next time the database is opened.
+
+* `'blockSize'` *(number, default `4096` = 4K)*: The *approximate* size of the blocks that make up the table files. The size related to uncompressed data (hence "approximate"). Blocks are indexed in the table file and entry-lookups involve reading an entire block and parsing to discover the required entry.
+
+* `'maxOpenFiles'` *(number, default: `1000`)*: The maximum number of files that LevelDB is allowed to have open at a time. If your data store is likely to have a large working set, you may increase this value to prevent file descriptor churn. To calculate the number of files required for your working set, divide your total data by 2MB, as each table file is a maximum of 2MB. 
+
+* `'blockRestartInterval'` *(number, default: `16`)*: The number of entries before restarting the "delta encoding" of keys within blocks. Each "restart" point stores the full key for the entry, between restarts, the common prefix of the keys for those entries is omitted. Restarts are similar to the concept of keyframs in video encoding and are used to minimise the amount of space required to store keys. This is particularly helpful when using deep namespacing / prefixing in your keys.
 
 
 --------------------------------------------------------
@@ -182,6 +209,26 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 <code>end()</code> is an instance method on an existing iterator object. The underlying LevelDB iterator will be deleted and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 
+--------------------------------------------------------
+<a name="leveldown_destroy"></a>
+### leveldown.destroy(location, callback)
+<code>destroy()</code> is used to completely remove an existing LevelDB database directory. You can use this function in place of a full directory *rm* if you want to be sure to only remove LevelDB-related files. If the directory only contains LevelDB files, the directory itself will be removed as well. If there are additional, non-LevelDB files in the directory, those files, and the directory, will be left alone.
+
+The callback will be called when the destroy operation is complete, with a possible `error` argument.
+
+<a name="leveldown_repair"></a>
+### leveldown.repair(location, callback)
+<code>repair()</code> can be used to attempt a restoration of a damaged LevelDB store. From the LevelDB documentation:
+
+> If a DB cannot be opened, you may attempt to call this method to resurrect as much of the contents of the database as possible. Some data may be lost, so be careful when calling this function on a database that contains important information.
+
+You will find information on the *repair* operation in the *LOG* file inside the store directory. 
+
+A `repair()` can also be used to perform a compaction of the LevelDB log into table files.
+
+The callback will be called when the repair operation iscomplete, with a possible `error` argument.
+
+
 <a name="safety"></a>
 Safety
 ------
@@ -222,6 +269,11 @@ LevelDOWN is only possible due to the excellent work of the following contributo
 <tr><th align="left">Julian Gruber</th><td><a href="https://github.com/juliangruber">GitHub/juliangruber</a></td><td><a href="http://twitter.com/juliangruber">Twitter/@juliangruber</a></td></tr>
 <tr><th align="left">Paolo Fragomeni</th><td><a href="https://github.com/hij1nx">GitHub/hij1nx</a></td><td><a href="http://twitter.com/hij1nx">Twitter/@hij1nx</a></td></tr>
 </tbody></table>
+
+### Windows
+
+A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using LevelUP on Windows, you should give him your thanks!
+
 
 <a name="licence"></a>
 Licence &amp; copyright
