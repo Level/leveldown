@@ -42,9 +42,11 @@
 #endif
 #include <stdint.h>
 #include <string>
-#include "port/atomic_pointer.h"
 #if defined(_MSC_VER)
   #include "atomic_pointer_win.h"
+  #undef small
+#else
+  #include "port/atomic_pointer.h"
 #endif
 
 #ifndef PLATFORM_IS_LITTLE_ENDIAN

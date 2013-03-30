@@ -3,6 +3,9 @@
 
 // credit: https://groups.google.com/forum/#!msg/leveldb/VuECZMnsob4/F6pGPGaK-XwJ
 
+namespace leveldb {
+namespace port {
+
 class AtomicPointer {
   private:
     void* rep_;
@@ -40,3 +43,6 @@ class AtomicPointer {
         rep_ = reinterpret_cast<void*>(v);
     }
 };
+
+} // namespace port
+} // namespace leveldb
