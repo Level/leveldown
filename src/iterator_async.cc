@@ -83,8 +83,7 @@ void EndWorker::Execute () {
 
 void EndWorker::HandleOKCallback () {
   iterator->Release();
-  v8::Local<v8::Value> argv[0];
-  LD_RUN_CALLBACK(callback, argv, 0);  
+  LD_RUN_CALLBACK(callback, NULL, 0);
 }
 
 } // namespace leveldown
