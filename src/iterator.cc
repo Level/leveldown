@@ -242,6 +242,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
 
   v8::Local<v8::Value> startBuffer;
   leveldb::Slice* start = NULL;
+  size_t length;
   std::string* end = NULL;
   int limit = -1;
 
@@ -257,8 +258,12 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
           || optionsObj->Get(option_start)->IsString())) {
 
       startBuffer = v8::Local<v8::Value>::New(optionsObj->Get(option_start));
-      LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, start)
-      start = new leveldb::Slice(_start.data(), _start.size());
+      LD_STRING_OR_BUFFER_LENGTH(startBuffer, length)
+      // ignore start if it has size 0 since a Slice can't have length 0
+      if (length > 0) {
+        LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, start)
+        start = new leveldb::Slice(_start.data(), _start.size());
+      }
     }
 
     if (optionsObj->Has(option_end)
@@ -267,8 +272,12 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
 
       v8::Local<v8::Value> endBuffer =
           v8::Local<v8::Value>::New(optionsObj->Get(option_end));
-      LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, end)
-      end = new std::string(_end.data(), _end.size());
+      LD_STRING_OR_BUFFER_LENGTH(endBuffer, length)
+      // ignore end if it has size 0 since a Slice can't have length 0
+      if (length > 0) {
+        LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, end)
+        end = new std::string(_end.data(), _end.size());
+      }
     }
 
     if (!optionsObj.IsEmpty() && optionsObj->Has(option_limit)) {

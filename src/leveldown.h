@@ -60,6 +60,13 @@
   } \
   leveldb::Slice to(to ## Ch_, to ## Sz_);
 
+#define LD_STRING_OR_BUFFER_LENGTH(from, length) \
+  if (node::Buffer::HasInstance(from->ToObject())) { \
+    length = node::Buffer::Length(from->ToObject()); \
+  } else { \
+    length = from->ToString()->Utf8Length(); \
+  }
+
 #define LD_BOOLEAN_OPTION_VALUE(optionsObj, opt) \
   bool opt = !optionsObj.IsEmpty() \
     && optionsObj->Has(option_ ## opt) \

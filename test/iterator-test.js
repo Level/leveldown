@@ -383,6 +383,36 @@ module.exports.iterator = function (leveldown) {
       t.end()
     })
   })
+
+  test('test iterator with start as empty buffer', function(t) {
+    collectEntries(db.iterator({ keyAsBuffer: false, valueAsBuffer: false, start: new Buffer(0)}), function (err, data) {
+      t.notOk(err, 'no error')
+      t.equal(data.length, 100, 'correct number of entries')
+      var expected = sourceData.map(transformSource)
+      t.deepEqual(data, expected)
+      t.end()
+    })
+  })
+
+  test('test iterator with end as empty string', function(t) {
+    collectEntries(db.iterator({ keyAsBuffer: false, valueAsBuffer: false, end: ''}), function (err, data) {
+      t.notOk(err, 'no error')
+      t.equal(data.length, 100, 'correct number of entries')
+      var expected = sourceData.map(transformSource)
+      t.deepEqual(data, expected)
+      t.end()
+    })
+  })
+
+  test('test iterator with end as empty string', function(t) {
+    collectEntries(db.iterator({ keyAsBuffer: false, valueAsBuffer: false, end: new Buffer(0)}), function (err, data) {
+      t.notOk(err, 'no error')
+      t.equal(data.length, 100, 'correct number of entries')
+      var expected = sourceData.map(transformSource)
+      t.deepEqual(data, expected)
+      t.end()
+    })
+  })
 }
 
 module.exports.tearDown = function () {
