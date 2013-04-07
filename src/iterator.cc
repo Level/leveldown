@@ -128,6 +128,7 @@ void checkEndCallback (Iterator* iterator) {
 //void *ctx, void (*callback)(void *ctx, leveldb::Slice key, leveldb::Slice value)
 v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   v8::HandleScope scope;
+
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
@@ -160,6 +161,7 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
 
 v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
   v8::HandleScope scope;
+
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
@@ -233,10 +235,10 @@ v8::Handle<v8::Object> Iterator::NewInstance (
 v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
   v8::HandleScope scope;
 
-  //TODO: remove this, it's only here to make LD_STRING_OR_BUFFER_TO_SLICE happy
-  v8::Local<v8::Function> callback;
-
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
+
+  //TODO: remove this, it's only here to make LD_STRING_OR_BUFFER_TO_SLICE happy
+  v8::Handle<v8::Function> callback;
 
   v8::Local<v8::Value> startBuffer;
   leveldb::Slice* start = NULL;

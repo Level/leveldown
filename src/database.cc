@@ -495,11 +495,16 @@ v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
   // each iterator gets a unique id for this Database, so we can
   // easily store & lookup on our `iterators` map
   uint32_t id = database->currentIteratorId++;
+  v8::TryCatch try_catch;
   v8::Handle<v8::Object> iterator = Iterator::NewInstance(
       args.This()
     , v8::Number::New(id)
     , optionsObj
   );
+  if (try_catch.HasCaught()) {
+    node::FatalException(try_catch);
+  }
+
   // register our iterator
   database->iterators[id] =
       node::ObjectWrap::Unwrap<leveldown::Iterator>(iterator)->handle_;

@@ -78,7 +78,7 @@
       : default;
 
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg) \
-  if (callback->IsFunction()) { \
+  if (!callback.IsEmpty() && callback->IsFunction()) { \
     v8::Local<v8::Value> argv[] = { \
       v8::Local<v8::Value>::New(v8::Exception::Error( \
         v8::String::New(msg)) \
@@ -87,7 +87,8 @@
     LD_RUN_CALLBACK(callback, argv, 1) \
     return v8::Undefined(); \
   } \
-  LD_THROW_RETURN(msg)
+  v8::ThrowException(v8::Exception::Error(v8::String::New(msg))); \
+  return v8::Undefined();
 
 #define LD_RUN_CALLBACK(callback, argv, length) \
   v8::TryCatch try_catch; \

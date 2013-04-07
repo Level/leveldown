@@ -98,7 +98,7 @@ v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
   v8::HandleScope scope;
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  v8::Local<v8::Function> callback; // purely for the error macros
+  v8::Handle<v8::Function> callback; // purely for the error macros
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], value)
@@ -126,7 +126,7 @@ v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
   v8::HandleScope scope;
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  v8::Local<v8::Function> callback; // purely for the error macros
+  v8::Handle<v8::Function> callback; // purely for the error macros
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
