@@ -384,35 +384,44 @@ module.exports.iterator = function (leveldown) {
     })
   })
 
-  test('test iterator with start as empty buffer', function(t) {
-    collectEntries(db.iterator({ keyAsBuffer: false, valueAsBuffer: false, start: new Buffer(0)}), function (err, data) {
-      t.notOk(err, 'no error')
-      t.equal(data.length, 100, 'correct number of entries')
-      var expected = sourceData.map(transformSource)
-      t.deepEqual(data, expected)
-      t.end()
+  function testIteratorCollectsFullDatabase (name, iteratorOptions) {
+    iteratorOptions.keyAsBuffer   = false
+    iteratorOptions.valueAsBuffer = false
+    test(name, function (t) {
+      collectEntries(db.iterator(iteratorOptions), function (err, data) {
+        t.notOk(err, 'no error')
+        t.equal(data.length, 100, 'correct number of entries')
+        var expected = sourceData.map(transformSource)
+        t.deepEqual(data, expected)
+        t.end()
+      })
     })
-  })
+  }
 
-  test('test iterator with end as empty string', function(t) {
-    collectEntries(db.iterator({ keyAsBuffer: false, valueAsBuffer: false, end: ''}), function (err, data) {
-      t.notOk(err, 'no error')
-      t.equal(data.length, 100, 'correct number of entries')
-      var expected = sourceData.map(transformSource)
-      t.deepEqual(data, expected)
-      t.end()
-    })
-  })
-
-  test('test iterator with end as empty string', function(t) {
-    collectEntries(db.iterator({ keyAsBuffer: false, valueAsBuffer: false, end: new Buffer(0)}), function (err, data) {
-      t.notOk(err, 'no error')
-      t.equal(data.length, 100, 'correct number of entries')
-      var expected = sourceData.map(transformSource)
-      t.deepEqual(data, expected)
-      t.end()
-    })
-  })
+  testIteratorCollectsFullDatabase(
+      'test iterator with start as empty buffer'
+    , { start: new Buffer(0) }
+  )
+  testIteratorCollectsFullDatabase(
+      'test iterator with start as empty string'
+    , { start: '' }
+  )
+  testIteratorCollectsFullDatabase(
+      'test iterator with start as null'
+    , { start: null }
+  )
+  testIteratorCollectsFullDatabase(
+      'test iterator with end as empty buffer'
+    , { end: new Buffer(0) }
+  )
+  testIteratorCollectsFullDatabase(
+      'test iterator with end as empty string'
+    , { end: '' }
+  )
+  testIteratorCollectsFullDatabase(
+      'test iterator with end as null'
+    , { end: null }
+  )
 }
 
 module.exports.tearDown = function () {
