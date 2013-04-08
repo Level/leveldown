@@ -1,3 +1,9 @@
+0.2.1 @ Apr 8 2013
+==================
+  * Start on correct value when reverse=true, also handle end-of-store case #27 (@kesla)
+  * Ignore empty string/buffer start/end options on iterators (@kesla)
+  * Macro cleanup, replace some with static inline functions (@rvagg)
+
 0.2.0 @ Mar 30 2013
 ===================
   * Windows support--using a combination of libuv and Windows-specific code. See README for details about what's required (@rvagg)
