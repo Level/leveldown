@@ -28,7 +28,7 @@ v8::Handle<v8::Value> DestroyDB (const v8::Arguments& args) {
     LD_THROW_RETURN(leveldown() requires a callback function argument)
   }
 
-  LD_FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
+  char* location = FromV8String(args[0]);
 
   v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
       LD_NODE_ISOLATE_PRE
@@ -60,7 +60,7 @@ v8::Handle<v8::Value> RepairDB (const v8::Arguments& args) {
     LD_THROW_RETURN(leveldown() requires a callback function argument)
   }
 
-  LD_FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
+  char* location = FromV8String(args[0]);
 
   v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
       LD_NODE_ISOLATE_PRE

@@ -67,7 +67,7 @@ v8::Handle<v8::Value> Batch::New (const v8::Arguments& args) {
     optionsObj = v8::Local<v8::Object>::Cast(args[1]);
   }
 
-  LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
+  bool sync = BooleanOptionValue(optionsObj, option_sync);
 
   Batch* batch = new Batch(database, sync);
   batch->Wrap(args.This());

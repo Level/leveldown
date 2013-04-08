@@ -259,7 +259,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
       startBuffer = v8::Local<v8::Value>::New(optionsObj->Get(option_start));
 
       // ignore start if it has size 0 since a Slice can't have length 0
-      if (LD_STRING_OR_BUFFER_LENGTH(startBuffer) > 0) {
+      if (StringOrBufferLength(startBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, start)
         start = new leveldb::Slice(_start.data(), _start.size());
       }
@@ -273,7 +273,7 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
           v8::Local<v8::Value>::New(optionsObj->Get(option_end));
 
       // ignore end if it has size 0 since a Slice can't have length 0
-      if (LD_STRING_OR_BUFFER_LENGTH(endBuffer) > 0) {
+      if (StringOrBufferLength(endBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, end)
         end = new std::string(_end.data(), _end.size());
       }
@@ -285,12 +285,15 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
     }
   }
 
-  LD_BOOLEAN_OPTION_VALUE(optionsObj, reverse)
-  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, keys)
-  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, values)
-  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, keyAsBuffer)
-  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, valueAsBuffer)
-  LD_BOOLEAN_OPTION_VALUE(optionsObj, fillCache)
+  bool reverse      = BooleanOptionValue(optionsObj, option_reverse);
+  bool keys         = BooleanOptionValueDefTrue(optionsObj, option_keys);
+  bool values       = BooleanOptionValueDefTrue(optionsObj, option_values);
+  bool keyAsBuffer  = BooleanOptionValueDefTrue(optionsObj, option_keyAsBuffer);
+  bool valueAsBuffer = BooleanOptionValueDefTrue(
+      optionsObj
+    , option_valueAsBuffer
+  );
+  bool fillCache    = BooleanOptionValue(optionsObj, option_fillCache);
 
   Iterator* iterator = new Iterator(
       database

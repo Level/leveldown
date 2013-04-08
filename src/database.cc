@@ -168,7 +168,7 @@ v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
     LD_THROW_RETURN(leveldown() requires a location string argument)
   }
 
-  LD_FROM_V8_STRING(location, v8::Handle<v8::String>::Cast(args[0]))
+  char* location = FromV8String(args[0]);
 
   Database* obj = new Database(location);
   obj->Wrap(args.This());
@@ -196,14 +196,38 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(open, 0, 1)
 
-  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, createIfMissing)
-  LD_BOOLEAN_OPTION_VALUE(optionsObj, errorIfExists)
-  LD_BOOLEAN_OPTION_VALUE(optionsObj, compression)
-  LD_UINT32_OPTION_VALUE(optionsObj, cacheSize            , 8 << 20 )
-  LD_UINT32_OPTION_VALUE(optionsObj, writeBufferSize      , 4 << 20 )
-  LD_UINT32_OPTION_VALUE(optionsObj, blockSize            , 4096    )
-  LD_UINT32_OPTION_VALUE(optionsObj, maxOpenFiles         , 1000    )
-  LD_UINT32_OPTION_VALUE(optionsObj, blockRestartInterval , 16      )
+  bool createIfMissing = BooleanOptionValueDefTrue(
+      optionsObj
+    , option_createIfMissing
+  );
+  bool errorIfExists = BooleanOptionValue(optionsObj, option_errorIfExists);
+  bool compression = BooleanOptionValue(optionsObj, option_compression);
+
+  uint32_t cacheSize = UInt32OptionValue(
+      optionsObj
+    , option_cacheSize
+    , 8 << 20
+  );
+  uint32_t writeBufferSize = UInt32OptionValue(
+      optionsObj
+    , option_writeBufferSize
+    , 4 << 20
+  );
+  uint32_t blockSize = UInt32OptionValue(
+      optionsObj
+    , option_blockSize
+    , 4096
+  );
+  uint32_t maxOpenFiles = UInt32OptionValue(
+      optionsObj
+    , option_maxOpenFiles
+    , 1000
+  );
+  uint32_t blockRestartInterval = UInt32OptionValue(
+      optionsObj
+    , option_blockRestartInterval
+    , 16
+  );
 
   OpenWorker* worker = new OpenWorker(
       database
@@ -290,7 +314,7 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
   v8::Persistent<v8::Value> valueBuffer =
       v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE valueBufferV);
 
-  LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
+  bool sync = BooleanOptionValue(optionsObj, option_sync);
 
   WriteWorker* worker  = new WriteWorker(
       database
@@ -320,8 +344,8 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
       LD_NODE_ISOLATE_PRE
       keyBufferV);
 
-  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, asBuffer)
-  LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, fillCache)
+  bool asBuffer = BooleanOptionValueDefTrue(optionsObj, option_asBuffer);
+  bool fillCache = BooleanOptionValueDefTrue(optionsObj, option_fillCache);
 
   ReadWorker* worker = new ReadWorker(
       database
@@ -349,7 +373,7 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
   v8::Persistent<v8::Value> keyBuffer =
       v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBufferV);
 
-  LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
+  bool sync = BooleanOptionValue(optionsObj, option_sync);
 
   DeleteWorker* worker = new DeleteWorker(
       database
@@ -383,7 +407,7 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON(batch, 1, 2)
 
-  LD_BOOLEAN_OPTION_VALUE(optionsObj, sync)
+  bool sync = BooleanOptionValue(optionsObj, option_sync);
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 

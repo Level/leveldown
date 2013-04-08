@@ -5,7 +5,54 @@
 #ifndef LD_LEVELDOWN_H
 #define LD_LEVELDOWN_H
 
-#include <v8.h>
+#include <node.h>
+#include <node_buffer.h>
+
+static inline char* FromV8String(v8::Local<v8::Value> from) {
+  size_t sz_;
+  char* to;
+  v8::Local<v8::String> toStr = from->ToString();
+  sz_ = toStr->Utf8Length();
+  to = new char[sz_ + 1];
+  toStr->WriteUtf8(to, -1, NULL, v8::String::NO_OPTIONS);
+  return to;
+}
+
+static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
+  return node::Buffer::HasInstance(obj->ToObject())
+    ? node::Buffer::Length(obj->ToObject())
+    : obj->ToString()->Utf8Length();
+}
+
+static inline bool BooleanOptionValue(
+      v8::Local<v8::Object> optionsObj
+    , v8::Handle<v8::String> opt) {
+
+  return !optionsObj.IsEmpty()
+    && optionsObj->Has(opt)
+    && optionsObj->Get(opt)->BooleanValue();
+}
+
+static inline bool BooleanOptionValueDefTrue(
+      v8::Local<v8::Object> optionsObj
+    , v8::Handle<v8::String> opt) {
+
+  return optionsObj.IsEmpty()
+    || !optionsObj->Has(opt)
+    || optionsObj->Get(opt)->BooleanValue();
+}
+
+static inline uint32_t UInt32OptionValue(
+      v8::Local<v8::Object> optionsObj
+    , v8::Handle<v8::String> opt
+    , uint32_t def) {
+
+  return !optionsObj.IsEmpty()
+    && optionsObj->Has(opt)
+    && optionsObj->Get(opt)->IsUint32()
+      ? optionsObj->Get(opt)->Uint32Value()
+      : def;
+}
 
 // node_isolate stuff introduced with V8 upgrade, see https://github.com/joyent/node/pull/5077
 #if NODE_MODULE_VERSION > 0x000B
@@ -32,14 +79,6 @@
     LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be `null` or `undefined`") \
   }
 
-#define LD_FROM_V8_STRING(to, from)                                            \
-  size_t to ## Sz_;                                                            \
-  char* to;                                                                    \
-  v8::Local<v8::String> to ## Str = from->ToString();                          \
-  to ## Sz_ = to ## Str->Utf8Length();                                         \
-  to = new char[to ## Sz_ + 1];                                                \
-  to ## Str->WriteUtf8(to, -1, NULL, v8::String::NO_OPTIONS);
-
 #define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name)                           \
   size_t to ## Sz_;                                                            \
   char* to ## Ch_;                                                             \
@@ -63,28 +102,6 @@
     );                                                                         \
   }                                                                            \
   leveldb::Slice to(to ## Ch_, to ## Sz_);
-
-#define LD_STRING_OR_BUFFER_LENGTH(obj)                                        \
-  node::Buffer::HasInstance(obj->ToObject())                                   \
-    ? node::Buffer::Length(obj->ToObject())                                    \
-    : obj->ToString()->Utf8Length()
-
-#define LD_BOOLEAN_OPTION_VALUE(optionsObj, opt)                               \
-  bool opt = !optionsObj.IsEmpty()                                             \
-    && optionsObj->Has(option_ ## opt)                                         \
-    && optionsObj->Get(option_ ## opt)->BooleanValue();
-
-#define LD_BOOLEAN_OPTION_VALUE_DEFTRUE(optionsObj, opt)                       \
-  bool opt = optionsObj.IsEmpty()                                              \
-    || !optionsObj->Has(option_ ## opt)                                        \
-    || optionsObj->Get(option_ ## opt)->BooleanValue();
-
-#define LD_UINT32_OPTION_VALUE(optionsObj, opt, default)                       \
-  uint32_t opt = !optionsObj.IsEmpty()                                         \
-    && optionsObj->Has(option_ ## opt)                                         \
-    && optionsObj->Get(option_ ## opt)->IsUint32()                             \
-      ? optionsObj->Get(option_ ## opt)->Uint32Value()                         \
-      : default;
 
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg)                             \
   if (!callback.IsEmpty() && callback->IsFunction()) {                         \
