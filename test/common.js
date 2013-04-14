@@ -65,6 +65,30 @@ var dbidx = 0
       next()
     }
 
+  , collectBufferingEntries = function(iterator, callback) {
+    var data = []
+      , next = function() {
+            iterator.nextBuffering(function (err, array) {
+              var i = 0
+                , obj
+
+              if (err) return callback(err)
+
+              for ( ; i < array.length; i++) {
+                obj = array[i]
+                if (obj === null) //
+                  return iterator.end(function (err) {
+                    callback(err, data)
+                  })
+
+                if (obj.key == +obj.key) obj.key = +obj.key
+                data.push(obj)
+              }
+            })
+        }
+    next()
+  }
+
   , makeExistingDbTest = function (name, testFn) {
       test(name, function (t) {
         cleanup(function () {
@@ -103,5 +127,6 @@ module.exports = {
   , setUp          : setUp
   , tearDown       : tearDown
   , collectEntries : collectEntries
+  , collectBufferingEntries: collectBufferingEntries
   , makeExistingDbTest : makeExistingDbTest
 }

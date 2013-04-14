@@ -8,6 +8,8 @@
 
 #include <node.h>
 
+#include <vector>
+
 #include "leveldown.h"
 #include "database.h"
 #include "async.h"
@@ -52,6 +54,7 @@ public:
   ~Iterator ();
 
   bool IteratorNext (std::string& key, std::string& value);
+  bool IteratorNextBuffering (std::vector<std::pair<std::string, std::string> >& result);
   leveldb::Status IteratorStatus ();
   void IteratorEnd ();
   void Release ();
@@ -85,6 +88,7 @@ private:
 
   LD_V8_METHOD( New  )
   LD_V8_METHOD( Next )
+  LD_V8_METHOD( NextBuffering )
   LD_V8_METHOD( End  )
 };
 

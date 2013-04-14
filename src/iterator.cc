@@ -103,6 +103,26 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
   }
 }
 
+bool Iterator::IteratorNextBuffering (std::vector<std::pair<std::string, std::string> >& result) {
+  size_t size = 0;
+  while(true) {
+    std::string key, value;
+    bool ok = IteratorNext(key, value);
+
+    if (ok) {
+      result.push_back(std::make_pair(key, value));
+      size = size + key.size() + value.size();
+
+      // buffer around 8kb
+      if (size > 8 * 1024)
+        return true;
+
+    } else {
+      return false;
+    }
+  }
+}
+
 leveldb::Status Iterator::IteratorStatus () {
   return dbIterator->status();
 }
@@ -159,9 +179,40 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
   return scope.Close(args.Holder());
 }
 
+v8::Handle<v8::Value> Iterator::NextBuffering (const v8::Arguments& args) {
+  v8::HandleScope scope;
+  Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
+
+  if (args.Length() == 0 || !args[0]->IsFunction()) {
+    LD_THROW_RETURN(nextBuffering() requires a callback argument)
+  }
+
+  if (iterator->ended) {
+    LD_THROW_RETURN(cannot call nextBuffering() after end())
+  }
+
+  if (iterator->nexting) {
+    LD_THROW_RETURN(cannot call nextBuffering() before previous nextBuffering() has completed)
+  }
+
+  v8::Persistent<v8::Function> callback =
+      v8::Persistent<v8::Function>::New(
+          LD_NODE_ISOLATE_PRE
+          v8::Local<v8::Function>::Cast(args[0]));
+
+  NextBufferingWorker* worker = new NextBufferingWorker(
+      iterator
+    , callback
+    , checkEndCallback
+  );
+  iterator->nexting = true;
+  AsyncQueueWorker(worker);
+
+  return scope.Close(args.Holder());
+}
+
 v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
   v8::HandleScope scope;
-
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   if (args.Length() == 0 || !args[0]->IsFunction()) {
@@ -202,6 +253,10 @@ void Iterator::Init () {
   tpl->PrototypeTemplate()->Set(
       v8::String::NewSymbol("next")
     , v8::FunctionTemplate::New(Next)->GetFunction()
+  );
+  tpl->PrototypeTemplate()->Set(
+      v8::String::NewSymbol("nextBuffering")
+    , v8::FunctionTemplate::New(NextBuffering)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
       v8::String::NewSymbol("end")
