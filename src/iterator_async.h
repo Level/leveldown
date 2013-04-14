@@ -33,6 +33,25 @@ private:
   bool ok;
 };
 
+class NextBufferingWorker : public AsyncWorker {
+public:
+  NextBufferingWorker (
+      Iterator* iterator
+    , v8::Persistent<v8::Function> callback
+    , void (*localCallback)(Iterator*)
+  );
+
+  virtual ~NextBufferingWorker ();
+  virtual void Execute ();
+  virtual void HandleOKCallback ();
+
+private:
+  Iterator* iterator;
+  void (*localCallback)(Iterator*);
+  std::vector<std::pair<std::string, std::string> > result;
+  bool ok;
+};
+
 class EndWorker : public AsyncWorker {
 public:
   EndWorker (
