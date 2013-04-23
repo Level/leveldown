@@ -3,9 +3,9 @@ const test         = require('tap').test
     , path         = require('path')
     , mkfiletree   = require('mkfiletree')
     , readfiletree = require('readfiletree')
-    , testCommon   = require('./common')
+    , testCommon   = require('abstract-leveldown/testCommon')
     , leveldown    = require('../')
-    , makeTest     = testCommon.makeExistingDbTest
+    , makeTest     = require('./make-test')
 
 test('test argument-less repair() throws', function (t) {
   t.throws(

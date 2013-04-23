@@ -1,7 +1,7 @@
 const test       = require('tap').test
-    , testCommon = require('./common')
+    , testCommon = require('abstract-leveldown/testCommon')
     , leveldown  = require('../')
-    , makeTest   = testCommon.makeExistingDbTest
+    , makeTest   = require('./make-test')
 
 makeTest('test ended iterator', function (db, t, done) {
   // standard iterator with an end() properly called, easy
