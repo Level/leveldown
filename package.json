@@ -21,10 +21,11 @@
         "bindings"        : "~1.1.0"
     }
   , "devDependencies" : {
-        "tap"             : "*"
-      , "rimraf"          : "*"
-      , "mkfiletree"      : "*"
-      , "readfiletree"    : "*"
+        "tap"                : "*"
+      , "rimraf"             : "*"
+      , "mkfiletree"         : "*"
+      , "readfiletree"       : "*"
+      , "abstract-leveldown" : "*"
     }
   , "repository"      : {
         "type"            : "git"
