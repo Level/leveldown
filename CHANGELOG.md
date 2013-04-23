@@ -1,3 +1,9 @@
+0.2.2 @ (unreleased)
+===================
+  * Pull API tests up into AbstractLevelDOWN, require it to run the
+tests. AbstractLevelDOWN can now be used to test LevelDOWN-compliant
+APIs. (@maxogden)
+
 0.2.1 @ Apr 8 2013
 ==================
   * Start on correct value when reverse=true, also handle end-of-store case #27 (@kesla)
