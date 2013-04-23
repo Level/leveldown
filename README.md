@@ -226,7 +226,7 @@ You will find information on the *repair* operation in the *LOG* file inside the
 
 A `repair()` can also be used to perform a compaction of the LevelDB log into table files.
 
-The callback will be called when the repair operation iscomplete, with a possible `error` argument.
+The callback will be called when the repair operation is complete, with a possible `error` argument.
 
 
 <a name="safety"></a>
