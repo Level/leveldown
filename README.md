@@ -243,6 +243,15 @@ LevelUP currently tracks and manages state and will prevent out-of-state operati
 
 You should make sure to **always** `end()` your LevelDOWN Iterators, it will not be done for you, even on a `close()` of the database your Iterator belongs to. If you don't `end()` then the underlying resources aren't cleaned up and this will result in a Node process death.
 
+<a name="support"></a>
+Getting support
+---------------
+
+There are multiple ways you can find help in using LevelDB in Node.js:
+
+ * **IRC:** you'll find an active group of LevelUP users in the **##leveldb** channel on Freenode, including most of the contributors to this project.
+ * **Mailing list:** there is an active [Node.js LevelDB](https://groups.google.com/forum/#!forum/node-levelup) Google Group.
+ * **GitHub:** you're welcome to open an issue here on this GitHub repository if you have a question.
 
 <a name="contributing"></a>
 Contributing
