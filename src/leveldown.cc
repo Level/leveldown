@@ -21,11 +21,11 @@ v8::Handle<v8::Value> DestroyDB (const v8::Arguments& args) {
   }
 
   if (!args[0]->IsString()) {
-    LD_THROW_RETURN(leveldown() requires a location string argument)
+    LD_THROW_RETURN(constructor requires a location string argument)
   }
 
   if (!args[1]->IsFunction()) {
-    LD_THROW_RETURN(leveldown() requires a callback function argument)
+    LD_THROW_RETURN(constructor requires a callback function argument)
   }
 
   char* location = FromV8String(args[0]);
@@ -53,11 +53,11 @@ v8::Handle<v8::Value> RepairDB (const v8::Arguments& args) {
   }
 
   if (!args[0]->IsString()) {
-    LD_THROW_RETURN(leveldown() requires a location string argument)
+    LD_THROW_RETURN(constructor requires a location string argument)
   }
 
   if (!args[1]->IsFunction()) {
-    LD_THROW_RETURN(leveldown() requires a callback function argument)
+    LD_THROW_RETURN(constructor requires a callback function argument)
   }
 
   char* location = FromV8String(args[0]);

@@ -161,11 +161,11 @@ v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
   v8::HandleScope scope;
 
   if (args.Length() == 0) {
-    LD_THROW_RETURN(leveldown() requires at least a location argument)
+    LD_THROW_RETURN(constructor requires at least a location argument)
   }
 
   if (!args[0]->IsString()) {
-    LD_THROW_RETURN(leveldown() requires a location string argument)
+    LD_THROW_RETURN(constructor requires a location string argument)
   }
 
   char* location = FromV8String(args[0]);
