@@ -118,7 +118,7 @@ The optional `options` object may contain:
 
 * `'asBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UFT8 string) then you should fetch it as one with `asBuffer: true` and you'll avoid this conversion cost.
 
-The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a `String` or `Buffer` depending on the `asBuffer` option.
 
 
 --------------------------------------------------------
