@@ -1,3 +1,7 @@
+0.3.1 @ May 14 2013
+===================
+  * Don't allow empty batch() operations through to LevelDB, on chained of array forms (@rvagg)
+
 0.3.0 (& 0.2.2) @ May 14 2013
 ===================
   * Pull API tests up into AbstractLevelDOWN, require it to run the tests. AbstractLevelDOWN can now be used to test LevelDOWN-compliant APIs. (@maxogden)
