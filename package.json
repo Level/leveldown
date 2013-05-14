@@ -17,7 +17,7 @@
   , "keywords": [
         "leveldb"
     ]
-  , "version"         : "0.3.0"
+  , "version"         : "0.3.1"
   , "main"            : "index.js"
   , "dependencies"    : {
         "bindings"        : "~1.1.0"
@@ -27,7 +27,7 @@
       , "rimraf"             : "~2.1.4"
       , "mkfiletree"         : "~0.0.0"
       , "readfiletree"       : "~0.0.0"
-      , "abstract-leveldown" : "~0.6.0"
+      , "abstract-leveldown" : "~0.7.0"
     }
   , "repository"      : {
         "type"            : "git"
