@@ -36,9 +36,6 @@
   , "scripts"         : {
         "test"            : "tap test/*-test.js --stderr"
     }
-  , "browser": {
-    "bindings": "./index-shim.js"
-  },
-   "license"         : "MIT"
+  , "license"         : "MIT"
   , "gypfile"         : true
 }

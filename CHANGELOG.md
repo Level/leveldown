@@ -1,8 +1,7 @@
-0.2.2 @ (unreleased)
+0.3.0 (& 0.2.2) @ May 14 2013
 ===================
-  * Pull API tests up into AbstractLevelDOWN, require it to run the
-tests. AbstractLevelDOWN can now be used to test LevelDOWN-compliant
-APIs. (@maxogden)
+  * Pull API tests up into AbstractLevelDOWN, require it to run the tests. AbstractLevelDOWN can now be used to test LevelDOWN-compliant APIs. (@maxogden)
+  * Change Iterator methods to return errors on the callbacks rather than throw (@mcollina & @rvagg)
 
 0.2.1 @ Apr 8 2013
 ==================
