@@ -1,10 +1,10 @@
-var test = require('tap').test
-var testCommon = require('abstract-leveldown/testCommon')
-var cleanup = testCommon.cleanup
-var location = testCommon.location
-var leveldown = require('../')
+const test       = require('tap').test
+    , testCommon = require('abstract-leveldown/testCommon')
+    , cleanup    = testCommon.cleanup
+    , location   = testCommon.location
+    , leveldown  = require('../')
 
-module.exports = function (name, testFn) {
+function makeTest (name, testFn) {
   test(name, function (t) {
     cleanup(function () {
       var loc  = location()
@@ -34,3 +34,5 @@ module.exports = function (name, testFn) {
     })
   })
 }
+
+module.exports = makeTest
