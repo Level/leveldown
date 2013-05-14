@@ -135,22 +135,22 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
     LD_THROW_RETURN(next() requires a callback argument)
   }
 
+  v8::Local<v8::Function> callback = v8::Local<v8::Function>::Cast(args[0]);
+
   if (iterator->ended) {
-    LD_THROW_RETURN(cannot call next() after end())
+    LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() after end()")
   }
 
   if (iterator->nexting) {
-    LD_THROW_RETURN(cannot call next() before previous next() has completed)
+    LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() before previous next() has completed")
   }
 
-  v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(
-          LD_NODE_ISOLATE_PRE
-          v8::Local<v8::Function>::Cast(args[0]));
+  v8::Persistent<v8::Function> persistentCallback =
+      v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback);
 
   NextWorker* worker = new NextWorker(
       iterator
-    , callback
+    , persistentCallback
     , checkEndCallback
   );
   iterator->nexting = true;
@@ -168,18 +168,18 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
     LD_THROW_RETURN(end() requires a callback argument)
   }
 
+  v8::Local<v8::Function> callback = v8::Local<v8::Function>::Cast(args[0]);
+
   if (iterator->ended) {
-    LD_THROW_RETURN(end() already called on iterator)
+    LD_RETURN_CALLBACK_OR_ERROR(callback, "end() already called on iterator")
   }
 
-  v8::Persistent<v8::Function> callback =
-      v8::Persistent<v8::Function>::New(
-          LD_NODE_ISOLATE_PRE
-          v8::Local<v8::Function>::Cast(args[0]));
+  v8::Persistent<v8::Function> persistentCallback =
+      v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback);
 
   EndWorker* worker = new EndWorker(
       iterator
-    , callback
+    , persistentCallback
   );
   iterator->ended = true;
 
