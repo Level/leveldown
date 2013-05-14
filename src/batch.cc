@@ -157,7 +157,7 @@ v8::Handle<v8::Value> Batch::Write (const v8::Arguments& args) {
   
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
   if (args.Length() == 0) {
-    LD_THROW_RETURN(name() requires a callback argument)
+    LD_THROW_RETURN(write() requires a callback argument)
   }
   v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
       LD_NODE_ISOLATE_PRE
