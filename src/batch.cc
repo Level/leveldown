@@ -14,6 +14,7 @@ Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
   options->sync = sync;
   batch = new leveldb::WriteBatch();
   references = new std::vector< v8::Persistent<v8::Value> >;
+  hasData = false;
 }
 
 Batch::~Batch () {
@@ -118,6 +119,8 @@ v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
         valueBuffer));
 
   batch->batch->Put(key, value);
+  if (!batch->hasData)
+    batch->hasData = true;
 
   return scope.Close(args.Holder());
 }
@@ -139,6 +142,8 @@ v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
         keyBuffer));
 
   batch->batch->Delete(key);
+  if (!batch->hasData)
+    batch->hasData = true;
 
   return scope.Close(args.Holder());
 }
@@ -148,6 +153,7 @@ v8::Handle<v8::Value> Batch::Clear (const v8::Arguments& args) {
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
   batch->batch->Clear();
+  batch->hasData = false;
 
   return scope.Close(args.Holder());
 }
@@ -159,12 +165,17 @@ v8::Handle<v8::Value> Batch::Write (const v8::Arguments& args) {
   if (args.Length() == 0) {
     LD_THROW_RETURN(write() requires a callback argument)
   }
-  v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
-      LD_NODE_ISOLATE_PRE
-      v8::Local<v8::Function>::Cast(args[0]));
 
-  BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);
-  AsyncQueueWorker(worker);
+  if (batch->hasData) {
+    v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
+        LD_NODE_ISOLATE_PRE
+        v8::Local<v8::Function>::Cast(args[0]));
+
+    BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);
+    AsyncQueueWorker(worker);
+  } else {
+    LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(args[0]), NULL, 0);
+  }
 
   return v8::Undefined();
 }

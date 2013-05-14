@@ -414,6 +414,7 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
   std::vector< v8::Persistent<v8::Value> >* references =
       new std::vector< v8::Persistent<v8::Value> >;
   leveldb::WriteBatch* batch = new leveldb::WriteBatch();
+  bool hasData = false;
 
   for (unsigned int i = 0; i < array->Length(); i++) {
     if (!array->Get(i)->IsObject())
@@ -430,6 +431,8 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
       batch->Delete(key);
+      if (!hasData)
+        hasData = true;
       if (node::Buffer::HasInstance(keyBuffer->ToObject()))
         references->push_back(v8::Persistent<v8::Value>::New(
             LD_NODE_ISOLATE_PRE
@@ -442,6 +445,8 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
       batch->Put(key, value);
+      if (!hasData)
+        hasData = true;
       if (node::Buffer::HasInstance(keyBuffer->ToObject()))
         references->push_back(v8::Persistent<v8::Value>::New(
             LD_NODE_ISOLATE_PRE
@@ -453,13 +458,20 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
     }
   }
 
-  AsyncQueueWorker(new BatchWorker(
-      database
-    , callback
-    , batch
-    , references
-    , sync
-  ));
+  // don't allow an empty batch through
+  if (hasData) {
+    AsyncQueueWorker(new BatchWorker(
+        database
+      , callback
+      , batch
+      , references
+      , sync
+    ));
+  } else {
+    ClearReferences(references);
+    LD_RUN_CALLBACK(callback, NULL, 0);
+    callback.Dispose(LD_NODE_ISOLATE);
+  }
 
   return v8::Undefined();
 }
