@@ -48,3 +48,15 @@ makeTest('test ending iterators', function (db, t, done) {
         done()
       })
 })
+
+makeTest('test not throwing error', function (db, t, done) {
+  // at least one end() should be in progress when we try to close the db
+  var it1 = db.iterator().next(function () {
+        setTimeout(function() {
+          it1.end(function (err) {
+            t.equal(err.message, "end() already called on iterator", "wrong message")
+          })
+        }, 50)
+        done()
+      });
+})
