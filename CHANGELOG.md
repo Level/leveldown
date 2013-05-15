@@ -1,3 +1,7 @@
+0.4.0 @ May 15 2013
+===================
+  * Upgrade to LevelDB 1.10.0, fairly minor changes, mostly bugfixes see https://groups.google.com/forum/#!topic/leveldb/O2Zdbi9Lrao for more info (@rvagg)
+
 0.3.1 @ May 14 2013
 ===================
   * Don't allow empty batch() operations through to LevelDB, on chained of array forms (@rvagg)
