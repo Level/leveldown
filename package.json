@@ -15,7 +15,7 @@
   , "keywords": [
         "leveldb"
     ]
-  , "version"         : "0.2.2"
+  , "version"         : "0.2.3"
   , "main"            : "index.js"
   , "dependencies"    : {
         "bindings"        : "~1.1.0"
