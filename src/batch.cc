@@ -13,7 +13,7 @@ Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
   options = new leveldb::WriteOptions();
   options->sync = sync;
   batch = new leveldb::WriteBatch();
-  references = new std::vector< v8::Persistent<v8::Value> >;
+  references = new std::vector<Reference>;
   hasData = false;
 }
 
@@ -103,14 +103,14 @@ v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
   LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
-  if (node::Buffer::HasInstance(keyBuffer->ToObject()))
-    batch->references->push_back(v8::Persistent<v8::Value>::New(
-        LD_NODE_ISOLATE_PRE
-        keyBuffer));
-  if (node::Buffer::HasInstance(valueBuffer->ToObject()))
-    batch->references->push_back(v8::Persistent<v8::Value>::New(
-        LD_NODE_ISOLATE_PRE
-        valueBuffer));
+  batch->references->push_back(Reference(
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBuffer)
+    , key
+  ));
+  batch->references->push_back(Reference(
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE valueBuffer)
+    , value
+  ));
 
   batch->batch->Put(key, value);
   if (!batch->hasData)
@@ -130,10 +130,10 @@ v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
   v8::Local<v8::Value> keyBuffer = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
-  if (node::Buffer::HasInstance(keyBuffer->ToObject()))
-    batch->references->push_back(v8::Persistent<v8::Value>::New(
-        LD_NODE_ISOLATE_PRE
-        keyBuffer));
+  batch->references->push_back(Reference(
+      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBuffer)
+    , key
+  ));
 
   batch->batch->Delete(key);
   if (!batch->hasData)

@@ -32,11 +32,19 @@ struct AsyncDescriptor;
 
 v8::Handle<v8::Value> LevelDOWN (const v8::Arguments& args);
 
-static inline void ClearReferences (std::vector< v8::Persistent<v8::Value> >* references) {
-  for (std::vector< v8::Persistent<v8::Value> >::iterator it = references->begin()
+struct Reference {
+  v8::Persistent<v8::Value> ptr;
+  leveldb::Slice slice;
+  Reference(v8::Persistent<v8::Value> ptr, leveldb::Slice slice) :
+      ptr(ptr)
+    , slice(slice) { };
+};
+
+static inline void ClearReferences (std::vector<Reference>* references) {
+  for (std::vector<Reference>::iterator it = references->begin()
       ; it != references->end()
       ; ) {
-    it->Dispose(LD_NODE_ISOLATE);
+    DisposeStringOrBufferFromSlice(it->ptr, it->slice);
     it = references->erase(it);
   }
   delete references;

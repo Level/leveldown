@@ -181,7 +181,7 @@ BatchWorker::BatchWorker (
     Database* database
   , v8::Persistent<v8::Function> callback
   , leveldb::WriteBatch* batch
-  , std::vector< v8::Persistent<v8::Value> >* references
+  , std::vector<Reference>* references
   , bool sync
 ) : AsyncWorker(database, callback)
   , batch(batch)
