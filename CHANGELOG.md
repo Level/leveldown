@@ -1,3 +1,7 @@
+0.4.2 @ May 17 2013
+===================
+  * Same memory leak fixes as 0.4.1, properly applied to batch() operations too (@rvagg)
+
 0.4.1 @ May 17 2013
 ===================
   * Fix memory leak caused when passing String objects in as keys and values, conversion to Slice created new char[] but wasn't being disposed. Buffers are automatically disposed. (@rvagg, reported by @kylegetson levelup/#140)
