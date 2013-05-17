@@ -7,6 +7,7 @@
 
 #include <node.h>
 #include <node_buffer.h>
+#include <leveldb/slice.h>
 
 static inline char* FromV8String(v8::Local<v8::Value> from) {
   size_t sz_;
@@ -79,6 +80,17 @@ static inline uint32_t UInt32OptionValue(
     LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be `null` or `undefined`") \
   }
 
+// NOTE: this MUST be called on objects created by
+// LD_STRING_OR_BUFFER_TO_SLICE
+static inline void DisposeStringOrBufferFromSlice(v8::Persistent<v8::Value> ptr
+      , leveldb::Slice slice) {
+
+  if (!node::Buffer::HasInstance(ptr))
+    delete slice.data();
+  ptr.Dispose(LD_NODE_ISOLATE);
+}
+
+// NOTE: must call DisposeStringOrBufferFromSlice() on objects created here
 #define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name)                           \
   size_t to ## Sz_;                                                            \
   char* to ## Ch_;                                                             \

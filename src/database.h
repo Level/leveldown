@@ -7,6 +7,7 @@
 #define LD_DATABASE_H
 
 #include <map>
+#include <vector>
 #include <node.h>
 
 #include "leveldb/db.h"
@@ -30,6 +31,24 @@ LD_SYMBOL ( option_fillCache       , fillcache       ); // for get() and readStr
 struct AsyncDescriptor;
 
 v8::Handle<v8::Value> LevelDOWN (const v8::Arguments& args);
+
+struct Reference {
+  v8::Persistent<v8::Value> ptr;
+  leveldb::Slice slice;
+  Reference(v8::Persistent<v8::Value> ptr, leveldb::Slice slice) :
+      ptr(ptr)
+    , slice(slice) { };
+};
+
+static inline void ClearReferences (std::vector<Reference>* references) {
+  for (std::vector<Reference>::iterator it = references->begin()
+      ; it != references->end()
+      ; ) {
+    DisposeStringOrBufferFromSlice(it->ptr, it->slice);
+    it = references->erase(it);
+  }
+  delete references;
+}
 
 class Database : public node::ObjectWrap {
 public:

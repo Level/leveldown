@@ -26,7 +26,7 @@ private:
   leveldown::Database* database;
   leveldb::WriteOptions* options;
   leveldb::WriteBatch* batch;
-  std::vector< v8::Persistent<v8::Value> >* references;
+  std::vector<Reference>* references;
 
   static v8::Persistent<v8::Function> constructor;
 

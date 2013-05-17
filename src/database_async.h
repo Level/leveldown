@@ -131,7 +131,7 @@ public:
       Database* database
     , v8::Persistent<v8::Function> callback
     , leveldb::WriteBatch* batch
-    , std::vector< v8::Persistent<v8::Value> >* references
+    , std::vector<Reference>* references
     , bool sync
   );
 
@@ -141,7 +141,7 @@ public:
 private:
   leveldb::WriteOptions* options;
   leveldb::WriteBatch* batch;
-  std::vector< v8::Persistent<v8::Value> >* references;
+  std::vector<Reference>* references;
 };
 
 class ApproximateSizeWorker : public AsyncWorker {

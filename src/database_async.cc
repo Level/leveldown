@@ -85,7 +85,7 @@ IOWorker::~IOWorker () {}
 
 void IOWorker::WorkComplete () {
   AsyncWorker::WorkComplete();
-  keyPtr.Dispose(LD_NODE_ISOLATE);
+  DisposeStringOrBufferFromSlice(keyPtr, key);
 }
 
 /** READ WORKER **/
@@ -172,7 +172,7 @@ void WriteWorker::Execute () {
 
 void WriteWorker::WorkComplete () {
   IOWorker::WorkComplete();
-  valuePtr.Dispose(LD_NODE_ISOLATE);
+  DisposeStringOrBufferFromSlice(valuePtr, value);
 }
 
 /** BATCH WORKER **/
@@ -181,7 +181,7 @@ BatchWorker::BatchWorker (
     Database* database
   , v8::Persistent<v8::Function> callback
   , leveldb::WriteBatch* batch
-  , std::vector< v8::Persistent<v8::Value> >* references
+  , std::vector<Reference>* references
   , bool sync
 ) : AsyncWorker(database, callback)
   , batch(batch)
@@ -192,13 +192,7 @@ BatchWorker::BatchWorker (
 };
 
 BatchWorker::~BatchWorker () {
-  for (std::vector< v8::Persistent<v8::Value> >::iterator it = references->begin()
-      ; it != references->end()
-      ; ) {
-    it->Dispose(LD_NODE_ISOLATE);
-    it = references->erase(it);
-  }
-  delete references;
+  ClearReferences(references);
   delete options;
 }
 
@@ -229,8 +223,8 @@ void ApproximateSizeWorker::Execute () {
 
 void ApproximateSizeWorker::WorkComplete() {
   AsyncWorker::WorkComplete();
-  startPtr.Dispose(LD_NODE_ISOLATE);
-  endPtr.Dispose(LD_NODE_ISOLATE);
+  DisposeStringOrBufferFromSlice(startPtr, range.start);
+  DisposeStringOrBufferFromSlice(endPtr, range.limit);
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {

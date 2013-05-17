@@ -411,8 +411,7 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
-  std::vector< v8::Persistent<v8::Value> >* references =
-      new std::vector< v8::Persistent<v8::Value> >;
+  std::vector<Reference>* references = new std::vector<Reference>;
   leveldb::WriteBatch* batch = new leveldb::WriteBatch();
 
   for (unsigned int i = 0; i < array->Length(); i++) {
@@ -430,10 +429,10 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
       batch->Delete(key);
-      if (node::Buffer::HasInstance(keyBuffer->ToObject()))
-        references->push_back(v8::Persistent<v8::Value>::New(
-            LD_NODE_ISOLATE_PRE
-            keyBuffer));
+      references->push_back(Reference(
+          v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBuffer)
+        , key
+      ));
     } else if (obj->Get(str_type)->StrictEquals(str_put)) {
       v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
@@ -442,14 +441,14 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
       batch->Put(key, value);
-      if (node::Buffer::HasInstance(keyBuffer->ToObject()))
-        references->push_back(v8::Persistent<v8::Value>::New(
-            LD_NODE_ISOLATE_PRE
-            keyBuffer));
-      if (node::Buffer::HasInstance(valueBuffer->ToObject()))
-        references->push_back(v8::Persistent<v8::Value>::New(
-            LD_NODE_ISOLATE_PRE
-            valueBuffer));
+      references->push_back(Reference(
+          v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBuffer)
+        , key
+      ));
+      references->push_back(Reference(
+          v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE valueBuffer)
+        , value
+      ));
     }
   }
 
