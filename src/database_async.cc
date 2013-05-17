@@ -85,7 +85,7 @@ IOWorker::~IOWorker () {}
 
 void IOWorker::WorkComplete () {
   AsyncWorker::WorkComplete();
-  keyPtr.Dispose(LD_NODE_ISOLATE);
+  DisposeStringOrBufferFromSlice(keyPtr, key);
 }
 
 /** READ WORKER **/
@@ -172,7 +172,7 @@ void WriteWorker::Execute () {
 
 void WriteWorker::WorkComplete () {
   IOWorker::WorkComplete();
-  valuePtr.Dispose(LD_NODE_ISOLATE);
+  DisposeStringOrBufferFromSlice(valuePtr, value);
 }
 
 /** BATCH WORKER **/
@@ -223,8 +223,8 @@ void ApproximateSizeWorker::Execute () {
 
 void ApproximateSizeWorker::WorkComplete() {
   AsyncWorker::WorkComplete();
-  startPtr.Dispose(LD_NODE_ISOLATE);
-  endPtr.Dispose(LD_NODE_ISOLATE);
+  DisposeStringOrBufferFromSlice(startPtr, range.start);
+  DisposeStringOrBufferFromSlice(endPtr, range.limit);
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {

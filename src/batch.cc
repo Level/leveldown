@@ -18,13 +18,7 @@ Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
 }
 
 Batch::~Batch () {
-  for (std::vector< v8::Persistent<v8::Value> >::iterator it = references->begin()
-      ; it != references->end()
-      ; ) {
-    it->Dispose(LD_NODE_ISOLATE);
-    it = references->erase(it);
-  }
-  delete references;
+  ClearReferences(references);
   delete options;
   delete batch;
 }
