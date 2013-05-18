@@ -1,3 +1,8 @@
+0.5.0 @ May 18 2013
+===================
+  * Bumped major version for db.getProperty() addition (should have been done in 0.4.4) (@rvagg)
+  * Disallow batch() operations after a write() (@rvagg)
+
 0.4.4 @ May 18 2013
 ===================
   * db.getProperty() implemented, see README for details (@rvagg)
