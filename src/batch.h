@@ -28,6 +28,7 @@ private:
   leveldb::WriteBatch* batch;
   std::vector<Reference>* references;
   bool hasData; // keep track of whether we're writing data or not
+  bool written;
 
   static v8::Persistent<v8::Function> constructor;
 

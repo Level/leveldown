@@ -15,6 +15,7 @@ Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
   batch = new leveldb::WriteBatch();
   references = new std::vector<Reference>;
   hasData = false;
+  written = false;
 }
 
 Batch::~Batch () {
@@ -91,7 +92,12 @@ v8::Handle<v8::Value> Batch::NewInstance (
 
 v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
   v8::HandleScope scope;
+
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
+
+  if (batch->written) {
+    LD_THROW_RETURN(write() already called on this batch)
+  }
 
   v8::Handle<v8::Function> callback; // purely for the error macros
 
@@ -121,7 +127,12 @@ v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
 
 v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
   v8::HandleScope scope;
+
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
+
+  if (batch->written) {
+    LD_THROW_RETURN(write() already called on this batch)
+  }
 
   v8::Handle<v8::Function> callback; // purely for the error macros
 
@@ -144,7 +155,12 @@ v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
 
 v8::Handle<v8::Value> Batch::Clear (const v8::Arguments& args) {
   v8::HandleScope scope;
+
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
+
+  if (batch->written) {
+    LD_THROW_RETURN(write() already called on this batch)
+  }
 
   batch->batch->Clear();
   batch->hasData = false;
@@ -154,11 +170,18 @@ v8::Handle<v8::Value> Batch::Clear (const v8::Arguments& args) {
 
 v8::Handle<v8::Value> Batch::Write (const v8::Arguments& args) {
   v8::HandleScope scope;
-  
+
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
+
+  if (batch->written) {
+    LD_THROW_RETURN(write() already called on this batch)
+  }
+  
   if (args.Length() == 0) {
     LD_THROW_RETURN(write() requires a callback argument)
   }
+
+  batch->written = true;
 
   if (batch->hasData) {
     v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
