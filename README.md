@@ -36,6 +36,7 @@ Tested & supported platforms
   * <a href="#leveldown_del"><code><b>leveldown#del()</b></code></a>
   * <a href="#leveldown_batch"><code><b>leveldown#batch()</b></code></a>
   * <a href="#leveldown_approximateSize"><code><b>leveldown#approximateSize()</b></code></a>
+  * <a href="#leveldown_getProperty"><code><b>leveldown#getProperty()</b></code></a>
   * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
   * <a href="#iterator_end"><code><b>iterator#end()</b></code></a>
@@ -155,6 +156,20 @@ The `callback` function will be called with no arguments if the operation is suc
 The `start` and `end` parameters may be either `String` or Node.js `Buffer` objects representing keys in the LevelDB store.
 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+
+--------------------------------------------------------
+<a name="leveldown_getProperty"></a>
+### leveldown#getProperty(property)
+<code>getProperty</code> can be used to get internal details from LevelDB. When issued with a valid property string, a readable string will be returned (this method is synchronous).
+
+Currently, the only valid properties are:
+
+* <b><code>'leveldb.num-files-at-levelN'</code></b>: return the number of files at level *N*, where N is an integer representing a valid level (e.g. "0").
+
+* <b><code>'leveldb.stats'</code></b>: returns a multi-line string describing statistics about LevelDB's internal operation.
+
+* <b><code>'leveldb.sstables'</code></b>: returns a multi-line string describing all of the *sstables* that make up contents of the current database.
 
 
 --------------------------------------------------------

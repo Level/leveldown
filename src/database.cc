@@ -78,6 +78,12 @@ uint64_t Database::ApproximateSizeFromDatabase (const leveldb::Range* range) {
   return size;
 }
 
+void Database::GetPropertyFromDatabase (
+      const leveldb::Slice& property
+    , std::string* value) {
+  db->GetProperty(property, value);
+}
+
 leveldb::Iterator* Database::NewIterator (leveldb::ReadOptions* options) {
   return db->NewIterator(*options);
 }
@@ -148,6 +154,10 @@ void Database::Init () {
   tpl->PrototypeTemplate()->Set(
       v8::String::NewSymbol("approximateSize")
     , v8::FunctionTemplate::New(ApproximateSize)->GetFunction()
+  );
+  tpl->PrototypeTemplate()->Set(
+      v8::String::NewSymbol("getProperty")
+    , v8::FunctionTemplate::New(GetProperty)->GetFunction()
   );
   tpl->PrototypeTemplate()->Set(
       v8::String::NewSymbol("iterator")
@@ -520,6 +530,33 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   AsyncQueueWorker(worker);
 
   return v8::Undefined();
+}
+
+v8::Handle<v8::Value> Database::GetProperty (const v8::Arguments& args) {
+  v8::HandleScope scope;
+
+  v8::Local<v8::Value> propertyV = args[0];
+  v8::Local<v8::Function> callback; // for LD_CB_ERR_IF_NULL_OR_UNDEFINED
+
+  if (!propertyV->IsString()) {
+    LD_THROW_RETURN(getProperty() requires a valid `property` argument)
+  }
+
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(propertyV, property)
+
+  LD_STRING_OR_BUFFER_TO_SLICE(property, propertyV, property)
+
+  leveldown::Database* database =
+      node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+
+  std::string* value = new std::string();
+  database->GetPropertyFromDatabase(property, value);
+  v8::Local<v8::String> returnValue
+      = v8::String::New(value->c_str(), value->length());
+  delete value;
+  delete property.data();
+
+  return returnValue;
 }
 
 v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {

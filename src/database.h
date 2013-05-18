@@ -75,6 +75,7 @@ public:
     , leveldb::WriteBatch* batch
   );
   uint64_t ApproximateSizeFromDatabase (const leveldb::Range* range);
+  void GetPropertyFromDatabase (const leveldb::Slice& property, std::string* value);
   leveldb::Iterator* NewIterator (leveldb::ReadOptions* options);
   const leveldb::Snapshot* NewSnapshot ();
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
@@ -107,6 +108,7 @@ private:
   LD_V8_METHOD( Write    )
   LD_V8_METHOD( Iterator )
   LD_V8_METHOD( ApproximateSize )
+  LD_V8_METHOD( GetProperty )
 };
 
 } // namespace leveldown
