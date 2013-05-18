@@ -232,7 +232,7 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
 
   OpenWorker* worker = new OpenWorker(
       database
-    , callback
+    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
     , createIfMissing
     , errorIfExists
     , compression
@@ -253,7 +253,10 @@ v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
 
   LD_METHOD_SETUP_COMMON_ONEARG(close)
 
-  CloseWorker* worker = new CloseWorker(database, callback);
+  CloseWorker* worker = new CloseWorker(
+      database
+    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+  );
 
   if (database->iterators.size() > 0) {
     // yikes, we still have iterators open! naughty naughty.
@@ -319,7 +322,7 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 
   WriteWorker* worker  = new WriteWorker(
       database
-    , callback
+    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
     , key
     , value
     , sync
@@ -350,7 +353,7 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 
   ReadWorker* worker = new ReadWorker(
       database
-    , callback
+    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
     , key
     , asBuffer
     , fillCache
@@ -378,7 +381,7 @@ v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
 
   DeleteWorker* worker = new DeleteWorker(
       database
-    , callback
+    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
     , key
     , sync
     , keyBuffer
@@ -464,7 +467,7 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
   if (hasData) {
     AsyncQueueWorker(new BatchWorker(
         database
-      , callback
+      , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
       , batch
       , references
       , sync
@@ -472,7 +475,6 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
   } else {
     ClearReferences(references);
     LD_RUN_CALLBACK(callback, NULL, 0);
-    callback.Dispose(LD_NODE_ISOLATE);
   }
 
   return v8::Undefined();
@@ -509,7 +511,7 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(
       database
-    , callback
+    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
     , start
     , end
     , startBuffer

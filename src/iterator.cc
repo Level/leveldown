@@ -145,12 +145,9 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
     LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() before previous next() has completed")
   }
 
-  v8::Persistent<v8::Function> persistentCallback =
-      v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback);
-
   NextWorker* worker = new NextWorker(
       iterator
-    , persistentCallback
+    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
     , checkEndCallback
   );
   iterator->nexting = true;
@@ -174,12 +171,9 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
     LD_RETURN_CALLBACK_OR_ERROR(callback, "end() already called on iterator")
   }
 
-  v8::Persistent<v8::Function> persistentCallback =
-      v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback);
-
   EndWorker* worker = new EndWorker(
       iterator
-    , persistentCallback
+    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
   );
   iterator->ended = true;
 

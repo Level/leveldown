@@ -152,25 +152,16 @@ static inline void DisposeStringOrBufferFromSlice(v8::Persistent<v8::Value> ptr
   leveldown::Database* database =                                              \
     node::ObjectWrap::Unwrap<leveldown::Database>(args.This());                \
   v8::Local<v8::Object> optionsObj;                                            \
-  v8::Persistent<v8::Function> callback;                                       \
+  v8::Local<v8::Function> callback;                                            \
   if (optionPos == -1 && args[callbackPos]->IsFunction()) {                    \
-    callback = v8::Persistent<v8::Function>::New(                              \
-      LD_NODE_ISOLATE_PRE                                                      \
-      v8::Local<v8::Function>::Cast(args[callbackPos])                         \
-    );                                                                         \
+    callback = v8::Local<v8::Function>::Cast(args[callbackPos]);               \
   } else if (optionPos != -1 && args[callbackPos - 1]->IsFunction()) {         \
-    callback = v8::Persistent<v8::Function>::New(                              \
-      LD_NODE_ISOLATE_PRE                                                      \
-      v8::Local<v8::Function>::Cast(args[callbackPos - 1])                     \
-    );                                                                         \
+    callback = v8::Local<v8::Function>::Cast(args[callbackPos - 1]);           \
   } else if (optionPos != -1                                                   \
         && args[optionPos]->IsObject()                                         \
         && args[callbackPos]->IsFunction()) {                                  \
     optionsObj = v8::Local<v8::Object>::Cast(args[optionPos]);                 \
-    callback = v8::Persistent<v8::Function>::New(                              \
-      LD_NODE_ISOLATE_PRE                                                      \
-      v8::Local<v8::Function>::Cast(args[callbackPos])                         \
-    );                                                                         \
+    callback = v8::Local<v8::Function>::Cast(args[callbackPos]);               \
   } else {                                                                     \
     LD_THROW_RETURN(name() requires a callback argument)                       \
   }
