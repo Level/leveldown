@@ -1,3 +1,8 @@
+0.4.4 @ May 18 2013
+===================
+  * db.getProperty() implemented, see README for details (@rvagg)
+  * More work on memory management, including late-creation of Persistent handles (@rvagg)
+
 0.4.3 @ May 18 2013
 ===================
   * Better memory leak fix (@rvagg)
