@@ -38,6 +38,7 @@ void AsyncWorker::HandleOKCallback () {
 }
 
 void AsyncWorker::HandleErrorCallback () {
+  v8::HandleScope scope;
   v8::Local<v8::Value> argv[] = {
       v8::Local<v8::Value>::New(
         v8::Exception::Error(v8::String::New(status.ToString().c_str()))

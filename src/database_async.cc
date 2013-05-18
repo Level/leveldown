@@ -113,6 +113,7 @@ void ReadWorker::Execute () {
 }
 
 void ReadWorker::HandleOKCallback () {
+  v8::HandleScope scope;
   v8::Local<v8::Value> returnValue;
   if (asBuffer)
     returnValue = v8::Local<v8::Value>::New(
@@ -228,6 +229,7 @@ void ApproximateSizeWorker::WorkComplete() {
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {
+  v8::HandleScope scope;
   v8::Local<v8::Value> returnValue = v8::Number::New((double) size);
   v8::Local<v8::Value> argv[] = {
       v8::Local<v8::Value>::New(v8::Null())

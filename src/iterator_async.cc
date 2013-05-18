@@ -33,6 +33,8 @@ void NextWorker::Execute () {
 }
 
 void NextWorker::HandleOKCallback () {
+  v8::HandleScope scope;
+
   v8::Local<v8::Value> returnKey;
   if (iterator->keyAsBuffer) {
     returnKey = v8::Local<v8::Value>::New(
