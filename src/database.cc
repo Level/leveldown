@@ -81,6 +81,7 @@ uint64_t Database::ApproximateSizeFromDatabase (const leveldb::Range* range) {
 void Database::GetPropertyFromDatabase (
       const leveldb::Slice& property
     , std::string* value) {
+
   db->GetProperty(property, value);
 }
 
@@ -554,7 +555,7 @@ v8::Handle<v8::Value> Database::GetProperty (const v8::Arguments& args) {
   v8::Local<v8::String> returnValue
       = v8::String::New(value->c_str(), value->length());
   delete value;
-  delete property.data();
+  delete[] property.data();
 
   return returnValue;
 }
