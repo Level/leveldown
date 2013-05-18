@@ -1,3 +1,11 @@
+0.4.3 @ May 18 2013
+===================
+  * Better memory leak fix (@rvagg)
+
+0.2.2 @ May 17 2013
+===================
+  * BACKPORT memory leak fixes (@rvagg)
+
 0.4.2 @ May 17 2013
 ===================
   * Same memory leak fixes as 0.4.1, properly applied to batch() operations too (@rvagg)
