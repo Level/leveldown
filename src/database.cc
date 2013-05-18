@@ -28,6 +28,7 @@ Database::Database (char* location) : location(location) {
 Database::~Database () {
   if (db != NULL)
     delete db;
+  delete[] location;
 };
 
 const char* Database::Location() const { return location; }

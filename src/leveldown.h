@@ -86,7 +86,7 @@ static inline void DisposeStringOrBufferFromSlice(v8::Persistent<v8::Value> ptr
       , leveldb::Slice slice) {
 
   if (!node::Buffer::HasInstance(ptr))
-    delete slice.data();
+    delete[] slice.data();
   ptr.Dispose(LD_NODE_ISOLATE);
 }
 

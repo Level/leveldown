@@ -20,7 +20,7 @@ DestroyWorker::DestroyWorker (
 {};
 
 DestroyWorker::~DestroyWorker () {
-  delete location;
+  delete[] location;
 }
 
 void DestroyWorker::Execute () {
@@ -38,7 +38,7 @@ RepairWorker::RepairWorker (
 {};
 
 RepairWorker::~RepairWorker () {
-  delete location;
+  delete[] location;
 }
 
 void RepairWorker::Execute () {

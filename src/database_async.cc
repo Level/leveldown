@@ -84,8 +84,8 @@ IOWorker::IOWorker (
 IOWorker::~IOWorker () {}
 
 void IOWorker::WorkComplete () {
-  AsyncWorker::WorkComplete();
   DisposeStringOrBufferFromSlice(keyPtr, key);
+  AsyncWorker::WorkComplete();
 }
 
 /** READ WORKER **/
@@ -171,8 +171,8 @@ void WriteWorker::Execute () {
 }
 
 void WriteWorker::WorkComplete () {
-  IOWorker::WorkComplete();
   DisposeStringOrBufferFromSlice(valuePtr, value);
+  IOWorker::WorkComplete();
 }
 
 /** BATCH WORKER **/
@@ -222,9 +222,9 @@ void ApproximateSizeWorker::Execute () {
 }
 
 void ApproximateSizeWorker::WorkComplete() {
-  AsyncWorker::WorkComplete();
   DisposeStringOrBufferFromSlice(startPtr, range.start);
   DisposeStringOrBufferFromSlice(endPtr, range.limit);
+  AsyncWorker::WorkComplete();
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {
