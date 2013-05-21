@@ -45,7 +45,7 @@ function run () {
 
 leveldown.destroy('./leakydb', function () {
   db = leveldown('./leakydb')
-  db.open({ xcacheSize: 0, maxOpenFiles: 10 }, function () {
+  db.open({ xcacheSize: 0, xmaxOpenFiles: 10 }, function () {
     rssBase = process.memoryUsage().rss
     run()
   })
