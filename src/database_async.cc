@@ -6,6 +6,8 @@
 #include <node.h>
 #include <node_buffer.h>
 
+#include <posix_logger.h>
+
 #include "database.h"
 #include "leveldown.h"
 #include "async.h"
@@ -39,6 +41,7 @@ OpenWorker::OpenWorker (
   options->block_size             = blockSize;
   options->max_open_files         = maxOpenFiles;
   options->block_restart_interval = blockRestartInterval;
+  options->info_log = new leveldb::PosixLogger(fopen("/tmp/leveldb.log", "w+"), uv_thread_self);
 };
 
 OpenWorker::~OpenWorker () {
