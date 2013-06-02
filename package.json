@@ -1,6 +1,6 @@
 {
-    "name"            : "leveldown"
-  , "description"     : "A Node.js LevelDB binding, primary backend for LevelUP"
+    "name"            : "leveldown-basho"
+  , "description"     : "A Node.js LevelDB (Basho fork) binding, primary backend for LevelUP"
   , "version"         : "0.8.1"
   , "contributors"    : [
         "Rod Vagg <r@va.gg> (https://github.com/rvagg)"
