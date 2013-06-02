@@ -1,0 +1,3 @@
+[submodule "deps/leveldb/leveldb-basho"]
+	path = deps/leveldb/leveldb-basho
+	url = git://github.com/basho/leveldb.git
