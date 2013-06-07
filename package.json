@@ -23,11 +23,13 @@
         "bindings"        : "~1.1.0"
     }
   , "devDependencies" : {
-        "tap"                : "~0.4.1"
-      , "rimraf"             : "~2.1.4"
-      , "mkfiletree"         : "~0.0.0"
-      , "readfiletree"       : "~0.0.0"
-      , "abstract-leveldown" : "~0.7.0"
+        "tap"                 : "~0.4.1"
+      , "rimraf"              : "~2.1.4"
+      , "mkfiletree"          : "~0.0.0"
+      , "readfiletree"        : "~0.0.0"
+      , "abstract-leveldown"  : "~0.7.0"
+      , "monotonic-timestamp" : "~0.0.8"
+      , "du"                  : "~0.0.1"
     }
   , "repository"      : {
         "type"            : "git"
