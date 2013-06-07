@@ -28,8 +28,6 @@ LD_SYMBOL ( option_sync            , sync            ); // for put() and delete(
 LD_SYMBOL ( option_asBuffer        , asBuffer        ); // for get()
 LD_SYMBOL ( option_fillCache       , fillcache       ); // for get() and readStream()
 
-struct AsyncDescriptor;
-
 v8::Handle<v8::Value> LevelDOWN (const v8::Arguments& args);
 
 struct Reference {
