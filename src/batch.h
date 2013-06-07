@@ -4,7 +4,7 @@
 #include <vector>
 #include <node.h>
 
-#include <leveldb/write_batch.h>
+#include "hyperleveldb/write_batch.h"
 
 #include "database.h"
 

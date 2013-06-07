@@ -7,7 +7,7 @@
 
 #include <node.h>
 #include <node_buffer.h>
-#include <leveldb/slice.h>
+#include "hyperleveldb/slice.h"
 
 #include "nan.h"
 

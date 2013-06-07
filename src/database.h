@@ -10,8 +10,8 @@
 #include <vector>
 #include <node.h>
 
-#include "leveldb/db.h"
 #include "nan.h"
+#include "hyperleveldb/db.h"
 #include "leveldown.h"
 #include "iterator.h"
 
