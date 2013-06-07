@@ -7,7 +7,7 @@
 
 #include <node.h>
 #include <node_buffer.h>
-#include <leveldb/slice.h>
+#include "hyperleveldb/slice.h"
 
 static inline char* FromV8String(v8::Local<v8::Value> from) {
   size_t sz_;

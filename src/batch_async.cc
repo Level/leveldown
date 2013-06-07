@@ -4,7 +4,8 @@
  */
 
 
-#include <leveldb/write_batch.h>
+#include "hyperleveldb/write_batch.h"
+
 #include "batch.h"
 #include "batch_async.h"
 

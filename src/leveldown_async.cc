@@ -3,7 +3,7 @@
  * MIT +no-false-attribs License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE>
  */
 
-#include <leveldb/db.h>
+#include "hyperleveldb/db.h"
 
 #include "leveldown.h"
 #include "leveldown_async.h"

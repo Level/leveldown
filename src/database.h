@@ -10,7 +10,7 @@
 #include <vector>
 #include <node.h>
 
-#include "leveldb/db.h"
+#include "hyperleveldb/db.h"
 
 #include "leveldown.h"
 
