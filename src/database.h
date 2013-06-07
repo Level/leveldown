@@ -10,10 +10,12 @@
 #include <vector>
 #include <node.h>
 
-#include "leveldb/cache.h"
-#include "leveldb/db.h"
-#include "leveldb/filter_policy.h"
+#include "hyperleveldb/cache.h"
+#include "hyperleveldb/db.h"
+#include "hyperleveldb/filter_policy.h"
+
 #include "nan.h"
+
 #include "leveldown.h"
 #include "iterator.h"
 
