@@ -1,0 +1,3 @@
+[submodule "deps/leveldb/leveldb-hyper"]
+	path = deps/leveldb/leveldb-hyper
+	url = git://github.com/rescrv/HyperLevelDB.git
