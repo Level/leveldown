@@ -1,13 +1,13 @@
 const leveldown   = require('../')
-    , timestamp   = require('monotonic-timestamp')
     , crypto      = require('crypto')
     , fs          = require('fs')
     , du          = require('du')
+    , uuid        = require('node-uuid')
 
     , entryCount  = 10000000
     , concurrency = 10
-    , timesFile   = './write_sorted_times.csv'
-    , dbDir       = './write_sorted.db'
+    , timesFile   = './write_random_times.csv'
+    , dbDir       = './write_random.db'
     , data        = crypto.randomBytes(256) // buffer
 
 var db          = leveldown(dbDir)
@@ -53,7 +53,7 @@ db.open({ errorIfExists: true, createIfMissing: true }, function (err) {
     var time = process.hrtime()
     inProgress++
 
-    db.put(timestamp(), data, function (err) {
+    db.put(uuid.v4(), data, function (err) {
       if (err)
         throw err
       //timesTotal += process.hrtime(time)[1]
