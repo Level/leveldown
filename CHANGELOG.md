@@ -1,3 +1,7 @@
+0.6.0 @ Jun 14 2013
+===================
+  * Upgrade to LevelDB 1.11.0, some important bugfixes: https://groups.google.com/forum/#!topic/leveldb/vS1JvmGlp4E
+
 0.5.0 @ May 18 2013
 ===================
   * Bumped major version for db.getProperty() addition (should have been done in 0.4.4) (@rvagg)
