@@ -1,3 +1,7 @@
+0.6.1 @ Jun 15 2013
+===================
+  * Fix broken Windows compile, apply port-uv patch to LevelDB's port.h (@rvagg)
+
 0.6.0 @ Jun 14 2013
 ===================
   * Upgrade to LevelDB 1.11.0, some important bugfixes: https://groups.google.com/forum/#!topic/leveldb/vS1JvmGlp4E
