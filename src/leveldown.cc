@@ -14,7 +14,8 @@
 namespace leveldown {
 
 v8::Handle<v8::Value> DestroyDB (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   if (args.Length() < 2) {
     LD_THROW_RETURN(destroy() requires `location` and `callback` arguments)
@@ -46,7 +47,8 @@ v8::Handle<v8::Value> DestroyDB (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> RepairDB (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   if (args.Length() < 2) {
     LD_THROW_RETURN(repair() requires `location` and `callback` arguments)

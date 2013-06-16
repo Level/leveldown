@@ -25,7 +25,9 @@ AsyncWorker::AsyncWorker (
 AsyncWorker::~AsyncWorker () {}
 
 void AsyncWorker::WorkComplete () {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
+
   if (status.ok())
     HandleOKCallback();
   else
@@ -38,7 +40,9 @@ void AsyncWorker::HandleOKCallback () {
 }
 
 void AsyncWorker::HandleErrorCallback () {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
+
   v8::Local<v8::Value> argv[] = {
       v8::Local<v8::Value>::New(
         v8::Exception::Error(v8::String::New(status.ToString().c_str()))

@@ -48,6 +48,7 @@ Iterator::Iterator (
 
 
 Iterator::~Iterator () {
+  LD_NODE_ISOLATE_DECL
   delete options;
   startPtr.Dispose(LD_NODE_ISOLATE);
   if (start != NULL)
@@ -127,7 +128,8 @@ void checkEndCallback (Iterator* iterator) {
 
 //void *ctx, void (*callback)(void *ctx, leveldb::Slice key, leveldb::Slice value)
 v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
@@ -157,7 +159,8 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
@@ -190,6 +193,7 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
 v8::Persistent<v8::Function> Iterator::constructor;
 
 void Iterator::Init () {
+  LD_NODE_ISOLATE_DECL
   v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
   tpl->SetClassName(v8::String::NewSymbol("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -212,7 +216,9 @@ v8::Handle<v8::Object> Iterator::NewInstance (
       , v8::Handle<v8::Object> optionsObj
     ) {
 
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
+
   v8::Local<v8::Object> instance;
 
   if (optionsObj.IsEmpty()) {
@@ -227,7 +233,8 @@ v8::Handle<v8::Object> Iterator::NewInstance (
 }
 
 v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
 

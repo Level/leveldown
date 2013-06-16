@@ -7,6 +7,7 @@ gnuplot <<EOF
   set datafile separator ','
 
   #set yrange [0:0.6]
+  set logscale y
 
   set xlabel "Seconds"
   set ylabel "Milliseconds per write"
@@ -15,8 +16,9 @@ gnuplot <<EOF
   set key below
   set grid
 
-  plot "write_random_times_g.csv" using (\$1/1000):(\$2/1000000) title "Google LevelDB" lc rgb "red" lt 7 ps 0.3, \
-       "write_random_times_h.csv" using (\$1/1000):(\$2/1000000) title "HyperDex LevelDB" lc rgb "green" lt 7 ps 0.3, \
-       "write_random_times_b.csv" using (\$1/1000):(\$2/1000000) title "Basho LevelDB" lc rgb "blue" lt 7 ps 0.3
+  plot "write_random_times_g32.csv" using (\$1/1000):(\$2/1000000) title "Google LevelDB" lc rgb "red" lt 7 ps 0.3, \
+       "write_random_times_h32.csv" using (\$1/1000):(\$2/1000000) title "HyperDex LevelDB" lc rgb "green" lt 7 ps 0.3, \
+       "write_random_times_b32.csv" using (\$1/1000):(\$2/1000000) title "Basho LevelDB" lc rgb "blue" lt 7 ps 0.3, \
+       "write_random_times.csv" using (\$1/1000):(\$2/1000000) title "LMDB" lc rgb "black" lt 7 ps 0.3
 
 EOF

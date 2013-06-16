@@ -120,11 +120,14 @@ void Database::CloseDatabase () {
 v8::Persistent<v8::Function> Database::constructor;
 
 v8::Handle<v8::Value> LevelDOWN (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
+
   return scope.Close(Database::NewInstance(args));
 }
 
 void Database::Init () {
+  LD_NODE_ISOLATE_DECL
   v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
   tpl->SetClassName(v8::String::NewSymbol("Database"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -170,7 +173,8 @@ void Database::Init () {
 }
 
 v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   if (args.Length() == 0) {
     LD_THROW_RETURN(constructor requires at least a location argument)
@@ -189,7 +193,8 @@ v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::NewInstance (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   v8::Local<v8::Object> instance;
 
@@ -204,7 +209,8 @@ v8::Handle<v8::Value> Database::NewInstance (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   LD_METHOD_SETUP_COMMON(open, 0, 1)
 
@@ -260,7 +266,8 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   LD_METHOD_SETUP_COMMON_ONEARG(close)
 
@@ -312,7 +319,8 @@ v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   LD_METHOD_SETUP_COMMON(put, 2, 3)
 
@@ -346,7 +354,8 @@ v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   LD_METHOD_SETUP_COMMON(get, 1, 2)
 
@@ -376,7 +385,8 @@ v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   LD_METHOD_SETUP_COMMON(del, 1, 2)
 
@@ -410,7 +420,8 @@ LD_SYMBOL ( str_del   , del   );
 LD_SYMBOL ( str_put   , put   );
 
 v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   if ((args.Length() == 0 || args.Length() == 1) && !args[0]->IsArray()) {
     v8::Local<v8::Object> optionsObj;
@@ -492,7 +503,8 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   v8::Local<v8::Value> startBufferV = args[0];
   v8::Local<v8::Value> endBufferV = args[1];
@@ -534,7 +546,8 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::GetProperty (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   v8::Local<v8::Value> propertyV = args[0];
   v8::Local<v8::Function> callback; // for LD_CB_ERR_IF_NULL_OR_UNDEFINED
@@ -561,7 +574,8 @@ v8::Handle<v8::Value> Database::GetProperty (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
 

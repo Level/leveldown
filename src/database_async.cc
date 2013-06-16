@@ -64,7 +64,9 @@ void CloseWorker::Execute () {
 }
 
 void CloseWorker::WorkComplete () {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
+
   HandleOKCallback();
   callback.Dispose(LD_NODE_ISOLATE);
 }
@@ -113,7 +115,9 @@ void ReadWorker::Execute () {
 }
 
 void ReadWorker::HandleOKCallback () {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
+
   v8::Local<v8::Value> returnValue;
   if (asBuffer)
     returnValue = v8::Local<v8::Value>::New(
@@ -229,7 +233,9 @@ void ApproximateSizeWorker::WorkComplete() {
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
+
   v8::Local<v8::Value> returnValue = v8::Number::New((double) size);
   v8::Local<v8::Value> argv[] = {
       v8::Local<v8::Value>::New(v8::Null())

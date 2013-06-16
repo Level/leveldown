@@ -29,6 +29,7 @@ leveldb::Status Batch::Write () {
 }
 
 void Batch::Init () {
+  LD_NODE_ISOLATE_DECL
   v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(Batch::New);
   tpl->SetClassName(v8::String::NewSymbol("Batch"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -54,7 +55,8 @@ void Batch::Init () {
 }
 
 v8::Handle<v8::Value> Batch::New (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
   v8::Local<v8::Object> optionsObj;
@@ -76,7 +78,9 @@ v8::Handle<v8::Value> Batch::NewInstance (
       , v8::Handle<v8::Object> optionsObj
     ) {
 
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
+
   v8::Local<v8::Object> instance;
 
   if (optionsObj.IsEmpty()) {
@@ -91,7 +95,8 @@ v8::Handle<v8::Value> Batch::NewInstance (
 }
 
 v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
@@ -126,7 +131,8 @@ v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
@@ -154,7 +160,8 @@ v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Batch::Clear (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
@@ -169,7 +176,8 @@ v8::Handle<v8::Value> Batch::Clear (const v8::Arguments& args) {
 }
 
 v8::Handle<v8::Value> Batch::Write (const v8::Arguments& args) {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 

@@ -1,4 +1,4 @@
-const leveldown   = require('../')
+const leveldown   = require('../../lmdb/')
     , crypto      = require('crypto')
     , fs          = require('fs')
     , du          = require('du')
@@ -24,7 +24,7 @@ function report (ms) {
   console.log('Wrote times to ', timesFile)
 }
 
-db.open({ errorIfExists: true, createIfMissing: true }, function (err) {
+db.open(function (err) {
   if (err)
     throw err
 

@@ -55,22 +55,33 @@ static inline uint32_t UInt32OptionValue(
       : def;
 }
 
-// node_isolate stuff introduced with V8 upgrade, see https://github.com/joyent/node/pull/5077
-#if NODE_MODULE_VERSION > 0x000B
-#  define LD_NODE_ISOLATE node::node_isolate
-#  define LD_NODE_ISOLATE_PRE node::node_isolate, 
-#  define LD_NODE_ISOLATE_POST , node::node_isolate 
+// V8 Isolate stuff introduced with V8 upgrade, see https://github.com/joyent/node/pull/5077
+#if (NODE_MODULE_VERSION > 0x000B)
+#  define LD_NODE_ISOLATE_GET  v8::Isolate::GetCurrent()
+#  define LD_NODE_ISOLATE_DECL v8::Isolate* isolate = LD_NODE_ISOLATE_GET;
+#  define LD_NODE_ISOLATE      isolate 
+#  define LD_NODE_ISOLATE_PRE  isolate, 
+#  define LD_NODE_ISOLATE_POST , isolate 
 #else
+#  define LD_NODE_ISOLATE_GET
+#  define LD_NODE_ISOLATE_DECL
 #  define LD_NODE_ISOLATE
 #  define LD_NODE_ISOLATE_PRE
 #  define LD_NODE_ISOLATE_POST
 #endif
 
-#define LD_SYMBOL(var, key)                                                    \
-  static const v8::Persistent<v8::String> var =                                \
-    v8::Persistent<v8::String>::New(                                           \
-      LD_NODE_ISOLATE_PRE v8::String::NewSymbol(#key)                          \
-    );
+#if (NODE_MODULE_VERSION > 0x000B)
+#  define LD_SYMBOL(var, key)                                                  \
+     static const v8::Persistent<v8::String> var =                             \
+       v8::Persistent<v8::String>::New(                                        \
+          LD_NODE_ISOLATE_GET, v8::String::NewSymbol(#key));
+#  define LD_HANDLESCOPE v8::HandleScope scope(LD_NODE_ISOLATE);
+#else
+#  define LD_SYMBOL(var, key)                                                  \
+     static const v8::Persistent<v8::String> var =                             \
+       v8::Persistent<v8::String>::New(v8::String::NewSymbol(#key));
+#  define LD_HANDLESCOPE v8::HandleScope scope;
+#endif
 
 #define LD_V8_METHOD(name)                                                     \
   static v8::Handle<v8::Value> name (const v8::Arguments& args);
@@ -85,6 +96,7 @@ static inline uint32_t UInt32OptionValue(
 static inline void DisposeStringOrBufferFromSlice(v8::Persistent<v8::Value> ptr
       , leveldb::Slice slice) {
 
+  LD_NODE_ISOLATE_DECL
   if (!node::Buffer::HasInstance(ptr))
     delete[] slice.data();
   ptr.Dispose(LD_NODE_ISOLATE);

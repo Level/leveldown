@@ -33,7 +33,8 @@ void NextWorker::Execute () {
 }
 
 void NextWorker::HandleOKCallback () {
-  v8::HandleScope scope;
+  LD_NODE_ISOLATE_DECL
+  LD_HANDLESCOPE
 
   v8::Local<v8::Value> returnKey;
   if (iterator->keyAsBuffer) {
