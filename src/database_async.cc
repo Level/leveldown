@@ -10,6 +10,7 @@
 #include "leveldown.h"
 #include "async.h"
 #include "database_async.h"
+#include "leveldb/filter_policy.h"
 
 namespace leveldown {
 
@@ -39,6 +40,9 @@ OpenWorker::OpenWorker (
   options->block_size             = blockSize;
   options->max_open_files         = maxOpenFiles;
   options->block_restart_interval = blockRestartInterval;
+
+  // basho specific
+  options->filter_policy          = leveldb::NewBloomFilterPolicy2(16); 
 };
 
 OpenWorker::~OpenWorker () {
