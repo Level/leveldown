@@ -27,12 +27,7 @@ if (!options.useExisting) {
   leveldown.destroy(options.db, function () {})
 }
 
-var db          = leveldown(options.db, {
-        errorIfExists   : false
-      , createIfMissing : true
-      , cacheSize       : options.cacheSize << 20
-      , writeBufferSize : options.writeBufferSize << 20
-    })
+var db          = leveldown(options.db)
   , timesStream = options.timingOutput
         && fs.createWriteStream(options.timingOutput, 'utf8')
 //  , throughputStream = options.throughputOutput
@@ -47,7 +42,14 @@ function makeKey () {
 
 timesStream.write('Elapsed (ms), Entries, Bytes, Last 1000 Avg Time, MB/s\n')
 
-setTimeout(function () { db.open(function (err) {
+setTimeout(function () {
+  db.open({
+        errorIfExists   : false
+      , createIfMissing : true
+      , cacheSize       : options.cacheSize << 20
+      , writeBufferSize : options.writeBufferSize << 20
+  }, function (err) {
+
   if (err)
     throw err
 
