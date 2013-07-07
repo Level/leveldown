@@ -1,3 +1,7 @@
+0.6.2 @ Jul 07 2013
+===================
+  * Compatibility for Node 0.11.3, breaks compatibility with 0.11.2
+
 0.6.1 @ Jun 15 2013
 ===================
   * Fix broken Windows compile, apply port-uv patch to LevelDB's port.h (@rvagg)
