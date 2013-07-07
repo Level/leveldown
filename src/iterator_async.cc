@@ -38,18 +38,14 @@ void NextWorker::HandleOKCallback () {
 
   v8::Local<v8::Value> returnKey;
   if (iterator->keyAsBuffer) {
-    returnKey = v8::Local<v8::Value>::New(
-      node::Buffer::New((char*)key.data(), key.size())->handle_
-    );
+    returnKey = LD_NEW_BUFFER_HANDLE((char*)key.data(), key.size())
   } else {
     returnKey = v8::String::New((char*)key.data(), key.size());
   }
 
   v8::Local<v8::Value> returnValue;
   if (iterator->valueAsBuffer) {
-    returnValue = v8::Local<v8::Value>::New(
-      node::Buffer::New((char*)value.data(), value.size())->handle_
-    );
+    returnValue = LD_NEW_BUFFER_HANDLE((char*)value.data(), value.size());
   } else {
     returnValue = v8::String::New((char*)value.data(), value.size());
   }

@@ -119,12 +119,11 @@ void ReadWorker::HandleOKCallback () {
   LD_HANDLESCOPE
 
   v8::Local<v8::Value> returnValue;
-  if (asBuffer)
-    returnValue = v8::Local<v8::Value>::New(
-      node::Buffer::New((char*)value.data(), value.size())->handle_
-    );
-  else
+  if (asBuffer) {
+    returnValue = LD_NEW_BUFFER_HANDLE((char*)value.data(), value.size());
+  } else {
     returnValue = v8::String::New((char*)value.data(), value.size());
+  }
   v8::Local<v8::Value> argv[] = {
       v8::Local<v8::Value>::New(v8::Null())
     , returnValue

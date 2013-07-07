@@ -599,7 +599,7 @@ v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
 
   // register our iterator
   database->iterators[id] =
-      v8::Persistent<v8::Object>::New(
+      v8::Persistent<v8::Object>::New(LD_NODE_ISOLATE_PRE
           node::ObjectWrap::Unwrap<leveldown::Iterator>(iterator)->handle_);
 
   return scope.Close(iterator);

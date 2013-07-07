@@ -76,11 +76,14 @@ static inline uint32_t UInt32OptionValue(
        v8::Persistent<v8::String>::New(                                        \
           LD_NODE_ISOLATE_GET, v8::String::NewSymbol(#key));
 #  define LD_HANDLESCOPE v8::HandleScope scope(LD_NODE_ISOLATE);
+#  define LD_NEW_BUFFER_HANDLE(data, size) node::Buffer::New(data, size);
 #else
 #  define LD_SYMBOL(var, key)                                                  \
      static const v8::Persistent<v8::String> var =                             \
        v8::Persistent<v8::String>::New(v8::String::NewSymbol(#key));
 #  define LD_HANDLESCOPE v8::HandleScope scope;
+#  define LD_NEW_BUFFER_HANDLE(data, size)                                     \
+     v8::Local<v8::Value>::New(node::Buffer::New(data, size)->handle_);
 #endif
 
 #define LD_V8_METHOD(name)                                                     \
