@@ -3,7 +3,7 @@
 gnuplot <<EOF
   reset
   set terminal pngcairo truecolor enhanced font "Ubuntu Mono,13" size 1920, 1080
-  set output "/tmp/random-writes.png"
+  set output "/tmp/5mbench.png"
   set datafile separator ','
 
   set logscale y
@@ -35,15 +35,22 @@ gnuplot <<EOF
   set style line 8 lt 7 ps 0.1 lc rgb "#55CC3C3C"
   set style line 9 lt 1 lw 2   lc rgb "#55CC3C3C"
 
+  set style line 10 lt 7 ps 1.2 lc rgb "#553C3C3C"
+  set style line 11 lt 7 ps 0.1 lc rgb "#553C3C3C"
+  set style line 12 lt 1 lw 2   lc rgb "#553C3C3C"
+
   plot \
       1/0 with points title "Google LevelDB" ls 1 \
     , 1/0 with points title "Hyper LevelDB"  ls 4 \
     , 1/0 with points title "Basho LevelDB"  ls 7 \
-    , "/tmp/rndbench_timing_google.csv" using (\$1/1000/60):(\$4/1000000) notitle         ls 2 axes x1y1 \
-    , "/tmp/rndbench_timing_hyper.csv"  using (\$1/1000/60):(\$4/1000000) notitle         ls 5 axes x1y1 \
-    , "/tmp/rndbench_timing_basho.csv"  using (\$1/1000/60):(\$4/1000000) notitle         ls 8 axes x1y1 \
-    , "/tmp/rndbench_timing_google.csv" using (\$1/1000/60):(\$5)         w lines notitle ls 3 axes x1y2 \
-    , "/tmp/rndbench_timing_hyper.csv"  using (\$1/1000/60):(\$5)         w lines notitle ls 6 axes x1y2 \
-    , "/tmp/rndbench_timing_basho.csv"  using (\$1/1000/60):(\$5)         w lines notitle ls 9 axes x1y2 \
+    , 1/0 with points title "LMDB"  ls 10 \
+    , "5m_google.csv" using (\$1/1000/60):(\$4/1000000) notitle         ls 2 axes x1y1 \
+    , "5m_hyper.csv"  using (\$1/1000/60):(\$4/1000000) notitle         ls 5 axes x1y1 \
+    , "5m_basho.csv"  using (\$1/1000/60):(\$4/1000000) notitle         ls 8 axes x1y1 \
+    , "5m_lmdb.csv"   using (\$1/1000/60):(\$4/1000000) notitle         ls 11 axes x1y1 \
+    , "5m_google.csv" using (\$1/1000/60):(\$5)         w lines notitle ls 3 axes x1y2 \
+    , "5m_hyper.csv"  using (\$1/1000/60):(\$5)         w lines notitle ls 6 axes x1y2 \
+    , "5m_basho.csv"  using (\$1/1000/60):(\$5)         w lines notitle ls 9 axes x1y2 \
+    , "5m_lmdb.csv"   using (\$1/1000/60):(\$5)         w lines notitle ls 12 axes x1y2 \
 
 EOF
