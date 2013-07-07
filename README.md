@@ -252,11 +252,7 @@ Safety
 
 Currently LevelDOWN does not track the state of the underlying LevelDB instance. This means that calling `open()` on an already open database may result in an error. Likewise, calling any other operation on a non-open database may result in an error.
 
-LevelUP currently tracks and manages state and will prevent out-of-state operations from being send to LevelDOWN. If you use LevelDOWN directly then you must track and manage state.
-
-### Iterators
-
-You should make sure to **always** `end()` your LevelDOWN Iterators, it will not be done for you, even on a `close()` of the database your Iterator belongs to. If you don't `end()` then the underlying resources aren't cleaned up and this will result in a Node process death.
+LevelUP currently tracks and manages state and will prevent out-of-state operations from being send to LevelDOWN. If you use LevelDOWN directly then you must track and manage state for yourself.
 
 <a name="support"></a>
 Getting support
