@@ -173,7 +173,7 @@ Currently, the only valid properties are:
 
 
 --------------------------------------------------------
-<a name="createIterator"></a>
+<a name="leveldown_iterator"></a>
 ### leveldown#iterator([options])
 <code>iterator()</code> is an instance method on an existing database object. It returns a new **Iterator** instance.
 
@@ -214,8 +214,8 @@ the `callback` function will be called with no arguments in any of the following
 Otherwise, the `callback` function will be called with the following 3 arguments:
 
 * `error` - any error that occurs while incrementing the iterator.
-* `key` - either a `String` or a Node.js `Buffer` object depending on the `keyAsBuffer` argument when the `createIterator()` was called.
-* `value` - either a `String` or a Node.js `Buffer` object depending on the `valueAsBuffer` argument when the `createIterator()` was called.
+* `key` - either a `String` or a Node.js `Buffer` object depending on the `keyAsBuffer` argument when the `iterator()` was called.
+* `value` - either a `String` or a Node.js `Buffer` object depending on the `valueAsBuffer` argument when the `iterator()` was called.
 
 
 --------------------------------------------------------
