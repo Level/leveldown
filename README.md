@@ -8,6 +8,8 @@ A Low-level Node.js LevelDB binding
 
 [![Build Status](https://secure.travis-ci.org/rvagg/node-leveldown.png)](http://travis-ci.org/rvagg/node-leveldown)
 
+[![NPM](http://nodei.co/npm/leveldown.png)](http://nodei.co/npm/leveldown/)
+
 LevelDOWN was extracted from [LevelUP](https://github.com/rvagg/node-levelup) and now serves as a stand-alone binding for LevelDB.
 
 It is **strongly recommended** that you use LevelUP in preference to LevelDOWN unless you have measurable performance reasons to do so. LevelUP is optimised for usability and safety. Although we are working to improve the safety of the LevelDOWN interface it is still easy to crash your Node process if you don't do things in just the right way.
