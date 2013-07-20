@@ -12,6 +12,8 @@
 
 namespace leveldown {
 
+static v8::Persistent<v8::FunctionTemplate> iterator_constructor;
+
 Iterator::Iterator (
     Database* database
   , uint32_t id
@@ -24,7 +26,7 @@ Iterator::Iterator (
   , bool fillCache
   , bool keyAsBuffer
   , bool valueAsBuffer
-  , v8::Persistent<v8::Value> startPtr
+  , v8::Local<v8::Object> &startHandle
 ) : database(database)
   , id(id)
   , start(start)
@@ -35,8 +37,14 @@ Iterator::Iterator (
   , limit(limit)
   , keyAsBuffer(keyAsBuffer)
   , valueAsBuffer(valueAsBuffer)
-  , startPtr(startPtr)
 {
+  NanScope();
+
+  v8::Local<v8::Object> obj = v8::Object::New();
+  if (!startHandle.IsEmpty())
+    obj->Set(NanSymbol("start"), startHandle);
+  NanAssignPersistent(v8::Object, persistentHandle, obj)
+
   options    = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
   dbIterator = NULL;
@@ -48,9 +56,9 @@ Iterator::Iterator (
 
 
 Iterator::~Iterator () {
-  LD_NODE_ISOLATE_DECL
   delete options;
-  startPtr.Dispose(LD_NODE_ISOLATE);
+  if (!persistentHandle.IsEmpty())
+    NanDispose(persistentHandle);
   if (start != NULL)
     delete start;
   if (end != NULL)
@@ -121,23 +129,21 @@ void Iterator::Release () {
 void checkEndCallback (Iterator* iterator) {
   iterator->nexting = false;
   if (iterator->endWorker != NULL) {
-    AsyncQueueWorker(iterator->endWorker);
+    NanAsyncQueueWorker(iterator->endWorker);
     iterator->endWorker = NULL;
   }
 }
 
 //void *ctx, void (*callback)(void *ctx, leveldb::Slice key, leveldb::Slice value)
-v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Iterator::Next) {
+  NanScope();
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
-  if (args.Length() == 0 || !args[0]->IsFunction()) {
-    LD_THROW_RETURN(next() requires a callback argument)
-  }
+  if (args.Length() == 0 || !args[0]->IsFunction())
+    return NanThrowError("next() requires a callback argument");
 
-  v8::Local<v8::Function> callback = v8::Local<v8::Function>::Cast(args[0]);
+  v8::Local<v8::Function> callback = args[0].As<v8::Function>();
 
   if (iterator->ended) {
     LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() after end()")
@@ -149,24 +155,22 @@ v8::Handle<v8::Value> Iterator::Next (const v8::Arguments& args) {
 
   NextWorker* worker = new NextWorker(
       iterator
-    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+    , new NanCallback(callback)
     , checkEndCallback
   );
   iterator->nexting = true;
-  AsyncQueueWorker(worker);
+  NanAsyncQueueWorker(worker);
 
-  return scope.Close(args.Holder());
+  NanReturnValue(args.Holder());
 }
 
-v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Iterator::End) {
+  NanScope();
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
-  if (args.Length() == 0 || !args[0]->IsFunction()) {
-    LD_THROW_RETURN(end() requires a callback argument)
-  }
+  if (args.Length() == 0 || !args[0]->IsFunction())
+    return NanThrowError("end() requires a callback argument");
 
   v8::Local<v8::Function> callback = v8::Local<v8::Function>::Cast(args[0]);
 
@@ -176,7 +180,7 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
 
   EndWorker* worker = new EndWorker(
       iterator
-    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+    , new NanCallback(callback)
   );
   iterator->ended = true;
 
@@ -184,64 +188,54 @@ v8::Handle<v8::Value> Iterator::End (const v8::Arguments& args) {
     // waiting for a next() to return, queue the end
     iterator->endWorker = worker;
   } else {
-    AsyncQueueWorker(worker);
+    NanAsyncQueueWorker(worker);
   }
 
-  return scope.Close(args.Holder());
+  NanReturnValue(args.Holder());
 }
-
-v8::Persistent<v8::Function> Iterator::constructor;
 
 void Iterator::Init () {
-  LD_NODE_ISOLATE_DECL
-  v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
-  tpl->SetClassName(v8::String::NewSymbol("Iterator"));
+  v8::Local<v8::FunctionTemplate> tpl =
+      v8::FunctionTemplate::New(Iterator::New);
+  NanAssignPersistent(v8::FunctionTemplate, iterator_constructor, tpl)
+  tpl->SetClassName(NanSymbol("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("next")
-    , v8::FunctionTemplate::New(Next)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("end")
-    , v8::FunctionTemplate::New(End)->GetFunction()
-  );
-  constructor = v8::Persistent<v8::Function>::New(
-      LD_NODE_ISOLATE_PRE
-      tpl->GetFunction());
+  NODE_SET_PROTOTYPE_METHOD(tpl, "next", Iterator::Next);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "end", Iterator::End);
 }
 
-v8::Handle<v8::Object> Iterator::NewInstance (
-        v8::Handle<v8::Object> database
-      , v8::Handle<v8::Number> id
-      , v8::Handle<v8::Object> optionsObj
+v8::Local<v8::Object> Iterator::NewInstance (
+        v8::Local<v8::Object> database
+      , v8::Local<v8::Number> id
+      , v8::Local<v8::Object> optionsObj
     ) {
 
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+  NanScope();
 
   v8::Local<v8::Object> instance;
+  v8::Local<v8::FunctionTemplate> constructorHandle =
+      NanPersistentToLocal(iterator_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[2] = { database, id };
-    instance = constructor->NewInstance(2, argv);
+    instance = constructorHandle->GetFunction()->NewInstance(2, argv);
   } else {
     v8::Handle<v8::Value> argv[3] = { database, id, optionsObj };
-    instance = constructor->NewInstance(3, argv);
+    instance = constructorHandle->GetFunction()->NewInstance(3, argv);
   }
 
-  return scope.Close(instance);
+  return instance;
 }
 
-v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Iterator::New) {
+  NanScope();
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
 
   //TODO: remove this, it's only here to make LD_STRING_OR_BUFFER_TO_SLICE happy
   v8::Handle<v8::Function> callback;
 
-  v8::Local<v8::Value> startBuffer;
+  v8::Local<v8::Object> startHandle;
   leveldb::Slice* start = NULL;
   std::string* end = NULL;
   int limit = -1;
@@ -253,25 +247,25 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
   if (args.Length() > 1 && args[2]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[2]);
 
-    if (optionsObj->Has(option_start)
-        && (node::Buffer::HasInstance(optionsObj->Get(option_start))
-          || optionsObj->Get(option_start)->IsString())) {
+    if (optionsObj->Has(NanSymbol("start"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("start")))
+          || optionsObj->Get(NanSymbol("start"))->IsString())) {
 
-      startBuffer = v8::Local<v8::Value>::New(optionsObj->Get(option_start));
+      startHandle = optionsObj->Get(NanSymbol("start")).As<v8::Object>();
 
       // ignore start if it has size 0 since a Slice can't have length 0
-      if (StringOrBufferLength(startBuffer) > 0) {
-        LD_STRING_OR_BUFFER_TO_SLICE(_start, startBuffer, start)
+      if (StringOrBufferLength(startHandle) > 0) {
+        LD_STRING_OR_BUFFER_TO_SLICE(_start, startHandle, start)
         start = new leveldb::Slice(_start.data(), _start.size());
       }
     }
 
-    if (optionsObj->Has(option_end)
-        && (node::Buffer::HasInstance(optionsObj->Get(option_end))
-          || optionsObj->Get(option_end)->IsString())) {
+    if (optionsObj->Has(NanSymbol("end"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("end")))
+          || optionsObj->Get(NanSymbol("end"))->IsString())) {
 
       v8::Local<v8::Value> endBuffer =
-          v8::Local<v8::Value>::New(optionsObj->Get(option_end));
+          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("end")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(endBuffer) > 0) {
@@ -280,21 +274,26 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
       }
     }
 
-    if (!optionsObj.IsEmpty() && optionsObj->Has(option_limit)) {
-      limit =
-        v8::Local<v8::Integer>::Cast(optionsObj->Get(option_limit))->Value();
+    if (!optionsObj.IsEmpty() && optionsObj->Has(NanSymbol("limit"))) {
+      limit = v8::Local<v8::Integer>::Cast(optionsObj->Get(
+          NanSymbol("limit")))->Value();
     }
   }
 
-  bool reverse      = BooleanOptionValue(optionsObj, option_reverse);
-  bool keys         = BooleanOptionValueDefTrue(optionsObj, option_keys);
-  bool values       = BooleanOptionValueDefTrue(optionsObj, option_values);
-  bool keyAsBuffer  = BooleanOptionValueDefTrue(optionsObj, option_keyAsBuffer);
-  bool valueAsBuffer = BooleanOptionValueDefTrue(
+  bool reverse = NanBooleanOptionValue(optionsObj, NanSymbol("reverse"));
+  bool keys = NanBooleanOptionValue(optionsObj, NanSymbol("keys"), true);
+  bool values = NanBooleanOptionValue(optionsObj, NanSymbol("values"), true);
+  bool keyAsBuffer = NanBooleanOptionValue(
       optionsObj
-    , option_valueAsBuffer
+    , NanSymbol("keyAsBuffer")
+    , true
   );
-  bool fillCache    = BooleanOptionValue(optionsObj, option_fillCache);
+  bool valueAsBuffer = NanBooleanOptionValue(
+      optionsObj
+    , NanSymbol("valueAsBuffer")
+    , true
+  );
+  bool fillCache = NanBooleanOptionValue(optionsObj, NanSymbol("fillCache"));
 
   Iterator* iterator = new Iterator(
       database
@@ -308,11 +307,11 @@ v8::Handle<v8::Value> Iterator::New (const v8::Arguments& args) {
     , fillCache
     , keyAsBuffer
     , valueAsBuffer
-    , v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE startBuffer)
+    , startHandle
   );
   iterator->Wrap(args.This());
 
-  return args.This();
+  NanReturnValue(args.This());
 }
 
 } // namespace leveldown

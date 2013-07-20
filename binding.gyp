@@ -20,8 +20,7 @@
             "<(module_root_dir)/deps/leveldb/leveldb.gyp:leveldb"
         ]
       , "sources": [
-            "src/async.cc"
-          , "src/batch.cc"
+            "src/batch.cc"
           , "src/batch_async.cc"
           , "src/database.cc"
           , "src/database_async.cc"

@@ -19,6 +19,8 @@
 
 namespace leveldown {
 
+static v8::Persistent<v8::FunctionTemplate> database_constructor;
+
 Database::Database (char* location) : location(location) {
   db = NULL;
   currentIteratorId = 0;
@@ -105,7 +107,7 @@ void Database::ReleaseIterator (uint32_t id) {
   // iterators to end before we can close them
   iterators.erase(id);
   if (iterators.size() == 0 && pendingCloseWorker != NULL) {
-    AsyncQueueWorker((AsyncWorker*)pendingCloseWorker);
+    NanAsyncQueueWorker((AsyncWorker*)pendingCloseWorker);
     pendingCloseWorker = NULL;
   }
 }
@@ -117,139 +119,109 @@ void Database::CloseDatabase () {
 
 /* V8 exposed functions *****************************/
 
-v8::Persistent<v8::Function> Database::constructor;
+NAN_METHOD(LevelDOWN) {
+  NanScope();
 
-v8::Handle<v8::Value> LevelDOWN (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
-
-  return scope.Close(Database::NewInstance(args));
+  v8::Local<v8::String> location;
+  if (args.Length() != 0 && args[0]->IsString())
+    location = args[0].As<v8::String>();
+  NanReturnValue(Database::NewInstance(location));
 }
 
 void Database::Init () {
-  LD_NODE_ISOLATE_DECL
-  v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(New);
-  tpl->SetClassName(v8::String::NewSymbol("Database"));
+  v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(Database::New);
+  NanAssignPersistent(v8::FunctionTemplate, database_constructor, tpl);
+  tpl->SetClassName(NanSymbol("Database"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("open")
-    , v8::FunctionTemplate::New(Open)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("close")
-    , v8::FunctionTemplate::New(Close)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("put")
-    , v8::FunctionTemplate::New(Put)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("get")
-    , v8::FunctionTemplate::New(Get)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("del")
-    , v8::FunctionTemplate::New(Delete)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("batch")
-    , v8::FunctionTemplate::New(Batch)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("approximateSize")
-    , v8::FunctionTemplate::New(ApproximateSize)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("getProperty")
-    , v8::FunctionTemplate::New(GetProperty)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("iterator")
-    , v8::FunctionTemplate::New(Iterator)->GetFunction()
-  );
-  constructor = v8::Persistent<v8::Function>::New(
-      LD_NODE_ISOLATE_PRE
-      tpl->GetFunction());
+  NODE_SET_PROTOTYPE_METHOD(tpl, "open", Database::Open);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "close", Database::Close);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "put", Database::Put);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "get", Database::Get);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "del", Database::Delete);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "batch", Database::Batch);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "approximateSize", Database::ApproximateSize);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "getProperty", Database::GetProperty);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "iterator", Database::Iterator);
 }
 
-v8::Handle<v8::Value> Database::New (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::New) {
+  NanScope();
 
-  if (args.Length() == 0) {
-    LD_THROW_RETURN(constructor requires at least a location argument)
-  }
+  if (args.Length() == 0)
+    return NanThrowError("constructor requires at least a location argument");
 
-  if (!args[0]->IsString()) {
-    LD_THROW_RETURN(constructor requires a location string argument)
-  }
+  if (!args[0]->IsString())
+    return NanThrowError("constructor requires a location string argument");
 
-  char* location = FromV8String(args[0]);
+  char* location = NanFromV8String(args[0]);
 
   Database* obj = new Database(location);
   obj->Wrap(args.This());
 
-  return args.This();
+  NanReturnValue(args.This());
 }
 
-v8::Handle<v8::Value> Database::NewInstance (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
+  NanScope();
 
   v8::Local<v8::Object> instance;
 
-  if (args.Length() == 0) {
-    instance = constructor->NewInstance(0, NULL);
+  v8::Local<v8::FunctionTemplate> constructorHandle =
+      NanPersistentToLocal(database_constructor);
+
+  if (location.IsEmpty()) {
+    instance = constructorHandle->GetFunction()->NewInstance(0, NULL);
   } else {
-    v8::Handle<v8::Value> argv[] = { args[0] };
-    instance = constructor->NewInstance(1, argv);
+    v8::Handle<v8::Value> argv[] = { location };
+    instance = constructorHandle->GetFunction()->NewInstance(1, argv);
   }
 
-  return scope.Close(instance);
+  return instance;
 }
 
-v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::Open) {
+  NanScope();
 
   LD_METHOD_SETUP_COMMON(open, 0, 1)
 
-  bool createIfMissing = BooleanOptionValueDefTrue(
+  bool createIfMissing = NanBooleanOptionValue(
       optionsObj
-    , option_createIfMissing
+    , NanSymbol("createIfMissing")
+    , true
   );
-  bool errorIfExists = BooleanOptionValue(optionsObj, option_errorIfExists);
-  bool compression = BooleanOptionValue(optionsObj, option_compression);
+  bool errorIfExists =
+      NanBooleanOptionValue(optionsObj, NanSymbol("errorIfExists"));
+  bool compression = NanBooleanOptionValue(optionsObj, NanSymbol("compression"));
 
-  uint32_t cacheSize = UInt32OptionValue(
+  uint32_t cacheSize = NanUInt32OptionValue(
       optionsObj
-    , option_cacheSize
+    , NanSymbol("cacheSize")
     , 8 << 20
   );
-  uint32_t writeBufferSize = UInt32OptionValue(
+  uint32_t writeBufferSize = NanUInt32OptionValue(
       optionsObj
-    , option_writeBufferSize
+    , NanSymbol("writeBufferSize")
     , 4 << 20
   );
-  uint32_t blockSize = UInt32OptionValue(
+  uint32_t blockSize = NanUInt32OptionValue(
       optionsObj
-    , option_blockSize
+    , NanSymbol("blockSize")
     , 4096
   );
-  uint32_t maxOpenFiles = UInt32OptionValue(
+  uint32_t maxOpenFiles = NanUInt32OptionValue(
       optionsObj
-    , option_maxOpenFiles
+    , NanSymbol("maxOpenFiles")
     , 1000
   );
-  uint32_t blockRestartInterval = UInt32OptionValue(
+  uint32_t blockRestartInterval = NanUInt32OptionValue(
       optionsObj
-    , option_blockRestartInterval
+    , NanSymbol("blockRestartInterval")
     , 16
   );
 
   OpenWorker* worker = new OpenWorker(
       database
-    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+    , new NanCallback(callback)
     , createIfMissing
     , errorIfExists
     , compression
@@ -260,20 +232,19 @@ v8::Handle<v8::Value> Database::Open (const v8::Arguments& args) {
     , blockRestartInterval
   );
 
-  AsyncQueueWorker(worker);
+  NanAsyncQueueWorker(worker);
 
-  return v8::Undefined();
+  NanReturnUndefined();
 }
 
-v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::Close) {
+  NanScope();
 
   LD_METHOD_SETUP_COMMON_ONEARG(close)
 
   CloseWorker* worker = new CloseWorker(
       database
-    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+    , new NanCallback(callback)
   );
 
   if (database->iterators.size() > 0) {
@@ -283,7 +254,7 @@ v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
     database->pendingCloseWorker = worker;
 
     for (
-        std::map< uint32_t, v8::Persistent<v8::Object> >::iterator it
+        std::map< uint32_t, leveldown::Iterator * >::iterator it
             = database->iterators.begin()
       ; it != database->iterators.end()
       ; ++it) {
@@ -294,150 +265,132 @@ v8::Handle<v8::Value> Database::Close (const v8::Arguments& args) {
         // function and wait for it to hit ReleaseIterator() where our
         // CloseWorker will be invoked
 
+        /*
+        v8::Local<v8::Object> localHandle = NanPersistentToLocal(it->second);
         leveldown::Iterator* iterator =
-            node::ObjectWrap::Unwrap<leveldown::Iterator>(it->second);
+            node::ObjectWrap::Unwrap<leveldown::Iterator>(localHandle->
+                Get(NanSymbol("iterator")).As<v8::Object>());
+                */
+        leveldown::Iterator *iterator = it->second;
 
         if (!iterator->ended) {
           v8::Local<v8::Function> end =
-              v8::Local<v8::Function>::Cast(it->second->Get(
+              v8::Local<v8::Function>::Cast(NanObjectWrapHandle(iterator)->Get(
                   v8::String::NewSymbol("end")));
           v8::Local<v8::Value> argv[] = {
               v8::FunctionTemplate::New()->GetFunction() // empty callback
           };
           v8::TryCatch try_catch;
-          end->Call(it->second, 1, argv);
+          end->Call(NanObjectWrapHandle(iterator), 1, argv);
           if (try_catch.HasCaught()) {
             node::FatalException(try_catch);
           }
         }
     }
   } else {
-    AsyncQueueWorker(worker);
+    NanAsyncQueueWorker(worker);
   }
 
-  return v8::Undefined();
+  NanReturnUndefined();
 }
 
-v8::Handle<v8::Value> Database::Put (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::Put) {
+  NanScope();
 
   LD_METHOD_SETUP_COMMON(put, 2, 3)
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], value)
 
-  v8::Local<v8::Value> keyBufferV = args[0];
-  v8::Local<v8::Value> valueBufferV = args[1];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBufferV, value)
+  v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
+  v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
+  LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value)
 
-  v8::Persistent<v8::Value> keyBuffer =
-      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBufferV);
-  v8::Persistent<v8::Value> valueBuffer =
-      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE valueBufferV);
-
-  bool sync = BooleanOptionValue(optionsObj, option_sync);
+  bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
 
   WriteWorker* worker  = new WriteWorker(
       database
-    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+    , new NanCallback(callback)
     , key
     , value
     , sync
-    , keyBuffer
-    , valueBuffer
+    , keyHandle
+    , valueHandle
   );
-  AsyncQueueWorker(worker);
+  NanAsyncQueueWorker(worker);
 
-  return v8::Undefined();
+  NanReturnUndefined();
 }
 
-v8::Handle<v8::Value> Database::Get (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::Get) {
+  NanScope();
 
   LD_METHOD_SETUP_COMMON(get, 1, 2)
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
-  v8::Local<v8::Value> keyBufferV = args[0];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
+  v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
 
-  v8::Persistent<v8::Value> keyBuffer = v8::Persistent<v8::Value>::New(
-      LD_NODE_ISOLATE_PRE
-      keyBufferV);
-
-  bool asBuffer = BooleanOptionValueDefTrue(optionsObj, option_asBuffer);
-  bool fillCache = BooleanOptionValueDefTrue(optionsObj, option_fillCache);
+  bool asBuffer = NanBooleanOptionValue(optionsObj, NanSymbol("asBuffer"), true);
+  bool fillCache = NanBooleanOptionValue(optionsObj, NanSymbol("fillCache"), true);
 
   ReadWorker* worker = new ReadWorker(
       database
-    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+    , new NanCallback(callback)
     , key
     , asBuffer
     , fillCache
-    , keyBuffer
+    , keyHandle
   );
-  AsyncQueueWorker(worker);
+  NanAsyncQueueWorker(worker);
 
-  return v8::Undefined();
+  NanReturnUndefined();
 }
 
-v8::Handle<v8::Value> Database::Delete (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::Delete) {
+  NanScope();
 
   LD_METHOD_SETUP_COMMON(del, 1, 2)
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
-  v8::Local<v8::Value> keyBufferV = args[0];
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyBufferV, key)
+  v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
 
-  v8::Persistent<v8::Value> keyBuffer =
-      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBufferV);
-
-  bool sync = BooleanOptionValue(optionsObj, option_sync);
+  bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
 
   DeleteWorker* worker = new DeleteWorker(
       database
-    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+    , new NanCallback(callback)
     , key
     , sync
-    , keyBuffer
+    , keyHandle
   );
-  AsyncQueueWorker(worker);
+  NanAsyncQueueWorker(worker);
 
-  return v8::Undefined();
+  NanReturnUndefined();
 }
 
-/* property key & value strings for elements of the array sent to batch() */
-LD_SYMBOL ( str_key   , key   );
-LD_SYMBOL ( str_value , value );
-LD_SYMBOL ( str_type  , type  );
-LD_SYMBOL ( str_del   , del   );
-LD_SYMBOL ( str_put   , put   );
-
-v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::Batch) {
+  NanScope();
 
   if ((args.Length() == 0 || args.Length() == 1) && !args[0]->IsArray()) {
     v8::Local<v8::Object> optionsObj;
     if (args.Length() > 0 && args[0]->IsObject()) {
-      optionsObj = v8::Local<v8::Object>::Cast(args[0]);
+      optionsObj = args[0].As<v8::Object>();
     }
-    return scope.Close(Batch::NewInstance(args.This(), optionsObj));
+    NanReturnValue(Batch::NewInstance(args.This(), optionsObj));
   }
 
   LD_METHOD_SETUP_COMMON(batch, 1, 2)
 
-  bool sync = BooleanOptionValue(optionsObj, option_sync);
+  bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
-  std::vector< Reference >* references = new std::vector< Reference >;
+  std::vector< Reference *>* references = new std::vector< Reference *>;
   leveldb::WriteBatch* batch = new leveldb::WriteBatch();
   bool hasData = false;
 
@@ -447,24 +400,21 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
 
     v8::Local<v8::Object> obj = v8::Local<v8::Object>::Cast(array->Get(i));
 
-    LD_CB_ERR_IF_NULL_OR_UNDEFINED(obj->Get(str_type), type)
+    LD_CB_ERR_IF_NULL_OR_UNDEFINED(obj->Get(NanSymbol("type")), type)
 
-    v8::Local<v8::Value> keyBuffer = obj->Get(str_key);
+    v8::Local<v8::Value> keyBuffer = obj->Get(NanSymbol("key"));
     LD_CB_ERR_IF_NULL_OR_UNDEFINED(keyBuffer, key)
 
-    if (obj->Get(str_type)->StrictEquals(str_del)) {
+    if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("del"))) {
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
       batch->Delete(key);
       if (!hasData)
         hasData = true;
 
-      references->push_back(Reference(
-          v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBuffer)
-        , key
-      ));
-    } else if (obj->Get(str_type)->StrictEquals(str_put)) {
-      v8::Local<v8::Value> valueBuffer = obj->Get(str_value);
+      references->push_back(new Reference(keyBuffer, key));
+    } else if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("put"))) {
+      v8::Local<v8::Value> valueBuffer = obj->Get(NanSymbol("value"));
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
 
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
@@ -474,22 +424,16 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
       if (!hasData)
         hasData = true;
 
-      references->push_back(Reference(
-          v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBuffer)
-        , key
-      ));
-      references->push_back(Reference(
-          v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE valueBuffer)
-        , value
-      ));
+      references->push_back(new Reference(keyBuffer, key));
+      references->push_back(new Reference(valueBuffer, value));
     }
   }
 
   // don't allow an empty batch through
   if (hasData) {
-    AsyncQueueWorker(new BatchWorker(
+    NanAsyncQueueWorker(new BatchWorker(
         database
-      , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+      , new NanCallback(callback)
       , batch
       , references
       , sync
@@ -499,24 +443,23 @@ v8::Handle<v8::Value> Database::Batch (const v8::Arguments& args) {
     LD_RUN_CALLBACK(callback, NULL, 0);
   }
 
-  return v8::Undefined();
+  NanReturnUndefined();
 }
 
-v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::ApproximateSize) {
+  NanScope();
 
-  v8::Local<v8::Value> startBufferV = args[0];
-  v8::Local<v8::Value> endBufferV = args[1];
+  v8::Local<v8::Object> startHandle = args[0].As<v8::Object>();
+  v8::Local<v8::Object> endHandle = args[1].As<v8::Object>();
 
-  if (startBufferV->IsNull()
-      || startBufferV->IsUndefined()
-      || startBufferV->IsFunction() // callback in pos 0?
-      || endBufferV->IsNull()
-      || endBufferV->IsUndefined()
-      || endBufferV->IsFunction() // callback in pos 1?
+  if (startHandle->IsNull()
+      || startHandle->IsUndefined()
+      || startHandle->IsFunction() // callback in pos 0?
+      || endHandle->IsNull()
+      || endHandle->IsUndefined()
+      || endHandle->IsFunction() // callback in pos 1?
       ) {
-    LD_THROW_RETURN(approximateSize() requires valid `start`, `end` and `callback` arguments)
+    return NanThrowError("approximateSize() requires valid `start`, `end` and `callback` arguments");
   }
 
   LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
@@ -524,41 +467,34 @@ v8::Handle<v8::Value> Database::ApproximateSize (const v8::Arguments& args) {
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], start)
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], end)
 
-  LD_STRING_OR_BUFFER_TO_SLICE(start, startBufferV, start)
-  LD_STRING_OR_BUFFER_TO_SLICE(end, endBufferV, end)
-
-  v8::Persistent<v8::Value> startBuffer =
-      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE startBufferV);
-  v8::Persistent<v8::Value> endBuffer =
-      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE endBufferV);
+  LD_STRING_OR_BUFFER_TO_SLICE(start, startHandle, start)
+  LD_STRING_OR_BUFFER_TO_SLICE(end, endHandle, end)
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(
       database
-    , v8::Persistent<v8::Function>::New(LD_NODE_ISOLATE_PRE callback)
+    , new NanCallback(callback)
     , start
     , end
-    , startBuffer
-    , endBuffer
+    , startHandle
+    , endHandle
   );
-  AsyncQueueWorker(worker);
+  NanAsyncQueueWorker(worker);
 
-  return v8::Undefined();
+  NanReturnUndefined();
 }
 
-v8::Handle<v8::Value> Database::GetProperty (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::GetProperty) {
+  NanScope();
 
-  v8::Local<v8::Value> propertyV = args[0];
+  v8::Local<v8::Value> propertyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Function> callback; // for LD_CB_ERR_IF_NULL_OR_UNDEFINED
 
-  if (!propertyV->IsString()) {
-    LD_THROW_RETURN(getProperty() requires a valid `property` argument)
-  }
+  if (!propertyHandle->IsString())
+    return NanThrowError("getProperty() requires a valid `property` argument");
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(propertyV, property)
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(propertyHandle, property)
 
-  LD_STRING_OR_BUFFER_TO_SLICE(property, propertyV, property)
+  LD_STRING_OR_BUFFER_TO_SLICE(property, propertyHandle, property)
 
   leveldown::Database* database =
       node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
@@ -570,12 +506,11 @@ v8::Handle<v8::Value> Database::GetProperty (const v8::Arguments& args) {
   delete value;
   delete[] property.data();
 
-  return returnValue;
+  NanReturnValue(returnValue);
 }
 
-v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Database::Iterator) {
+  NanScope();
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args.This());
 
@@ -588,7 +523,7 @@ v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
   // easily store & lookup on our `iterators` map
   uint32_t id = database->currentIteratorId++;
   v8::TryCatch try_catch;
-  v8::Handle<v8::Object> iterator = Iterator::NewInstance(
+  v8::Local<v8::Object> iteratorHandle = Iterator::NewInstance(
       args.This()
     , v8::Number::New(id)
     , optionsObj
@@ -597,12 +532,22 @@ v8::Handle<v8::Value> Database::Iterator (const v8::Arguments& args) {
     node::FatalException(try_catch);
   }
 
-  // register our iterator
-  database->iterators[id] =
-      v8::Persistent<v8::Object>::New(LD_NODE_ISOLATE_PRE
-          node::ObjectWrap::Unwrap<leveldown::Iterator>(iterator)->handle_);
+  leveldown::Iterator *iterator =
+      node::ObjectWrap::Unwrap<leveldown::Iterator>(iteratorHandle);
 
-  return scope.Close(iterator);
+  database->iterators[id] = iterator;
+
+  // register our iterator
+  /*
+  v8::Local<v8::Object> obj = v8::Object::New();
+  obj->Set(NanSymbol("iterator"), iteratorHandle);
+  v8::Persistent<v8::Object> persistent;
+  persistent.Reset(nan_isolate, obj);
+  database->iterators.insert(std::pair< uint32_t, v8::Persistent<v8::Object> & >
+      (id, persistent));
+  */
+
+  NanReturnValue(iteratorHandle);
 }
 
 

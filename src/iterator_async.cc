@@ -17,7 +17,7 @@ namespace leveldown {
 
 NextWorker::NextWorker (
     Iterator* iterator
-  , v8::Persistent<v8::Function> callback
+  , NanCallback *callback
   , void (*localCallback)(Iterator*)
 ) : AsyncWorker(NULL, callback)
   , iterator(iterator)
@@ -29,23 +29,22 @@ NextWorker::~NextWorker () {}
 void NextWorker::Execute () {
   ok = iterator->IteratorNext(key, value);
   if (!ok)
-    status = iterator->IteratorStatus();
+    SetStatus(iterator->IteratorStatus());
 }
 
 void NextWorker::HandleOKCallback () {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+  NanScope();
 
   v8::Local<v8::Value> returnKey;
   if (iterator->keyAsBuffer) {
-    returnKey = LD_NEW_BUFFER_HANDLE((char*)key.data(), key.size())
+    returnKey = NanNewBufferHandle((char*)key.data(), key.size());
   } else {
     returnKey = v8::String::New((char*)key.data(), key.size());
   }
 
   v8::Local<v8::Value> returnValue;
   if (iterator->valueAsBuffer) {
-    returnValue = LD_NEW_BUFFER_HANDLE((char*)value.data(), value.size());
+    returnValue = NanNewBufferHandle((char*)value.data(), value.size());
   } else {
     returnValue = v8::String::New((char*)value.data(), value.size());
   }
@@ -59,9 +58,9 @@ void NextWorker::HandleOKCallback () {
       , returnKey
       , returnValue
     };
-    LD_RUN_CALLBACK(callback, argv, 3);
+    callback->Run(3, argv);
   } else {
-    LD_RUN_CALLBACK(callback, NULL, 0);
+    callback->Run(0, NULL);
   }
 }
 
@@ -69,7 +68,7 @@ void NextWorker::HandleOKCallback () {
 
 EndWorker::EndWorker (
     Iterator* iterator
-  , v8::Persistent<v8::Function> callback
+  , NanCallback *callback
 ) : AsyncWorker(NULL, callback)
   , iterator(iterator)
 {};
@@ -82,7 +81,7 @@ void EndWorker::Execute () {
 
 void EndWorker::HandleOKCallback () {
   iterator->Release();
-  LD_RUN_CALLBACK(callback, NULL, 0);
+  callback->Run(0, NULL);
 }
 
 } // namespace leveldown

@@ -8,30 +8,25 @@
 
 #include <node.h>
 
+#include "nan.h"
 #include "leveldown.h"
 #include "database.h"
 #include "async.h"
 
 namespace leveldown {
 
-LD_SYMBOL ( option_start         , start         );
-LD_SYMBOL ( option_end           , end           );
-LD_SYMBOL ( option_limit         , limit         );
-LD_SYMBOL ( option_reverse       , reverse       );
-LD_SYMBOL ( option_keys          , keys          );
-LD_SYMBOL ( option_values        , values        );
-LD_SYMBOL ( option_keyAsBuffer   , keyAsBuffer   );
-LD_SYMBOL ( option_valueAsBuffer , valueAsBuffer );
+class Database;
+class AsyncWorker;
 
-v8::Handle<v8::Value> CreateIterator (const v8::Arguments& args);
+v8::Local<v8::Value> CreateIterator (const v8::Arguments& args);
 
 class Iterator : public node::ObjectWrap {
 public:
   static void Init ();
-  static v8::Handle<v8::Object> NewInstance (
-      v8::Handle<v8::Object> database
-    , v8::Handle<v8::Number> id
-    , v8::Handle<v8::Object> optionsObj
+  static v8::Local<v8::Object> NewInstance (
+      v8::Local<v8::Object> database
+    , v8::Local<v8::Number> id
+    , v8::Local<v8::Object> optionsObj
   );
 
   Iterator (
@@ -46,7 +41,7 @@ public:
     , bool fillCache
     , bool keyAsBuffer
     , bool valueAsBuffer
-    , v8::Persistent<v8::Value> startPtr
+    , v8::Local<v8::Object> &startHandle
   );
 
   ~Iterator ();
@@ -77,15 +72,13 @@ public:
   AsyncWorker* endWorker;
 
 private:
-  v8::Persistent<v8::Value> startPtr;
+  v8::Persistent<v8::Object> persistentHandle;
 
   bool GetIterator ();
 
-  static v8::Persistent<v8::Function> constructor;
-
-  LD_V8_METHOD( New  )
-  LD_V8_METHOD( Next )
-  LD_V8_METHOD( End  )
+  static NAN_METHOD(New);
+  static NAN_METHOD(Next);
+  static NAN_METHOD(End);
 };
 
 } // namespace leveldown

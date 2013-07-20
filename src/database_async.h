@@ -18,8 +18,8 @@ namespace leveldown {
 class OpenWorker : public AsyncWorker {
 public:
   OpenWorker (
-      Database* database
-    , v8::Persistent<v8::Function> callback
+      Database *database
+    , NanCallback *callback
     , bool createIfMissing
     , bool errorIfExists
     , bool compression
@@ -40,8 +40,8 @@ private:
 class CloseWorker : public AsyncWorker {
 public:
   CloseWorker (
-      Database* database
-    , v8::Persistent<v8::Function> callback
+      Database *database
+    , NanCallback *callback
   );
 
   virtual ~CloseWorker ();
@@ -52,10 +52,10 @@ public:
 class IOWorker    : public AsyncWorker {
 public:
   IOWorker (
-      Database* database
-    , v8::Persistent<v8::Function> callback
+      Database *database
+    , NanCallback *callback
     , leveldb::Slice key
-    , v8::Persistent<v8::Value> keyPtr
+    , v8::Local<v8::Object> &keyHandle
   );
 
   virtual ~IOWorker ();
@@ -63,18 +63,17 @@ public:
 
 protected:
   leveldb::Slice key;
-  v8::Persistent<v8::Value> keyPtr;
 };
 
 class ReadWorker : public IOWorker {
 public:
   ReadWorker (
-      Database* database
-    , v8::Persistent<v8::Function> callback
+      Database *database
+    , NanCallback *callback
     , leveldb::Slice key
     , bool asBuffer
     , bool fillCache
-    , v8::Persistent<v8::Value> keyPtr
+    , v8::Local<v8::Object> &keyHandle
   );
 
   virtual ~ReadWorker ();
@@ -90,11 +89,11 @@ private:
 class DeleteWorker : public IOWorker {
 public:
   DeleteWorker (
-      Database* database
-    , v8::Persistent<v8::Function> callback
+      Database *database
+    , NanCallback *callback
     , leveldb::Slice key
     , bool sync
-    , v8::Persistent<v8::Value> keyPtr
+    , v8::Local<v8::Object> &keyHandle
   );
 
   virtual ~DeleteWorker ();
@@ -107,13 +106,13 @@ protected:
 class WriteWorker : public DeleteWorker {
 public:
   WriteWorker (
-      Database* database
-    , v8::Persistent<v8::Function> callback
+      Database *database
+    , NanCallback *callback
     , leveldb::Slice key
     , leveldb::Slice value
     , bool sync
-    , v8::Persistent<v8::Value> keyPtr
-    , v8::Persistent<v8::Value> valuePtr
+    , v8::Local<v8::Object> &keyHandle
+    , v8::Local<v8::Object> &valueHandle
   );
 
   virtual ~WriteWorker ();
@@ -122,16 +121,15 @@ public:
 
 private:
   leveldb::Slice value;
-  v8::Persistent<v8::Value> valuePtr;
 };
 
 class BatchWorker : public AsyncWorker {
 public:
   BatchWorker (
-      Database* database
-    , v8::Persistent<v8::Function> callback
+      Database *database
+    , NanCallback *callback
     , leveldb::WriteBatch* batch
-    , std::vector<Reference>* references
+    , std::vector<Reference *>* references
     , bool sync
   );
 
@@ -141,18 +139,18 @@ public:
 private:
   leveldb::WriteOptions* options;
   leveldb::WriteBatch* batch;
-  std::vector<Reference>* references;
+  std::vector<Reference *>* references;
 };
 
 class ApproximateSizeWorker : public AsyncWorker {
 public:
   ApproximateSizeWorker (
-      Database* database
-    , v8::Persistent<v8::Function> callback
+      Database *database
+    , NanCallback *callback
     , leveldb::Slice start
     , leveldb::Slice end
-    , v8::Persistent<v8::Value> startPtr
-    , v8::Persistent<v8::Value> endPtr
+    , v8::Local<v8::Object> &startHandle
+    , v8::Local<v8::Object> &endHandle
   );
 
   virtual ~ApproximateSizeWorker ();
@@ -162,8 +160,6 @@ public:
 
   private:
     leveldb::Range range;
-    v8::Persistent<v8::Value> startPtr;
-    v8::Persistent<v8::Value> endPtr;
     uint64_t size;
 };
 

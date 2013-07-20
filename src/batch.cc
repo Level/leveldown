@@ -1,19 +1,21 @@
 #include <node.h>
 #include <node_buffer.h>
 
+
+#include "nan.h"
 #include "database.h"
 #include "batch_async.h"
 #include "batch.h"
 
 namespace leveldown {
 
-v8::Persistent<v8::Function> Batch::constructor;
+static v8::Persistent<v8::FunctionTemplate> batch_constructor;
 
 Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
   options = new leveldb::WriteOptions();
   options->sync = sync;
   batch = new leveldb::WriteBatch();
-  references = new std::vector<Reference>;
+  references = new std::vector<Reference *>;
   hasData = false;
   written = false;
 }
@@ -29,34 +31,18 @@ leveldb::Status Batch::Write () {
 }
 
 void Batch::Init () {
-  LD_NODE_ISOLATE_DECL
   v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(Batch::New);
-  tpl->SetClassName(v8::String::NewSymbol("Batch"));
+  NanAssignPersistent(v8::FunctionTemplate, batch_constructor, tpl);
+  tpl->SetClassName(NanSymbol("Batch"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("put")
-    , v8::FunctionTemplate::New(Batch::Put)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("del")
-    , v8::FunctionTemplate::New(Batch::Del)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("clear")
-    , v8::FunctionTemplate::New(Batch::Clear)->GetFunction()
-  );
-  tpl->PrototypeTemplate()->Set(
-      v8::String::NewSymbol("write")
-    , v8::FunctionTemplate::New(Batch::Write)->GetFunction()
-  );
-  constructor = v8::Persistent<v8::Function>::New(
-      LD_NODE_ISOLATE_PRE
-      tpl->GetFunction());
+  NODE_SET_PROTOTYPE_METHOD(tpl, "put", Batch::Put);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "del", Batch::Del);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "clear", Batch::Clear);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "write", Batch::Write);
 }
 
-v8::Handle<v8::Value> Batch::New (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Batch::New) {
+  NanScope();
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
   v8::Local<v8::Object> optionsObj;
@@ -65,12 +51,12 @@ v8::Handle<v8::Value> Batch::New (const v8::Arguments& args) {
     optionsObj = v8::Local<v8::Object>::Cast(args[1]);
   }
 
-  bool sync = BooleanOptionValue(optionsObj, option_sync);
+  bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
 
   Batch* batch = new Batch(database, sync);
   batch->Wrap(args.This());
 
-  return args.This();
+  NanReturnValue(args.This());
 }
 
 v8::Handle<v8::Value> Batch::NewInstance (
@@ -78,31 +64,31 @@ v8::Handle<v8::Value> Batch::NewInstance (
       , v8::Handle<v8::Object> optionsObj
     ) {
 
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+  NanScope();
 
   v8::Local<v8::Object> instance;
 
+  v8::Local<v8::FunctionTemplate> constructorHandle =
+      NanPersistentToLocal(batch_constructor);
+
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[1] = { database };
-    instance = constructor->NewInstance(1, argv);
+    instance = constructorHandle->GetFunction()->NewInstance(1, argv);
   } else {
     v8::Handle<v8::Value> argv[2] = { database, optionsObj };
-    instance = constructor->NewInstance(2, argv);
+    instance = constructorHandle->GetFunction()->NewInstance(2, argv);
   }
 
   return scope.Close(instance);
 }
 
-v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Batch::Put) {
+  NanScope();
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  if (batch->written) {
-    LD_THROW_RETURN(write() already called on this batch)
-  }
+  if (batch->written)
+    return NanThrowError("write() already called on this batch");
 
   v8::Handle<v8::Function> callback; // purely for the error macros
 
@@ -114,31 +100,23 @@ v8::Handle<v8::Value> Batch::Put (const v8::Arguments& args) {
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
   LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
-  batch->references->push_back(Reference(
-      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBuffer)
-    , key
-  ));
-  batch->references->push_back(Reference(
-      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE valueBuffer)
-    , value
-  ));
+  batch->references->push_back(new Reference(keyBuffer, key));
+  batch->references->push_back(new Reference(valueBuffer, value));
 
   batch->batch->Put(key, value);
   if (!batch->hasData)
     batch->hasData = true;
 
-  return scope.Close(args.Holder());
+  NanReturnValue(args.Holder());
 }
 
-v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Batch::Del) {
+  NanScope();
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  if (batch->written) {
-    LD_THROW_RETURN(write() already called on this batch)
-  }
+  if (batch->written)
+    return NanThrowError("write() already called on this batch");
 
   v8::Handle<v8::Function> callback; // purely for the error macros
 
@@ -147,62 +125,52 @@ v8::Handle<v8::Value> Batch::Del (const v8::Arguments& args) {
   v8::Local<v8::Value> keyBuffer = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
-  batch->references->push_back(Reference(
-      v8::Persistent<v8::Value>::New(LD_NODE_ISOLATE_PRE keyBuffer)
-    , key
-  ));
+  batch->references->push_back(new Reference(keyBuffer, key));
 
   batch->batch->Delete(key);
   if (!batch->hasData)
     batch->hasData = true;
 
-  return scope.Close(args.Holder());
+  NanReturnValue(args.Holder());
 }
 
-v8::Handle<v8::Value> Batch::Clear (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Batch::Clear) {
+  NanScope();
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  if (batch->written) {
-    LD_THROW_RETURN(write() already called on this batch)
-  }
+  if (batch->written)
+    return NanThrowError("write() already called on this batch");
 
   batch->batch->Clear();
   batch->hasData = false;
 
-  return scope.Close(args.Holder());
+  NanReturnValue(args.Holder());
 }
 
-v8::Handle<v8::Value> Batch::Write (const v8::Arguments& args) {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+NAN_METHOD(Batch::Write) {
+  NanScope();
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  if (batch->written) {
-    LD_THROW_RETURN(write() already called on this batch)
-  }
+  if (batch->written)
+    return NanThrowError("write() already called on this batch");
   
-  if (args.Length() == 0) {
-    LD_THROW_RETURN(write() requires a callback argument)
-  }
+  if (args.Length() == 0)
+    return NanThrowError("write() requires a callback argument");
 
   batch->written = true;
 
   if (batch->hasData) {
-    v8::Persistent<v8::Function> callback = v8::Persistent<v8::Function>::New(
-        LD_NODE_ISOLATE_PRE
-        v8::Local<v8::Function>::Cast(args[0]));
-
+    NanCallback *callback =
+        new NanCallback(v8::Local<v8::Function>::Cast(args[0]));
     BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);
-    AsyncQueueWorker(worker);
+    NanAsyncQueueWorker(worker);
   } else {
     LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(args[0]), NULL, 0);
   }
 
-  return v8::Undefined();
+  NanReturnUndefined();
 }
 
 } // namespace leveldown

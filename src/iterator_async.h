@@ -8,6 +8,7 @@
 
 #include <node.h>
 
+#include "nan.h"
 #include "async.h"
 #include "iterator.h"
 
@@ -17,7 +18,7 @@ class NextWorker : public AsyncWorker {
 public:
   NextWorker (
       Iterator* iterator
-    , v8::Persistent<v8::Function> callback
+    , NanCallback *callback
     , void (*localCallback)(Iterator*)
   );
 
@@ -37,7 +38,7 @@ class EndWorker : public AsyncWorker {
 public:
   EndWorker (
       Iterator* iterator
-    , v8::Persistent<v8::Function> callback
+    , NanCallback *callback
   );
 
   virtual ~EndWorker ();
