@@ -405,7 +405,6 @@ NAN_METHOD(Database::Batch) {
       references->push_back(new Reference(keyBuffer, key));
     } else if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("put"))) {
       v8::Local<v8::Value> valueBuffer = obj->Get(NanSymbol("value"));
-      LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
 
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
       LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
@@ -453,9 +452,6 @@ NAN_METHOD(Database::ApproximateSize) {
   }
 
   LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
-
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], start)
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], end)
 
   LD_STRING_OR_BUFFER_TO_SLICE(start, startHandle, start)
   LD_STRING_OR_BUFFER_TO_SLICE(end, endHandle, end)
