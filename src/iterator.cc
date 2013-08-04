@@ -43,7 +43,7 @@ Iterator::Iterator (
   v8::Local<v8::Object> obj = v8::Object::New();
   if (!startHandle.IsEmpty())
     obj->Set(NanSymbol("start"), startHandle);
-  NanAssignPersistent(v8::Object, persistentHandle, obj)
+  NanAssignPersistent(v8::Object, persistentHandle, obj);
 
   options    = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
@@ -197,7 +197,7 @@ NAN_METHOD(Iterator::End) {
 void Iterator::Init () {
   v8::Local<v8::FunctionTemplate> tpl =
       v8::FunctionTemplate::New(Iterator::New);
-  NanAssignPersistent(v8::FunctionTemplate, iterator_constructor, tpl)
+  NanAssignPersistent(v8::FunctionTemplate, iterator_constructor, tpl);
   tpl->SetClassName(NanSymbol("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "next", Iterator::Next);
