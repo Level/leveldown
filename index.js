@@ -7,15 +7,12 @@ var binding = require('bindings')('leveldown.node').leveldown
 
 // constructor, passes through the 'location' argument to the AbstractLevelDOWN constructor
   , LevelDOWN = function (location) {
+      if (!(this instanceof LevelDOWN))
+        return new LevelDOWN(location)
+
       AbstractLevelDOWN.call(this, location)
 
       this._binding = binding(location)
-
-      // this._approximateSize = this._binding.approximateSize
-    }
-
-  , factory = function(location) {
-      return new LevelDOWN(location)
     }
 
   , _approximateSize = function(start, end, callback) {
@@ -104,7 +101,7 @@ LevelDOWN.prototype._iterator = _iterator
 
 LevelDOWN.prototype.getProperty = getProperty
 
-factory.destroy = destroy
-factory.repair = repair
+LevelDOWN.destroy = destroy
+LevelDOWN.repair = repair
 
-module.exports = factory
+module.exports = LevelDOWN
