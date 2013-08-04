@@ -51,7 +51,43 @@ var binding = require('bindings')('leveldown.node').leveldown
     }
 
   , getProperty = function(property) {
+      if (typeof(property) !== 'string')
+        throw new Error('getProperty() requires a valid `property` argument')
+
       return this._binding.getProperty(property)
+    }
+
+  , destroy = function(location, callback) {
+      if (arguments.length < 2) {
+        throw new Error("destroy() requires `location` and `callback` arguments");
+      }
+
+      if (typeof(location) !== 'string') {
+        throw new Error("destroy() requires a location string argument");
+      }
+
+      if (typeof(callback) !== 'function') {
+        throw new Error("destroy() requires a callback function argument");
+      }
+
+      binding.destroy(location, callback)
+    }
+
+
+  , repair = function(location, callback) {
+      if (arguments.length < 2) {
+        throw new Error("repair() requires `location` and `callback` arguments");
+      }
+
+      if (typeof(location) !== 'string') {
+        throw new Error("repair() requires a location string argument");
+      }
+
+      if (typeof(callback) !== 'function') {
+        throw new Error("repair() requires a callback function argument");
+      }
+
+      binding.repair(location, callback)
     }
 
 // our new prototype inherits from AbstractLevelDOWN
@@ -68,7 +104,7 @@ LevelDOWN.prototype._iterator = _iterator
 
 LevelDOWN.prototype.getProperty = getProperty
 
-factory.destroy = binding.destroy
-factory.repair = binding.repair
+factory.destroy = destroy
+factory.repair = repair
 
 module.exports = factory
