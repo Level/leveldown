@@ -299,9 +299,6 @@ NAN_METHOD(Database::Put) {
 
   LD_METHOD_SETUP_COMMON(put, 2, 3)
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], value)
-
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
@@ -328,8 +325,6 @@ NAN_METHOD(Database::Get) {
 
   LD_METHOD_SETUP_COMMON(get, 1, 2)
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
-
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
 
@@ -353,8 +348,6 @@ NAN_METHOD(Database::Delete) {
   NanScope();
 
   LD_METHOD_SETUP_COMMON(del, 1, 2)
-
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
@@ -400,10 +393,7 @@ NAN_METHOD(Database::Batch) {
 
     v8::Local<v8::Object> obj = v8::Local<v8::Object>::Cast(array->Get(i));
 
-    LD_CB_ERR_IF_NULL_OR_UNDEFINED(obj->Get(NanSymbol("type")), type)
-
     v8::Local<v8::Value> keyBuffer = obj->Get(NanSymbol("key"));
-    LD_CB_ERR_IF_NULL_OR_UNDEFINED(keyBuffer, key)
 
     if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("del"))) {
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
