@@ -147,12 +147,6 @@ void Database::Init () {
 NAN_METHOD(Database::New) {
   NanScope();
 
-  if (args.Length() == 0)
-    return NanThrowError("constructor requires at least a location argument");
-
-  if (!args[0]->IsString())
-    return NanThrowError("constructor requires a location string argument");
-
   char* location = NanFromV8String(args[0].As<v8::Object>());
 
   Database* obj = new Database(location);
@@ -440,16 +434,6 @@ NAN_METHOD(Database::ApproximateSize) {
 
   v8::Local<v8::Object> startHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> endHandle = args[1].As<v8::Object>();
-
-  if (startHandle->IsNull()
-      || startHandle->IsUndefined()
-      || startHandle->IsFunction() // callback in pos 0?
-      || endHandle->IsNull()
-      || endHandle->IsUndefined()
-      || endHandle->IsFunction() // callback in pos 1?
-      ) {
-    return NanThrowError("approximateSize() requires valid `start`, `end` and `callback` arguments");
-  }
 
   LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
 
