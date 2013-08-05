@@ -44,27 +44,12 @@ leveldb::Status Database::OpenDatabase (
   return leveldb::DB::Open(*options, location, &db);
 }
 
-leveldb::Status Database::PutToDatabase (
-        leveldb::WriteOptions* options
-      , leveldb::Slice key
-      , leveldb::Slice value
-    ) {
-  return db->Put(*options, key, value);
-}
-
 leveldb::Status Database::GetFromDatabase (
         leveldb::ReadOptions* options
       , leveldb::Slice key
       , std::string& value
     ) {
   return db->Get(*options, key, &value);
-}
-
-leveldb::Status Database::DeleteFromDatabase (
-        leveldb::WriteOptions* options
-      , leveldb::Slice key
-    ) {
-  return db->Delete(*options, key);
 }
 
 leveldb::Status Database::WriteBatchToDatabase (
@@ -135,9 +120,7 @@ void Database::Init () {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "open", Database::Open);
   NODE_SET_PROTOTYPE_METHOD(tpl, "close", Database::Close);
-  NODE_SET_PROTOTYPE_METHOD(tpl, "put", Database::Put);
   NODE_SET_PROTOTYPE_METHOD(tpl, "get", Database::Get);
-  NODE_SET_PROTOTYPE_METHOD(tpl, "del", Database::Delete);
   NODE_SET_PROTOTYPE_METHOD(tpl, "batch", Database::Batch);
   NODE_SET_PROTOTYPE_METHOD(tpl, "approximateSize", Database::ApproximateSize);
   NODE_SET_PROTOTYPE_METHOD(tpl, "getProperty", Database::GetProperty);
@@ -288,32 +271,6 @@ NAN_METHOD(Database::Close) {
   NanReturnUndefined();
 }
 
-NAN_METHOD(Database::Put) {
-  NanScope();
-
-  LD_METHOD_SETUP_COMMON(put, 2, 3)
-
-  v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
-  v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value)
-
-  bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
-
-  WriteWorker* worker  = new WriteWorker(
-      database
-    , new NanCallback(callback)
-    , key
-    , value
-    , sync
-    , keyHandle
-    , valueHandle
-  );
-  NanAsyncQueueWorker(worker);
-
-  NanReturnUndefined();
-}
-
 NAN_METHOD(Database::Get) {
   NanScope();
 
@@ -331,28 +288,6 @@ NAN_METHOD(Database::Get) {
     , key
     , asBuffer
     , fillCache
-    , keyHandle
-  );
-  NanAsyncQueueWorker(worker);
-
-  NanReturnUndefined();
-}
-
-NAN_METHOD(Database::Delete) {
-  NanScope();
-
-  LD_METHOD_SETUP_COMMON(del, 1, 2)
-
-  v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
-
-  bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
-
-  DeleteWorker* worker = new DeleteWorker(
-      database
-    , new NanCallback(callback)
-    , key
-    , sync
     , keyHandle
   );
   NanAsyncQueueWorker(worker);
