@@ -22,7 +22,7 @@
   , "main"            : "index.js"
   , "dependencies"    : {
         "bindings"        : "~1.1.0"
-      , "abstract-leveldown"  : "~0.8.0"
+      , "abstract-leveldown"  : "git://github.com/rvagg/node-abstract-leveldown.git#extend-chained"
     }
   , "devDependencies" : {
         "tap"                 : "~0.4.1"

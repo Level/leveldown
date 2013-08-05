@@ -5,6 +5,8 @@ var binding = require('bindings')('leveldown.node').leveldown
 
   , AbstractLevelDOWN = require('abstract-leveldown').AbstractLevelDOWN
 
+  , ChainedBatch = require('./lib/chained-batch')
+
 // constructor, passes through the 'location' argument to the AbstractLevelDOWN constructor
   , LevelDOWN = function (location) {
       if (!(this instanceof LevelDOWN))
@@ -32,7 +34,7 @@ var binding = require('bindings')('leveldown.node').leveldown
     }
 
   , _chainedBatch = function() {
-      return this._binding.batch()
+      return new ChainedBatch(this)
     }
 
   , _get = function(key, options, callback) {

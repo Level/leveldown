@@ -17,7 +17,6 @@ Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
   batch = new leveldb::WriteBatch();
   references = new std::vector<Reference *>;
   hasData = false;
-  written = false;
 }
 
 Batch::~Batch () {
@@ -87,13 +86,7 @@ NAN_METHOD(Batch::Put) {
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  if (batch->written)
-    return NanThrowError("write() already called on this batch");
-
   v8::Handle<v8::Function> callback; // purely for the error macros
-
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], value)
 
   v8::Local<v8::Value> keyBuffer = args[0];
   v8::Local<v8::Value> valueBuffer = args[1];
@@ -115,12 +108,7 @@ NAN_METHOD(Batch::Del) {
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  if (batch->written)
-    return NanThrowError("write() already called on this batch");
-
   v8::Handle<v8::Function> callback; // purely for the error macros
-
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
   v8::Local<v8::Value> keyBuffer = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
@@ -139,9 +127,6 @@ NAN_METHOD(Batch::Clear) {
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
-  if (batch->written)
-    return NanThrowError("write() already called on this batch");
-
   batch->batch->Clear();
   batch->hasData = false;
 
@@ -152,14 +137,6 @@ NAN_METHOD(Batch::Write) {
   NanScope();
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
-
-  if (batch->written)
-    return NanThrowError("write() already called on this batch");
-  
-  if (args.Length() == 0)
-    return NanThrowError("write() requires a callback argument");
-
-  batch->written = true;
 
   if (batch->hasData) {
     NanCallback *callback =
