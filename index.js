@@ -31,6 +31,10 @@ var binding = require('bindings')('leveldown.node').leveldown
       this._binding.batch(array, options, callback)
     }
 
+  , _chainedBatch = function() {
+      return this._binding.batch()
+    }
+
   , _get = function(key, options, callback) {
       this._binding.get(key, options, callback)
     }
@@ -88,6 +92,7 @@ LevelDOWN.prototype._open = _open
 LevelDOWN.prototype._close = _close
 LevelDOWN.prototype._approximateSize = _approximateSize
 LevelDOWN.prototype._batch = _batch
+LevelDOWN.prototype._chainedBatch = _chainedBatch
 LevelDOWN.prototype._get = _get
 LevelDOWN.prototype._put = _put
 LevelDOWN.prototype._del = _del
