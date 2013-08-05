@@ -459,8 +459,6 @@ NAN_METHOD(Database::GetProperty) {
   v8::Local<v8::Value> propertyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Function> callback; // for LD_CB_ERR_IF_NULL_OR_UNDEFINED
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(propertyHandle, property)
-
   LD_STRING_OR_BUFFER_TO_SLICE(property, propertyHandle, property)
 
   leveldown::Database* database =
