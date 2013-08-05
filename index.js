@@ -55,34 +55,28 @@ var binding = require('bindings')('leveldown.node').leveldown
     }
 
   , destroy = function(location, callback) {
-      if (arguments.length < 2) {
+      if (arguments.length < 2)
         throw new Error("destroy() requires `location` and `callback` arguments");
-      }
 
-      if (typeof(location) !== 'string') {
+      if (typeof(location) !== 'string')
         throw new Error("destroy() requires a location string argument");
-      }
 
-      if (typeof(callback) !== 'function') {
+      if (typeof(callback) !== 'function')
         throw new Error("destroy() requires a callback function argument");
-      }
 
       binding.destroy(location, callback)
     }
 
 
   , repair = function(location, callback) {
-      if (arguments.length < 2) {
+      if (arguments.length < 2)
         throw new Error("repair() requires `location` and `callback` arguments");
-      }
 
-      if (typeof(location) !== 'string') {
+      if (typeof(location) !== 'string')
         throw new Error("repair() requires a location string argument");
-      }
 
-      if (typeof(callback) !== 'function') {
+      if (typeof(callback) !== 'function')
         throw new Error("repair() requires a callback function argument");
-      }
 
       binding.repair(location, callback)
     }
