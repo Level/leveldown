@@ -16,8 +16,8 @@ namespace leveldown {
 /** OPEN WORKER **/
 
 OpenWorker::OpenWorker (
-    Database* database
-  , v8::Persistent<v8::Function> callback
+    Database *database
+  , NanCallback *callback
   , bool createIfMissing
   , bool errorIfExists
   , bool compression
@@ -46,14 +46,14 @@ OpenWorker::~OpenWorker () {
 }
 
 void OpenWorker::Execute () {
-  status = database->OpenDatabase(options, database->Location());
+  SetStatus(database->OpenDatabase(options, database->Location()));
 }
 
 /** CLOSE WORKER **/
 
 CloseWorker::CloseWorker (
-    Database* database
-  , v8::Persistent<v8::Function> callback
+    Database *database
+  , NanCallback *callback
 ) : AsyncWorker(database, callback)
 {};
 
@@ -64,46 +64,46 @@ void CloseWorker::Execute () {
 }
 
 void CloseWorker::WorkComplete () {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+  NanScope();
 
   HandleOKCallback();
-  callback.Dispose(LD_NODE_ISOLATE);
 }
 
 /** IO WORKER (abstract) **/
 
 IOWorker::IOWorker (
-    Database* database
-  , v8::Persistent<v8::Function> callback
+    Database *database
+  , NanCallback *callback
   , leveldb::Slice key
-  , v8::Persistent<v8::Value> keyPtr
+  , v8::Local<v8::Object> &keyHandle
 ) : AsyncWorker(database, callback)
   , key(key)
-  , keyPtr(keyPtr)
-{};
+{
+  SavePersistent("key", keyHandle);
+};
 
 IOWorker::~IOWorker () {}
 
 void IOWorker::WorkComplete () {
-  DisposeStringOrBufferFromSlice(keyPtr, key);
+  DisposeStringOrBufferFromSlice(GetFromPersistent("key"), key);
   AsyncWorker::WorkComplete();
 }
 
 /** READ WORKER **/
 
 ReadWorker::ReadWorker (
-    Database* database
-  , v8::Persistent<v8::Function> callback
+    Database *database
+  , NanCallback *callback
   , leveldb::Slice key
   , bool asBuffer
   , bool fillCache
-  , v8::Persistent<v8::Value> keyPtr
-) : IOWorker(database, callback, key, keyPtr)
+  , v8::Local<v8::Object> &keyHandle
+) : IOWorker(database, callback, key, keyHandle)
   , asBuffer(asBuffer)
 {
   options = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
+  SavePersistent("key", keyHandle);
 };
 
 ReadWorker::~ReadWorker () {
@@ -111,16 +111,15 @@ ReadWorker::~ReadWorker () {
 }
 
 void ReadWorker::Execute () {
-  status = database->GetFromDatabase(options, key, value);
+  SetStatus(database->GetFromDatabase(options, key, value));
 }
 
 void ReadWorker::HandleOKCallback () {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+  NanScope();
 
   v8::Local<v8::Value> returnValue;
   if (asBuffer) {
-    returnValue = LD_NEW_BUFFER_HANDLE((char*)value.data(), value.size());
+    returnValue = NanNewBufferHandle((char*)value.data(), value.size());
   } else {
     returnValue = v8::String::New((char*)value.data(), value.size());
   }
@@ -128,21 +127,22 @@ void ReadWorker::HandleOKCallback () {
       v8::Local<v8::Value>::New(v8::Null())
     , returnValue
   };
-  LD_RUN_CALLBACK(callback, argv, 2);
+  callback->Run(2, argv);
 }
 
 /** DELETE WORKER **/
 
 DeleteWorker::DeleteWorker (
-    Database* database
-  , v8::Persistent<v8::Function> callback
+    Database *database
+  , NanCallback *callback
   , leveldb::Slice key
   , bool sync
-  , v8::Persistent<v8::Value> keyPtr
-) : IOWorker(database, callback, key, keyPtr)
+  , v8::Local<v8::Object> &keyHandle
+) : IOWorker(database, callback, key, keyHandle)
 {
   options = new leveldb::WriteOptions();
   options->sync = sync;
+  SavePersistent("key", keyHandle);
 };
 
 DeleteWorker::~DeleteWorker () {
@@ -150,42 +150,43 @@ DeleteWorker::~DeleteWorker () {
 }
 
 void DeleteWorker::Execute () {
-  status = database->DeleteFromDatabase(options, key);
+  SetStatus(database->DeleteFromDatabase(options, key));
 }
 
 /** WRITE WORKER **/
 
 WriteWorker::WriteWorker (
-    Database* database
-  , v8::Persistent<v8::Function> callback
+    Database *database
+  , NanCallback *callback
   , leveldb::Slice key
   , leveldb::Slice value
   , bool sync
-  , v8::Persistent<v8::Value> keyPtr
-  , v8::Persistent<v8::Value> valuePtr
-) : DeleteWorker(database, callback, key, sync, keyPtr)
+  , v8::Local<v8::Object> &keyHandle
+  , v8::Local<v8::Object> &valueHandle
+) : DeleteWorker(database, callback, key, sync, keyHandle)
   , value(value)
-  , valuePtr(valuePtr)
-{};
+{
+  SavePersistent("value", valueHandle);
+};
 
 WriteWorker::~WriteWorker () {}
 
 void WriteWorker::Execute () {
-  status = database->PutToDatabase(options, key, value);
+  SetStatus(database->PutToDatabase(options, key, value));
 }
 
 void WriteWorker::WorkComplete () {
-  DisposeStringOrBufferFromSlice(valuePtr, value);
+  DisposeStringOrBufferFromSlice(GetFromPersistent("value"), value);
   IOWorker::WorkComplete();
 }
 
 /** BATCH WORKER **/
 
 BatchWorker::BatchWorker (
-    Database* database
-  , v8::Persistent<v8::Function> callback
+    Database *database
+  , NanCallback *callback
   , leveldb::WriteBatch* batch
-  , std::vector<Reference>* references
+  , std::vector<Reference *>* references
   , bool sync
 ) : AsyncWorker(database, callback)
   , batch(batch)
@@ -201,23 +202,24 @@ BatchWorker::~BatchWorker () {
 }
 
 void BatchWorker::Execute () {
-  status = database->WriteBatchToDatabase(options, batch);
+  SetStatus(database->WriteBatchToDatabase(options, batch));
 }
 
 /** APPROXIMATE SIZE WORKER **/
 
 ApproximateSizeWorker::ApproximateSizeWorker (
-    Database* database
-  , v8::Persistent<v8::Function> callback
+    Database *database
+  , NanCallback *callback
   , leveldb::Slice start
   , leveldb::Slice end
-  , v8::Persistent<v8::Value> startPtr
-  , v8::Persistent<v8::Value> endPtr
+  , v8::Local<v8::Object> &startHandle
+  , v8::Local<v8::Object> &endHandle
 ) : AsyncWorker(database, callback)
   , range(start, end)
-  , startPtr(startPtr)
-  , endPtr(endPtr)
-{};
+{
+  SavePersistent("start", startHandle);
+  SavePersistent("end", endHandle);
+};
 
 ApproximateSizeWorker::~ApproximateSizeWorker () {}
 
@@ -226,21 +228,20 @@ void ApproximateSizeWorker::Execute () {
 }
 
 void ApproximateSizeWorker::WorkComplete() {
-  DisposeStringOrBufferFromSlice(startPtr, range.start);
-  DisposeStringOrBufferFromSlice(endPtr, range.limit);
+  DisposeStringOrBufferFromSlice(GetFromPersistent("start"), range.start);
+  DisposeStringOrBufferFromSlice(GetFromPersistent("end"), range.limit);
   AsyncWorker::WorkComplete();
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {
-  LD_NODE_ISOLATE_DECL
-  LD_HANDLESCOPE
+  NanScope();
 
   v8::Local<v8::Value> returnValue = v8::Number::New((double) size);
   v8::Local<v8::Value> argv[] = {
       v8::Local<v8::Value>::New(v8::Null())
     , returnValue
   };
-  LD_RUN_CALLBACK(callback, argv, 2);
+  callback->Run(2, argv);
 }
 
 } // namespace leveldown

@@ -26,17 +26,15 @@ private:
   leveldown::Database* database;
   leveldb::WriteOptions* options;
   leveldb::WriteBatch* batch;
-  std::vector<Reference>* references;
+  std::vector<Reference *>* references;
   bool hasData; // keep track of whether we're writing data or not
   bool written;
 
-  static v8::Persistent<v8::Function> constructor;
-
-  LD_V8_METHOD( New   )
-  LD_V8_METHOD( Put   )
-  LD_V8_METHOD( Del   )
-  LD_V8_METHOD( Clear )
-  LD_V8_METHOD( Write )
+  static NAN_METHOD(New);
+  static NAN_METHOD(Put);
+  static NAN_METHOD(Del);
+  static NAN_METHOD(Clear);
+  static NAN_METHOD(Write);
 };
 
 } // namespace leveldown

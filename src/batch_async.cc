@@ -14,7 +14,7 @@ namespace leveldown {
 
 BatchWriteWorker::BatchWriteWorker (
     Batch* batch
-  , v8::Persistent<v8::Function> callback
+  , NanCallback *callback
 ) : AsyncWorker(NULL, callback)
   , batch(batch)
 {};
@@ -22,7 +22,7 @@ BatchWriteWorker::BatchWriteWorker (
 BatchWriteWorker::~BatchWriteWorker () {}
 
 void BatchWriteWorker::Execute () {
-  status = batch->Write();
+  SetStatus(batch->Write());
 }
 
 } // namespace leveldown
