@@ -106,7 +106,7 @@ void Database::ReleaseIterator (uint32_t id) {
   // if there is a pending CloseWorker it means that we're waiting for
   // iterators to end before we can close them
   iterators.erase(id);
-  if (iterators.size() == 0 && pendingCloseWorker != NULL) {
+  if (iterators.empty() && pendingCloseWorker != NULL) {
     NanAsyncQueueWorker((AsyncWorker*)pendingCloseWorker);
     pendingCloseWorker = NULL;
   }
@@ -247,7 +247,7 @@ NAN_METHOD(Database::Close) {
     , new NanCallback(callback)
   );
 
-  if (database->iterators.size() > 0) {
+  if (!database->iterators.empty()) {
     // yikes, we still have iterators open! naughty naughty.
     // we have to queue up a CloseWorker and manually close each of them.
     // the CloseWorker will be invoked once they are all cleaned up
