@@ -16,7 +16,7 @@ class DestroyWorker : public AsyncWorker {
 public:
   DestroyWorker (
       char* location
-    , v8::Persistent<v8::Function> callback
+    , NanCallback *callback
   );
 
   virtual ~DestroyWorker ();
@@ -30,7 +30,7 @@ class RepairWorker : public AsyncWorker {
 public:
   RepairWorker (
       char* location
-    , v8::Persistent<v8::Function> callback
+    , NanCallback *callback
   );
 
   virtual ~RepairWorker ();

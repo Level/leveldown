@@ -14,7 +14,7 @@ namespace leveldown {
 
 DestroyWorker::DestroyWorker (
     char* location
-  , v8::Persistent<v8::Function> callback
+  , NanCallback *callback
 ) : AsyncWorker(NULL, callback)
   , location(location)
 {};
@@ -25,14 +25,14 @@ DestroyWorker::~DestroyWorker () {
 
 void DestroyWorker::Execute () {
   leveldb::Options options;
-  status = leveldb::DestroyDB(location, options);
+  SetStatus(leveldb::DestroyDB(location, options));
 }
 
 /** REPAIR WORKER **/
 
 RepairWorker::RepairWorker (
     char* location
-  , v8::Persistent<v8::Function> callback
+  , NanCallback *callback
 ) : AsyncWorker(NULL, callback)
   , location(location)
 {};
@@ -43,7 +43,7 @@ RepairWorker::~RepairWorker () {
 
 void RepairWorker::Execute () {
   leveldb::Options options;
-  status = leveldb::RepairDB(location, options);
+  SetStatus(leveldb::RepairDB(location, options));
 }
 
 } // namespace leveldown

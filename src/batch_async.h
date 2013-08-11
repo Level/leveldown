@@ -8,6 +8,7 @@
 
 #include <node.h>
 
+#include "nan.h"
 #include "async.h"
 #include "batch.h"
 #include "database.h"
@@ -18,7 +19,7 @@ class BatchWriteWorker : public AsyncWorker {
 public:
   BatchWriteWorker (
       Batch* batch
-    , v8::Persistent<v8::Function> callback
+    , NanCallback *callback
   );
 
   virtual ~BatchWriteWorker ();

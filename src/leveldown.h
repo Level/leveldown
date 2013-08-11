@@ -9,15 +9,7 @@
 #include <node_buffer.h>
 #include <leveldb/slice.h>
 
-static inline char* FromV8String(v8::Local<v8::Value> from) {
-  size_t sz_;
-  char* to;
-  v8::Local<v8::String> toStr = from->ToString();
-  sz_ = toStr->Utf8Length();
-  to = new char[sz_ + 1];
-  toStr->WriteUtf8(to, -1, NULL, v8::String::NO_OPTIONS);
-  return to;
-}
+#include "nan.h"
 
 static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
   return node::Buffer::HasInstance(obj->ToObject())
@@ -25,85 +17,29 @@ static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
     : obj->ToString()->Utf8Length();
 }
 
-static inline bool BooleanOptionValue(
-      v8::Local<v8::Object> optionsObj
-    , v8::Handle<v8::String> opt) {
+// NOTE: this MUST be called on objects created by
+// LD_STRING_OR_BUFFER_TO_SLICE
+static inline void DisposeStringOrBufferFromSlice(
+        v8::Persistent<v8::Object> &handle
+      , leveldb::Slice slice) {
 
-  return !optionsObj.IsEmpty()
-    && optionsObj->Has(opt)
-    && optionsObj->Get(opt)->BooleanValue();
+  if (!node::Buffer::HasInstance(NanPersistentToLocal(handle)->Get(NanSymbol("obj"))))
+    delete[] slice.data();
+  NanDispose(handle);
 }
 
-static inline bool BooleanOptionValueDefTrue(
-      v8::Local<v8::Object> optionsObj
-    , v8::Handle<v8::String> opt) {
+static inline void DisposeStringOrBufferFromSlice(
+        v8::Local<v8::Object> handle
+      , leveldb::Slice slice) {
 
-  return optionsObj.IsEmpty()
-    || !optionsObj->Has(opt)
-    || optionsObj->Get(opt)->BooleanValue();
+  if (!node::Buffer::HasInstance(handle))
+    delete[] slice.data();
 }
-
-static inline uint32_t UInt32OptionValue(
-      v8::Local<v8::Object> optionsObj
-    , v8::Handle<v8::String> opt
-    , uint32_t def) {
-
-  return !optionsObj.IsEmpty()
-    && optionsObj->Has(opt)
-    && optionsObj->Get(opt)->IsUint32()
-      ? optionsObj->Get(opt)->Uint32Value()
-      : def;
-}
-
-// V8 Isolate stuff introduced with V8 upgrade, see https://github.com/joyent/node/pull/5077
-#if (NODE_MODULE_VERSION > 0x000B)
-#  define LD_NODE_ISOLATE_GET  v8::Isolate::GetCurrent()
-#  define LD_NODE_ISOLATE_DECL v8::Isolate* isolate = LD_NODE_ISOLATE_GET;
-#  define LD_NODE_ISOLATE      isolate 
-#  define LD_NODE_ISOLATE_PRE  isolate, 
-#  define LD_NODE_ISOLATE_POST , isolate 
-#else
-#  define LD_NODE_ISOLATE_GET
-#  define LD_NODE_ISOLATE_DECL
-#  define LD_NODE_ISOLATE
-#  define LD_NODE_ISOLATE_PRE
-#  define LD_NODE_ISOLATE_POST
-#endif
-
-#if (NODE_MODULE_VERSION > 0x000B)
-#  define LD_SYMBOL(var, key)                                                  \
-     static const v8::Persistent<v8::String> var =                             \
-       v8::Persistent<v8::String>::New(                                        \
-          LD_NODE_ISOLATE_GET, v8::String::NewSymbol(#key));
-#  define LD_HANDLESCOPE v8::HandleScope scope(LD_NODE_ISOLATE);
-#  define LD_NEW_BUFFER_HANDLE(data, size) node::Buffer::New(data, size);
-#else
-#  define LD_SYMBOL(var, key)                                                  \
-     static const v8::Persistent<v8::String> var =                             \
-       v8::Persistent<v8::String>::New(v8::String::NewSymbol(#key));
-#  define LD_HANDLESCOPE v8::HandleScope scope;
-#  define LD_NEW_BUFFER_HANDLE(data, size)                                     \
-     v8::Local<v8::Value>::New(node::Buffer::New(data, size)->handle_);
-#endif
-
-#define LD_V8_METHOD(name)                                                     \
-  static v8::Handle<v8::Value> name (const v8::Arguments& args);
 
 #define LD_CB_ERR_IF_NULL_OR_UNDEFINED(thing, name)                            \
   if (thing->IsNull() || thing->IsUndefined()) {                               \
     LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be `null` or `undefined`") \
   }
-
-// NOTE: this MUST be called on objects created by
-// LD_STRING_OR_BUFFER_TO_SLICE
-static inline void DisposeStringOrBufferFromSlice(v8::Persistent<v8::Value> ptr
-      , leveldb::Slice slice) {
-
-  LD_NODE_ISOLATE_DECL
-  if (!node::Buffer::HasInstance(ptr))
-    delete[] slice.data();
-  ptr.Dispose(LD_NODE_ISOLATE);
-}
 
 // NOTE: must call DisposeStringOrBufferFromSlice() on objects created here
 #define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name)                           \
@@ -138,10 +74,9 @@ static inline void DisposeStringOrBufferFromSlice(v8::Persistent<v8::Value> ptr
       )                                                                        \
     };                                                                         \
     LD_RUN_CALLBACK(callback, argv, 1)                                         \
-    return v8::Undefined();                                                    \
+    NanReturnUndefined();                                                      \
   }                                                                            \
-  v8::ThrowException(v8::Exception::Error(v8::String::New(msg)));              \
-  return v8::Undefined();
+  return NanThrowError(msg);
 
 #define LD_RUN_CALLBACK(callback, argv, length)                                \
   v8::TryCatch try_catch;                                                      \
@@ -150,35 +85,30 @@ static inline void DisposeStringOrBufferFromSlice(v8::Persistent<v8::Value> ptr
     node::FatalException(try_catch);                                           \
   }
 
-#define LD_THROW_RETURN(...)                                                   \
-  v8::ThrowException(v8::Exception::Error(v8::String::New(#__VA_ARGS__)));     \
-  return v8::Undefined();
-
 /* LD_METHOD_SETUP_COMMON setup the following objects:
  *  - Database* database
  *  - v8::Local<v8::Object> optionsObj (may be empty)
  *  - v8::Persistent<v8::Function> callback (won't be empty)
- * Will LD_THROW_RETURN if there isn't a callback in arg 0 or 1
+ * Will throw/return if there isn't a callback in arg 0 or 1
  */
 #define LD_METHOD_SETUP_COMMON(name, optionPos, callbackPos)                   \
-  if (args.Length() == 0) {                                                    \
-    LD_THROW_RETURN(name() requires a callback argument)                       \
-  }                                                                            \
+  if (args.Length() == 0)                                                      \
+    return NanThrowError(#name "() requires a callback argument");             \
   leveldown::Database* database =                                              \
     node::ObjectWrap::Unwrap<leveldown::Database>(args.This());                \
   v8::Local<v8::Object> optionsObj;                                            \
   v8::Local<v8::Function> callback;                                            \
   if (optionPos == -1 && args[callbackPos]->IsFunction()) {                    \
-    callback = v8::Local<v8::Function>::Cast(args[callbackPos]);               \
+    callback = args[callbackPos].As<v8::Function>();                           \
   } else if (optionPos != -1 && args[callbackPos - 1]->IsFunction()) {         \
-    callback = v8::Local<v8::Function>::Cast(args[callbackPos - 1]);           \
+    callback = args[callbackPos - 1].As<v8::Function>();                       \
   } else if (optionPos != -1                                                   \
         && args[optionPos]->IsObject()                                         \
         && args[callbackPos]->IsFunction()) {                                  \
-    optionsObj = v8::Local<v8::Object>::Cast(args[optionPos]);                 \
-    callback = v8::Local<v8::Function>::Cast(args[callbackPos]);               \
+    optionsObj = args[optionPos].As<v8::Object>();                             \
+    callback = args[callbackPos].As<v8::Function>();                           \
   } else {                                                                     \
-    LD_THROW_RETURN(name() requires a callback argument)                       \
+    return NanThrowError(#name "() requires a callback argument");             \
   }
 
 #define LD_METHOD_SETUP_COMMON_ONEARG(name) LD_METHOD_SETUP_COMMON(name, -1, 0)

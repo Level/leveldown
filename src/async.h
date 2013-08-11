@@ -7,33 +7,34 @@
 #define LD_ASYNC_H
 
 #include <node.h>
+#include "nan.h"
 #include "database.h"
 
 namespace leveldown {
 
-/* abstract */ class AsyncWorker {
+class Database;
+
+/* abstract */ class AsyncWorker : public NanAsyncWorker {
 public:
   AsyncWorker (
       leveldown::Database* database
-    , v8::Persistent<v8::Function> callback
-  );
-
-  virtual ~AsyncWorker ();
-  uv_work_t request;
-  virtual void WorkComplete ();
-  virtual void Execute () =0;
+    , NanCallback *callback
+  ) : NanAsyncWorker(callback), database(database) {
+    NanScope();
+    v8::Local<v8::Object> obj = v8::Object::New();
+    NanAssignPersistent(v8::Object, persistentHandle, obj);
+  }
 
 protected:
+  void SetStatus(leveldb::Status status) {
+    this->status = status;
+    if (!status.ok())
+      this->errmsg = strdup(status.ToString().c_str());
+  }
   Database* database;
-  v8::Persistent<v8::Function> callback;
+private:
   leveldb::Status status;
-  virtual void HandleOKCallback ();
-  virtual void HandleErrorCallback ();
 };
-
-void AsyncExecute (uv_work_t* req);
-void AsyncExecuteComplete (uv_work_t* req);
-void AsyncQueueWorker (AsyncWorker* worker);
 
 } // namespace leveldown
 
