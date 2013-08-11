@@ -1,3 +1,9 @@
+0.7.0 @ Aug 11 2013
+===================
+  * Added @pgte to contributors list
+  * (very) Minor perf improvements in C++ (@mscdex)
+  * Use NAN <https://github.com/rvagg/nan> for Node 0.8->0.11 compatibility
+
 0.6.2 @ Jul 07 2013
 ===================
   * Compatibility for Node 0.11.3, breaks compatibility with 0.11.2
