@@ -18,11 +18,11 @@
   , "keywords": [
         "leveldb"
     ]
-  , "version"         : "0.6.2"
+  , "version"         : "0.7.0"
   , "main"            : "index.js"
   , "dependencies"    : {
-        "bindings"        : "~1.1.0"
-      , "abstract-leveldown"  : "git://github.com/rvagg/node-abstract-leveldown.git#extend-chained"
+        "bindings"            : "~1.1.1"
+      , "abstract-leveldown"  : "~0.9.0"
     }
   , "devDependencies" : {
         "tap"                 : "~0.4.1"
