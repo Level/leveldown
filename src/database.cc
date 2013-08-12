@@ -147,12 +147,6 @@ void Database::Init () {
 NAN_METHOD(Database::New) {
   NanScope();
 
-  if (args.Length() == 0)
-    return NanThrowError("constructor requires at least a location argument");
-
-  if (!args[0]->IsString())
-    return NanThrowError("constructor requires a location string argument");
-
   char* location = NanFromV8String(args[0].As<v8::Object>());
 
   Database* obj = new Database(location);
@@ -299,9 +293,6 @@ NAN_METHOD(Database::Put) {
 
   LD_METHOD_SETUP_COMMON(put, 2, 3)
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], value)
-
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
@@ -328,8 +319,6 @@ NAN_METHOD(Database::Get) {
 
   LD_METHOD_SETUP_COMMON(get, 1, 2)
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
-
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
 
@@ -353,8 +342,6 @@ NAN_METHOD(Database::Delete) {
   NanScope();
 
   LD_METHOD_SETUP_COMMON(del, 1, 2)
-
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
@@ -400,10 +387,7 @@ NAN_METHOD(Database::Batch) {
 
     v8::Local<v8::Object> obj = v8::Local<v8::Object>::Cast(array->Get(i));
 
-    LD_CB_ERR_IF_NULL_OR_UNDEFINED(obj->Get(NanSymbol("type")), type)
-
     v8::Local<v8::Value> keyBuffer = obj->Get(NanSymbol("key"));
-    LD_CB_ERR_IF_NULL_OR_UNDEFINED(keyBuffer, key)
 
     if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("del"))) {
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
@@ -415,7 +399,6 @@ NAN_METHOD(Database::Batch) {
       references->push_back(new Reference(keyBuffer, key));
     } else if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("put"))) {
       v8::Local<v8::Value> valueBuffer = obj->Get(NanSymbol("value"));
-      LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
 
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
       LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
@@ -452,20 +435,7 @@ NAN_METHOD(Database::ApproximateSize) {
   v8::Local<v8::Object> startHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> endHandle = args[1].As<v8::Object>();
 
-  if (startHandle->IsNull()
-      || startHandle->IsUndefined()
-      || startHandle->IsFunction() // callback in pos 0?
-      || endHandle->IsNull()
-      || endHandle->IsUndefined()
-      || endHandle->IsFunction() // callback in pos 1?
-      ) {
-    return NanThrowError("approximateSize() requires valid `start`, `end` and `callback` arguments");
-  }
-
   LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
-
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], start)
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[1], end)
 
   LD_STRING_OR_BUFFER_TO_SLICE(start, startHandle, start)
   LD_STRING_OR_BUFFER_TO_SLICE(end, endHandle, end)
@@ -488,11 +458,6 @@ NAN_METHOD(Database::GetProperty) {
 
   v8::Local<v8::Value> propertyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Function> callback; // for LD_CB_ERR_IF_NULL_OR_UNDEFINED
-
-  if (!propertyHandle->IsString())
-    return NanThrowError("getProperty() requires a valid `property` argument");
-
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(propertyHandle, property)
 
   LD_STRING_OR_BUFFER_TO_SLICE(property, propertyHandle, property)
 

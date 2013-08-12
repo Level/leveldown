@@ -28,7 +28,6 @@ private:
   leveldb::WriteBatch* batch;
   std::vector<Reference *>* references;
   bool hasData; // keep track of whether we're writing data or not
-  bool written;
 
   static NAN_METHOD(New);
   static NAN_METHOD(Put);
