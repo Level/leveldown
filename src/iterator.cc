@@ -136,29 +136,12 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
       dbIterator->Next();
   }
 
-  // 'end' here is an inclusive test
-//  int isEnd = end == NULL ? 1 : end->compare(dbIterator->key().ToString());
-
-//    std::string key_ = dbIterator->key().ToString();
-
-//  std::cout << "key:"   << dbIterator->key().ToString()   << "\n";
-//  std::cout << "value:" << dbIterator->value().ToString() << "\n";
-
-//  if(gt != NULL)
-//    printf("gt:    %s\n", gt->c_str());
-//  if(gte != NULL)
-//    printf("gte:   %s\n", gte->c_str());
-//  if(lt != NULL) {
-//    printf("lt:    %s\n", lt->c_str());
-//    printf("lt:    %d\n", lt->compare(key_));
-//  }
-//  if(lte != NULL)
-//    printf("lte:   %d\n", lte->compare(key_));
 
   if (dbIterator->Valid()) {
     std::string key_ = dbIterator->key().ToString();
     int isEnd = end == NULL ? 1 : end->compare(key_);
-  if((limit < 0 || ++count <= limit)
+
+    if((limit < 0 || ++count <= limit)
       && (end == NULL
           || (reverse && (isEnd <= 0))
           || (!reverse && (isEnd >= 0)))
@@ -169,7 +152,6 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
          : gte != NULL ? (gte->compare(key_) <= 0)
          : true )
     ) {
-
       if (keys)
         key.assign(dbIterator->key().data(), dbIterator->key().size());
       if (values)
