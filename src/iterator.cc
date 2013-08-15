@@ -27,6 +27,10 @@ Iterator::Iterator (
   , bool keyAsBuffer
   , bool valueAsBuffer
   , v8::Local<v8::Object> &startHandle
+  , std::string* lt
+  , std::string* lte
+  , std::string* gt
+  , std::string* gte
 ) : database(database)
   , id(id)
   , start(start)
@@ -37,6 +41,10 @@ Iterator::Iterator (
   , limit(limit)
   , keyAsBuffer(keyAsBuffer)
   , valueAsBuffer(valueAsBuffer)
+  , lt(lt)
+  , lte(lte)
+  , gt(gt)
+  , gte(gte)
 {
   NanScope();
 
@@ -95,11 +103,16 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
   }
 
   // 'end' here is an inclusive test
+  int isEnd = end == NULL ? 1 : end->compare(dbIterator->key().ToString());
+  bool endInclusive = true;
+  bool startInclusive = true;
+
+
   if (dbIterator->Valid()
       && (limit < 0 || ++count <= limit)
       && (end == NULL
-          || (reverse && end->compare(dbIterator->key().ToString()) <= 0)
-          || (!reverse && end->compare(dbIterator->key().ToString()) >= 0))) {
+          || (reverse && (endInclusive ? isEnd <= 0 : isEnd < 0))
+          || (!reverse && (endInclusive ? isEnd >= 0 : isEnd > 0)))) {
 
     if (keys)
       key.assign(dbIterator->key().data(), dbIterator->key().size());
@@ -244,6 +257,17 @@ NAN_METHOD(Iterator::New) {
 
   v8::Local<v8::Object> optionsObj;
 
+  v8::Local<v8::Object> ltHandle;
+  v8::Local<v8::Object> lteHandle;
+  v8::Local<v8::Object> gtHandle;
+  v8::Local<v8::Object> gteHandle;
+
+  std::string* lt = NULL;
+  std::string* lte = NULL;
+  std::string* gt = NULL;
+  std::string* gte = NULL;
+
+
   if (args.Length() > 1 && args[2]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[2]);
 
@@ -278,7 +302,24 @@ NAN_METHOD(Iterator::New) {
       limit = v8::Local<v8::Integer>::Cast(optionsObj->Get(
           NanSymbol("limit")))->Value();
     }
+
+    if (optionsObj->Has(NanSymbol("lt"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("lt")))
+          || optionsObj->Get(NanSymbol("lt"))->IsString())) {
+
+      v8::Local<v8::Value> ltBuffer =
+          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("lt")));
+
+      // ignore end if it has size 0 since a Slice can't have length 0
+      if (StringOrBufferLength(ltBuffer) > 0) {
+        LD_STRING_OR_BUFFER_TO_SLICE(_lt, ltBuffer, lt)
+        lt = new std::string(_lt.data(), _lt.size());
+      }
+    }
+
   }
+
+
 
   bool reverse = NanBooleanOptionValue(optionsObj, NanSymbol("reverse"));
   bool keys = NanBooleanOptionValue(optionsObj, NanSymbol("keys"), true);
@@ -308,6 +349,10 @@ NAN_METHOD(Iterator::New) {
     , keyAsBuffer
     , valueAsBuffer
     , startHandle
+    , lt
+    , lte
+    , gt
+    , gte
   );
   iterator->Wrap(args.This());
 
