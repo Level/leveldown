@@ -196,6 +196,7 @@ static v8::Isolate* nan_isolate = v8::Isolate::GetCurrent();
 
   template<class T> static inline void NanDispose(v8::Persistent<T> &handle) {
     handle.Dispose(nan_isolate);
+    handle.Clear(nan_isolate);
   }
 
   static inline v8::Local<v8::Object> NanNewBufferHandle (
@@ -326,6 +327,7 @@ static v8::Isolate* nan_isolate = v8::Isolate::GetCurrent();
 
   template<class T> static inline void NanDispose(v8::Persistent<T> &handle) {
     handle.Dispose();
+    handle.Clear();
   }
 
   static inline v8::Local<v8::Object> NanNewBufferHandle (

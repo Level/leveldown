@@ -6,6 +6,7 @@
 #include <node.h>
 #include <node_buffer.h>
 
+#include "leveldb/write_batch.h"
 #include "database.h"
 #include "leveldown.h"
 #include "async.h"
@@ -198,6 +199,7 @@ BatchWorker::BatchWorker (
 
 BatchWorker::~BatchWorker () {
   ClearReferences(references);
+  delete batch;
   delete options;
 }
 

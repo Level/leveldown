@@ -31,11 +31,14 @@ struct Reference {
 };
 
 static inline void ClearReferences (std::vector<Reference *> *references) {
+  Reference *ref;
   for (std::vector<Reference *>::iterator it = references->begin()
       ; it != references->end()
       ; ) {
-    DisposeStringOrBufferFromSlice((*it)->handle, (*it)->slice);
+    ref = *it;
+    DisposeStringOrBufferFromSlice(ref->handle, ref->slice);
     it = references->erase(it);
+    delete ref;
   }
   delete references;
 }
