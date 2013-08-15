@@ -5,6 +5,7 @@
 
 #include <node.h>
 #include <node_buffer.h>
+#include <iostream>
 
 #include "database.h"
 #include "iterator.h"
@@ -76,13 +77,25 @@ Iterator::~Iterator () {
 bool Iterator::GetIterator () {
   if (dbIterator == NULL) {
     dbIterator = database->NewIterator(options);
+
     if (start != NULL) {
       dbIterator->Seek(*start);
+
       if (reverse) {
         if (!dbIterator->Valid())
           dbIterator->SeekToLast();
-        else if (start->compare(dbIterator->key()))
+        //if it's past the last key, step back
+        else if (start->compare(dbIterator->key()) != 0)
           dbIterator->Prev();
+
+        if(lt != NULL) {
+          if(lt->compare(dbIterator->key().ToString()) >= 0)
+            dbIterator->Prev();
+        }
+
+      } else {
+       if(gt != NULL && gt->compare(dbIterator->key().ToString()) == 0)
+        dbIterator->Next();
       }
     }
     else if (reverse)
@@ -94,7 +107,10 @@ bool Iterator::GetIterator () {
   return false;
 }
 
+//seems these argument are no longer used
+//                           v                 v
 bool Iterator::IteratorNext (std::string& key, std::string& value) {
+  //if it's not the first call, move to next item.
   if (!GetIterator()) {
     if (reverse)
       dbIterator->Prev();
@@ -104,25 +120,47 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
 
   // 'end' here is an inclusive test
   int isEnd = end == NULL ? 1 : end->compare(dbIterator->key().ToString());
-  bool endInclusive = true;
-  bool startInclusive = true;
+
+//  std::cout << "key:"   << dbIterator->key().ToString()   << "\n";
+//  std::cout << "value:" << dbIterator->value().ToString() << "\n";
+
+//  if(gt != NULL)
+//    printf("gt:    %s\n", gt->c_str());
+//  if(gte != NULL)
+//    printf("gte:   %s\n", gte->c_str());
+//  if(lt != NULL) {
+//    printf("lt:    %s\n", lt->c_str());
+//    printf("lt:    %d\n", lt->compare(key_));
+//  }
+//  if(lte != NULL)
+//    printf("lte:   %d\n", lte->compare(key_));
 
 
-  if (dbIterator->Valid()
-      && (limit < 0 || ++count <= limit)
+  if (dbIterator->Valid()) {
+    std::string key_ = dbIterator->key().ToString();
+    if((limit < 0 || ++count <= limit)
       && (end == NULL
-          || (reverse && (endInclusive ? isEnd <= 0 : isEnd < 0))
-          || (!reverse && (endInclusive ? isEnd >= 0 : isEnd > 0)))) {
+          || (reverse && (isEnd <= 0))
+          || (!reverse && (isEnd >= 0)))
+      && ( lt  != NULL ? (lt->compare(key_) > 0)
+         : lte != NULL ? (lte->compare(key_) >= 0)
+         : true )
+      && ( gt  != NULL ? (gt->compare(key_) < 0)
+         : gte != NULL ? (gte->compare(key_) <= 0)
+         : true )
+    ) {
 
-    if (keys)
-      key.assign(dbIterator->key().data(), dbIterator->key().size());
-    if (values)
-      value.assign(dbIterator->value().data(), dbIterator->value().size());
-    return true;
-
-  } else {
-    return false;
+      if (keys)
+        key.assign(dbIterator->key().data(), dbIterator->key().size());
+      if (values)
+        value.assign(dbIterator->value().data(), dbIterator->value().size());
+      return true;
+    } else {
+      return false;
+    }
   }
+  else
+    return false;
 }
 
 leveldb::Status Iterator::IteratorStatus () {
@@ -267,9 +305,13 @@ NAN_METHOD(Iterator::New) {
   std::string* gt = NULL;
   std::string* gte = NULL;
 
+  //default to forward.
+  bool reverse = false;
 
   if (args.Length() > 1 && args[2]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[2]);
+
+    reverse = NanBooleanOptionValue(optionsObj, NanSymbol("reverse"));
 
     if (optionsObj->Has(NanSymbol("start"))
         && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("start")))
@@ -314,14 +356,61 @@ NAN_METHOD(Iterator::New) {
       if (StringOrBufferLength(ltBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_SLICE(_lt, ltBuffer, lt)
         lt = new std::string(_lt.data(), _lt.size());
+        if (reverse)
+          start = new leveldb::Slice(_lt.data(), _lt.size());
+      }
+    }
+
+    if (optionsObj->Has(NanSymbol("lte"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("lte")))
+          || optionsObj->Get(NanSymbol("lte"))->IsString())) {
+
+      v8::Local<v8::Value> lteBuffer =
+          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("lte")));
+
+      // ignore end if it has size 0 since a Slice can't have length 0
+      if (StringOrBufferLength(lteBuffer) > 0) {
+        LD_STRING_OR_BUFFER_TO_SLICE(_lte, lteBuffer, lte)
+        lte = new std::string(_lte.data(), _lte.size());
+        if (reverse)
+          start = new leveldb::Slice(_lte.data(), _lte.size());
+      }
+    }
+
+    if (optionsObj->Has(NanSymbol("gt"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("gt")))
+          || optionsObj->Get(NanSymbol("gt"))->IsString())) {
+
+      v8::Local<v8::Value> gtBuffer =
+          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("gt")));
+
+      // ignore end if it has size 0 since a Slice can't have length 0
+      if (StringOrBufferLength(gtBuffer) > 0) {
+        LD_STRING_OR_BUFFER_TO_SLICE(_gt, gtBuffer, gt)
+        gt = new std::string(_gt.data(), _gt.size());
+        if (!reverse)
+          start = new leveldb::Slice(_gt.data(), _gt.size());
+      }
+    }
+
+    if (optionsObj->Has(NanSymbol("gte"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("gte")))
+          || optionsObj->Get(NanSymbol("gte"))->IsString())) {
+
+      v8::Local<v8::Value> gteBuffer =
+          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("gte")));
+
+      // ignore end if it has size 0 since a Slice can't have length 0
+      if (StringOrBufferLength(gteBuffer) > 0) {
+        LD_STRING_OR_BUFFER_TO_SLICE(_gte, gteBuffer, gte)
+        gte = new std::string(_gte.data(), _gte.size());
+        if (!reverse)
+          start = new leveldb::Slice(_gte.data(), _gte.size());
       }
     }
 
   }
 
-
-
-  bool reverse = NanBooleanOptionValue(optionsObj, NanSymbol("reverse"));
   bool keys = NanBooleanOptionValue(optionsObj, NanSymbol("keys"), true);
   bool values = NanBooleanOptionValue(optionsObj, NanSymbol("values"), true);
   bool keyAsBuffer = NanBooleanOptionValue(
