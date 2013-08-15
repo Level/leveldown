@@ -85,16 +85,32 @@ bool Iterator::GetIterator () {
         if (!dbIterator->Valid())
           dbIterator->SeekToLast();
         //if it's past the last key, step back
-        else if (start->compare(dbIterator->key()) != 0)
-          dbIterator->Prev();
+        else {
+          std::string key_ = dbIterator->key().ToString();
 
-        if(lt != NULL) {
-          if(lt->compare(dbIterator->key().ToString()) >= 0)
+          if(lt != NULL) {
+            if(lt->compare(key_) <= 0)
+              dbIterator->Prev();
+          }
+          else if(lte != NULL) {
+            if(lte->compare(key_) < 0)
+              dbIterator->Prev();
+          }
+          else if(start != NULL) {
+            if(start->compare(key_))
+              dbIterator->Prev();
+          }
+        }
+
+        if(dbIterator->Valid() && lt != NULL) {
+          if(lt->compare(dbIterator->key().ToString()) <= 0)
             dbIterator->Prev();
+         
         }
 
       } else {
-       if(gt != NULL && gt->compare(dbIterator->key().ToString()) == 0)
+      if (dbIterator->Valid() &&
+         gt != NULL && gt->compare(dbIterator->key().ToString()) == 0)
         dbIterator->Next();
       }
     }
@@ -102,6 +118,7 @@ bool Iterator::GetIterator () {
       dbIterator->SeekToLast();
     else
       dbIterator->SeekToFirst();
+
     return true;
   }
   return false;
@@ -111,6 +128,7 @@ bool Iterator::GetIterator () {
 //                           v                 v
 bool Iterator::IteratorNext (std::string& key, std::string& value) {
   //if it's not the first call, move to next item.
+
   if (!GetIterator()) {
     if (reverse)
       dbIterator->Prev();
@@ -119,7 +137,9 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
   }
 
   // 'end' here is an inclusive test
-  int isEnd = end == NULL ? 1 : end->compare(dbIterator->key().ToString());
+//  int isEnd = end == NULL ? 1 : end->compare(dbIterator->key().ToString());
+
+//    std::string key_ = dbIterator->key().ToString();
 
 //  std::cout << "key:"   << dbIterator->key().ToString()   << "\n";
 //  std::cout << "value:" << dbIterator->value().ToString() << "\n";
@@ -135,10 +155,10 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
 //  if(lte != NULL)
 //    printf("lte:   %d\n", lte->compare(key_));
 
-
   if (dbIterator->Valid()) {
     std::string key_ = dbIterator->key().ToString();
-    if((limit < 0 || ++count <= limit)
+    int isEnd = end == NULL ? 1 : end->compare(key_);
+  if((limit < 0 || ++count <= limit)
       && (end == NULL
           || (reverse && (isEnd <= 0))
           || (!reverse && (isEnd >= 0)))
