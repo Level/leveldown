@@ -21,6 +21,7 @@ public:
     , NanCallback *callback
   ) : NanAsyncWorker(callback), database(database) {
     NanScope();
+
     v8::Local<v8::Object> obj = v8::Object::New();
     NanAssignPersistent(v8::Object, persistentHandle, obj);
   }
