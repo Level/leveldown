@@ -1,23 +1,26 @@
 {
     "targets": [{
-        "target_name": "leveldown"
-    , 'conditions': [
-          ['OS == "win"', {
-              'defines': [
-                  '_HAS_EXCEPTIONS=0'
+      "target_name": "leveldown"
+    , "conditions": [
+          ["OS == 'win'", {
+              "defines": [
+                  "_HAS_EXCEPTIONS=0"
               ]
-            , 'msvs_settings': {
-                  'VCCLCompilerTool': {
-                      'RuntimeTypeInfo': 'false'
-                    , 'EnableFunctionLevelLinking': 'true'
-                    , 'ExceptionHandling': '2'
-                    , 'DisableSpecificWarnings': [ '4355', '4530' ,'4267', '4244', '4506' ]
+            , "msvs_settings": {
+                  "VCCLCompilerTool": {
+                      "RuntimeTypeInfo": "false"
+                    , "EnableFunctionLevelLinking": "true"
+                    , "ExceptionHandling": "2"
+                    , "DisableSpecificWarnings": [ "4355", "4530" ,"4267", "4244", "4506" ]
                   }
               }
            }]
         ]
       , "dependencies": [
             "<(module_root_dir)/deps/leveldb/leveldb.gyp:leveldb"
+        ]
+      , "include_dirs"  : [
+            "<!(node -p -e \"require('path').dirname(require.resolve('nan'))\")"
         ]
       , "sources": [
             "src/batch.cc"
