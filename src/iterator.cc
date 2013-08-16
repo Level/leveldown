@@ -5,7 +5,6 @@
 
 #include <node.h>
 #include <node_buffer.h>
-#include <iostream>
 
 #include "database.h"
 #include "iterator.h"
@@ -108,10 +107,11 @@ bool Iterator::GetIterator () {
          
         }
 
-      } else {
-      if (dbIterator->Valid() &&
-         gt != NULL && gt->compare(dbIterator->key().ToString()) == 0)
-        dbIterator->Next();
+      }
+      else {
+        if (dbIterator->Valid() && gt != NULL
+          && gt->compare(dbIterator->key().ToString()) == 0)
+          dbIterator->Next();
       }
     }
     else if (reverse)
@@ -124,8 +124,6 @@ bool Iterator::GetIterator () {
   return false;
 }
 
-//seems these argument are no longer used
-//                           v                 v
 bool Iterator::IteratorNext (std::string& key, std::string& value) {
   //if it's not the first call, move to next item.
 
