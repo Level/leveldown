@@ -153,7 +153,7 @@ NAN_METHOD(Database::New) {
   if (!args[0]->IsString())
     return NanThrowError("constructor requires a location string argument");
 
-  char* location = NanFromV8String(args[0].As<v8::Object>());
+  char* location = NanFromV8String(args[0].As<v8::Object>(), Nan::UTF8, NULL, NULL, 0, v8::String::NO_OPTIONS);
 
   Database* obj = new Database(location);
   obj->Wrap(args.This());
