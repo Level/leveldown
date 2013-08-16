@@ -16,12 +16,13 @@
       , "Pedro Teixeira <pedro.teixeira@gmail.com> (https://github.com/pgte)"
     ]
   , "keywords": [
-        "leveldb"
+        "leveldb", "level"
     ]
   , "version"         : "0.7.0"
   , "main"            : "index.js"
   , "dependencies"    : {
-        "bindings"        : "~1.1.1"
+        "bindings"            : "~1.1.1"
+      , "nan"                 : "~0.3.0"
     }
   , "devDependencies" : {
         "tap"                 : "~0.4.1"
@@ -33,11 +34,11 @@
       , "du"                  : "~0.0.1"
     }
   , "repository"      : {
-        "type"            : "git"
-      , "url"             : "https://github.com/rvagg/node-leveldown.git"
+        "type"                : "git"
+      , "url"                 : "https://github.com/rvagg/node-leveldown.git"
     }
   , "scripts"         : {
-        "test"            : "tap test/*-test.js --stderr"
+        "test"                : "tap test/*-test.js --stderr"
     }
   , "license"         : "MIT"
   , "gypfile"         : true
