@@ -29,7 +29,7 @@
       , "rimraf"              : "~2.1.4"
       , "mkfiletree"          : "~0.0.0"
       , "readfiletree"        : "~0.0.0"
-      , "abstract-leveldown"  : "~0.9.0"
+      , "abstract-leveldown"  : "~0.10.0"
       , "monotonic-timestamp" : "~0.0.8"
       , "du"                  : "~0.0.1"
     }
