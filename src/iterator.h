@@ -42,6 +42,10 @@ public:
     , bool keyAsBuffer
     , bool valueAsBuffer
     , v8::Local<v8::Object> &startHandle
+    , std::string* lt
+    , std::string* lte
+    , std::string* gt
+    , std::string* gte
   );
 
   ~Iterator ();
@@ -63,7 +67,11 @@ private:
   bool values;
   int limit;
   int count;
-
+  std::string* lt;
+  std::string* lte;
+  std::string* gt;
+  std::string* gte;
+  
 public:
   bool keyAsBuffer;
   bool valueAsBuffer;
