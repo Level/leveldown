@@ -23,14 +23,14 @@ Iterator::Iterator (
   , bool keys
   , bool values
   , int limit
-  , bool fillCache
-  , bool keyAsBuffer
-  , bool valueAsBuffer
-  , v8::Local<v8::Object> &startHandle
   , std::string* lt
   , std::string* lte
   , std::string* gt
   , std::string* gte
+  , bool fillCache
+  , bool keyAsBuffer
+  , bool valueAsBuffer
+  , v8::Local<v8::Object> &startHandle
 ) : database(database)
   , id(id)
   , start(start)
@@ -39,12 +39,12 @@ Iterator::Iterator (
   , keys(keys)
   , values(values)
   , limit(limit)
-  , keyAsBuffer(keyAsBuffer)
-  , valueAsBuffer(valueAsBuffer)
   , lt(lt)
   , lte(lte)
   , gt(gt)
   , gte(gte)
+  , keyAsBuffer(keyAsBuffer)
+  , valueAsBuffer(valueAsBuffer)
 {
   NanScope();
 
@@ -61,7 +61,6 @@ Iterator::Iterator (
   ended      = false;
   endWorker  = NULL;
 };
-
 
 Iterator::~Iterator () {
   delete options;
@@ -81,43 +80,38 @@ bool Iterator::GetIterator () {
       dbIterator->Seek(*start);
 
       if (reverse) {
-        if (!dbIterator->Valid())
+        if (!dbIterator->Valid()) {
+          // if it's past the last key, step back
           dbIterator->SeekToLast();
-        //if it's past the last key, step back
-        else {
+        } else {
           std::string key_ = dbIterator->key().ToString();
 
-          if(lt != NULL) {
-            if(lt->compare(key_) <= 0)
+          if (lt != NULL) {
+            if (lt->compare(key_) <= 0)
               dbIterator->Prev();
-          }
-          else if(lte != NULL) {
-            if(lte->compare(key_) < 0)
+          } else if (lte != NULL) {
+            if (lte->compare(key_) < 0)
               dbIterator->Prev();
-          }
-          else if(start != NULL) {
-            if(start->compare(key_))
+          } else if (start != NULL) {
+            if (start->compare(key_))
               dbIterator->Prev();
           }
         }
 
-        if(dbIterator->Valid() && lt != NULL) {
-          if(lt->compare(dbIterator->key().ToString()) <= 0)
+        if (dbIterator->Valid() && lt != NULL) {
+          if (lt->compare(dbIterator->key().ToString()) <= 0)
             dbIterator->Prev();
-         
         }
-
-      }
-      else {
+      } else {
         if (dbIterator->Valid() && gt != NULL
-          && gt->compare(dbIterator->key().ToString()) == 0)
+            && gt->compare(dbIterator->key().ToString()) == 0)
           dbIterator->Next();
       }
-    }
-    else if (reverse)
+    } else if (reverse) {
       dbIterator->SeekToLast();
-    else
+    } else {
       dbIterator->SeekToFirst();
+    }
 
     return true;
   }
@@ -125,8 +119,7 @@ bool Iterator::GetIterator () {
 }
 
 bool Iterator::IteratorNext (std::string& key, std::string& value) {
-  //if it's not the first call, move to next item.
-
+  // if it's not the first call, move to next item.
   if (!GetIterator()) {
     if (reverse)
       dbIterator->Prev();
@@ -134,12 +127,12 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
       dbIterator->Next();
   }
 
-
+  // now check if this is the end or not, if not then return the key & value
   if (dbIterator->Valid()) {
     std::string key_ = dbIterator->key().ToString();
     int isEnd = end == NULL ? 1 : end->compare(key_);
 
-    if((limit < 0 || ++count <= limit)
+    if ((limit < 0 || ++count <= limit)
       && (end == NULL
           || (reverse && (isEnd <= 0))
           || (!reverse && (isEnd >= 0)))
@@ -155,12 +148,10 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
       if (values)
         value.assign(dbIterator->value().data(), dbIterator->value().size());
       return true;
-    } else {
-      return false;
     }
   }
-  else
-    return false;
+
+  return false;
 }
 
 leveldb::Status Iterator::IteratorStatus () {
@@ -185,7 +176,6 @@ void checkEndCallback (Iterator* iterator) {
   }
 }
 
-//void *ctx, void (*callback)(void *ctx, leveldb::Slice key, leveldb::Slice value)
 NAN_METHOD(Iterator::Next) {
   NanScope();
 
@@ -434,14 +424,14 @@ NAN_METHOD(Iterator::New) {
     , keys
     , values
     , limit
-    , fillCache
-    , keyAsBuffer
-    , valueAsBuffer
-    , startHandle
     , lt
     , lte
     , gt
     , gte
+    , fillCache
+    , keyAsBuffer
+    , valueAsBuffer
+    , startHandle
   );
   iterator->Wrap(args.This());
 

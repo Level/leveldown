@@ -38,14 +38,14 @@ public:
     , bool keys
     , bool values
     , int limit
-    , bool fillCache
-    , bool keyAsBuffer
-    , bool valueAsBuffer
-    , v8::Local<v8::Object> &startHandle
     , std::string* lt
     , std::string* lte
     , std::string* gt
     , std::string* gte
+    , bool fillCache
+    , bool keyAsBuffer
+    , bool valueAsBuffer
+    , v8::Local<v8::Object> &startHandle
   );
 
   ~Iterator ();
@@ -66,12 +66,12 @@ private:
   bool keys;
   bool values;
   int limit;
-  int count;
   std::string* lt;
   std::string* lte;
   std::string* gt;
   std::string* gte;
-  
+  int count;
+
 public:
   bool keyAsBuffer;
   bool valueAsBuffer;
