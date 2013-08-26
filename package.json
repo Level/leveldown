@@ -1,6 +1,7 @@
 {
     "name"            : "leveldown"
   , "description"     : "A Node.js LevelDB binding, primary backend for LevelUP"
+  , "version"         : "0.8.0"
   , "contributors"    : [
         "Rod Vagg <r@va.gg> (https://github.com/rvagg)"
       , "John Chesley <john@chesl.es> (https://github.com/chesles/)"
@@ -14,11 +15,14 @@
       , "Anton Whalley <anton.whalley@nearform.com> (https://github.com/No9)"
       , "Matteo Collina <matteo.collina@gmail.com> (https://github.com/mcollina)"
       , "Pedro Teixeira <pedro.teixeira@gmail.com> (https://github.com/pgte)"
+      , "James Halliday <mail@substack.net> (https://github.com/substack)"
     ]
-  , "keywords": [
-        "leveldb", "level"
-    ]
-  , "version"         : "0.8.0"
+  , "repository"      : {
+        "type"                : "git"
+      , "url"                 : "https://github.com/rvagg/node-leveldown.git"
+    }
+  , "homepage"        : "https://github.com/rvagg/node-leveldown"
+  , "keywords": [ "leveldb", "level" ]
   , "main"            : "index.js"
   , "dependencies"    : {
         "bindings"            : "~1.1.1"
@@ -32,10 +36,6 @@
       , "abstract-leveldown"  : "~0.10.0"
       , "monotonic-timestamp" : "~0.0.8"
       , "du"                  : "~0.0.1"
-    }
-  , "repository"      : {
-        "type"                : "git"
-      , "url"                 : "https://github.com/rvagg/node-leveldown.git"
     }
   , "scripts"         : {
         "test"                : "tap test/*-test.js --stderr"
