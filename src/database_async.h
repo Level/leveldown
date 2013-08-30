@@ -162,6 +162,23 @@ public:
     uint64_t size;
 };
 
+class LiveBackupWorker : public AsyncWorker {
+public:
+  LiveBackupWorker (
+      Database *database
+    , NanCallback *callback
+    , leveldb::Slice name
+    , v8::Local<v8::Object> &nameHandle
+  );
+
+  virtual ~LiveBackupWorker ();
+  virtual void Execute ();
+  virtual void WorkComplete ();
+
+private:
+  leveldb::Slice name;
+};
+
 } // namespace leveldown
 
 #endif

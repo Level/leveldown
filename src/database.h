@@ -70,7 +70,7 @@ public:
   );
   uint64_t ApproximateSizeFromDatabase (const leveldb::Range* range);
   void GetPropertyFromDatabase (const leveldb::Slice& property, std::string* value);
-  void LiveBackup (const leveldb::Slice& name);
+  leveldb::Status LiveBackup (const leveldb::Slice& name);
   leveldb::Iterator* NewIterator (leveldb::ReadOptions* options);
   const leveldb::Snapshot* NewSnapshot ();
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
