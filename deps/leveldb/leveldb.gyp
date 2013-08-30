@@ -100,6 +100,7 @@
                   , '-Wno-unused-variable'
                   , '-Wno-unused-function'
                 ]
+              , 'GCC_ENABLE_CPP_RTTI': '-frtti'
             }
         }]
     ]
