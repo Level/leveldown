@@ -1,7 +1,7 @@
 {
     "name"            : "leveldown-hyper"
   , "description"     : "A Node.js LevelDB binding, primary backend for LevelUP (HyperDex fork)"
-  , "version"         : "0.8.0"
+  , "version"         : "0.8.0-1"
   , "contributors"    : [
         "Rod Vagg <r@va.gg> (https://github.com/rvagg)"
       , "John Chesley <john@chesl.es> (https://github.com/chesles/)"

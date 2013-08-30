@@ -6,5 +6,4 @@ test/benchmarks/
 leakydb
 bench/
 deps/leveldb/leveldb-basho/
-deps/leveldb/leveldb-hyper/
 deps/snappy/snappy-1.1.0/testdata/
