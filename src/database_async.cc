@@ -265,4 +265,26 @@ void ApproximateSizeWorker::HandleOKCallback () {
   callback->Call(2, argv);
 }
 
+LiveBackupWorker::LiveBackupWorker (
+    Database *database
+  , NanCallback *callback
+  , leveldb::Slice name
+  , v8::Local<v8::Object> &nameHandle
+) : AsyncWorker(database, callback)
+  , name(name)
+{
+  SavePersistent("name", nameHandle);
+};
+
+LiveBackupWorker::~LiveBackupWorker () {}
+
+void LiveBackupWorker::Execute () {
+  SetStatus(database->LiveBackup(name));
+}
+
+void LiveBackupWorker::WorkComplete () {
+  DisposeStringOrBufferFromSlice(GetFromPersistent("name"), name);
+  AsyncWorker::WorkComplete();
+}
+
 } // namespace leveldown
