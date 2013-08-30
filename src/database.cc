@@ -87,6 +87,10 @@ void Database::GetPropertyFromDatabase (
   db->GetProperty(property, value);
 }
 
+void Database::LiveBackup (const leveldb::Slice& name) {
+  db->LiveBackup(name);
+}
+
 leveldb::Iterator* Database::NewIterator (leveldb::ReadOptions* options) {
   return db->NewIterator(*options);
 }
@@ -142,6 +146,7 @@ void Database::Init () {
   NODE_SET_PROTOTYPE_METHOD(tpl, "approximateSize", Database::ApproximateSize);
   NODE_SET_PROTOTYPE_METHOD(tpl, "getProperty", Database::GetProperty);
   NODE_SET_PROTOTYPE_METHOD(tpl, "iterator", Database::Iterator);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "liveBackup", Database::LiveBackup);
 }
 
 NAN_METHOD(Database::New) {
@@ -550,5 +555,30 @@ NAN_METHOD(Database::Iterator) {
   NanReturnValue(iteratorHandle);
 }
 
+NAN_METHOD(Database::LiveBackup) {
+  NanScope();
+
+  v8::Local<v8::Value> nameHandle = args[0].As<v8::Object>();
+  v8::Local<v8::Function> callback; // for LD_CB_ERR_IF_NULL_OR_UNDEFINED
+
+  if (!nameHandle->IsString())
+    return NanThrowError("liveBackup() requires a valid `name` argument");
+
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(nameHandle, name)
+
+  LD_STRING_OR_BUFFER_TO_SLICE(name, nameHandle, name)
+
+  leveldown::Database* database =
+      node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+
+  std::string* value = new std::string();
+  database->LiveBackup(name);
+  v8::Local<v8::String> returnValue
+      = v8::String::New(value->c_str(), value->length());
+  delete value;
+  delete[] name.data();
+
+  NanReturnValue(returnValue);
+}
 
 } // namespace leveldown
