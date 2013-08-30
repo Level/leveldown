@@ -87,11 +87,8 @@ void Database::GetPropertyFromDatabase (
   db->GetProperty(property, value);
 }
 
-void Database::LiveBackup (
-      const leveldb::Slice& name
-    ) {
-
-  db->LiveBackup(name);
+leveldb::Status Database::LiveBackup (const leveldb::Slice& name) {
+  return db->LiveBackup(name);
 }
 
 leveldb::Iterator* Database::NewIterator (leveldb::ReadOptions* options) {
@@ -583,6 +580,34 @@ NAN_METHOD(Database::Iterator) {
   */
 
   NanReturnValue(iteratorHandle);
+}
+
+NAN_METHOD(Database::LiveBackup) {
+  NanScope();
+
+  v8::Local<v8::Object> nameHandle = args[0].As<v8::Object>();
+
+  if (nameHandle->IsNull()
+      || nameHandle->IsUndefined()
+      || nameHandle->IsFunction()) {
+    return NanThrowError("liveBackup() requires a valid `name` argument");
+  }
+
+  LD_METHOD_SETUP_COMMON(liveBackup, -1, 1)
+
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], name)
+
+  LD_STRING_OR_BUFFER_TO_SLICE(name, nameHandle, name)
+
+  LiveBackupWorker* worker  = new LiveBackupWorker(
+      database
+    , new NanCallback(callback)
+    , name
+    , nameHandle
+  );
+  NanAsyncQueueWorker(worker);
+
+  NanReturnUndefined();
 }
 
 } // namespace leveldown
