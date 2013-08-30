@@ -87,8 +87,8 @@ void Database::GetPropertyFromDatabase (
   db->GetProperty(property, value);
 }
 
-void Database::LiveBackup (const leveldb::Slice& name) {
-  db->LiveBackup(name);
+leveldb::Status Database::LiveBackup (const leveldb::Slice& name) {
+  return db->LiveBackup(name);
 }
 
 leveldb::Iterator* Database::NewIterator (leveldb::ReadOptions* options) {
@@ -558,27 +558,29 @@ NAN_METHOD(Database::Iterator) {
 NAN_METHOD(Database::LiveBackup) {
   NanScope();
 
-  v8::Local<v8::Value> nameHandle = args[0].As<v8::Object>();
-  v8::Local<v8::Function> callback; // for LD_CB_ERR_IF_NULL_OR_UNDEFINED
+  v8::Local<v8::Object> nameHandle = args[0].As<v8::Object>();
 
-  if (!nameHandle->IsString())
+  if (nameHandle->IsNull()
+      || nameHandle->IsUndefined()
+      || nameHandle->IsFunction()) {
     return NanThrowError("liveBackup() requires a valid `name` argument");
+  }
 
-  LD_CB_ERR_IF_NULL_OR_UNDEFINED(nameHandle, name)
+  LD_METHOD_SETUP_COMMON(liveBackup, -1, 1)
+
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], name)
 
   LD_STRING_OR_BUFFER_TO_SLICE(name, nameHandle, name)
 
-  leveldown::Database* database =
-      node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+  LiveBackupWorker* worker  = new LiveBackupWorker(
+      database
+    , new NanCallback(callback)
+    , name
+    , nameHandle
+  );
+  NanAsyncQueueWorker(worker);
 
-  std::string* value = new std::string();
-  database->LiveBackup(name);
-  v8::Local<v8::String> returnValue
-      = v8::String::New(value->c_str(), value->length());
-  delete value;
-  delete[] name.data();
-
-  NanReturnValue(returnValue);
+  NanReturnUndefined();
 }
 
 } // namespace leveldown
