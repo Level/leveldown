@@ -66,7 +66,8 @@ void CloseWorker::Execute () {
 void CloseWorker::WorkComplete () {
   NanScope();
   HandleOKCallback();
-  AsyncWorker::WorkComplete();
+  delete callback;
+  callback = NULL;
 }
 
 /** IO WORKER (abstract) **/
