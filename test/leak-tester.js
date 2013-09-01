@@ -29,7 +29,8 @@ function run () {
   })
 
   if (getCount % 1000 === 0) {
-    gc()
+    if (typeof gc != 'undefined')
+      gc()
     console.log(
         'getCount ='
       , getCount
