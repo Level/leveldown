@@ -28,7 +28,8 @@ function run () {
     process.nextTick(run)
   })
 
-  if (getCount % 1000 === 0)
+  if (getCount % 1000 === 0) {
+    gc()
     console.log(
         'getCount ='
       , getCount
@@ -41,6 +42,7 @@ function run () {
           return db.getProperty('leveldb.num-files-at-level' + l)
         }))
     )
+  }
 }
 
 leveldown.destroy('./leakydb', function () {
