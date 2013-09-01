@@ -150,6 +150,7 @@
       , 'leveldb-<(ldbversion)/util/options.cc'
       , 'leveldb-<(ldbversion)/util/perf_count.cc'
       , 'leveldb-<(ldbversion)/util/status.cc'
+      , 'leveldb-<(ldbversion)/util/throttle.cc'
       , 'leveldb-<(ldbversion)/port/port_posix.cc'
       , 'leveldb-<(ldbversion)/helpers/memenv/memenv.cc'
    ]
