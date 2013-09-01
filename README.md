@@ -8,7 +8,7 @@ A Low-level Node.js LevelDB binding
 
 [![Build Status](https://secure.travis-ci.org/rvagg/node-leveldown.png)](http://travis-ci.org/rvagg/node-leveldown)
 
-[![NPM](https://nodei.co/npm/leveldown.png)](https://nodei.co/npm/leveldown/)
+[![NPM](https://nodei.co/npm/leveldown.png?stars&downloads)](https://nodei.co/npm/leveldown/) [![NPM](https://nodei.co/npm-dl/leveldown.png)](https://nodei.co/npm/leveldown/)
 
 LevelDOWN was extracted from [LevelUP](https://github.com/rvagg/node-levelup) and now serves as a stand-alone binding for LevelDB.
 
