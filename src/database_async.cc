@@ -65,8 +65,9 @@ void CloseWorker::Execute () {
 
 void CloseWorker::WorkComplete () {
   NanScope();
-
   HandleOKCallback();
+  delete callback;
+  callback = NULL;
 }
 
 /** IO WORKER (abstract) **/
@@ -79,12 +80,16 @@ IOWorker::IOWorker (
 ) : AsyncWorker(database, callback)
   , key(key)
 {
+  NanScope();
+
   SavePersistent("key", keyHandle);
 };
 
 IOWorker::~IOWorker () {}
 
 void IOWorker::WorkComplete () {
+  NanScope();
+
   DisposeStringOrBufferFromSlice(GetFromPersistent("key"), key);
   AsyncWorker::WorkComplete();
 }
@@ -101,6 +106,8 @@ ReadWorker::ReadWorker (
 ) : IOWorker(database, callback, key, keyHandle)
   , asBuffer(asBuffer)
 {
+  NanScope();
+
   options = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
   SavePersistent("key", keyHandle);
@@ -140,6 +147,8 @@ DeleteWorker::DeleteWorker (
   , v8::Local<v8::Object> &keyHandle
 ) : IOWorker(database, callback, key, keyHandle)
 {
+  NanScope();
+
   options = new leveldb::WriteOptions();
   options->sync = sync;
   SavePersistent("key", keyHandle);
@@ -166,6 +175,8 @@ WriteWorker::WriteWorker (
 ) : DeleteWorker(database, callback, key, sync, keyHandle)
   , value(value)
 {
+  NanScope();
+
   SavePersistent("value", valueHandle);
 };
 
@@ -173,11 +184,15 @@ WriteWorker::~WriteWorker () {}
 
 void WriteWorker::Execute () {
   SetStatus(database->PutToDatabase(options, key, value));
+  //printf("WriteWorker::Execute\n");fflush(stdout);
 }
 
 void WriteWorker::WorkComplete () {
+  NanScope();
+
   DisposeStringOrBufferFromSlice(GetFromPersistent("value"), value);
   IOWorker::WorkComplete();
+  //printf("WriteWorker::WorkComplete\n");fflush(stdout);
 }
 
 /** BATCH WORKER **/
@@ -217,6 +232,8 @@ ApproximateSizeWorker::ApproximateSizeWorker (
 ) : AsyncWorker(database, callback)
   , range(start, end)
 {
+  NanScope();
+
   SavePersistent("start", startHandle);
   SavePersistent("end", endHandle);
 };
@@ -228,6 +245,8 @@ void ApproximateSizeWorker::Execute () {
 }
 
 void ApproximateSizeWorker::WorkComplete() {
+  NanScope();
+
   DisposeStringOrBufferFromSlice(GetFromPersistent("start"), range.start);
   DisposeStringOrBufferFromSlice(GetFromPersistent("end"), range.limit);
   AsyncWorker::WorkComplete();
