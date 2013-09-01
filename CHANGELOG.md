@@ -1,3 +1,7 @@
+### 0.8.1 @ Sept 1 2013
+
+  * Fixed some minor V8-level leaks (@rvagg)
+
 ### 0.8.0 @ Aug 19 2013
 
   * Added `gt`, `lt`, `gte`, `lte` for iterators (@dominictarr)
