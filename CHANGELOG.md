@@ -1,3 +1,7 @@
+### 0.8.2 @ Sept 2 2013
+
+  * FreeBSD support (@rvagg, @kelexel)
+
 ### 0.8.1 @ Sept 1 2013
 
   * Fixed some minor V8-level leaks (@rvagg)
