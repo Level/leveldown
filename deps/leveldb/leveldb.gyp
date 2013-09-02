@@ -88,7 +88,8 @@
                 '-lpthread'
             ]
           , 'ccflags': [
-                '-pthread'
+                '-Wno-sign-compare'
+              , '-pthread'
             ]
         }]
       , ['OS == "solaris"', {
