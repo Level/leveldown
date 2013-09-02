@@ -61,7 +61,9 @@
                 '-fno-builtin-memcmp'
               , '-fPIC'
             ]
-          , 'cflags': [
+        }]
+      , ['OS != "win"' and 'OS != "freebsd"', {
+            'cflags': [
                 '-Wno-sign-compare'
               , '-Wno-unused-but-set-variable'
             ]
@@ -75,6 +77,21 @@
             ]
           , 'ccflags': [
                 '-pthread'
+            ]
+        }]
+      , ['OS == "freebsd"', {
+            'defines': [
+                'OS_FREEBSD=1'
+              , '_REENTRANT=1'
+            ]
+          , 'libraries': [
+                '-lpthread'
+            ]
+          , 'ccflags': [
+                '-pthread'
+            ]
+          , 'cflags': [
+                '-Wno-sign-compare'
             ]
         }]
       , ['OS == "solaris"', {

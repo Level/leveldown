@@ -23,6 +23,7 @@ Tested & supported platforms
   * **Linux** (including ARM platforms such as Raspberry Pi *and Kindle!*)
   * **Mac OS**
   * **Solaris** (SmartOS & Nodejitsu)
+  * **FreeBSD**
   * **Windows**
     * Node 0.10 and above only, see [issue #5](https://github.com/rvagg/node-levelup/issues/5) for more info
     * See installation instructions for *node-gyp* dependencies [here](https://github.com/TooTallNate/node-gyp#installation), you'll need these (free) components from Microsoft to compile and run any native Node add-on in Windows.
