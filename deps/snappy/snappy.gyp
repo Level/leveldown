@@ -5,6 +5,7 @@
           , ['OS=="mac"',     {'os_include': 'mac'}]
           , ['OS=="solaris"', {'os_include': 'solaris'}]
           , ['OS=="win"',     {'os_include': 'win32'}]
+          , ['OS=="freebsd"', {'os_include': 'freebsd'}]
         ]
     }
   , 'target_name': 'snappy'
@@ -36,6 +37,12 @@
             }
          }]
       , ['OS == "linux"', {
+            'cflags': [
+                '-Wno-sign-compare'
+              , '-Wno-unused-function'
+            ]
+        }]
+      , ['OS == "freebsd"', {
             'cflags': [
                 '-Wno-sign-compare'
               , '-Wno-unused-function'
