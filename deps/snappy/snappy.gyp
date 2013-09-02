@@ -45,6 +45,7 @@
       , ['OS == "freebsd"', {
             'cflags': [
                 '-Wno-sign-compare'
+              , '-Wno-unused-function'
             ]
         }]
       , ['OS == "solaris"', {
