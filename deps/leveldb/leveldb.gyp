@@ -80,6 +80,7 @@
       , ['OS == "solaris"', {
             'defines': [
                 'OS_SOLARIS=1'
+              , '_REENTRANT=1'
             ]
           , 'libraries': [
                 '-lrt'
