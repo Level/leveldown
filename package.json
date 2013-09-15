@@ -26,7 +26,7 @@
   , "main"            : "index.js"
   , "dependencies"    : {
         "bindings"            : "~1.1.1"
-      , "nan"                 : "~0.3.0"
+      , "nan"                 : "~0.4.0"
     }
   , "devDependencies" : {
         "tap"                 : "~0.4.1"

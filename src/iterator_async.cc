@@ -58,9 +58,9 @@ void NextWorker::HandleOKCallback () {
       , returnKey
       , returnValue
     };
-    callback->Run(3, argv);
+    callback->Call(3, argv);
   } else {
-    callback->Run(0, NULL);
+    callback->Call(0, NULL);
   }
 }
 
@@ -81,7 +81,7 @@ void EndWorker::Execute () {
 
 void EndWorker::HandleOKCallback () {
   iterator->Release();
-  callback->Run(0, NULL);
+  callback->Call(0, NULL);
 }
 
 } // namespace leveldown
