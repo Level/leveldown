@@ -1,3 +1,6 @@
+### 0.8.3 @ Sept 18 2013
+  * Upgrade to nan@0.4.0, better support for latest Node master & support for installing within directory structures containing spaces in directory names (@rvagg)
+
 ### 0.8.2 @ Sept 2 2013
 
   * FreeBSD support (@rvagg, @kelexel)
