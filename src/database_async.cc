@@ -134,7 +134,7 @@ void ReadWorker::HandleOKCallback () {
       v8::Local<v8::Value>::New(v8::Null())
     , returnValue
   };
-  callback->Run(2, argv);
+  callback->Call(2, argv);
 }
 
 /** DELETE WORKER **/
@@ -260,7 +260,7 @@ void ApproximateSizeWorker::HandleOKCallback () {
       v8::Local<v8::Value>::New(v8::Null())
     , returnValue
   };
-  callback->Run(2, argv);
+  callback->Call(2, argv);
 }
 
 } // namespace leveldown
