@@ -23,6 +23,7 @@
   , "dependencies"    : {
         "bindings"            : "~1.1.1"
       , "abstract-leveldown"  : "~0.9.0"
+      , "xtend"               : "~2.0.6"
     }
   , "devDependencies" : {
         "tap"                 : "~0.4.1"

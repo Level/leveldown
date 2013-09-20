@@ -3,6 +3,7 @@ var binding = require('bindings')('leveldown.node').leveldown
 
   , util = require('util')
 
+  , extend = require('xtend')
   , AbstractLevelDOWN = require('abstract-leveldown').AbstractLevelDOWN
 
   , ChainedBatch = require('./lib/chained-batch')
@@ -43,11 +44,22 @@ var binding = require('bindings')('leveldown.node').leveldown
     }
 
   , _put = function(key, value, options, callback) {
-      this._binding.put(key, value, options, callback)
+      var batch = extend(options, {
+          type: 'put'
+        , key: key
+        , value: value
+      })
+
+      this.batch([batch], callback)
     }
 
   , _del = function(key, options, callback) {
-      this._binding.del(key, options, callback)
+      var batch = extend(options, {
+          type: 'del'
+        , key: key
+      })
+
+      this.batch([batch], callback)
     }
 
   , _iterator = function(options) {
