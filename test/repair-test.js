@@ -38,11 +38,11 @@ makeTest('test repair() compacts', function (db, t, done, location) {
     t.notOk(err, 'no error')
     var files = fs.readdirSync(location)
     t.ok(files.some(function (f) { return (/\.log$/).test(f) }), 'directory contains log file(s)')
-    t.notOk(files.some(function (f) { return (/\.sst$/).test(f) }), 'directory does not contain sst file(s)')
+    t.notOk(files.some(function (f) { return (/\.ldb$/).test(f) }), 'directory does not contain ldb file(s)')
     leveldown.repair(location, function () {
       files = fs.readdirSync(location)
       t.notOk(files.some(function (f) { return (/\.log$/).test(f) }), 'directory does not contain log file(s)')
-      t.ok(files.some(function (f) { return (/\.sst$/).test(f) }), 'directory contains sst file(s)')
+      t.ok(files.some(function (f) { return (/\.ldb$/).test(f) }), 'directory contains ldb file(s)')
       done(false)
     })
   })
