@@ -1,3 +1,7 @@
+### 0.9.1 @ Oct 03 2013
+
+  * Include port_uv.h for Windows compile, added test to suite to make sure this happens every time LevelDB is upgraded (@rvagg)
+
 ### 0.9.0 @ Oct 01 2013
 
   * Upgrade from LevelDB@0.11.0 to LevelDB@0.14.0, includes change from .sst to .ldb file extension for SST files (@rvagg)
