@@ -152,6 +152,7 @@
       , 'leveldb-<(ldbversion)/db/builder.cc'
       , 'leveldb-<(ldbversion)/db/filename.cc'
       , 'leveldb-<(ldbversion)/db/db_iter.cc'
+      , 'leveldb-<(ldbversion)/db/replay_iterator.cc'
       , 'leveldb-<(ldbversion)/port/port_posix.cc'
       , 'leveldb-<(ldbversion)/table/merger.cc'
       , 'leveldb-<(ldbversion)/table/filter_block.cc'
