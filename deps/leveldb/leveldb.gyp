@@ -65,6 +65,15 @@
             'cflags': [
                 '-Wno-sign-compare'
               , '-Wno-unused-but-set-variable'
+              , '-Wno-unused-variable'
+              , '-Wno-maybe-uninitialized'
+              , '-Wno-type-limits'
+              , '-Wno-reorder'
+            ]
+        }]
+      , ['OS=="linux" or OS=="freebsd" or OS=="solaris"', {
+            'cflags_cc+': [
+                '-frtti'
             ]
         }]
       , ['OS == "linux"', {
