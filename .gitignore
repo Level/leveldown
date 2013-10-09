@@ -1,5 +1,7 @@
 node_modules/
 build/
+bench/
+deps/leveldb/leveldb-basho/
 libleveldb.so
 libleveldb.a
 leakydb
