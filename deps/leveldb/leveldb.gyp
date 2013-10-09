@@ -1,7 +1,7 @@
 {'targets': [{
     'target_name': 'leveldb'
   , 'variables': {
-        'ldbversion': '1.14.0'
+        'ldbversion': 'basho'
     }
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
@@ -66,6 +66,7 @@
             'cflags': [
                 '-Wno-sign-compare'
               , '-Wno-unused-but-set-variable'
+              , '-Wno-ignored-qualifiers'
             ]
         }]
       , ['OS == "linux"', {
@@ -170,5 +171,6 @@
       , 'leveldb-<(ldbversion)/util/status.cc'
       , 'leveldb-<(ldbversion)/port/port_posix.cc'
       , 'leveldb-<(ldbversion)/helpers/memenv/memenv.cc'
+      , 'leveldb-<(ldbversion)/util/throttle.cc'
    ]
 }]}
