@@ -131,17 +131,15 @@ void Database::Log (char *str) {
 }
 
 void Database::ProcessLog () {
-  fflush(stdout);
-  uv_mutex_lock(&logMutex);
   while (!logQueue.empty()) {
+    uv_mutex_lock(&logMutex);
     v8::Local<v8::Value> argv[] = { v8::String::New(logQueue.front()) };
-    logCallback->Call(1, argv);
-    //printf("%lu: %s\n", uv_thread_self(), logQueue.front());
-    //fflush(stdout);
     delete[] logQueue.front();
     logQueue.pop();
+    uv_mutex_unlock(&logMutex);
+
+    logCallback->Call(1, argv);
   }
-  uv_mutex_unlock(&logMutex);
 }
 
 bool Database::Logging () {

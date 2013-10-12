@@ -31,7 +31,7 @@ function run () {
   if (getCount % 1000 === 0) {
     if (typeof gc != 'undefined')
       gc()
-    console.log(
+    false && console.log(
         'getCount ='
       , getCount
       , ', putCount = '
