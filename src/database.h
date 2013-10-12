@@ -7,6 +7,7 @@
 #define LD_DATABASE_H
 
 #include <map>
+#include <queue>
 #include <vector>
 #include <node.h>
 
@@ -72,6 +73,9 @@ public:
   void CloseDatabase ();
   const char* Location() const;
   void ReleaseIterator (uint32_t id);
+  void Log (char *str);
+  void ProcessLog ();
+  bool Logging ();
 
   Database (char* location);
   ~Database ();
@@ -81,6 +85,10 @@ private:
   char* location;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);
+  uv_mutex_t logMutex;
+  uv_async_t logAsync;
+  std::queue<char *> logQueue;
+  NanCallback *logCallback;
 
   std::map< uint32_t, leveldown::Iterator * > iterators;
 

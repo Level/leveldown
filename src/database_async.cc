@@ -10,6 +10,7 @@
 #include "leveldown.h"
 #include "async.h"
 #include "database_async.h"
+#include "log.h"
 
 namespace leveldown {
 
@@ -39,6 +40,8 @@ OpenWorker::OpenWorker (
   options->block_size             = blockSize;
   options->max_open_files         = maxOpenFiles;
   options->block_restart_interval = blockRestartInterval;
+  if (database->Logging())
+    options->info_log = new LevelDOWNLogger(database);
 };
 
 OpenWorker::~OpenWorker () {

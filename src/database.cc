@@ -21,10 +21,19 @@ namespace leveldown {
 
 static v8::Persistent<v8::FunctionTemplate> database_constructor;
 
+void processLog(uv_async_t *handle, int status) {
+  Database *database = static_cast<Database*>(handle->data);
+  database->ProcessLog();
+}
+
 Database::Database (char* location) : location(location) {
   db = NULL;
+  logCallback = NULL;
   currentIteratorId = 0;
   pendingCloseWorker = NULL;
+  uv_mutex_init(&logMutex);
+  logAsync.data = this;
+  uv_async_init(uv_default_loop(), &logAsync, processLog);
 };
 
 Database::~Database () {
@@ -110,6 +119,33 @@ void Database::ReleaseIterator (uint32_t id) {
     NanAsyncQueueWorker((AsyncWorker*)pendingCloseWorker);
     pendingCloseWorker = NULL;
   }
+}
+
+void Database::Log (char *str) {
+  if (Logging()) {
+    uv_mutex_lock(&logMutex);
+    logQueue.push(str);
+    uv_mutex_unlock(&logMutex);
+    uv_async_send(&logAsync);
+  }
+}
+
+void Database::ProcessLog () {
+  fflush(stdout);
+  uv_mutex_lock(&logMutex);
+  while (!logQueue.empty()) {
+    v8::Local<v8::Value> argv[] = { v8::String::New(logQueue.front()) };
+    logCallback->Call(1, argv);
+    //printf("%lu: %s\n", uv_thread_self(), logQueue.front());
+    //fflush(stdout);
+    delete[] logQueue.front();
+    logQueue.pop();
+  }
+  uv_mutex_unlock(&logMutex);
+}
+
+bool Database::Logging () {
+  return logCallback != NULL;
 }
 
 void Database::CloseDatabase () {
@@ -218,6 +254,12 @@ NAN_METHOD(Database::Open) {
     , NanSymbol("blockRestartInterval")
     , 16
   );
+  if (!optionsObj.IsEmpty()
+      && optionsObj->Has(NanSymbol("logCallback"))
+      && optionsObj->Get(NanSymbol("logCallback"))->IsFunction()) {
+    database->logCallback = new NanCallback(
+        optionsObj->Get(NanSymbol("logCallback")).As<v8::Function>());
+  }
 
   OpenWorker* worker = new OpenWorker(
       database
