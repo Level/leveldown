@@ -14,7 +14,12 @@
                     , "DisableSpecificWarnings": [ "4355", "4530" ,"4267", "4244", "4506" ]
                   }
               }
-           }]
+          }]
+        , ['OS == "linux"', {
+              'cflags': [
+                  '-Wno-unused-local-typedefs'
+              ]
+          }]
         ]
       , "dependencies": [
             "<(module_root_dir)/deps/leveldb/leveldb.gyp:leveldb"

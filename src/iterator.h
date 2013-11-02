@@ -18,8 +18,6 @@ namespace leveldown {
 class Database;
 class AsyncWorker;
 
-v8::Local<v8::Value> CreateIterator (const v8::Arguments& args);
-
 class Iterator : public node::ObjectWrap {
 public:
   static void Init ();
