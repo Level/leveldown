@@ -1,3 +1,7 @@
+### 0.9.2 @ Nov 02 2013
+
+  * Minor fixes to support Node 0.11.8 and new Linux gcc (warnings) (@rvagg)
+
 ### 0.9.1 @ Oct 03 2013
 
   * Include port_uv.h for Windows compile, added test to suite to make sure this happens every time LevelDB is upgraded (@rvagg)
