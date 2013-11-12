@@ -280,11 +280,12 @@ NAN_METHOD(Database::Close) {
           v8::Local<v8::Value> argv[] = {
               v8::FunctionTemplate::New()->GetFunction() // empty callback
           };
-          v8::TryCatch try_catch;
-          end->Call(NanObjectWrapHandle(iterator), 1, argv);
-          if (try_catch.HasCaught()) {
-            node::FatalException(try_catch);
-          }
+          node::MakeCallback(
+              NanObjectWrapHandle(iterator)
+            , end
+            , 1
+            , argv
+          );
         }
     }
   } else {
@@ -440,7 +441,7 @@ NAN_METHOD(Database::Batch) {
     ));
   } else {
     ClearReferences(references);
-    LD_RUN_CALLBACK(callback, NULL, 0);
+    LD_RUN_CALLBACK(callback, 0, NULL);
   }
 
   NanReturnUndefined();

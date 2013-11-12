@@ -73,17 +73,14 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::String::New(msg))                                                  \
       )                                                                        \
     };                                                                         \
-    LD_RUN_CALLBACK(callback, argv, 1)                                         \
+    LD_RUN_CALLBACK(callback, 1, argv)                                         \
     NanReturnUndefined();                                                      \
   }                                                                            \
   return NanThrowError(msg);
 
-#define LD_RUN_CALLBACK(callback, argv, length)                                \
-  v8::TryCatch try_catch;                                                      \
-  callback->Call(v8::Context::GetCurrent()->Global(), length, argv);           \
-  if (try_catch.HasCaught()) {                                                 \
-    node::FatalException(try_catch);                                           \
-  }
+#define LD_RUN_CALLBACK(callback, argc, argv)                                  \
+  node::MakeCallback(                                                          \
+      v8::Context::GetCurrent()->Global(), callback, argc, argv);
 
 /* LD_METHOD_SETUP_COMMON setup the following objects:
  *  - Database* database

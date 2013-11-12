@@ -167,7 +167,7 @@ NAN_METHOD(Batch::Write) {
     BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);
     NanAsyncQueueWorker(worker);
   } else {
-    LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(args[0]), NULL, 0);
+    LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(args[0]), 0, NULL);
   }
 
   NanReturnUndefined();
