@@ -15,13 +15,11 @@ Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
   options = new leveldb::WriteOptions();
   options->sync = sync;
   batch = new leveldb::WriteBatch();
-  references = new std::vector<Reference *>;
   hasData = false;
   written = false;
 }
 
 Batch::~Batch () {
-  ClearReferences(references);
   delete options;
   delete batch;
 }
@@ -100,12 +98,12 @@ NAN_METHOD(Batch::Put) {
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
   LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
-  //batch->references->push_back(new Reference(keyBuffer, key));
-  //batch->references->push_back(new Reference(valueBuffer, value));
-
   batch->batch->Put(key, value);
   if (!batch->hasData)
     batch->hasData = true;
+
+  DisposeStringOrBufferFromSlice(keyBuffer, key);
+  DisposeStringOrBufferFromSlice(valueBuffer, value);
 
   NanReturnValue(args.Holder());
 }
@@ -125,11 +123,11 @@ NAN_METHOD(Batch::Del) {
   v8::Local<v8::Value> keyBuffer = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
-  //batch->references->push_back(new Reference(keyBuffer, key));
-
   batch->batch->Delete(key);
   if (!batch->hasData)
     batch->hasData = true;
+
+  DisposeStringOrBufferFromSlice(keyBuffer, key);
 
   NanReturnValue(args.Holder());
 }

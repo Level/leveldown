@@ -6,6 +6,8 @@
 #include <node.h>
 #include <node_buffer.h>
 
+#include "leveldb/write_batch.h"
+
 #include "database.h"
 #include "leveldown.h"
 #include "async.h"
@@ -201,18 +203,16 @@ BatchWorker::BatchWorker (
     Database *database
   , NanCallback *callback
   , leveldb::WriteBatch* batch
-  , std::vector<Reference *>* references
   , bool sync
 ) : AsyncWorker(database, callback)
   , batch(batch)
-  , references(references)
 {
   options = new leveldb::WriteOptions();
   options->sync = sync;
 };
 
 BatchWorker::~BatchWorker () {
-  ClearReferences(references);
+  delete batch;
   delete options;
 }
 

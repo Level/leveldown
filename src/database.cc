@@ -391,7 +391,6 @@ NAN_METHOD(Database::Batch) {
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
-  std::vector< Reference *>* references = new std::vector< Reference *>;
   leveldb::WriteBatch* batch = new leveldb::WriteBatch();
   bool hasData = false;
 
@@ -413,7 +412,7 @@ NAN_METHOD(Database::Batch) {
       if (!hasData)
         hasData = true;
 
-      //references->push_back(new Reference(keyBuffer, key));
+      DisposeStringOrBufferFromSlice(keyBuffer, key);
     } else if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("put"))) {
       v8::Local<v8::Value> valueBuffer = obj->Get(NanSymbol("value"));
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
@@ -425,8 +424,8 @@ NAN_METHOD(Database::Batch) {
       if (!hasData)
         hasData = true;
 
-      //references->push_back(new Reference(keyBuffer, key));
-      //references->push_back(new Reference(valueBuffer, value));
+      DisposeStringOrBufferFromSlice(keyBuffer, key);
+      DisposeStringOrBufferFromSlice(valueBuffer, value);
     }
   }
 
@@ -436,11 +435,9 @@ NAN_METHOD(Database::Batch) {
         database
       , new NanCallback(callback)
       , batch
-      , references
       , sync
     ));
   } else {
-    ClearReferences(references);
     LD_RUN_CALLBACK(callback, 0, NULL);
   }
 

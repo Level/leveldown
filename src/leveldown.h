@@ -29,7 +29,7 @@ static inline void DisposeStringOrBufferFromSlice(
 }
 
 static inline void DisposeStringOrBufferFromSlice(
-        v8::Local<v8::Object> handle
+        v8::Local<v8::Value> handle
       , leveldb::Slice slice) {
 
   if (!node::Buffer::HasInstance(handle))
