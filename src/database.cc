@@ -413,7 +413,7 @@ NAN_METHOD(Database::Batch) {
       if (!hasData)
         hasData = true;
 
-      references->push_back(new Reference(keyBuffer, key));
+      //references->push_back(new Reference(keyBuffer, key));
     } else if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("put"))) {
       v8::Local<v8::Value> valueBuffer = obj->Get(NanSymbol("value"));
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
@@ -425,8 +425,8 @@ NAN_METHOD(Database::Batch) {
       if (!hasData)
         hasData = true;
 
-      references->push_back(new Reference(keyBuffer, key));
-      references->push_back(new Reference(valueBuffer, value));
+      //references->push_back(new Reference(keyBuffer, key));
+      //references->push_back(new Reference(valueBuffer, value));
     }
   }
 

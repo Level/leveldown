@@ -100,8 +100,8 @@ NAN_METHOD(Batch::Put) {
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
   LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
 
-  batch->references->push_back(new Reference(keyBuffer, key));
-  batch->references->push_back(new Reference(valueBuffer, value));
+  //batch->references->push_back(new Reference(keyBuffer, key));
+  //batch->references->push_back(new Reference(valueBuffer, value));
 
   batch->batch->Put(key, value);
   if (!batch->hasData)
@@ -125,7 +125,7 @@ NAN_METHOD(Batch::Del) {
   v8::Local<v8::Value> keyBuffer = args[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
 
-  batch->references->push_back(new Reference(keyBuffer, key));
+  //batch->references->push_back(new Reference(keyBuffer, key));
 
   batch->batch->Delete(key);
   if (!batch->hasData)
