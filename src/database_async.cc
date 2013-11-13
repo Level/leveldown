@@ -7,6 +7,7 @@
 #include <node_buffer.h>
 
 #include "leveldb/write_batch.h"
+#include "leveldb/filter_policy.h"
 
 #include "database.h"
 #include "leveldown.h"
@@ -41,6 +42,7 @@ OpenWorker::OpenWorker (
   options->block_size             = blockSize;
   options->max_open_files         = maxOpenFiles;
   options->block_restart_interval = blockRestartInterval;
+  options->filter_policy          = leveldb::NewBloomFilterPolicy(10);
 };
 
 OpenWorker::~OpenWorker () {
