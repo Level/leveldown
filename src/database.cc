@@ -191,7 +191,8 @@ NAN_METHOD(Database::Open) {
   );
   bool errorIfExists =
       NanBooleanOptionValue(optionsObj, NanSymbol("errorIfExists"));
-  bool compression = NanBooleanOptionValue(optionsObj, NanSymbol("compression"));
+  bool compression = 
+      NanBooleanOptionValue(optionsObj, NanSymbol("compression"), true);
 
   uint32_t cacheSize = NanUInt32OptionValue(
       optionsObj
