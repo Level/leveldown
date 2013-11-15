@@ -6,8 +6,8 @@
 #include <node.h>
 #include <node_buffer.h>
 
-#include "leveldb/write_batch.h"
-#include "leveldb/filter_policy.h"
+#include "rocksdb/write_batch.h"
+#include "rocksdb/filter_policy.h"
 
 #include "database.h"
 #include "leveldown.h"
@@ -31,18 +31,18 @@ OpenWorker::OpenWorker (
   , uint32_t blockRestartInterval
 ) : AsyncWorker(database, callback)
 {
-  options = new leveldb::Options();
+  options = new rocksdb::Options();
   options->create_if_missing      = createIfMissing;
   options->error_if_exists        = errorIfExists;
   options->compression            = compression
-      ? leveldb::kSnappyCompression
-      : leveldb::kNoCompression;
-  options->block_cache            = leveldb::NewLRUCache(cacheSize);
+      ? rocksdb::kSnappyCompression
+      : rocksdb::kNoCompression;
+  options->block_cache            = rocksdb::NewLRUCache(cacheSize);
   options->write_buffer_size      = writeBufferSize;
   options->block_size             = blockSize;
   options->max_open_files         = maxOpenFiles;
   options->block_restart_interval = blockRestartInterval;
-  options->filter_policy          = leveldb::NewBloomFilterPolicy(10);
+  options->filter_policy          = rocksdb::NewBloomFilterPolicy(10);
 };
 
 OpenWorker::~OpenWorker () {
@@ -79,7 +79,7 @@ void CloseWorker::WorkComplete () {
 IOWorker::IOWorker (
     Database *database
   , NanCallback *callback
-  , leveldb::Slice key
+  , rocksdb::Slice key
   , v8::Local<v8::Object> &keyHandle
 ) : AsyncWorker(database, callback)
   , key(key)
@@ -103,7 +103,7 @@ void IOWorker::WorkComplete () {
 ReadWorker::ReadWorker (
     Database *database
   , NanCallback *callback
-  , leveldb::Slice key
+  , rocksdb::Slice key
   , bool asBuffer
   , bool fillCache
   , v8::Local<v8::Object> &keyHandle
@@ -112,7 +112,7 @@ ReadWorker::ReadWorker (
 {
   NanScope();
 
-  options = new leveldb::ReadOptions();
+  options = new rocksdb::ReadOptions();
   options->fill_cache = fillCache;
   SavePersistent("key", keyHandle);
 };
@@ -146,14 +146,14 @@ void ReadWorker::HandleOKCallback () {
 DeleteWorker::DeleteWorker (
     Database *database
   , NanCallback *callback
-  , leveldb::Slice key
+  , rocksdb::Slice key
   , bool sync
   , v8::Local<v8::Object> &keyHandle
 ) : IOWorker(database, callback, key, keyHandle)
 {
   NanScope();
 
-  options = new leveldb::WriteOptions();
+  options = new rocksdb::WriteOptions();
   options->sync = sync;
   SavePersistent("key", keyHandle);
 };
@@ -171,8 +171,8 @@ void DeleteWorker::Execute () {
 WriteWorker::WriteWorker (
     Database *database
   , NanCallback *callback
-  , leveldb::Slice key
-  , leveldb::Slice value
+  , rocksdb::Slice key
+  , rocksdb::Slice value
   , bool sync
   , v8::Local<v8::Object> &keyHandle
   , v8::Local<v8::Object> &valueHandle
@@ -204,12 +204,12 @@ void WriteWorker::WorkComplete () {
 BatchWorker::BatchWorker (
     Database *database
   , NanCallback *callback
-  , leveldb::WriteBatch* batch
+  , rocksdb::WriteBatch* batch
   , bool sync
 ) : AsyncWorker(database, callback)
   , batch(batch)
 {
-  options = new leveldb::WriteOptions();
+  options = new rocksdb::WriteOptions();
   options->sync = sync;
 };
 
@@ -227,8 +227,8 @@ void BatchWorker::Execute () {
 ApproximateSizeWorker::ApproximateSizeWorker (
     Database *database
   , NanCallback *callback
-  , leveldb::Slice start
-  , leveldb::Slice end
+  , rocksdb::Slice start
+  , rocksdb::Slice end
   , v8::Local<v8::Object> &startHandle
   , v8::Local<v8::Object> &endHandle
 ) : AsyncWorker(database, callback)

@@ -30,7 +30,7 @@ public:
   Iterator (
       Database* database
     , uint32_t id
-    , leveldb::Slice* start
+    , rocksdb::Slice* start
     , std::string* end
     , bool reverse
     , bool keys
@@ -49,16 +49,16 @@ public:
   ~Iterator ();
 
   bool IteratorNext (std::string& key, std::string& value);
-  leveldb::Status IteratorStatus ();
+  rocksdb::Status IteratorStatus ();
   void IteratorEnd ();
   void Release ();
 
 private:
   Database* database;
   uint32_t id;
-  leveldb::Iterator* dbIterator;
-  leveldb::ReadOptions* options;
-  leveldb::Slice* start;
+  rocksdb::Iterator* dbIterator;
+  rocksdb::ReadOptions* options;
+  rocksdb::Slice* start;
   std::string* end;
   bool reverse;
   bool keys;
