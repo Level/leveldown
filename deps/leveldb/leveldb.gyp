@@ -183,7 +183,6 @@
       , 'leveldb-<(ldbversion)/util/statistics.cc'
       , 'leveldb-<(ldbversion)/util/histogram.cc'
       , 'leveldb-<(ldbversion)/util/arena_impl.cc'
-      , 'leveldb-<(ldbversion)/util/ldb_tool.cc'
       , 'leveldb-<(ldbversion)/util/coding.cc'
       , 'leveldb-<(ldbversion)/util/perf_context.cc'
       , 'leveldb-<(ldbversion)/util/hash.cc'
