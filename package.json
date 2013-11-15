@@ -1,7 +1,7 @@
 {
     "name"            : "rocksdb"
   , "description"     : "A Node.js RocksDB binding, LevelDOWN-compatible (alpha release)"
-  , "version"         : "0.0.0-a03"
+  , "version"         : "0.0.0-a04"
   , "contributors"    : [
         "Rod Vagg <r@va.gg> (https://github.com/rvagg)"
       , "John Chesley <john@chesl.es> (https://github.com/chesles/)"
