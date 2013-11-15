@@ -10,7 +10,7 @@
 #include <vector>
 #include <node.h>
 
-#include "leveldb/db.h"
+#include "rocksdb/db.h"
 #include "nan.h"
 #include "leveldown.h"
 #include "iterator.h"
@@ -21,9 +21,9 @@ NAN_METHOD(LevelDOWN);
 
 struct Reference {
   v8::Persistent<v8::Object> handle;
-  leveldb::Slice slice;
+  rocksdb::Slice slice;
 
-  Reference(v8::Local<v8::Value> obj, leveldb::Slice slice) : slice(slice) {
+  Reference(v8::Local<v8::Value> obj, rocksdb::Slice slice) : slice(slice) {
     v8::Local<v8::Object> _obj = v8::Object::New();
     _obj->Set(NanSymbol("obj"), obj);
     NanAssignPersistent(v8::Object, handle, _obj);
@@ -45,30 +45,30 @@ public:
   static void Init ();
   static v8::Handle<v8::Value> NewInstance (v8::Local<v8::String> &location);
 
-  leveldb::Status OpenDatabase (leveldb::Options* options, std::string location);
-  leveldb::Status PutToDatabase (
-      leveldb::WriteOptions* options
-    , leveldb::Slice key
-    , leveldb::Slice value
+  rocksdb::Status OpenDatabase (rocksdb::Options* options, std::string location);
+  rocksdb::Status PutToDatabase (
+      rocksdb::WriteOptions* options
+    , rocksdb::Slice key
+    , rocksdb::Slice value
   );
-  leveldb::Status GetFromDatabase (
-      leveldb::ReadOptions* options
-    , leveldb::Slice key
+  rocksdb::Status GetFromDatabase (
+      rocksdb::ReadOptions* options
+    , rocksdb::Slice key
     , std::string& value
   );
-  leveldb::Status DeleteFromDatabase (
-      leveldb::WriteOptions* options
-    , leveldb::Slice key
+  rocksdb::Status DeleteFromDatabase (
+      rocksdb::WriteOptions* options
+    , rocksdb::Slice key
   );
-  leveldb::Status WriteBatchToDatabase (
-      leveldb::WriteOptions* options
-    , leveldb::WriteBatch* batch
+  rocksdb::Status WriteBatchToDatabase (
+      rocksdb::WriteOptions* options
+    , rocksdb::WriteBatch* batch
   );
-  uint64_t ApproximateSizeFromDatabase (const leveldb::Range* range);
-  void GetPropertyFromDatabase (const leveldb::Slice& property, std::string* value);
-  leveldb::Iterator* NewIterator (leveldb::ReadOptions* options);
-  const leveldb::Snapshot* NewSnapshot ();
-  void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
+  uint64_t ApproximateSizeFromDatabase (const rocksdb::Range* range);
+  void GetPropertyFromDatabase (const rocksdb::Slice& property, std::string* value);
+  rocksdb::Iterator* NewIterator (rocksdb::ReadOptions* options);
+  const rocksdb::Snapshot* NewSnapshot ();
+  void ReleaseSnapshot (const rocksdb::Snapshot* snapshot);
   void CloseDatabase ();
   const char* Location() const;
   void ReleaseIterator (uint32_t id);
@@ -77,7 +77,7 @@ public:
   ~Database ();
 
 private:
-  leveldb::DB* db;
+  rocksdb::DB* db;
   char* location;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);

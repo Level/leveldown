@@ -7,7 +7,7 @@
 
 #include <node.h>
 #include <node_buffer.h>
-#include <leveldb/slice.h>
+#include <rocksdb/slice.h>
 
 #include "nan.h"
 
@@ -21,7 +21,7 @@ static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
 // LD_STRING_OR_BUFFER_TO_SLICE
 static inline void DisposeStringOrBufferFromSlice(
         v8::Persistent<v8::Object> &handle
-      , leveldb::Slice slice) {
+      , rocksdb::Slice slice) {
 
   if (!node::Buffer::HasInstance(NanPersistentToLocal(handle)->Get(NanSymbol("obj"))))
     delete[] slice.data();
@@ -30,7 +30,7 @@ static inline void DisposeStringOrBufferFromSlice(
 
 static inline void DisposeStringOrBufferFromSlice(
         v8::Local<v8::Value> handle
-      , leveldb::Slice slice) {
+      , rocksdb::Slice slice) {
 
   if (!node::Buffer::HasInstance(handle))
     delete[] slice.data();
@@ -64,7 +64,7 @@ static inline void DisposeStringOrBufferFromSlice(
       , NULL, v8::String::NO_NULL_TERMINATION                                  \
     );                                                                         \
   }                                                                            \
-  leveldb::Slice to(to ## Ch_, to ## Sz_);
+  rocksdb::Slice to(to ## Ch_, to ## Sz_);
 
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg)                             \
   if (!callback.IsEmpty() && callback->IsFunction()) {                         \

@@ -1,0 +1,3 @@
+[submodule "deps/leveldb/leveldb-rocksdb"]
+	path = deps/leveldb/leveldb-rocksdb
+	url = https://github.com/facebook/rocksdb.git
