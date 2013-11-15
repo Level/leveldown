@@ -231,7 +231,9 @@ NAN_METHOD(Database::Open) {
     , maxOpenFiles
     , blockRestartInterval
   );
-
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -246,6 +248,9 @@ NAN_METHOD(Database::Close) {
       database
     , new NanCallback(callback)
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
 
   if (!database->iterators.empty()) {
     // yikes, we still have iterators open! naughty naughty.
@@ -319,6 +324,9 @@ NAN_METHOD(Database::Put) {
     , keyHandle
     , valueHandle
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -345,6 +353,9 @@ NAN_METHOD(Database::Get) {
     , fillCache
     , keyHandle
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -369,6 +380,9 @@ NAN_METHOD(Database::Delete) {
     , sync
     , keyHandle
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -431,12 +445,16 @@ NAN_METHOD(Database::Batch) {
 
   // don't allow an empty batch through
   if (hasData) {
-    NanAsyncQueueWorker(new BatchWorker(
+    BatchWorker* worker = new BatchWorker(
         database
       , new NanCallback(callback)
       , batch
       , sync
-    ));
+    );
+    // persist to prevent accidental GC
+    v8::Local<v8::Object> _this = args.This();
+    worker->SavePersistent("database", _this);
+    NanAsyncQueueWorker(worker);
   } else {
     LD_RUN_CALLBACK(callback, 0, NULL);
   }
@@ -476,6 +494,9 @@ NAN_METHOD(Database::ApproximateSize) {
     , startHandle
     , endHandle
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();

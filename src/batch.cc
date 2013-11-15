@@ -163,6 +163,9 @@ NAN_METHOD(Batch::Write) {
     NanCallback *callback =
         new NanCallback(v8::Local<v8::Function>::Cast(args[0]));
     BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);
+    // persist to prevent accidental GC
+    v8::Local<v8::Object> _this = args.This();
+    worker->SavePersistent("batch", _this);
     NanAsyncQueueWorker(worker);
   } else {
     LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(args[0]), 0, NULL);
