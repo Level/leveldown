@@ -5,6 +5,10 @@ test-data.db.tar
 test/benchmarks/
 deps/leveldb/leveldb-basho/
 deps/leveldb/leveldb-hyper/
+deps/leveldb/leveldb-1.14.0/
 deps/snappy/snappy-1.1.0/testdata/
+deps/leveldb/leveldb-rocksdb/snappy/
+deps/leveldb/leveldb-rocksdb/linters/
+deps/leveldb/leveldb-rocksdb/utilities/
 leakydb
 bench/
