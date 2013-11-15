@@ -14,6 +14,25 @@
                     , "DisableSpecificWarnings": [ "4355", "4530" ,"4267", "4244", "4506" ]
                   }
               }
+          }, { # OS != "win"
+              'cflags': [
+                  '-std=gnu++0x'
+                , '-fno-omit-frame-pointer'
+                , '-momit-leaf-frame-pointer'
+                , '-Woverloaded-virtual'
+                , '-Wno-ignored-qualifiers'
+                , '-Wno-type-limits'
+                , '-Wno-unused-variable'
+                , '-fPIC'
+              ]
+            , 'cflags!': [
+                  '-fno-exceptions'
+                , '-fno-rtti'
+              ]
+            , 'cflags_cc!': [
+                  '-fno-exceptions'
+                , '-fno-rtti'
+              ]
           }]
         , ['OS == "linux"', {
               'cflags': [
