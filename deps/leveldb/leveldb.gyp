@@ -193,7 +193,6 @@
       , 'leveldb-<(ldbversion)/util/perf_context.cc'
       , 'leveldb-<(ldbversion)/util/hash.cc'
       , 'leveldb-<(ldbversion)/util/logging.cc'
-      , 'leveldb-<(ldbversion)/util/ldb_cmd.cc'
       , 'leveldb-<(ldbversion)/util/hash_skiplist_rep.cc'
       , 'leveldb-<(ldbversion)/util/auto_roll_logger.cc'
       , 'leveldb-<(ldbversion)/util/blob_store.cc'
