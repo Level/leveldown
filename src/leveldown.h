@@ -68,10 +68,11 @@ static inline void DisposeStringOrBufferFromSlice(
 
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg)                             \
   if (!callback.IsEmpty() && callback->IsFunction()) {                         \
-    v8::Local<v8::Value> argv[] = {                                            \
-      v8::Local<v8::Value>::New(v8::Exception::Error(                          \
-        v8::String::New(msg))                                                  \
-      )                                                                        \
+     v8::Local<v8::Value> error = v8::Exception::Error((v8::Handle<v8::String>()));       \
+    v8::Isolate* isolate = v8::Isolate::GetCurrent();                         \
+      v8::Local<v8::Value> argv[] = {                                          \
+        v8::Local<v8::Value>::New(isolate,error                         \
+                              )                                                \
     };                                                                         \
     LD_RUN_CALLBACK(callback, argv, 1)                                         \
     NanReturnUndefined();                                                      \
