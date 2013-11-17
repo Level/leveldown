@@ -18,15 +18,16 @@
     ]
   , 'direct_dependent_settings': {
         'include_dirs': [
-            '<(os_include)'
-          , 'snappy-1.1.1'
+            'snappy-1.1.1'
         ]
     }
+  , 'defines': [
+        'HAVE_CONFIG_H=1'
+    ]
   , 'conditions': [
         ['OS == "win"', {
             'defines': [
                 '_HAS_EXCEPTIONS=0'
-              , 'ssize_t=int'
             ]
           , 'msvs_settings': {
                 'VCCLCompilerTool': {
