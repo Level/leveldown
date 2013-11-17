@@ -28,7 +28,6 @@
         ['OS == "win"', {
             'defines': [
                 '_HAS_EXCEPTIONS=0'
-              , 'ssize_t=int'
             ]
           , 'msvs_settings': {
                 'VCCLCompilerTool': {
