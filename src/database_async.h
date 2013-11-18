@@ -129,7 +129,6 @@ public:
       Database *database
     , NanCallback *callback
     , leveldb::WriteBatch* batch
-    , std::vector<Reference *>* references
     , bool sync
   );
 
@@ -139,7 +138,6 @@ public:
 private:
   leveldb::WriteOptions* options;
   leveldb::WriteBatch* batch;
-  std::vector<Reference *>* references;
 };
 
 class ApproximateSizeWorker : public AsyncWorker {

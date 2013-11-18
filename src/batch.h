@@ -26,7 +26,6 @@ private:
   leveldown::Database* database;
   leveldb::WriteOptions* options;
   leveldb::WriteBatch* batch;
-  std::vector<Reference *>* references;
   bool hasData; // keep track of whether we're writing data or not
   bool written;
 

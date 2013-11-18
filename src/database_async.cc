@@ -6,6 +6,9 @@
 #include <node.h>
 #include <node_buffer.h>
 
+#include "leveldb/write_batch.h"
+#include "leveldb/filter_policy.h"
+
 #include "database.h"
 #include "leveldown.h"
 #include "async.h"
@@ -39,6 +42,7 @@ OpenWorker::OpenWorker (
   options->block_size             = blockSize;
   options->max_open_files         = maxOpenFiles;
   options->block_restart_interval = blockRestartInterval;
+  options->filter_policy          = leveldb::NewBloomFilterPolicy(10);
 };
 
 OpenWorker::~OpenWorker () {
@@ -201,18 +205,16 @@ BatchWorker::BatchWorker (
     Database *database
   , NanCallback *callback
   , leveldb::WriteBatch* batch
-  , std::vector<Reference *>* references
   , bool sync
 ) : AsyncWorker(database, callback)
   , batch(batch)
-  , references(references)
 {
   options = new leveldb::WriteOptions();
   options->sync = sync;
 };
 
 BatchWorker::~BatchWorker () {
-  ClearReferences(references);
+  delete batch;
   delete options;
 }
 

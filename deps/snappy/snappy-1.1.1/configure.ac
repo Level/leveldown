@@ -1,11 +1,11 @@
 m4_define([snappy_major], [1])
 m4_define([snappy_minor], [1])
-m4_define([snappy_patchlevel], [0])
+m4_define([snappy_patchlevel], [1])
 
 # Libtool shared library interface versions (current:revision:age)
 # Update this value for every release!  (A:B:C will map to foo.so.(A-C).C.B)
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-m4_define([snappy_ltversion], [2:4:1])
+m4_define([snappy_ltversion], [3:0:2])
 
 AC_INIT([snappy], [snappy_major.snappy_minor.snappy_patchlevel])
 AC_CONFIG_MACRO_DIR([m4])
@@ -18,6 +18,8 @@ AC_SUBST([LIBTOOL_DEPS])
 AC_PROG_CXX
 AC_LANG([C++])
 AC_C_BIGENDIAN
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
 AC_CHECK_HEADERS([stdint.h stddef.h sys/mman.h sys/resource.h windows.h byteswap.h sys/byteswap.h sys/endian.h sys/time.h])
 
 # Don't use AC_FUNC_MMAP, as it checks for mappings of already-mapped memory,
@@ -109,6 +111,11 @@ if test "$ac_cv_header_stddef_h" = "yes"; then
     AC_SUBST([ac_cv_have_stddef_h], [1])
 else
     AC_SUBST([ac_cv_have_stddef_h], [0])
+fi
+if test "$ac_cv_header_sys_uio_h" = "yes"; then
+    AC_SUBST([ac_cv_have_sys_uio_h], [1])
+else
+    AC_SUBST([ac_cv_have_sys_uio_h], [0])
 fi
 
 # Export the version to snappy-stubs-public.h.

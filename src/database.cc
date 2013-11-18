@@ -191,7 +191,8 @@ NAN_METHOD(Database::Open) {
   );
   bool errorIfExists =
       NanBooleanOptionValue(optionsObj, NanSymbol("errorIfExists"));
-  bool compression = NanBooleanOptionValue(optionsObj, NanSymbol("compression"));
+  bool compression = 
+      NanBooleanOptionValue(optionsObj, NanSymbol("compression"), true);
 
   uint32_t cacheSize = NanUInt32OptionValue(
       optionsObj
@@ -231,7 +232,9 @@ NAN_METHOD(Database::Open) {
     , maxOpenFiles
     , blockRestartInterval
   );
-
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -246,6 +249,9 @@ NAN_METHOD(Database::Close) {
       database
     , new NanCallback(callback)
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
 
   if (!database->iterators.empty()) {
     // yikes, we still have iterators open! naughty naughty.
@@ -280,11 +286,12 @@ NAN_METHOD(Database::Close) {
           v8::Local<v8::Value> argv[] = {
               v8::FunctionTemplate::New()->GetFunction() // empty callback
           };
-          v8::TryCatch try_catch;
-          end->Call(NanObjectWrapHandle(iterator), 1, argv);
-          if (try_catch.HasCaught()) {
-            node::FatalException(try_catch);
-          }
+          node::MakeCallback(
+              NanObjectWrapHandle(iterator)
+            , end
+            , 1
+            , argv
+          );
         }
     }
   } else {
@@ -318,6 +325,9 @@ NAN_METHOD(Database::Put) {
     , keyHandle
     , valueHandle
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -344,6 +354,9 @@ NAN_METHOD(Database::Get) {
     , fillCache
     , keyHandle
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -368,6 +381,9 @@ NAN_METHOD(Database::Delete) {
     , sync
     , keyHandle
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -390,7 +406,6 @@ NAN_METHOD(Database::Batch) {
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
-  std::vector< Reference *>* references = new std::vector< Reference *>;
   leveldb::WriteBatch* batch = new leveldb::WriteBatch();
   bool hasData = false;
 
@@ -412,7 +427,7 @@ NAN_METHOD(Database::Batch) {
       if (!hasData)
         hasData = true;
 
-      references->push_back(new Reference(keyBuffer, key));
+      DisposeStringOrBufferFromSlice(keyBuffer, key);
     } else if (obj->Get(NanSymbol("type"))->StrictEquals(NanSymbol("put"))) {
       v8::Local<v8::Value> valueBuffer = obj->Get(NanSymbol("value"));
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
@@ -424,23 +439,25 @@ NAN_METHOD(Database::Batch) {
       if (!hasData)
         hasData = true;
 
-      references->push_back(new Reference(keyBuffer, key));
-      references->push_back(new Reference(valueBuffer, value));
+      DisposeStringOrBufferFromSlice(keyBuffer, key);
+      DisposeStringOrBufferFromSlice(valueBuffer, value);
     }
   }
 
   // don't allow an empty batch through
   if (hasData) {
-    NanAsyncQueueWorker(new BatchWorker(
+    BatchWorker* worker = new BatchWorker(
         database
       , new NanCallback(callback)
       , batch
-      , references
       , sync
-    ));
+    );
+    // persist to prevent accidental GC
+    v8::Local<v8::Object> _this = args.This();
+    worker->SavePersistent("database", _this);
+    NanAsyncQueueWorker(worker);
   } else {
-    ClearReferences(references);
-    LD_RUN_CALLBACK(callback, NULL, 0);
+    LD_RUN_CALLBACK(callback, 0, NULL);
   }
 
   NanReturnUndefined();
@@ -478,6 +495,9 @@ NAN_METHOD(Database::ApproximateSize) {
     , startHandle
     , endHandle
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();

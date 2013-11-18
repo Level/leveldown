@@ -199,6 +199,9 @@ NAN_METHOD(Iterator::Next) {
     , new NanCallback(callback)
     , checkEndCallback
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("iterator", _this);
   iterator->nexting = true;
   NanAsyncQueueWorker(worker);
 
@@ -223,6 +226,9 @@ NAN_METHOD(Iterator::End) {
       iterator
     , new NanCallback(callback)
   );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = args.This();
+  worker->SavePersistent("iterator", _this);
   iterator->ended = true;
 
   if (iterator->nexting) {

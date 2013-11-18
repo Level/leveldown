@@ -492,6 +492,46 @@ static int VerifyString(const string& input) {
 }
 
 
+static void VerifyIOVec(const string& input) {
+  string compressed;
+  DataEndingAtUnreadablePage i(input);
+  const size_t written = snappy::Compress(i.data(), i.size(), &compressed);
+  CHECK_EQ(written, compressed.size());
+  CHECK_LE(compressed.size(),
+           snappy::MaxCompressedLength(input.size()));
+  CHECK(snappy::IsValidCompressedBuffer(compressed.data(), compressed.size()));
+
+  // Try uncompressing into an iovec containing a random number of entries
+  // ranging from 1 to 10.
+  char* buf = new char[input.size()];
+  ACMRandom rnd(input.size());
+  int num = rnd.Next() % 10 + 1;
+  if (input.size() < num) {
+    num = input.size();
+  }
+  struct iovec* iov = new iovec[num];
+  int used_so_far = 0;
+  for (int i = 0; i < num; ++i) {
+    iov[i].iov_base = buf + used_so_far;
+    if (i == num - 1) {
+      iov[i].iov_len = input.size() - used_so_far;
+    } else {
+      // Randomly choose to insert a 0 byte entry.
+      if (rnd.OneIn(5)) {
+        iov[i].iov_len = 0;
+      } else {
+        iov[i].iov_len = rnd.Uniform(input.size());
+      }
+    }
+    used_so_far += iov[i].iov_len;
+  }
+  CHECK(snappy::RawUncompressToIOVec(
+      compressed.data(), compressed.size(), iov, num));
+  CHECK(!memcmp(buf, input.data(), input.size()));
+  delete[] iov;
+  delete[] buf;
+}
+
 // Test that data compressed by a compressor that does not
 // obey block sizes is uncompressed properly.
 static void VerifyNonBlockedCompression(const string& input) {
@@ -542,8 +582,11 @@ static int Verify(const string& input) {
 
 
   VerifyNonBlockedCompression(input);
+  VerifyIOVec(input);
   if (!input.empty()) {
-    VerifyNonBlockedCompression(Expand(input));
+    const string expanded = Expand(input);
+    VerifyNonBlockedCompression(expanded);
+    VerifyIOVec(input);
   }
 
 
@@ -611,7 +654,8 @@ TYPED_TEST(CorruptedTest, VerifyCorrupted) {
 
   // try reading stuff in from a bad file.
   for (int i = 1; i <= 3; ++i) {
-    string data = ReadTestDataFile(StringPrintf("baddata%d.snappy", i).c_str());
+    string data = ReadTestDataFile(StringPrintf("baddata%d.snappy", i).c_str(),
+                                   0);
     string uncmp;
     // check that we don't return a crazy length
     size_t ulen;
@@ -663,7 +707,7 @@ static void AppendCopy(string* dst, int offset, int length) {
     }
     length -= to_copy;
 
-    if ((to_copy < 12) && (offset < 2048)) {
+    if ((to_copy >= 4) && (to_copy < 12) && (offset < 2048)) {
       assert(to_copy-4 < 8);            // Must fit in 3 bits
       dst->push_back(1 | ((to_copy-4) << 2) | ((offset >> 8) << 5));
       dst->push_back(offset & 0xff);
@@ -768,8 +812,121 @@ TEST(Snappy, FourByteOffset) {
 
   string uncompressed;
   CHECK(snappy::IsValidCompressedBuffer(compressed.data(), compressed.size()));
-  CHECK(snappy::Uncompress(compressed.data(), compressed.size(), &uncompressed));
+  CHECK(snappy::Uncompress(compressed.data(), compressed.size(),
+                           &uncompressed));
   CHECK_EQ(uncompressed, src);
+}
+
+TEST(Snappy, IOVecEdgeCases) {
+  // Test some tricky edge cases in the iovec output that are not necessarily
+  // exercised by random tests.
+
+  // Our output blocks look like this initially (the last iovec is bigger
+  // than depicted):
+  // [  ] [ ] [    ] [        ] [        ]
+  static const int kLengths[] = { 2, 1, 4, 8, 128 };
+
+  struct iovec iov[ARRAYSIZE(kLengths)];
+  for (int i = 0; i < ARRAYSIZE(kLengths); ++i) {
+    iov[i].iov_base = new char[kLengths[i]];
+    iov[i].iov_len = kLengths[i];
+  }
+
+  string compressed;
+  Varint::Append32(&compressed, 22);
+
+  // A literal whose output crosses three blocks.
+  // [ab] [c] [123 ] [        ] [        ]
+  AppendLiteral(&compressed, "abc123");
+
+  // A copy whose output crosses two blocks (source and destination
+  // segments marked).
+  // [ab] [c] [1231] [23      ] [        ]
+  //           ^--^   --
+  AppendCopy(&compressed, 3, 3);
+
+  // A copy where the input is, at first, in the block before the output:
+  //
+  // [ab] [c] [1231] [231231  ] [        ]
+  //           ^---     ^---
+  // Then during the copy, the pointers move such that the input and
+  // output pointers are in the same block:
+  //
+  // [ab] [c] [1231] [23123123] [        ]
+  //                  ^-    ^-
+  // And then they move again, so that the output pointer is no longer
+  // in the same block as the input pointer:
+  // [ab] [c] [1231] [23123123] [123     ]
+  //                    ^--      ^--
+  AppendCopy(&compressed, 6, 9);
+
+  // Finally, a copy where the input is from several blocks back,
+  // and it also crosses three blocks:
+  //
+  // [ab] [c] [1231] [23123123] [123b    ]
+  //   ^                            ^
+  // [ab] [c] [1231] [23123123] [123bc   ]
+  //       ^                         ^
+  // [ab] [c] [1231] [23123123] [123bc12 ]
+  //           ^-                     ^-
+  AppendCopy(&compressed, 17, 4);
+
+  CHECK(snappy::RawUncompressToIOVec(
+      compressed.data(), compressed.size(), iov, ARRAYSIZE(iov)));
+  CHECK_EQ(0, memcmp(iov[0].iov_base, "ab", 2));
+  CHECK_EQ(0, memcmp(iov[1].iov_base, "c", 1));
+  CHECK_EQ(0, memcmp(iov[2].iov_base, "1231", 4));
+  CHECK_EQ(0, memcmp(iov[3].iov_base, "23123123", 8));
+  CHECK_EQ(0, memcmp(iov[4].iov_base, "123bc12", 7));
+
+  for (int i = 0; i < ARRAYSIZE(kLengths); ++i) {
+    delete[] reinterpret_cast<char *>(iov[i].iov_base);
+  }
+}
+
+TEST(Snappy, IOVecLiteralOverflow) {
+  static const int kLengths[] = { 3, 4 };
+
+  struct iovec iov[ARRAYSIZE(kLengths)];
+  for (int i = 0; i < ARRAYSIZE(kLengths); ++i) {
+    iov[i].iov_base = new char[kLengths[i]];
+    iov[i].iov_len = kLengths[i];
+  }
+
+  string compressed;
+  Varint::Append32(&compressed, 8);
+
+  AppendLiteral(&compressed, "12345678");
+
+  CHECK(!snappy::RawUncompressToIOVec(
+      compressed.data(), compressed.size(), iov, ARRAYSIZE(iov)));
+
+  for (int i = 0; i < ARRAYSIZE(kLengths); ++i) {
+    delete[] reinterpret_cast<char *>(iov[i].iov_base);
+  }
+}
+
+TEST(Snappy, IOVecCopyOverflow) {
+  static const int kLengths[] = { 3, 4 };
+
+  struct iovec iov[ARRAYSIZE(kLengths)];
+  for (int i = 0; i < ARRAYSIZE(kLengths); ++i) {
+    iov[i].iov_base = new char[kLengths[i]];
+    iov[i].iov_len = kLengths[i];
+  }
+
+  string compressed;
+  Varint::Append32(&compressed, 8);
+
+  AppendLiteral(&compressed, "123");
+  AppendCopy(&compressed, 3, 5);
+
+  CHECK(!snappy::RawUncompressToIOVec(
+      compressed.data(), compressed.size(), iov, ARRAYSIZE(iov)));
+
+  for (int i = 0; i < ARRAYSIZE(kLengths); ++i) {
+    delete[] reinterpret_cast<char *>(iov[i].iov_base);
+  }
 }
 
 
@@ -971,19 +1128,18 @@ TEST(Snappy, FindMatchLengthRandom) {
 
 static void CompressFile(const char* fname) {
   string fullinput;
-  file::ReadFileToString(fname, &fullinput, file::Defaults()).CheckSuccess();
+  file::GetContents(fname, &fullinput, file::Defaults()).CheckSuccess();
 
   string compressed;
   Compress(fullinput.data(), fullinput.size(), SNAPPY, &compressed, false);
 
-  file::WriteStringToFile(
-      string(fname).append(".comp").c_str(), compressed,
-      file::Defaults()).CheckSuccess();
+  file::SetContents(string(fname).append(".comp"), compressed, file::Defaults())
+      .CheckSuccess();
 }
 
 static void UncompressFile(const char* fname) {
   string fullinput;
-  file::ReadFileToString(fname, &fullinput, file::Defaults()).CheckSuccess();
+  file::GetContents(fname, &fullinput, file::Defaults()).CheckSuccess();
 
   size_t uncompLength;
   CHECK(CheckUncompressedLength(fullinput, &uncompLength));
@@ -992,14 +1148,13 @@ static void UncompressFile(const char* fname) {
   uncompressed.resize(uncompLength);
   CHECK(snappy::Uncompress(fullinput.data(), fullinput.size(), &uncompressed));
 
-  file::WriteStringToFile(
-      string(fname).append(".uncomp").c_str(), uncompressed,
-      file::Defaults()).CheckSuccess();
+  file::SetContents(string(fname).append(".uncomp"), uncompressed,
+                    file::Defaults()).CheckSuccess();
 }
 
 static void MeasureFile(const char* fname) {
   string fullinput;
-  file::ReadFileToString(fname, &fullinput, file::Defaults()).CheckSuccess();
+  file::GetContents(fname, &fullinput, file::Defaults()).CheckSuccess();
   printf("%-40s :\n", fname);
 
   int start_len = (FLAGS_start_len < 0) ? fullinput.size() : FLAGS_start_len;
@@ -1032,25 +1187,29 @@ static void MeasureFile(const char* fname) {
 static struct {
   const char* label;
   const char* filename;
+  size_t size_limit;
 } files[] = {
-  { "html", "html" },
-  { "urls", "urls.10K" },
-  { "jpg", "house.jpg" },
-  { "pdf", "mapreduce-osdi-1.pdf" },
-  { "html4", "html_x_4" },
-  { "cp", "cp.html" },
-  { "c", "fields.c" },
-  { "lsp", "grammar.lsp" },
-  { "xls", "kennedy.xls" },
-  { "txt1", "alice29.txt" },
-  { "txt2", "asyoulik.txt" },
-  { "txt3", "lcet10.txt" },
-  { "txt4", "plrabn12.txt" },
-  { "bin", "ptt5" },
-  { "sum", "sum" },
-  { "man", "xargs.1" },
-  { "pb", "geo.protodata" },
-  { "gaviota", "kppkn.gtb" },
+  { "html", "html", 0 },
+  { "urls", "urls.10K", 0 },
+  { "jpg", "house.jpg", 0 },
+  { "jpg_200", "house.jpg", 200 },
+  { "pdf", "mapreduce-osdi-1.pdf", 0 },
+  { "html4", "html_x_4", 0 },
+  { "cp", "cp.html", 0 },
+  { "c", "fields.c", 0 },
+  { "lsp", "grammar.lsp", 0 },
+  { "xls", "kennedy.xls", 0 },
+  { "xls_200", "kennedy.xls", 200 },
+  { "txt1", "alice29.txt", 0 },
+  { "txt2", "asyoulik.txt", 0 },
+  { "txt3", "lcet10.txt", 0 },
+  { "txt4", "plrabn12.txt", 0 },
+  { "bin", "ptt5", 0 },
+  { "bin_200", "ptt5", 200 },
+  { "sum", "sum", 0 },
+  { "man", "xargs.1", 0 },
+  { "pb", "geo.protodata", 0 },
+  { "gaviota", "kppkn.gtb", 0 },
 };
 
 static void BM_UFlat(int iters, int arg) {
@@ -1059,7 +1218,8 @@ static void BM_UFlat(int iters, int arg) {
   // Pick file to process based on "arg"
   CHECK_GE(arg, 0);
   CHECK_LT(arg, ARRAYSIZE(files));
-  string contents = ReadTestDataFile(files[arg].filename);
+  string contents = ReadTestDataFile(files[arg].filename,
+                                     files[arg].size_limit);
 
   string zcontents;
   snappy::Compress(contents.data(), contents.size(), &zcontents);
@@ -1076,7 +1236,7 @@ static void BM_UFlat(int iters, int arg) {
 
   delete[] dst;
 }
-BENCHMARK(BM_UFlat)->DenseRange(0, 17);
+BENCHMARK(BM_UFlat)->DenseRange(0, ARRAYSIZE(files) - 1);
 
 static void BM_UValidate(int iters, int arg) {
   StopBenchmarkTiming();
@@ -1084,7 +1244,8 @@ static void BM_UValidate(int iters, int arg) {
   // Pick file to process based on "arg"
   CHECK_GE(arg, 0);
   CHECK_LT(arg, ARRAYSIZE(files));
-  string contents = ReadTestDataFile(files[arg].filename);
+  string contents = ReadTestDataFile(files[arg].filename,
+                                     files[arg].size_limit);
 
   string zcontents;
   snappy::Compress(contents.data(), contents.size(), &zcontents);
@@ -1100,6 +1261,52 @@ static void BM_UValidate(int iters, int arg) {
 }
 BENCHMARK(BM_UValidate)->DenseRange(0, 4);
 
+static void BM_UIOVec(int iters, int arg) {
+  StopBenchmarkTiming();
+
+  // Pick file to process based on "arg"
+  CHECK_GE(arg, 0);
+  CHECK_LT(arg, ARRAYSIZE(files));
+  string contents = ReadTestDataFile(files[arg].filename,
+                                     files[arg].size_limit);
+
+  string zcontents;
+  snappy::Compress(contents.data(), contents.size(), &zcontents);
+
+  // Uncompress into an iovec containing ten entries.
+  const int kNumEntries = 10;
+  struct iovec iov[kNumEntries];
+  char *dst = new char[contents.size()];
+  int used_so_far = 0;
+  for (int i = 0; i < kNumEntries; ++i) {
+    iov[i].iov_base = dst + used_so_far;
+    if (used_so_far == contents.size()) {
+      iov[i].iov_len = 0;
+      continue;
+    }
+
+    if (i == kNumEntries - 1) {
+      iov[i].iov_len = contents.size() - used_so_far;
+    } else {
+      iov[i].iov_len = contents.size() / kNumEntries;
+    }
+    used_so_far += iov[i].iov_len;
+  }
+
+  SetBenchmarkBytesProcessed(static_cast<int64>(iters) *
+                             static_cast<int64>(contents.size()));
+  SetBenchmarkLabel(files[arg].label);
+  StartBenchmarkTiming();
+  while (iters-- > 0) {
+    CHECK(snappy::RawUncompressToIOVec(zcontents.data(), zcontents.size(), iov,
+                                       kNumEntries));
+  }
+  StopBenchmarkTiming();
+
+  delete[] dst;
+}
+BENCHMARK(BM_UIOVec)->DenseRange(0, 4);
+
 
 static void BM_ZFlat(int iters, int arg) {
   StopBenchmarkTiming();
@@ -1107,7 +1314,8 @@ static void BM_ZFlat(int iters, int arg) {
   // Pick file to process based on "arg"
   CHECK_GE(arg, 0);
   CHECK_LT(arg, ARRAYSIZE(files));
-  string contents = ReadTestDataFile(files[arg].filename);
+  string contents = ReadTestDataFile(files[arg].filename,
+                                     files[arg].size_limit);
 
   char* dst = new char[snappy::MaxCompressedLength(contents.size())];
 
@@ -1128,7 +1336,7 @@ static void BM_ZFlat(int iters, int arg) {
                           files[arg].label, contents.size(), zsize);
   delete[] dst;
 }
-BENCHMARK(BM_ZFlat)->DenseRange(0, 17);
+BENCHMARK(BM_ZFlat)->DenseRange(0, ARRAYSIZE(files) - 1);
 
 
 }  // namespace snappy

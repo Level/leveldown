@@ -233,6 +233,7 @@ ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 ac_cv_have_stddef_h = @ac_cv_have_stddef_h@
 ac_cv_have_stdint_h = @ac_cv_have_stdint_h@
+ac_cv_have_sys_uio_h = @ac_cv_have_sys_uio_h@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
 am__quote = @am__quote@
