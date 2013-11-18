@@ -1,3 +1,20 @@
+### 0.10.0 @ Nov 18 2013
+
+  * Fix array-batch memory leak, levelup/#171 (@rvagg)
+  * Fix chained-batch write() segfaults, details in #73, (@rvagg and
+    @mcollina)
+  * Remove `Persistent` references for all `batch()` operations as
+    `WriteBatch` takes an explicit copy of the data (@mcollina and
+@rvagg)
+  * Upgrade to Snappy 1.1.1 (@rvagg and @no9)
+  * Upgrade to NAN@0.5.x (@rvagg)
+  * Switch all `callback->Call()`s to `node::MakeCallback()` to properly
+    support Node.js domains (@rvagg)
+  * Properly enable compression by default (@Kyotoweb)
+  * Enable LevelDB's BloomFilter (@Kyotoweb)
+  * Upgrade to AbstractLevelDOWN@0.11.x for testing (@rvagg)
+  * Add new simple batch() leak tester (@rvagg)
+
 ### 0.9.2 @ Nov 02 2013
 
   * Minor fixes to support Node 0.11.8 and new Linux gcc (warnings) (@rvagg)
