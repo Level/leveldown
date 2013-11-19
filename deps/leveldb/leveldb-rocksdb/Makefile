@@ -20,7 +20,7 @@ include build_config.mk
 
 WARNING_FLAGS = -Wall -Werror
 CFLAGS += -g $(WARNING_FLAGS) -I. -I./include $(PLATFORM_CCFLAGS) $(OPT)
-CXXFLAGS += -g $(WARNING_FLAGS) -I. -I./include $(PLATFORM_CXXFLAGS) $(OPT) -std=gnu++0x -Woverloaded-virtual
+CXXFLAGS += -g $(WARNING_FLAGS) -I. -I./include $(PLATFORM_CXXFLAGS) $(OPT) -Woverloaded-virtual
 
 LDFLAGS += $(PLATFORM_LDFLAGS)
 
@@ -369,7 +369,11 @@ endif
 # the correct path prefix.
 %.d: %.cc
 	$(CXX) $(CXXFLAGS) $(PLATFORM_SHARED_CFLAGS) -MM $< -o $@
-	@sed -i -e 's|.*:|$*.o:|' $@
+ifeq ($(PLATFORM), OS_MACOSX)
+	@sed -i '' -e 's,.*:,$*.o:,' $@
+else
+	@sed -i -e 's,.*:,$*.o:,' $@
+endif
 
 DEPFILES = $(filter-out util/build_version.d,$(SOURCES:.cc=.d))
 
