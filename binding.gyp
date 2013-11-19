@@ -39,6 +39,20 @@
                   '-Wno-unused-local-typedefs'
               ]
           }]
+        , ['OS == "mac"', {
+              'xcode_settings': {
+                  'WARNING_CFLAGS': [
+                     '-Wno-ignored-qualifiers'
+                  ]
+                , 'OTHER_CPLUSPLUSFLAGS': [
+                      '-mmacosx-version-min=10.7'
+                    , '-std=c++11'
+                    , '-stdlib=libc++'
+                  ]
+                , 'GCC_ENABLE_CPP_EXCEPTIONS': 'YES'
+                , 'MACOSX_DEPLOYMENT_TARGET': '10.7'
+              }
+          }]
         ]
       , "dependencies": [
             "<(module_root_dir)/deps/leveldb/leveldb.gyp:leveldb"

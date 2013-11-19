@@ -55,7 +55,7 @@
               , 'leveldb-<(ldbversion)/util/env_posix.cc'
             ]
           , 'defines': [
-                'LEVELDB_PLATFORM_POSIX=1'
+                'ROCKSDB_PLATFORM_POSIX=1'
             ]
           , 'cflags': [
                 '-std=gnu++0x'
@@ -126,14 +126,19 @@
             'defines': [
                 'OS_MACOSX=1'
             ]
-          , 'libraries': []
-          , 'ccflags': []
           , 'xcode_settings': {
                 'WARNING_CFLAGS': [
                     '-Wno-sign-compare'
                   , '-Wno-unused-variable'
                   , '-Wno-unused-function'
+                  , '-Wno-ignored-qualifiers'
                 ]
+              , 'OTHER_CPLUSPLUSFLAGS': [
+                    '-mmacosx-version-min=10.7'
+                  , '-std=c++11'
+                  , '-stdlib=libc++'
+                ]
+              , 'GCC_ENABLE_CPP_EXCEPTIONS': 'YES'
             }
         }]
     ]
