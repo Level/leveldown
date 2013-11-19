@@ -1,0 +1,15 @@
+SOURCES=db/builder.cc db/c.cc db/db_filesnapshot.cc db/dbformat.cc db/db_impl.cc db/db_impl_readonly.cc db/db_iter.cc db/db_stats_logger.cc db/filename.cc db/log_reader.cc db/log_writer.cc db/memtable.cc db/memtablelist.cc db/merge_helper.cc db/merge_operator.cc db/repair.cc db/table_cache.cc db/table_stats_collector.cc db/transaction_log_impl.cc db/version_edit.cc db/version_set.cc db/version_set_reduce_num_levels.cc db/write_batch.cc table/block_based_table_builder.cc table/block_based_table_factory.cc table/block_based_table_reader.cc table/block_builder.cc table/block.cc table/filter_block.cc table/flush_block_policy.cc table/format.cc table/iterator.cc table/merger.cc table/two_level_iterator.cc util/arena_impl.cc util/auto_roll_logger.cc util/blob_store.cc util/bloom.cc util/build_version.cc util/cache.cc util/coding.cc util/comparator.cc util/crc32c.cc util/env.cc util/env_hdfs.cc util/env_posix.cc util/filter_policy.cc util/hash.cc util/hash_skiplist_rep.cc util/histogram.cc utilities/merge_operators/put.cc utilities/merge_operators/string_append/stringappend2.cc utilities/merge_operators/string_append/stringappend.cc utilities/merge_operators/uint64add.cc utilities/redis/redis_lists.cc utilities/ttl/db_ttl.cc util/ldb_cmd.cc util/ldb_tool.cc util/logging.cc util/murmurhash.cc util/options.cc util/perf_context.cc util/skiplistrep.cc util/slice.cc util/statistics.cc util/status.cc util/string_util.cc util/transformrep.cc util/vectorrep.cc  /home/rvagg/git/node-leveldown/deps/leveldb/leveldb-rocksdb/port/port_posix.cc /home/rvagg/git/node-leveldown/deps/leveldb/leveldb-rocksdb/port/stack_trace.cc  
+SOURCESCPP=
+MEMENV_SOURCES=helpers/memenv/memenv.cc
+CC=cc
+CXX=g++
+PLATFORM=OS_LINUX
+PLATFORM_LDFLAGS= -lpthread -lrt -lz
+VALGRIND_VER=
+PLATFORM_CCFLAGS=  -DOS_LINUX -fno-builtin-memcmp -DLEVELDB_PLATFORM_POSIX -DZLIB 
+PLATFORM_CXXFLAGS=  -DOS_LINUX -fno-builtin-memcmp -DLEVELDB_PLATFORM_POSIX -DZLIB 
+PLATFORM_SHARED_CFLAGS=-fPIC
+PLATFORM_SHARED_EXT=so
+PLATFORM_SHARED_LDFLAGS= -shared -Wl,-soname -Wl,
+PLATFORM_SHARED_VERSIONED=true
+EXEC_LDFLAGS=
