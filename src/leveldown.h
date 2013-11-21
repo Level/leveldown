@@ -69,7 +69,7 @@ static inline void DisposeStringOrBufferFromSlice(
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg)                             \
   if (!callback.IsEmpty() && callback->IsFunction()) {                         \
     v8::Local<v8::Value> argv[] = {                                            \
-      v8::Local<v8::Value>::New(v8::Exception::Error(                          \
+      NanNewLocal<v8::Value>(v8::Exception::Error(                          \
         v8::String::New(msg))                                                  \
       )                                                                        \
     };                                                                         \

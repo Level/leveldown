@@ -327,7 +327,7 @@ NAN_METHOD(Iterator::New) {
           || optionsObj->Get(NanSymbol("end"))->IsString())) {
 
       v8::Local<v8::Value> endBuffer =
-          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("end")));
+          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("end")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(endBuffer) > 0) {
@@ -346,7 +346,7 @@ NAN_METHOD(Iterator::New) {
           || optionsObj->Get(NanSymbol("lt"))->IsString())) {
 
       v8::Local<v8::Value> ltBuffer =
-          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("lt")));
+          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("lt")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(ltBuffer) > 0) {
@@ -362,7 +362,7 @@ NAN_METHOD(Iterator::New) {
           || optionsObj->Get(NanSymbol("lte"))->IsString())) {
 
       v8::Local<v8::Value> lteBuffer =
-          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("lte")));
+          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("lte")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(lteBuffer) > 0) {
@@ -378,7 +378,7 @@ NAN_METHOD(Iterator::New) {
           || optionsObj->Get(NanSymbol("gt"))->IsString())) {
 
       v8::Local<v8::Value> gtBuffer =
-          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("gt")));
+          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("gt")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gtBuffer) > 0) {
@@ -394,7 +394,7 @@ NAN_METHOD(Iterator::New) {
           || optionsObj->Get(NanSymbol("gte"))->IsString())) {
 
       v8::Local<v8::Value> gteBuffer =
-          v8::Local<v8::Value>::New(optionsObj->Get(NanSymbol("gte")));
+          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("gte")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gteBuffer) > 0) {
