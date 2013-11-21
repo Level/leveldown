@@ -46,7 +46,13 @@ COMMON_FLAGS="-DROCKSDB_PLATFORM_POSIX"
 if [ -d /mnt/gvfs/third-party -a -z "$CXX" ]; then
     FBCODE_BUILD="true"
     if [ -z "$USE_CLANG" ]; then
-        source $PWD/build_tools/fbcode.gcc481.sh
+        CENTOS_VERSION=`rpm -q --qf "%{VERSION}" \
+          $(rpm -q --whatprovides redhat-release)`
+        if [ "$CENTOS_VERSION" = "6" ]; then
+          source $PWD/build_tools/fbcode.gcc481.sh
+        else
+          source $PWD/build_tools/fbcode.gcc471.sh
+        fi
     else
         source $PWD/build_tools/fbcode.clang31.sh
     fi
@@ -264,3 +270,5 @@ echo "PLATFORM_SHARED_EXT=$PLATFORM_SHARED_EXT" >> $OUTPUT
 echo "PLATFORM_SHARED_LDFLAGS=$PLATFORM_SHARED_LDFLAGS" >> $OUTPUT
 echo "PLATFORM_SHARED_VERSIONED=$PLATFORM_SHARED_VERSIONED" >> $OUTPUT
 echo "EXEC_LDFLAGS=$EXEC_LDFLAGS" >> $OUTPUT
+echo "JEMALLOC_INCLUDE=$JEMALLOC_INCLUDE" >> $OUTPUT
+echo "JEMALLOC_LIB=$JEMALLOC_LIB" >> $OUTPUT
