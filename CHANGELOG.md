@@ -1,3 +1,8 @@
+### 0.10.1 @ Nov 21 2013
+
+  * NAN@0.6 for Node@0.11.6 support, v8::Local<T>::New(val) rewritten to
+    NanNewLocal<T>(val) (@rvagg)
+
 ### 0.10.0 @ Nov 18 2013
 
   * Fix array-batch memory leak, levelup/#171 (@rvagg)
