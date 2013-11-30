@@ -1,3 +1,7 @@
+### 0.10.2 @ Nov 30 2013
+
+  * Apply fix by @rescrv for long-standing OSX corruption bug, https://groups.google.com/forum/#!topic/leveldb/GXhx8YvFiig (@rvagg / @rescrv)
+
 ### 0.10.1 @ Nov 21 2013
 
   * NAN@0.6 for Node@0.11.6 support, v8::Local<T>::New(val) rewritten to
