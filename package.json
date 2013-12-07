@@ -21,7 +21,7 @@
     "type": "git",
     "url": "https://github.com/rvagg/node-leveldown.git"
   },
-  "homepage": "https://github.com/rvagg/node-leveldown",
+  "homepage": "https://github.com/rvagg/node-leveldown/tree/hyper-leveldb",
   "keywords": [
     "leveldb",
     "level"
