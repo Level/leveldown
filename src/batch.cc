@@ -96,7 +96,7 @@ NAN_METHOD(Batch::Put) {
   v8::Local<v8::Value> keyBuffer = args[0];
   v8::Local<v8::Value> valueBuffer = args[1];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
+  LD_STRING_OR_BUFFER_TO_VALUE(value, valueBuffer, value)
 
   batch->batch->Put(key, value);
   if (!batch->hasData)
