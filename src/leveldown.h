@@ -45,24 +45,11 @@ static inline void DisposeStringOrBufferFromSlice(
 #define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name)                           \
   size_t to ## Sz_;                                                            \
   char* to ## Ch_;                                                             \
-  if (node::Buffer::HasInstance(from->ToObject())) {                           \
-    to ## Sz_ = node::Buffer::Length(from->ToObject());                        \
-    if (to ## Sz_ == 0) {                                                      \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty Buffer") \
-    }                                                                          \
-    to ## Ch_ = node::Buffer::Data(from->ToObject());                          \
-  } else {                                                                     \
-    v8::Local<v8::String> to ## Str = from->ToString();                        \
-    to ## Sz_ = to ## Str->Utf8Length();                                       \
-    if (to ## Sz_ == 0) {                                                      \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty String") \
-    }                                                                          \
-    to ## Ch_ = new char[to ## Sz_];                                           \
-    to ## Str->WriteUtf8(                                                      \
-        to ## Ch_                                                              \
-      , -1                                                                     \
-      , NULL, v8::String::NO_NULL_TERMINATION                                  \
-    );                                                                         \
+  v8::Local<v8::Object> to ## Str = node::Buffer::HasInstance(from) ?          \
+      from.As<v8::Object>() : from->ToString().As<v8::Object>();               \
+  to ## Ch_ = NanFromV8String(to ## Str, Nan::UTF8, &(to ## Sz_));             \
+  if (to ## Sz_ == 0) {                                                        \
+    LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty String")  \
   }                                                                            \
   leveldb::Slice to(to ## Ch_, to ## Sz_);
 
