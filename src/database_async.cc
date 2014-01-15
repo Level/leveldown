@@ -46,7 +46,6 @@ OpenWorker::OpenWorker (
 };
 
 OpenWorker::~OpenWorker () {
-  delete options;
 }
 
 void OpenWorker::Execute () {

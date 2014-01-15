@@ -78,6 +78,7 @@ public:
 
 private:
   leveldb::DB* db;
+  leveldb::Options* openOptions;
   char* location;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);

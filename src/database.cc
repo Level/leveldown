@@ -8,6 +8,7 @@
 #include <node_buffer.h>
 
 #include "leveldb/db.h"
+#include "leveldb/filter_policy.h"
 #include "leveldb/write_batch.h"
 
 #include "leveldown.h"
@@ -41,6 +42,7 @@ leveldb::Status Database::OpenDatabase (
         leveldb::Options* options
       , std::string location
     ) {
+  openOptions = options;
   return leveldb::DB::Open(*options, location, &db);
 }
 
@@ -115,6 +117,15 @@ void Database::ReleaseIterator (uint32_t id) {
 void Database::CloseDatabase () {
   delete db;
   db = NULL;
+  if (openOptions->block_cache) {
+    delete openOptions->block_cache;
+    openOptions->block_cache = NULL;
+  }
+  if (openOptions->filter_policy) {
+    delete openOptions->filter_policy;
+    openOptions->filter_policy = NULL;
+  }
+  delete openOptions;
 }
 
 /* V8 exposed functions *****************************/
