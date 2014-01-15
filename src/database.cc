@@ -26,6 +26,7 @@ Database::Database (char* location) : location(location) {
   db = NULL;
   currentIteratorId = 0;
   pendingCloseWorker = NULL;
+  openOptions = NULL;
 };
 
 Database::~Database () {
@@ -117,6 +118,9 @@ void Database::ReleaseIterator (uint32_t id) {
 void Database::CloseDatabase () {
   delete db;
   db = NULL;
+  if (openOptions == NULL) {
+    return;
+  }
   if (openOptions->block_cache) {
     delete openOptions->block_cache;
     openOptions->block_cache = NULL;
@@ -126,6 +130,7 @@ void Database::CloseDatabase () {
     openOptions->filter_policy = NULL;
   }
   delete openOptions;
+  openOptions = NULL;
 }
 
 /* V8 exposed functions *****************************/
