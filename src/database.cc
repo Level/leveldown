@@ -8,7 +8,6 @@
 #include <node_buffer.h>
 
 #include "leveldb/db.h"
-#include "leveldb/filter_policy.h"
 #include "leveldb/write_batch.h"
 
 #include "leveldown.h"
@@ -26,7 +25,8 @@ Database::Database (char* location) : location(location) {
   db = NULL;
   currentIteratorId = 0;
   pendingCloseWorker = NULL;
-  openOptions = NULL;
+  blockCache = NULL;
+  filterPolicy = NULL;
 };
 
 Database::~Database () {
@@ -43,7 +43,6 @@ leveldb::Status Database::OpenDatabase (
         leveldb::Options* options
       , std::string location
     ) {
-  openOptions = options;
   return leveldb::DB::Open(*options, location, &db);
 }
 
@@ -118,19 +117,14 @@ void Database::ReleaseIterator (uint32_t id) {
 void Database::CloseDatabase () {
   delete db;
   db = NULL;
-  if (openOptions == NULL) {
-    return;
+  if (blockCache) {
+    delete blockCache;
+    blockCache = NULL;
   }
-  if (openOptions->block_cache) {
-    delete openOptions->block_cache;
-    openOptions->block_cache = NULL;
+  if (filterPolicy) {
+    delete filterPolicy;
+    filterPolicy = NULL;
   }
-  if (openOptions->filter_policy) {
-    delete openOptions->filter_policy;
-    openOptions->filter_policy = NULL;
-  }
-  delete openOptions;
-  openOptions = NULL;
 }
 
 /* V8 exposed functions *****************************/
@@ -236,13 +230,17 @@ NAN_METHOD(Database::Open) {
     , 16
   );
 
+  database->blockCache = leveldb::NewLRUCache(cacheSize);
+  database->filterPolicy = leveldb::NewBloomFilterPolicy(10);
+
   OpenWorker* worker = new OpenWorker(
       database
     , new NanCallback(callback)
+    , database->blockCache
+    , database->filterPolicy
     , createIfMissing
     , errorIfExists
     , compression
-    , cacheSize
     , writeBufferSize
     , blockSize
     , maxOpenFiles

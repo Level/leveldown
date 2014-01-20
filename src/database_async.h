@@ -20,10 +20,11 @@ public:
   OpenWorker (
       Database *database
     , NanCallback *callback
+    , leveldb::Cache* blockCache
+    , const leveldb::FilterPolicy* filterPolicy
     , bool createIfMissing
     , bool errorIfExists
     , bool compression
-    , uint32_t cacheSize
     , uint32_t writeBufferSize
     , uint32_t blockSize
     , uint32_t maxOpenFiles
