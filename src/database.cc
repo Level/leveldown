@@ -25,6 +25,8 @@ Database::Database (char* location) : location(location) {
   db = NULL;
   currentIteratorId = 0;
   pendingCloseWorker = NULL;
+  blockCache = NULL;
+  filterPolicy = NULL;
 };
 
 Database::~Database () {
@@ -115,6 +117,14 @@ void Database::ReleaseIterator (uint32_t id) {
 void Database::CloseDatabase () {
   delete db;
   db = NULL;
+  if (blockCache) {
+    delete blockCache;
+    blockCache = NULL;
+  }
+  if (filterPolicy) {
+    delete filterPolicy;
+    filterPolicy = NULL;
+  }
 }
 
 /* V8 exposed functions *****************************/
@@ -220,13 +230,17 @@ NAN_METHOD(Database::Open) {
     , 16
   );
 
+  database->blockCache = leveldb::NewLRUCache(cacheSize);
+  database->filterPolicy = leveldb::NewBloomFilterPolicy(10);
+
   OpenWorker* worker = new OpenWorker(
       database
     , new NanCallback(callback)
+    , database->blockCache
+    , database->filterPolicy
     , createIfMissing
     , errorIfExists
     , compression
-    , cacheSize
     , writeBufferSize
     , blockSize
     , maxOpenFiles
