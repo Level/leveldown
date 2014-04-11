@@ -28,6 +28,7 @@
   ],
   "main": "index.js",
   "dependencies": {
+    "node-pre-gyp": "0.5.x",
     "bindings": "~1.1.1",
     "nan": "~0.6.0",
     "abstract-leveldown": "^0.11.4"
@@ -43,8 +44,18 @@
     "node-gyp": "~0.12.1"
   },
   "scripts": {
-    "test": "tap test/*-test.js --stderr"
   },
   "license": "MIT",
-  "gypfile": true
+  "gypfile": true,
+  "bundledDependencies":["node-pre-gyp"],
+  "scripts": {
+    "install": "node-pre-gyp install --fallback-to-build",
+    "test": "tap test/*-test.js --stderr",
+	"publish-to-s3": "node-pre-gyp rebuild && node-pre-gyp package publish"
+  },
+  "binary": {
+    "module_name": "leveldown",
+    "module_path": "./build-pre-gyp/",
+    "host": "https://leveldown-mafintosh.s3-eu-west-1.amazonaws.com"
+  }
 }
