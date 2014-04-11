@@ -51,7 +51,7 @@
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
     "test": "tap test/*-test.js --stderr",
-	"publish-to-s3": "node-pre-gyp rebuild && node-pre-gyp package publish"
+	  "publish-to-s3": "node-pre-gyp rebuild && node-pre-gyp package publish"
   },
   "binary": {
     "module_name": "leveldown",
