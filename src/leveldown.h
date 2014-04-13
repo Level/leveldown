@@ -23,9 +23,9 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::Persistent<v8::Object> &handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(NanPersistentToLocal(handle)->Get(NanSymbol("obj"))))
+  if (!node::Buffer::HasInstance(NanNew<v8::Object>(handle)->Get(NanSymbol("obj"))))
     delete[] slice.data();
-  NanDispose(handle);
+  NanDisposePersistent(handle);
 }
 
 static inline void DisposeStringOrBufferFromSlice(
@@ -69,9 +69,7 @@ static inline void DisposeStringOrBufferFromSlice(
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg)                             \
   if (!callback.IsEmpty() && callback->IsFunction()) {                         \
     v8::Local<v8::Value> argv[] = {                                            \
-      NanNewLocal<v8::Value>(v8::Exception::Error(                          \
-        v8::String::New(msg))                                                  \
-      )                                                                        \
+      NanError(msg)                                                            \
     };                                                                         \
     LD_RUN_CALLBACK(callback, 1, argv)                                         \
     NanReturnUndefined();                                                      \
@@ -79,8 +77,8 @@ static inline void DisposeStringOrBufferFromSlice(
   return NanThrowError(msg);
 
 #define LD_RUN_CALLBACK(callback, argc, argv)                                  \
-  node::MakeCallback(                                                          \
-      v8::Context::GetCurrent()->Global(), callback, argc, argv);
+  NanMakeCallback(                                                          \
+      NanGetCurrentContext()->Global(), callback, argc, argv);
 
 /* LD_METHOD_SETUP_COMMON setup the following objects:
  *  - Database* database

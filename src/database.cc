@@ -139,8 +139,8 @@ NAN_METHOD(LevelDOWN) {
 }
 
 void Database::Init () {
-  v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(Database::New);
-  NanAssignPersistent(v8::FunctionTemplate, database_constructor, tpl);
+  v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(Database::New);
+  NanAssignPersistent(database_constructor, tpl);
   tpl->SetClassName(NanSymbol("Database"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "open", Database::Open);
@@ -163,7 +163,7 @@ NAN_METHOD(Database::New) {
   if (!args[0]->IsString())
     return NanThrowError("constructor requires a location string argument");
 
-  char* location = NanFromV8String(args[0].As<v8::Object>(), Nan::UTF8, NULL, NULL, 0, v8::String::NO_OPTIONS);
+  char* location = NanCString(args[0].As<v8::Object>(), NULL, NULL, 0, v8::String::NO_OPTIONS);
 
   Database* obj = new Database(location);
   obj->Wrap(args.This());
@@ -172,12 +172,12 @@ NAN_METHOD(Database::New) {
 }
 
 v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
-  NanScope();
+  NanEscapableScope();
 
   v8::Local<v8::Object> instance;
 
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanPersistentToLocal(database_constructor);
+      NanNew<v8::FunctionTemplate>(database_constructor);
 
   if (location.IsEmpty()) {
     instance = constructorHandle->GetFunction()->NewInstance(0, NULL);
@@ -186,7 +186,7 @@ v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
     instance = constructorHandle->GetFunction()->NewInstance(1, argv);
   }
 
-  return instance;
+  return NanEscapeScope(instance);
 }
 
 NAN_METHOD(Database::Open) {
@@ -286,7 +286,7 @@ NAN_METHOD(Database::Close) {
         // CloseWorker will be invoked
 
         /*
-        v8::Local<v8::Object> localHandle = NanPersistentToLocal(it->second);
+        v8::Local<v8::Object> localHandle = NanNew(it->second);
         leveldown::Iterator* iterator =
             node::ObjectWrap::Unwrap<leveldown::Iterator>(localHandle->
                 Get(NanSymbol("iterator")).As<v8::Object>());
@@ -296,11 +296,11 @@ NAN_METHOD(Database::Close) {
         if (!iterator->ended) {
           v8::Local<v8::Function> end =
               v8::Local<v8::Function>::Cast(NanObjectWrapHandle(iterator)->Get(
-                  v8::String::NewSymbol("end")));
+                  NanNew<v8::String>("end")));
           v8::Local<v8::Value> argv[] = {
-              v8::FunctionTemplate::New()->GetFunction() // empty callback
+              NanNew<v8::FunctionTemplate>()->GetFunction() // empty callback
           };
-          node::MakeCallback(
+          NanMakeCallback(
               NanObjectWrapHandle(iterator)
             , end
             , 1
@@ -536,7 +536,7 @@ NAN_METHOD(Database::GetProperty) {
   std::string* value = new std::string();
   database->GetPropertyFromDatabase(property, value);
   v8::Local<v8::String> returnValue
-      = v8::String::New(value->c_str(), value->length());
+      = NanNew<v8::String>(value->c_str(), value->length());
   delete value;
   delete[] property.data();
 
@@ -559,7 +559,7 @@ NAN_METHOD(Database::Iterator) {
   v8::TryCatch try_catch;
   v8::Local<v8::Object> iteratorHandle = Iterator::NewInstance(
       args.This()
-    , v8::Number::New(id)
+    , NanNew<v8::Number>(id)
     , optionsObj
   );
   if (try_catch.HasCaught()) {
@@ -573,7 +573,7 @@ NAN_METHOD(Database::Iterator) {
 
   // register our iterator
   /*
-  v8::Local<v8::Object> obj = v8::Object::New();
+  v8::Local<v8::Object> obj = NanNew<v8::Object>();
   obj->Set(NanSymbol("iterator"), iteratorHandle);
   v8::Persistent<v8::Object> persistent;
   persistent.Reset(nan_isolate, obj);
