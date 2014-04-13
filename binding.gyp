@@ -17,7 +17,6 @@
           }]
         , ['OS == "linux"', {
               'cflags': [
-                  '-Wno-unused-local-typedefs'
               ]
           }]
         ]
