@@ -339,6 +339,7 @@ NAN_METHOD(Database::Put) {
     , keyHandle
     , valueHandle
   );
+
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
   worker->SavePersistent("database", _this);

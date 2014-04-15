@@ -185,11 +185,10 @@ WriteWorker::WriteWorker (
   SavePersistent("value", valueHandle);
 };
 
-WriteWorker::~WriteWorker () {}
+WriteWorker::~WriteWorker () { }
 
 void WriteWorker::Execute () {
   SetStatus(database->PutToDatabase(options, key, value));
-  //printf("WriteWorker::Execute\n");fflush(stdout);
 }
 
 void WriteWorker::WorkComplete () {
@@ -197,7 +196,6 @@ void WriteWorker::WorkComplete () {
 
   DisposeStringOrBufferFromSlice(GetFromPersistent("value"), value);
   IOWorker::WorkComplete();
-  //printf("WriteWorker::WorkComplete\n");fflush(stdout);
 }
 
 /** BATCH WORKER **/

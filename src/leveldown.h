@@ -25,6 +25,7 @@ static inline void DisposeStringOrBufferFromSlice(
 
   if (!node::Buffer::HasInstance(NanNew<v8::Object>(handle)->Get(NanSymbol("obj"))))
     delete[] slice.data();
+
   NanDisposePersistent(handle);
 }
 
