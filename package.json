@@ -57,6 +57,6 @@
   "binary": {
     "module_name": "leveldown",
     "module_path": "./build-pre-gyp/",
-    "host": "https://leveldown-mafintosh.s3-eu-west-1.amazonaws.com"
+    "host": "https://github.com/mafintosh/node-leveldown/releases/download/v0.10.2"
   }
 }
