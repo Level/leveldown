@@ -41,13 +41,12 @@
     "abstract-leveldown": "~0.11.1",
     "monotonic-timestamp": "~0.0.8",
     "du": "~0.0.1",
-    "node-gyp": "~0.12.1",
-    "aws-sdk": "^2.0.0-rc13"
+    "node-gyp": "~0.12.1"
   },
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
     "test": "tap test/*-test.js --stderr",
-    "publish-to-s3": "node-pre-gyp rebuild && node-pre-gyp package publish"
+    "prebuild": "node-pre-gyp rebuild && node-pre-gyp package"
   },
   "license": "MIT",
   "gypfile": true,
