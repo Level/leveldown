@@ -1,5 +1,5 @@
 {
-  "name": "leveldown",
+  "name": "leveldown-prebuilt",
   "description": "A Node.js LevelDB binding, primary backend for LevelUP",
   "version": "0.10.2",
   "contributors": [
