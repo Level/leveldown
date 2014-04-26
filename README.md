@@ -1,7 +1,7 @@
 # NOTICE
 
-This is an experimental fork of leveldown using prebuild binaries to avoid the compile step when install from npm.
-To use this fork by do
+This is an experimental fork of leveldown using prebuild binaries to avoid the compile step when installing from npm.
+To use this fork do
 
 ```
 npm install leveldown-prebuilt
