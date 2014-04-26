@@ -7,6 +7,12 @@ To use this fork do
 npm install leveldown-prebuilt
 ```
 
+Or to install the hyper fork
+
+```
+npm install leveldown-hyper-prebuilt
+```
+
 For a list of supported prebuilt platform binaries check out https://github.com/mafintosh/node-leveldown/releases
 
 LevelDOWN
