@@ -7,6 +7,8 @@ To use this fork by do
 npm install leveldown-prebuilt
 ```
 
+For a list of supported prebuilt platform binaries check out https://github.com/mafintosh/node-leveldown/releases
+
 LevelDOWN
 =========
 
