@@ -2,6 +2,10 @@
     'target_name': 'leveldb'
   , 'variables': {
         'ldbversion': 'hyper'
+      , 'conditions': [
+            ['OS=="linux"',   {'os_include': 'linux'}]
+          , ['OS=="mac"',     {'os_include': 'mac'}]
+        ]
     }
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
@@ -18,9 +22,11 @@
     }
   , 'defines': [
         'SNAPPY=1'
+      , 'HAVE_CONFIG_H=1'
     ]
   , 'include_dirs': [
-        'leveldb-<(ldbversion)/'
+        'leveldb-<(ldbversion)-conf/<(os_include)/'
+      , 'leveldb-<(ldbversion)/'
       , 'leveldb-<(ldbversion)/include/'
     ]
   , 'conditions': [
