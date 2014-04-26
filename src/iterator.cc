@@ -201,7 +201,7 @@ NAN_METHOD(Iterator::Next) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("iterator", _this);
+  worker->SaveToPersistent("iterator", _this);
   iterator->nexting = true;
   NanAsyncQueueWorker(worker);
 
@@ -228,7 +228,7 @@ NAN_METHOD(Iterator::End) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("iterator", _this);
+  worker->SaveToPersistent("iterator", _this);
   iterator->ended = true;
 
   if (iterator->nexting) {

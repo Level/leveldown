@@ -87,7 +87,7 @@ IOWorker::IOWorker (
 {
   NanScope();
 
-  SavePersistent("key", keyHandle);
+  SaveToPersistent("key", keyHandle);
 };
 
 IOWorker::~IOWorker () {}
@@ -115,7 +115,7 @@ ReadWorker::ReadWorker (
 
   options = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
-  SavePersistent("key", keyHandle);
+  SaveToPersistent("key", keyHandle);
 };
 
 ReadWorker::~ReadWorker () {
@@ -156,7 +156,7 @@ DeleteWorker::DeleteWorker (
 
   options = new leveldb::WriteOptions();
   options->sync = sync;
-  SavePersistent("key", keyHandle);
+  SaveToPersistent("key", keyHandle);
 };
 
 DeleteWorker::~DeleteWorker () {
@@ -182,7 +182,7 @@ WriteWorker::WriteWorker (
 {
   NanScope();
 
-  SavePersistent("value", valueHandle);
+  SaveToPersistent("value", valueHandle);
 };
 
 WriteWorker::~WriteWorker () { }
@@ -235,8 +235,8 @@ ApproximateSizeWorker::ApproximateSizeWorker (
 {
   NanScope();
 
-  SavePersistent("start", startHandle);
-  SavePersistent("end", endHandle);
+  SaveToPersistent("start", startHandle);
+  SaveToPersistent("end", endHandle);
 };
 
 ApproximateSizeWorker::~ApproximateSizeWorker () {}

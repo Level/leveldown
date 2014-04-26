@@ -248,7 +248,7 @@ NAN_METHOD(Database::Open) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("database", _this);
+  worker->SaveToPersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -265,7 +265,7 @@ NAN_METHOD(Database::Close) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("database", _this);
+  worker->SaveToPersistent("database", _this);
 
   if (!database->iterators.empty()) {
     // yikes, we still have iterators open! naughty naughty.
@@ -342,7 +342,7 @@ NAN_METHOD(Database::Put) {
 
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("database", _this);
+  worker->SaveToPersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -371,7 +371,7 @@ NAN_METHOD(Database::Get) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("database", _this);
+  worker->SaveToPersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -398,7 +398,7 @@ NAN_METHOD(Database::Delete) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("database", _this);
+  worker->SaveToPersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
@@ -469,7 +469,7 @@ NAN_METHOD(Database::Batch) {
     );
     // persist to prevent accidental GC
     v8::Local<v8::Object> _this = args.This();
-    worker->SavePersistent("database", _this);
+    worker->SaveToPersistent("database", _this);
     NanAsyncQueueWorker(worker);
   } else {
     LD_RUN_CALLBACK(callback, 0, NULL);
@@ -512,7 +512,7 @@ NAN_METHOD(Database::ApproximateSize) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("database", _this);
+  worker->SaveToPersistent("database", _this);
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
