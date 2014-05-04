@@ -29,7 +29,7 @@
   "main": "index.js",
   "dependencies": {
     "bindings": "~1.2.0",
-    "nan": "git://github.com/rvagg/nan.git#0.9-wip",
+    "nan": "~1.0.0",
     "abstract-leveldown": "~0.12.0"
   },
   "devDependencies": {
