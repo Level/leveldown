@@ -31,11 +31,10 @@
     "bindings": "~1.2.1",
     "nan": "~1.3.0",
     "fast-future": "~1.0.0",
-    "abstract-leveldown": "~0.12.3"
+    "abstract-leveldown": "git://github.com/rvagg/abstract-leveldown#julian-empty-values"
   },
   "devDependencies": {
     "du": "~0.1.0",
-    "mkfiletree": "~0.0.1",
     "monotonic-timestamp": "~0.0.8",
     "node-gyp": "~1.0.1",
     "readfiletree": "~0.0.1",
