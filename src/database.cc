@@ -314,6 +314,8 @@ NAN_METHOD(Database::Put) {
 
   LD_METHOD_SETUP_COMMON(put, 2, 3)
 
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], key)
+
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
