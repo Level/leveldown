@@ -16,7 +16,6 @@ Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
   options->sync = sync;
   batch = new leveldb::WriteBatch();
   hasData = false;
-  written = false;
 }
 
 Batch::~Batch () {
@@ -135,8 +134,6 @@ NAN_METHOD(Batch::Write) {
   NanScope();
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
-
-  batch->written = true;
 
   if (batch->hasData) {
     NanCallback *callback =
