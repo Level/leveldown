@@ -69,15 +69,11 @@ void NextWorker::HandleOKCallback () {
   // clean up & handle the next/end state see iterator.cc/checkEndCallback
   localCallback(iterator);
 
-  if (!ok) {
-    v8::Local<v8::Value> argv[] = {
-        v8::Local<v8::Value>::New(v8::Null())
-      , returnArray
-    };
-    callback->Call(2, argv);
-  } else {
-    callback->Call(0, NULL);
-  }
+  v8::Local<v8::Value> argv[] = {
+      v8::Local<v8::Value>::New(v8::Null())
+    , returnArray
+  };
+  callback->Call(2, argv);
 }
 
 /** END WORKER **/

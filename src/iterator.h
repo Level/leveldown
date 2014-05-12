@@ -46,6 +46,7 @@ public:
     , bool keyAsBuffer
     , bool valueAsBuffer
     , v8::Local<v8::Object> &startHandle
+    , size_t highWaterMark
   );
 
   ~Iterator ();
@@ -71,6 +72,7 @@ private:
   std::string* gt;
   std::string* gte;
   int count;
+  size_t highWaterMark;
 
 public:
   bool keyAsBuffer;
