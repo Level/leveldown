@@ -16,18 +16,6 @@ namespace leveldown {
 NAN_METHOD(DestroyDB) {
   NanScope();
 
-  if (args.Length() < 2) {
-    return NanThrowError("destroy() requires `location` and `callback` arguments");
-  }
-
-  if (!args[0]->IsString()) {
-    return NanThrowError("destroy() requires a location string argument");
-  }
-
-  if (!args[1]->IsFunction()) {
-    return NanThrowError("destroy() requires a callback function argument");
-  }
-
   char* location = NanCString(args[0].As<v8::Object>(), NULL, NULL, 0, v8::String::NO_OPTIONS);
 
   NanCallback* callback = new NanCallback(
@@ -45,18 +33,6 @@ NAN_METHOD(DestroyDB) {
 
 NAN_METHOD(RepairDB) {
   NanScope();
-
-  if (args.Length() < 2) {
-    return NanThrowError("repair() requires `location` and `callback` arguments");
-  }
-
-  if (!args[0]->IsString()) {
-    return NanThrowError("repair() requires a location string argument");
-  }
-
-  if (!args[1]->IsFunction()) {
-    return NanThrowError("repair() requires a callback function argument");
-  }
 
   char* location = NanCString(args[0].As<v8::Object>(), NULL, NULL, 0, v8::String::NO_OPTIONS);
 

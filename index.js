@@ -47,6 +47,9 @@ LevelDOWN.prototype._approximateSize = function (start, end, callback) {
 }
 
 LevelDOWN.prototype.getProperty = function (property) {
+  if (typeof property !== 'string')
+    throw new Error("getProperty() requires a valid `property` argument")
+
   return this.binding.getProperty(property)
 }
 
@@ -54,7 +57,29 @@ LevelDOWN.prototype._iterator = function (options) {
   return new Iterator(this.binding, options)
 }
 
-LevelDOWN.destroy = binding.destroy
-LevelDOWN.repair = binding.repair
+LevelDOWN.destroy = function (location, callback) {
+  if (arguments.length < 2)
+    throw new Error("destroy() requires `location` and `callback` arguments");
 
+  if (typeof location !== 'string')
+    throw new Error("destroy() requires a location string argument");
+
+  if (typeof callback !== 'function')
+    throw new Error("destroy() requires a callback function argument");
+
+  binding.destroy(location, callback)
+}
+
+LevelDOWN.repair = function (location, callback) {
+  if (arguments.length < 2)
+    throw new Error("repair() requires `location` and `callback` arguments");
+
+  if (typeof location !== 'string')
+    throw new Error("repair() requires a location string argument");
+
+  if (typeof callback !== 'function')
+    throw new Error("repair() requires a callback function argument");
+
+  binding.repair(location, callback)
+}
 module.exports = LevelDOWN
