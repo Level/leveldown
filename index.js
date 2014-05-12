@@ -3,6 +3,7 @@ var util = require('util')
 
   , binding = require('bindings')('leveldown.node').leveldown
 
+  , ChainedBatch = require('./lib/chained-batch')
   , Iterator = require('./lib/iterator')
 
   , LevelDOWN = function (location) {
@@ -35,10 +36,11 @@ LevelDOWN.prototype._del = function (key, options, callback) {
   this.binding.del(key, options, callback)
 }
 
-LevelDOWN.prototype._batch = function (operations, options, callback) {
-  if (arguments.length === 0)
-    return this.binding.batch()
+LevelDOWN.prototype._chainedBatch = function () {
+  return new ChainedBatch(this)
+}
 
+LevelDOWN.prototype._batch = function (operations, options, callback) {
   return this.binding.batch(operations, options, callback)
 }
 
@@ -54,7 +56,7 @@ LevelDOWN.prototype.getProperty = function (property) {
 }
 
 LevelDOWN.prototype._iterator = function (options) {
-  return new Iterator(this.binding, options)
+  return new Iterator(this, options)
 }
 
 LevelDOWN.destroy = function (location, callback) {
