@@ -1,4 +1,7 @@
-var binding = require('bindings')('leveldown.node').leveldown
+var util = require('util')
+  , AbstractLevelDOWN = require('abstract-leveldown').AbstractLevelDOWN
+
+  , binding = require('bindings')('leveldown.node').leveldown
 
   , Iterator = require('./lib/iterator')
 
@@ -6,8 +9,11 @@ var binding = require('bindings')('leveldown.node').leveldown
       if (!(this instanceof LevelDOWN))
         return new LevelDOWN(location)
 
+      AbstractLevelDOWN.call(this, location)
       this.binding = binding(location)
     }
+
+util.inherits(LevelDOWN, AbstractLevelDOWN)
 
 LevelDOWN.prototype.open = function (options, callback) {
   this.binding.open(options, callback)
