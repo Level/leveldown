@@ -64,6 +64,73 @@ void NextWorker::HandleOKCallback () {
   }
 }
 
+/** NEXT-MULTI WORKER **/
+
+NextBufferingWorker::NextBufferingWorker (
+    Iterator* iterator
+  , NanCallback *callback
+  , void (*localCallback)(Iterator*)
+) : AsyncWorker(NULL, callback)
+  , iterator(iterator)
+  , localCallback(localCallback)
+{};
+
+NextBufferingWorker::~NextBufferingWorker () {}
+
+void NextBufferingWorker::Execute () {
+  ok = iterator->IteratorNextBuffering(result);
+  if (!ok)
+    SetStatus(iterator->IteratorStatus());
+}
+
+void NextBufferingWorker::HandleOKCallback () {
+  size_t idx = 0;
+  v8::Local<v8::Array> returnArray;
+  if (ok)
+    returnArray = v8::Local<v8::Array>::New(v8::Array::New(result.size()));
+  else
+    // make room for a null-value at the end
+    returnArray = v8::Local<v8::Array>::New(v8::Array::New(result.size() + 1));
+
+  for(idx = 0; idx < result.size(); ++idx) {
+    std::pair<std::string, std::string> row = result[idx];
+    std::string key = row.first;
+    std::string value = row.second;
+
+    v8::Local<v8::Value> returnKey;
+    if (iterator->keyAsBuffer) {
+      returnKey = NanNewBufferHandle((char*)key.data(), key.size());
+    } else {
+      returnKey = NanNew<v8::String>((char*)key.data(), key.size());
+    }
+
+    v8::Local<v8::Value> returnValue;
+    if (iterator->valueAsBuffer) {
+      returnValue = NanNewBufferHandle((char*)value.data(), value.size());
+    } else {
+      returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+    }
+
+    v8::Local<v8::Object> returnObject = v8::Local<v8::Object>::New(v8::Object::New());
+    returnObject->Set(v8::String::NewSymbol("key"), returnKey);
+    returnObject->Set(v8::String::NewSymbol("value"), returnValue);
+    returnArray->Set(v8::Integer::New(static_cast<int>(idx)), returnObject);
+  }
+
+  // clean up & handle the next/end state see iterator.cc/checkEndCallback
+  localCallback(iterator);
+
+  if (!ok) {
+    v8::Local<v8::Value> argv[] = {
+        v8::Local<v8::Value>::New(v8::Null())
+      , returnArray
+    };
+    callback->Call(2, argv);
+  } else {
+    callback->Call(0, NULL);
+  }
+}
+
 /** END WORKER **/
 
 EndWorker::EndWorker (

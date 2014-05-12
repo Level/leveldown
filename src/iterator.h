@@ -8,6 +8,8 @@
 
 #include <node.h>
 
+#include <vector>
+
 #include "nan.h"
 #include "leveldown.h"
 #include "database.h"
@@ -49,6 +51,7 @@ public:
   ~Iterator ();
 
   bool IteratorNext (std::string& key, std::string& value);
+  bool IteratorNextBuffering (std::vector<std::pair<std::string, std::string> >& result);
   leveldb::Status IteratorStatus ();
   void IteratorEnd ();
   void Release ();
@@ -84,6 +87,7 @@ private:
 
   static NAN_METHOD(New);
   static NAN_METHOD(Next);
+  static NAN_METHOD(NextBuffering);
   static NAN_METHOD(End);
 };
 
