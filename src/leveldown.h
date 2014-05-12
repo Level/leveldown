@@ -67,7 +67,8 @@ static inline void DisposeStringOrBufferFromSlice(
 #define LD_STRING_OR_BUFFER_TO_VALUE(to, from, name)                           \
   size_t to ## Sz_;                                                            \
   char* to ## Ch_;                                                             \
-  if (node::Buffer::HasInstance(from->ToObject())) {                           \
+  if (!from->IsNull() && !from->IsUndefined() &&                               \
+        node::Buffer::HasInstance(from->ToObject())) {                         \
     to ## Sz_ = node::Buffer::Length(from->ToObject());                        \
     to ## Ch_ = node::Buffer::Data(from->ToObject());                          \
   } else {                                                                     \
