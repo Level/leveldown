@@ -151,7 +151,7 @@ void Database::Init () {
   NODE_SET_PROTOTYPE_METHOD(tpl, "batch", Database::Batch);
   NODE_SET_PROTOTYPE_METHOD(tpl, "approximateSize", Database::ApproximateSize);
   NODE_SET_PROTOTYPE_METHOD(tpl, "getProperty", Database::GetProperty);
-  NODE_SET_PROTOTYPE_METHOD(tpl, "_iterator", Database::Iterator);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "iterator", Database::Iterator);
 }
 
 NAN_METHOD(Database::New) {
