@@ -118,7 +118,7 @@ bool Iterator::GetIterator () {
   return false;
 }
 
-bool Iterator::IteratorNext (std::string& key, std::string& value) {
+bool Iterator::Read (std::string& key, std::string& value) {
   // if it's not the first call, move to next item.
   if (!GetIterator()) {
     if (reverse)
@@ -154,11 +154,11 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
   return false;
 }
 
-bool Iterator::IteratorNextBuffering (std::vector<std::pair<std::string, std::string> >& result) {
+bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
   size_t size = 0;
   while(true) {
     std::string key, value;
-    bool ok = IteratorNext(key, value);
+    bool ok = Read(key, value);
 
     if (ok) {
       result.push_back(std::make_pair(key, value));
@@ -201,38 +201,6 @@ NAN_METHOD(Iterator::Next) {
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
-  if (args.Length() == 0 || !args[0]->IsFunction())
-    return NanThrowError("next() requires a callback argument");
-
-  v8::Local<v8::Function> callback = args[0].As<v8::Function>();
-
-  if (iterator->ended) {
-    LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() after end()")
-  }
-
-  if (iterator->nexting) {
-    LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() before previous next() has completed")
-  }
-
-  NextWorker* worker = new NextWorker(
-      iterator
-    , new NanCallback(callback)
-    , checkEndCallback
-  );
-  // persist to prevent accidental GC
-  v8::Local<v8::Object> _this = args.This();
-  worker->SaveToPersistent("iterator", _this);
-  iterator->nexting = true;
-  NanAsyncQueueWorker(worker);
-
-  NanReturnValue(args.Holder());
-}
-
-NAN_METHOD(Iterator::NextBuffering) {
-  NanScope();
-
-  Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
-
   if (args.Length() == 0 || !args[0]->IsFunction()) {
     return NanThrowError("next() requires a callback argument");
   }
@@ -247,7 +215,7 @@ NAN_METHOD(Iterator::NextBuffering) {
     LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() before previous next() has completed")
   }
 
-  NextBufferingWorker* worker = new NextBufferingWorker(
+  NextWorker* worker = new NextWorker(
       iterator
     , new NanCallback(callback)
     , checkEndCallback
@@ -301,7 +269,6 @@ void Iterator::Init () {
   tpl->SetClassName(NanSymbol("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "next", Iterator::Next);
-  NODE_SET_PROTOTYPE_METHOD(tpl, "nextBuffering", Iterator::NextBuffering);
   NODE_SET_PROTOTYPE_METHOD(tpl, "end", Iterator::End);
 }
 

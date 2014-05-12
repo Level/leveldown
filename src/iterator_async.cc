@@ -13,7 +13,7 @@
 
 namespace leveldown {
 
-/** NEXT WORKER **/
+/** NEXT-MULTI WORKER **/
 
 NextWorker::NextWorker (
     Iterator* iterator
@@ -27,63 +27,12 @@ NextWorker::NextWorker (
 NextWorker::~NextWorker () {}
 
 void NextWorker::Execute () {
-  ok = iterator->IteratorNext(key, value);
+  ok = iterator->IteratorNext(result);
   if (!ok)
     SetStatus(iterator->IteratorStatus());
 }
 
 void NextWorker::HandleOKCallback () {
-  NanScope();
-
-  v8::Local<v8::Value> returnKey;
-  if (iterator->keyAsBuffer) {
-    returnKey = NanNewBufferHandle((char*)key.data(), key.size());
-  } else {
-    returnKey = NanNew<v8::String>((char*)key.data(), key.size());
-  }
-
-  v8::Local<v8::Value> returnValue;
-  if (iterator->valueAsBuffer) {
-    returnValue = NanNewBufferHandle((char*)value.data(), value.size());
-  } else {
-    returnValue = NanNew<v8::String>((char*)value.data(), value.size());
-  }
-
-  // clean up & handle the next/end state see iterator.cc/checkEndCallback
-  localCallback(iterator);
-
-  if (ok) {
-    v8::Local<v8::Value> argv[] = {
-        NanNew<v8::Primitive>(NanNull())
-      , returnKey
-      , returnValue
-    };
-    callback->Call(3, argv);
-  } else {
-    callback->Call(0, NULL);
-  }
-}
-
-/** NEXT-MULTI WORKER **/
-
-NextBufferingWorker::NextBufferingWorker (
-    Iterator* iterator
-  , NanCallback *callback
-  , void (*localCallback)(Iterator*)
-) : AsyncWorker(NULL, callback)
-  , iterator(iterator)
-  , localCallback(localCallback)
-{};
-
-NextBufferingWorker::~NextBufferingWorker () {}
-
-void NextBufferingWorker::Execute () {
-  ok = iterator->IteratorNextBuffering(result);
-  if (!ok)
-    SetStatus(iterator->IteratorStatus());
-}
-
-void NextBufferingWorker::HandleOKCallback () {
   size_t idx = 0;
   v8::Local<v8::Array> returnArray;
   if (ok)

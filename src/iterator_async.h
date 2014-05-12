@@ -29,26 +29,6 @@ public:
 private:
   Iterator* iterator;
   void (*localCallback)(Iterator*);
-  std::string key;
-  std::string value;
-  bool ok;
-};
-
-class NextBufferingWorker : public AsyncWorker {
-public:
-  NextBufferingWorker (
-      Iterator* iterator
-    , NanCallback *callback
-    , void (*localCallback)(Iterator*)
-  );
-
-  virtual ~NextBufferingWorker ();
-  virtual void Execute ();
-  virtual void HandleOKCallback ();
-
-private:
-  Iterator* iterator;
-  void (*localCallback)(Iterator*);
   std::vector<std::pair<std::string, std::string> > result;
   bool ok;
 };
