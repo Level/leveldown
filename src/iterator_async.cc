@@ -36,10 +36,17 @@ void NextWorker::HandleOKCallback () {
   size_t idx = 0;
   v8::Local<v8::Array> returnArray;
   if (ok)
-    returnArray = v8::Local<v8::Array>::New(v8::Array::New(result.size()));
-  else
-    // make room for a null-value at the end
-    returnArray = v8::Local<v8::Array>::New(v8::Array::New(result.size() + 1));
+    returnArray = NanNew<v8::Array>(result.size());
+  else {
+    // make room and add for a null-value at the end,
+    // signaling that we're at the end
+    returnArray = NanNew<v8::Array>(result.size() + 1);
+    returnArray->Set(
+        NanNew<v8::Integer>(static_cast<int>(result.size()))
+      , NanNew<v8::Primitive>(NanNull())
+    );
+
+  }
 
   for(idx = 0; idx < result.size(); ++idx) {
     std::pair<std::string, std::string> row = result[idx];
@@ -60,17 +67,17 @@ void NextWorker::HandleOKCallback () {
       returnValue = NanNew<v8::String>((char*)value.data(), value.size());
     }
 
-    v8::Local<v8::Object> returnObject = v8::Local<v8::Object>::New(v8::Object::New());
-    returnObject->Set(v8::String::NewSymbol("key"), returnKey);
-    returnObject->Set(v8::String::NewSymbol("value"), returnValue);
-    returnArray->Set(v8::Integer::New(static_cast<int>(idx)), returnObject);
+    v8::Local<v8::Object> returnObject = NanNew<v8::Object>();
+    returnObject->Set(NanSymbol("key"), returnKey);
+    returnObject->Set(NanSymbol("value"), returnValue);
+    returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx)), returnObject);
   }
 
   // clean up & handle the next/end state see iterator.cc/checkEndCallback
   localCallback(iterator);
 
   v8::Local<v8::Value> argv[] = {
-      v8::Local<v8::Value>::New(v8::Null())
+      NanNew<v8::Primitive>(NanNull())
     , returnArray
   };
   callback->Call(2, argv);
