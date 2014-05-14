@@ -31,6 +31,7 @@ Iterator::Iterator (
   , bool keyAsBuffer
   , bool valueAsBuffer
   , v8::Local<v8::Object> &startHandle
+  , size_t highWaterMark
 ) : database(database)
   , id(id)
   , start(start)
@@ -43,6 +44,7 @@ Iterator::Iterator (
   , lte(lte)
   , gt(gt)
   , gte(gte)
+  , highWaterMark(highWaterMark)
   , keyAsBuffer(keyAsBuffer)
   , valueAsBuffer(valueAsBuffer)
 {
@@ -118,7 +120,7 @@ bool Iterator::GetIterator () {
   return false;
 }
 
-bool Iterator::IteratorNext (std::string& key, std::string& value) {
+bool Iterator::Read (std::string& key, std::string& value) {
   // if it's not the first call, move to next item.
   if (!GetIterator()) {
     if (reverse)
@@ -154,6 +156,25 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
   return false;
 }
 
+bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
+  size_t size = 0;
+  while(true) {
+    std::string key, value;
+    bool ok = Read(key, value);
+
+    if (ok) {
+      result.push_back(std::make_pair(key, value));
+      size = size + key.size() + value.size();
+
+      if (size > highWaterMark)
+        return true;
+
+    } else {
+      return false;
+    }
+  }
+}
+
 leveldb::Status Iterator::IteratorStatus () {
   return dbIterator->status();
 }
@@ -181,8 +202,9 @@ NAN_METHOD(Iterator::Next) {
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
-  if (args.Length() == 0 || !args[0]->IsFunction())
+  if (args.Length() == 0 || !args[0]->IsFunction()) {
     return NanThrowError("next() requires a callback argument");
+  }
 
   v8::Local<v8::Function> callback = args[0].As<v8::Function>();
 
@@ -286,6 +308,8 @@ NAN_METHOD(Iterator::New) {
   leveldb::Slice* start = NULL;
   std::string* end = NULL;
   int limit = -1;
+  // default highWaterMark from Readble-streams
+  size_t highWaterMark = 16 * 1024;
 
   v8::Local<v8::Value> id = args[1];
 
@@ -338,6 +362,11 @@ NAN_METHOD(Iterator::New) {
     if (!optionsObj.IsEmpty() && optionsObj->Has(NanSymbol("limit"))) {
       limit = v8::Local<v8::Integer>::Cast(optionsObj->Get(
           NanSymbol("limit")))->Value();
+    }
+
+    if (optionsObj->Has(NanSymbol("highWaterMark"))) {
+      highWaterMark = v8::Local<v8::Integer>::Cast(optionsObj->Get(
+            NanSymbol("highWaterMark")))->Value();
     }
 
     if (optionsObj->Has(NanSymbol("lt"))
@@ -433,6 +462,7 @@ NAN_METHOD(Iterator::New) {
     , keyAsBuffer
     , valueAsBuffer
     , startHandle
+    , highWaterMark
   );
   iterator->Wrap(args.This());
 

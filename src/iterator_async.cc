@@ -13,7 +13,7 @@
 
 namespace leveldown {
 
-/** NEXT WORKER **/
+/** NEXT-MULTI WORKER **/
 
 NextWorker::NextWorker (
     Iterator* iterator
@@ -27,41 +27,60 @@ NextWorker::NextWorker (
 NextWorker::~NextWorker () {}
 
 void NextWorker::Execute () {
-  ok = iterator->IteratorNext(key, value);
+  ok = iterator->IteratorNext(result);
   if (!ok)
     SetStatus(iterator->IteratorStatus());
 }
 
 void NextWorker::HandleOKCallback () {
-  NanScope();
+  size_t idx = 0;
+  v8::Local<v8::Array> returnArray;
+  if (ok)
+    returnArray = NanNew<v8::Array>(result.size());
+  else {
+    // make room and add for a null-value at the end,
+    // signaling that we're at the end
+    returnArray = NanNew<v8::Array>(result.size() + 1);
+    returnArray->Set(
+        NanNew<v8::Integer>(static_cast<int>(result.size()))
+      , NanNew<v8::Primitive>(NanNull())
+    );
 
-  v8::Local<v8::Value> returnKey;
-  if (iterator->keyAsBuffer) {
-    returnKey = NanNewBufferHandle((char*)key.data(), key.size());
-  } else {
-    returnKey = NanNew<v8::String>((char*)key.data(), key.size());
   }
 
-  v8::Local<v8::Value> returnValue;
-  if (iterator->valueAsBuffer) {
-    returnValue = NanNewBufferHandle((char*)value.data(), value.size());
-  } else {
-    returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+  for(idx = 0; idx < result.size(); ++idx) {
+    std::pair<std::string, std::string> row = result[idx];
+    std::string key = row.first;
+    std::string value = row.second;
+
+    v8::Local<v8::Value> returnKey;
+    if (iterator->keyAsBuffer) {
+      returnKey = NanNewBufferHandle((char*)key.data(), key.size());
+    } else {
+      returnKey = NanNew<v8::String>((char*)key.data(), key.size());
+    }
+
+    v8::Local<v8::Value> returnValue;
+    if (iterator->valueAsBuffer) {
+      returnValue = NanNewBufferHandle((char*)value.data(), value.size());
+    } else {
+      returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+    }
+
+    v8::Local<v8::Object> returnObject = NanNew<v8::Object>();
+    returnObject->Set(NanSymbol("key"), returnKey);
+    returnObject->Set(NanSymbol("value"), returnValue);
+    returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx)), returnObject);
   }
 
   // clean up & handle the next/end state see iterator.cc/checkEndCallback
   localCallback(iterator);
 
-  if (ok) {
-    v8::Local<v8::Value> argv[] = {
-        NanNew<v8::Primitive>(NanNull())
-      , returnKey
-      , returnValue
-    };
-    callback->Call(3, argv);
-  } else {
-    callback->Call(0, NULL);
-  }
+  v8::Local<v8::Value> argv[] = {
+      NanNew<v8::Primitive>(NanNull())
+    , returnArray
+  };
+  callback->Call(2, argv);
 }
 
 /** END WORKER **/

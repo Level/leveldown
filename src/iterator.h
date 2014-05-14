@@ -8,6 +8,8 @@
 
 #include <node.h>
 
+#include <vector>
+
 #include "nan.h"
 #include "leveldown.h"
 #include "database.h"
@@ -44,11 +46,12 @@ public:
     , bool keyAsBuffer
     , bool valueAsBuffer
     , v8::Local<v8::Object> &startHandle
+    , size_t highWaterMark
   );
 
   ~Iterator ();
 
-  bool IteratorNext (std::string& key, std::string& value);
+  bool IteratorNext (std::vector<std::pair<std::string, std::string> >& result);
   leveldb::Status IteratorStatus ();
   void IteratorEnd ();
   void Release ();
@@ -69,6 +72,7 @@ private:
   std::string* gt;
   std::string* gte;
   int count;
+  size_t highWaterMark;
 
 public:
   bool keyAsBuffer;
@@ -80,6 +84,7 @@ public:
 private:
   v8::Persistent<v8::Object> persistentHandle;
 
+  bool Read (std::string& key, std::string& value);
   bool GetIterator ();
 
   static NAN_METHOD(New);
