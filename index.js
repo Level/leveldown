@@ -48,6 +48,32 @@ LevelDOWN.prototype._approximateSize = function (start, end, callback) {
   this.binding.approximateSize(start, end, callback)
 }
 
+LevelDOWN.prototype.getRange = function (options, callback) {
+  if (typeof options == 'function'){
+    callback = options
+    options = {}
+  }
+
+  if (typeof callback != 'function')
+    throw new Error('getRange() requires a callback argument')
+
+  var iterator = this.binding.iterator(options)
+  iterator.next(function (err, data) {
+    if (!err && !data)
+      data = []
+
+    if (data[data.length - 1] === null)
+      data.length = data.length - 1
+
+    iterator.end(function (err) {
+      if (err)
+        callback(err)
+      else
+        callback(null, data)
+    })
+  })
+}
+
 LevelDOWN.prototype.getProperty = function (property) {
   if (typeof property !== 'string')
     throw new Error("getProperty() requires a valid `property` argument")
