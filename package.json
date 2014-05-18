@@ -29,7 +29,8 @@
   "main": "index.js",
   "dependencies": {
     "bindings": "~1.2.0",
-    "nan": "~1.1.0"
+    "nan": "~1.1.0",
+    "fast-future": "~1.0.0"
   },
   "devDependencies": {
     "tap": "~0.4.8",
