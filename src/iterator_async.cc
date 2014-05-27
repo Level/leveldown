@@ -34,19 +34,9 @@ void NextWorker::Execute () {
 
 void NextWorker::HandleOKCallback () {
   size_t idx = 0;
-  v8::Local<v8::Array> returnArray;
-  if (ok)
-    returnArray = NanNew<v8::Array>(result.size());
-  else {
-    // make room and add for a null-value at the end,
-    // signaling that we're at the end
-    returnArray = NanNew<v8::Array>(result.size() + 1);
-    returnArray->Set(
-        NanNew<v8::Integer>(static_cast<int>(result.size()))
-      , NanNull()
-    );
 
-  }
+  size_t arraySize = result.size() * 2;
+  v8::Local<v8::Array> returnArray = NanNew<v8::Array>(arraySize);
 
   for(idx = 0; idx < result.size(); ++idx) {
     std::pair<std::string, std::string> row = result[idx];
@@ -67,10 +57,9 @@ void NextWorker::HandleOKCallback () {
       returnValue = NanNew<v8::String>((char*)value.data(), value.size());
     }
 
-    v8::Local<v8::Object> returnObject = NanNew<v8::Object>();
-    returnObject->Set(NanNew("key"), returnKey);
-    returnObject->Set(NanNew("value"), returnValue);
-    returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx)), returnObject);
+    // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
+    returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 1)), returnKey);
+    returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 2)), returnValue);
   }
 
   // clean up & handle the next/end state see iterator.cc/checkEndCallback
@@ -79,8 +68,10 @@ void NextWorker::HandleOKCallback () {
   v8::Local<v8::Value> argv[] = {
       NanNull()
     , returnArray
+    // when ok === false all data has been read, so it's then finished
+    , NanNew<v8::Boolean>(!ok)
   };
-  callback->Call(2, argv);
+  callback->Call(3, argv);
 }
 
 /** END WORKER **/
