@@ -29,7 +29,7 @@ protected:
   void SetStatus(leveldb::Status status) {
     this->status = status;
     if (!status.ok())
-      this->errmsg = strdup(status.ToString().c_str());
+      SetErrorMessage(status.ToString().c_str());
   }
   Database* database;
 private:

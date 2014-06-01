@@ -24,9 +24,9 @@ struct Reference {
   leveldb::Slice slice;
 
   Reference(v8::Local<v8::Value> obj, leveldb::Slice slice) : slice(slice) {
-    v8::Local<v8::Object> _obj = v8::Object::New();
-    _obj->Set(NanSymbol("obj"), obj);
-    NanAssignPersistent(v8::Object, handle, _obj);
+    v8::Local<v8::Object> _obj = NanNew<v8::Object>();
+    _obj->Set(NanNew("obj"), obj);
+    NanAssignPersistent(handle, _obj);
   };
 };
 

@@ -135,7 +135,7 @@ void ReadWorker::HandleOKCallback () {
     returnValue = v8::String::New((char*)value.data(), value.size());
   }
   v8::Local<v8::Value> argv[] = {
-      NanNewLocal<v8::Value>(v8::Null())
+      NanNew(NanNull())
     , returnValue
   };
   callback->Call(2, argv);
@@ -259,7 +259,7 @@ void ApproximateSizeWorker::HandleOKCallback () {
 
   v8::Local<v8::Value> returnValue = v8::Number::New((double) size);
   v8::Local<v8::Value> argv[] = {
-      NanNewLocal<v8::Value>(v8::Null())
+      NanNew(NanNull())
     , returnValue
   };
   callback->Call(2, argv);

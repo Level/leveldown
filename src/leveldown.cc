@@ -82,16 +82,16 @@ void Init (v8::Handle<v8::Object> target) {
       v8::FunctionTemplate::New(LevelDOWN)->GetFunction();
 
   leveldown->Set(
-      NanSymbol("destroy")
-    , v8::FunctionTemplate::New(DestroyDB)->GetFunction()
+      NanNew("destroy")
+    , NanNew<v8::FunctionTemplate>(DestroyDB)->GetFunction()
   );
 
   leveldown->Set(
-      NanSymbol("repair")
-    , v8::FunctionTemplate::New(RepairDB)->GetFunction()
+      NanNew("repair")
+    , NanNew<v8::FunctionTemplate>(RepairDB)->GetFunction()
   );
 
-  target->Set(NanSymbol("leveldown"), leveldown);
+  target->Set(NanNew("leveldown"), leveldown);
 }
 
 NODE_MODULE(leveldown, Init)
