@@ -43,7 +43,7 @@ void NextWorker::HandleOKCallback () {
     returnArray = NanNew<v8::Array>(result.size() + 1);
     returnArray->Set(
         NanNew<v8::Integer>(static_cast<int>(result.size()))
-      , NanNew<v8::Primitive>(NanNull())
+      , NanNew(NanNull())
     );
 
   }
@@ -68,8 +68,8 @@ void NextWorker::HandleOKCallback () {
     }
 
     v8::Local<v8::Object> returnObject = NanNew<v8::Object>();
-    returnObject->Set(NanSymbol("key"), returnKey);
-    returnObject->Set(NanSymbol("value"), returnValue);
+    returnObject->Set(NanNew("key"), returnKey);
+    returnObject->Set(NanNew("value"), returnValue);
     returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx)), returnObject);
   }
 
@@ -77,7 +77,7 @@ void NextWorker::HandleOKCallback () {
   localCallback(iterator);
 
   v8::Local<v8::Value> argv[] = {
-      NanNew<v8::Primitive>(NanNull())
+      NanNew(NanNull())
     , returnArray
   };
   callback->Call(2, argv);

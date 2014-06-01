@@ -31,7 +31,7 @@ leveldb::Status Batch::Write () {
 void Batch::Init () {
   v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(Batch::New);
   NanAssignPersistent(batch_constructor, tpl);
-  tpl->SetClassName(NanSymbol("Batch"));
+  tpl->SetClassName(NanNew("Batch"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "put", Batch::Put);
   NODE_SET_PROTOTYPE_METHOD(tpl, "del", Batch::Del);
@@ -49,7 +49,7 @@ NAN_METHOD(Batch::New) {
     optionsObj = v8::Local<v8::Object>::Cast(args[1]);
   }
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
+  bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
 
   Batch* batch = new Batch(database, sync);
   batch->Wrap(args.This());
@@ -153,7 +153,7 @@ NAN_METHOD(Batch::Write) {
 
   if (batch->written)
     return NanThrowError("write() already called on this batch");
-  
+
   if (args.Length() == 0)
     return NanThrowError("write() requires a callback argument");
 
