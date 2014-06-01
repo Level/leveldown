@@ -43,7 +43,7 @@ void NextWorker::HandleOKCallback () {
     returnArray = NanNew<v8::Array>(result.size() + 1);
     returnArray->Set(
         NanNew<v8::Integer>(static_cast<int>(result.size()))
-      w(NanNull()
+      , NanNull()
     );
 
   }
