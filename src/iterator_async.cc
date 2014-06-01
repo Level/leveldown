@@ -43,7 +43,7 @@ void NextWorker::HandleOKCallback () {
     returnArray = NanNew<v8::Array>(result.size() + 1);
     returnArray->Set(
         NanNew<v8::Integer>(static_cast<int>(result.size()))
-      , NanNew(NanNull())
+      w(NanNull()
     );
 
   }
@@ -77,7 +77,7 @@ void NextWorker::HandleOKCallback () {
   localCallback(iterator);
 
   v8::Local<v8::Value> argv[] = {
-      NanNew(NanNull())
+      NanNull()
     , returnArray
   };
   callback->Call(2, argv);
