@@ -29,8 +29,8 @@ leveldb::Status Batch::Write () {
 }
 
 void Batch::Init () {
-  v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(Batch::New);
-  NanAssignPersistent(v8::FunctionTemplate, batch_constructor, tpl);
+  v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(Batch::New);
+  NanAssignPersistent(batch_constructor, tpl);
   tpl->SetClassName(NanSymbol("Batch"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "put", Batch::Put);
@@ -62,12 +62,12 @@ v8::Handle<v8::Value> Batch::NewInstance (
       , v8::Handle<v8::Object> optionsObj
     ) {
 
-  NanScope();
+  NanEscapableScope();
 
   v8::Local<v8::Object> instance;
 
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanPersistentToLocal(batch_constructor);
+      NanNew<v8::FunctionTemplate>(batch_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[1] = { database };
@@ -77,7 +77,7 @@ v8::Handle<v8::Value> Batch::NewInstance (
     instance = constructorHandle->GetFunction()->NewInstance(2, argv);
   }
 
-  return scope.Close(instance);
+  return NanEscapeScope(instance);
 }
 
 NAN_METHOD(Batch::Put) {
@@ -165,7 +165,7 @@ NAN_METHOD(Batch::Write) {
     BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);
     // persist to prevent accidental GC
     v8::Local<v8::Object> _this = args.This();
-    worker->SavePersistent("batch", _this);
+    worker->SaveToPersistent("batch", _this);
     NanAsyncQueueWorker(worker);
   } else {
     LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(args[0]), 0, NULL);

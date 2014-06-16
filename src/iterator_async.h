@@ -29,8 +29,7 @@ public:
 private:
   Iterator* iterator;
   void (*localCallback)(Iterator*);
-  std::string key;
-  std::string value;
+  std::vector<std::pair<std::string, std::string> > result;
   bool ok;
 };
 

@@ -31,6 +31,7 @@ Iterator::Iterator (
   , bool keyAsBuffer
   , bool valueAsBuffer
   , v8::Local<v8::Object> &startHandle
+  , size_t highWaterMark
 ) : database(database)
   , id(id)
   , start(start)
@@ -43,15 +44,16 @@ Iterator::Iterator (
   , lte(lte)
   , gt(gt)
   , gte(gte)
+  , highWaterMark(highWaterMark)
   , keyAsBuffer(keyAsBuffer)
   , valueAsBuffer(valueAsBuffer)
 {
   NanScope();
 
-  v8::Local<v8::Object> obj = v8::Object::New();
+  v8::Local<v8::Object> obj = NanNew<v8::Object>();
   if (!startHandle.IsEmpty())
     obj->Set(NanSymbol("start"), startHandle);
-  NanAssignPersistent(v8::Object, persistentHandle, obj);
+  NanAssignPersistent(persistentHandle, obj);
 
   options    = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
@@ -65,7 +67,7 @@ Iterator::Iterator (
 Iterator::~Iterator () {
   delete options;
   if (!persistentHandle.IsEmpty())
-    NanDispose(persistentHandle);
+    NanDisposePersistent(persistentHandle);
   if (start != NULL)
     delete start;
   if (end != NULL)
@@ -118,7 +120,7 @@ bool Iterator::GetIterator () {
   return false;
 }
 
-bool Iterator::IteratorNext (std::string& key, std::string& value) {
+bool Iterator::Read (std::string& key, std::string& value) {
   // if it's not the first call, move to next item.
   if (!GetIterator()) {
     if (reverse)
@@ -154,6 +156,25 @@ bool Iterator::IteratorNext (std::string& key, std::string& value) {
   return false;
 }
 
+bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
+  size_t size = 0;
+  while(true) {
+    std::string key, value;
+    bool ok = Read(key, value);
+
+    if (ok) {
+      result.push_back(std::make_pair(key, value));
+      size = size + key.size() + value.size();
+
+      if (size > highWaterMark)
+        return true;
+
+    } else {
+      return false;
+    }
+  }
+}
+
 leveldb::Status Iterator::IteratorStatus () {
   return dbIterator->status();
 }
@@ -181,8 +202,9 @@ NAN_METHOD(Iterator::Next) {
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
-  if (args.Length() == 0 || !args[0]->IsFunction())
+  if (args.Length() == 0 || !args[0]->IsFunction()) {
     return NanThrowError("next() requires a callback argument");
+  }
 
   v8::Local<v8::Function> callback = args[0].As<v8::Function>();
 
@@ -201,7 +223,7 @@ NAN_METHOD(Iterator::Next) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("iterator", _this);
+  worker->SaveToPersistent("iterator", _this);
   iterator->nexting = true;
   NanAsyncQueueWorker(worker);
 
@@ -228,7 +250,7 @@ NAN_METHOD(Iterator::End) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("iterator", _this);
+  worker->SaveToPersistent("iterator", _this);
   iterator->ended = true;
 
   if (iterator->nexting) {
@@ -243,8 +265,8 @@ NAN_METHOD(Iterator::End) {
 
 void Iterator::Init () {
   v8::Local<v8::FunctionTemplate> tpl =
-      v8::FunctionTemplate::New(Iterator::New);
-  NanAssignPersistent(v8::FunctionTemplate, iterator_constructor, tpl);
+      NanNew<v8::FunctionTemplate>(Iterator::New);
+  NanAssignPersistent(iterator_constructor, tpl);
   tpl->SetClassName(NanSymbol("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "next", Iterator::Next);
@@ -257,11 +279,11 @@ v8::Local<v8::Object> Iterator::NewInstance (
       , v8::Local<v8::Object> optionsObj
     ) {
 
-  NanScope();
+  NanEscapableScope();
 
   v8::Local<v8::Object> instance;
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanPersistentToLocal(iterator_constructor);
+      NanNew<v8::FunctionTemplate>(iterator_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[2] = { database, id };
@@ -271,7 +293,7 @@ v8::Local<v8::Object> Iterator::NewInstance (
     instance = constructorHandle->GetFunction()->NewInstance(3, argv);
   }
 
-  return instance;
+  return NanEscapeScope(instance);
 }
 
 NAN_METHOD(Iterator::New) {
@@ -286,6 +308,8 @@ NAN_METHOD(Iterator::New) {
   leveldb::Slice* start = NULL;
   std::string* end = NULL;
   int limit = -1;
+  // default highWaterMark from Readble-streams
+  size_t highWaterMark = 16 * 1024;
 
   v8::Local<v8::Value> id = args[1];
 
@@ -326,8 +350,7 @@ NAN_METHOD(Iterator::New) {
         && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("end")))
           || optionsObj->Get(NanSymbol("end"))->IsString())) {
 
-      v8::Local<v8::Value> endBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("end")));
+      v8::Local<v8::Value> endBuffer = optionsObj->Get(NanSymbol("end"));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(endBuffer) > 0) {
@@ -341,12 +364,16 @@ NAN_METHOD(Iterator::New) {
           NanSymbol("limit")))->Value();
     }
 
+    if (optionsObj->Has(NanSymbol("highWaterMark"))) {
+      highWaterMark = v8::Local<v8::Integer>::Cast(optionsObj->Get(
+            NanSymbol("highWaterMark")))->Value();
+    }
+
     if (optionsObj->Has(NanSymbol("lt"))
         && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("lt")))
           || optionsObj->Get(NanSymbol("lt"))->IsString())) {
 
-      v8::Local<v8::Value> ltBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("lt")));
+      v8::Local<v8::Value> ltBuffer = optionsObj->Get(NanSymbol("lt"));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(ltBuffer) > 0) {
@@ -361,8 +388,7 @@ NAN_METHOD(Iterator::New) {
         && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("lte")))
           || optionsObj->Get(NanSymbol("lte"))->IsString())) {
 
-      v8::Local<v8::Value> lteBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("lte")));
+      v8::Local<v8::Value> lteBuffer = optionsObj->Get(NanSymbol("lte"));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(lteBuffer) > 0) {
@@ -377,8 +403,7 @@ NAN_METHOD(Iterator::New) {
         && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("gt")))
           || optionsObj->Get(NanSymbol("gt"))->IsString())) {
 
-      v8::Local<v8::Value> gtBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("gt")));
+      v8::Local<v8::Value> gtBuffer = optionsObj->Get(NanSymbol("gt"));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gtBuffer) > 0) {
@@ -393,8 +418,7 @@ NAN_METHOD(Iterator::New) {
         && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("gte")))
           || optionsObj->Get(NanSymbol("gte"))->IsString())) {
 
-      v8::Local<v8::Value> gteBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("gte")));
+      v8::Local<v8::Value> gteBuffer = optionsObj->Get(NanSymbol("gte"));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gteBuffer) > 0) {
@@ -438,6 +462,7 @@ NAN_METHOD(Iterator::New) {
     , keyAsBuffer
     , valueAsBuffer
     , startHandle
+    , highWaterMark
   );
   iterator->Wrap(args.This());
 
