@@ -27,6 +27,19 @@ test('setUp db', function (t) {
   })
 })
 
+test('try to create an iterator with a blown stack', function (t) {
+  var arr = [];
+  function recurse() {
+    var iterator = db.iterator({start:'0'})
+    recurse();
+  }
+  try {
+    recurse();
+  } catch (e) {
+    // Error expected. Segfault not expected.
+  }
+})
+
 test('iterate over a large iterator with a large watermark', function (t) {
   var iterator = db.iterator({
         highWaterMark: 10000000

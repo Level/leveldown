@@ -12,7 +12,8 @@
 #include "nan.h"
 
 static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
-  return node::Buffer::HasInstance(obj->ToObject())
+  return (!obj->ToObject().IsEmpty()
+    && node::Buffer::HasInstance(obj->ToObject()))
     ? node::Buffer::Length(obj->ToObject())
     : obj->ToString()->Utf8Length();
 }
@@ -46,7 +47,8 @@ static inline void DisposeStringOrBufferFromSlice(
 #define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name)                           \
   size_t to ## Sz_;                                                            \
   char* to ## Ch_;                                                             \
-  if (node::Buffer::HasInstance(from->ToObject())) {                           \
+  if (!from->ToObject().IsEmpty()                                              \
+      && node::Buffer::HasInstance(from->ToObject())) {                        \
     to ## Sz_ = node::Buffer::Length(from->ToObject());                        \
     if (to ## Sz_ == 0) {                                                      \
       LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty Buffer") \
