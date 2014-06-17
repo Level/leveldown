@@ -23,7 +23,7 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::Persistent<v8::Object> &handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(NanNew<v8::Object>(handle)->Get(NanSymbol("obj"))))
+  if (!node::Buffer::HasInstance(NanNew<v8::Object>(handle)->Get(NanNew<v8::String>("obj"))))
     delete[] slice.data();
 
   NanDisposePersistent(handle);
