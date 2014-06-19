@@ -564,7 +564,8 @@ NAN_METHOD(Database::Iterator) {
     , optionsObj
   );
   if (try_catch.HasCaught()) {
-    node::FatalException(try_catch);
+    // NB: node::FatalException can segfault here if there is no room on stack.
+    return NanThrowError("Fatal Error in Database::Iterator!");
   }
 
   leveldown::Iterator *iterator =
