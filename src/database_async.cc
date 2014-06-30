@@ -87,7 +87,7 @@ IOWorker::IOWorker (
 {
   NanScope();
 
-  SavePersistent("key", keyHandle);
+  SaveToPersistent("key", keyHandle);
 };
 
 IOWorker::~IOWorker () {}
@@ -115,7 +115,7 @@ ReadWorker::ReadWorker (
 
   options = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
-  SavePersistent("key", keyHandle);
+  SaveToPersistent("key", keyHandle);
 };
 
 ReadWorker::~ReadWorker () {
@@ -136,7 +136,7 @@ void ReadWorker::HandleOKCallback () {
     returnValue = v8::String::New((char*)value.data(), value.size());
   }
   v8::Local<v8::Value> argv[] = {
-      NanNewLocal<v8::Value>(v8::Null())
+      NanNew(v8::Null())
     , returnValue
   };
   callback->Call(2, argv);
@@ -156,7 +156,7 @@ DeleteWorker::DeleteWorker (
 
   options = new leveldb::WriteOptions();
   options->sync = sync;
-  SavePersistent("key", keyHandle);
+  SaveToPersistent("key", keyHandle);
 };
 
 DeleteWorker::~DeleteWorker () {
@@ -182,7 +182,7 @@ WriteWorker::WriteWorker (
 {
   NanScope();
 
-  SavePersistent("value", valueHandle);
+  SaveToPersistent("value", valueHandle);
 };
 
 WriteWorker::~WriteWorker () {}
@@ -237,8 +237,8 @@ ApproximateSizeWorker::ApproximateSizeWorker (
 {
   NanScope();
 
-  SavePersistent("start", startHandle);
-  SavePersistent("end", endHandle);
+  SaveToPersistent("start", startHandle);
+  SaveToPersistent("end", endHandle);
 };
 
 ApproximateSizeWorker::~ApproximateSizeWorker () {}
@@ -260,7 +260,7 @@ void ApproximateSizeWorker::HandleOKCallback () {
 
   v8::Local<v8::Value> returnValue = v8::Number::New((double) size);
   v8::Local<v8::Value> argv[] = {
-      NanNewLocal<v8::Value>(v8::Null())
+      NanNew(v8::Null())
     , returnValue
   };
   callback->Call(2, argv);

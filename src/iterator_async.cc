@@ -54,7 +54,7 @@ void NextWorker::HandleOKCallback () {
 
   if (ok) {
     v8::Local<v8::Value> argv[] = {
-        NanNewLocal<v8::Value>(v8::Null())
+        NanNew(v8::Null())
       , returnKey
       , returnValue
     };

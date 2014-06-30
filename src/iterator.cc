@@ -50,8 +50,8 @@ Iterator::Iterator (
 
   v8::Local<v8::Object> obj = v8::Object::New();
   if (!startHandle.IsEmpty())
-    obj->Set(NanSymbol("start"), startHandle);
-  NanAssignPersistent(v8::Object, persistentHandle, obj);
+    obj->Set(NanNew<v8::String>("start"), startHandle);
+  NanAssignPersistent(persistentHandle, obj);
 
   options    = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
@@ -65,7 +65,7 @@ Iterator::Iterator (
 Iterator::~Iterator () {
   delete options;
   if (!persistentHandle.IsEmpty())
-    NanDispose(persistentHandle);
+    NanDisposePersistent(persistentHandle);
   if (start != NULL)
     delete start;
   if (end != NULL)
@@ -201,7 +201,7 @@ NAN_METHOD(Iterator::Next) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("iterator", _this);
+  worker->SaveToPersistent("iterator", _this);
   iterator->nexting = true;
   NanAsyncQueueWorker(worker);
 
@@ -228,7 +228,7 @@ NAN_METHOD(Iterator::End) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("iterator", _this);
+  worker->SaveToPersistent("iterator", _this);
   iterator->ended = true;
 
   if (iterator->nexting) {
@@ -244,8 +244,8 @@ NAN_METHOD(Iterator::End) {
 void Iterator::Init () {
   v8::Local<v8::FunctionTemplate> tpl =
       v8::FunctionTemplate::New(Iterator::New);
-  NanAssignPersistent(v8::FunctionTemplate, iterator_constructor, tpl);
-  tpl->SetClassName(NanSymbol("Iterator"));
+  NanAssignPersistent(iterator_constructor, tpl);
+  tpl->SetClassName(NanNew<v8::String>("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "next", Iterator::Next);
   NODE_SET_PROTOTYPE_METHOD(tpl, "end", Iterator::End);
@@ -261,7 +261,7 @@ v8::Local<v8::Object> Iterator::NewInstance (
 
   v8::Local<v8::Object> instance;
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanPersistentToLocal(iterator_constructor);
+      NanNew(iterator_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[2] = { database, id };
@@ -307,13 +307,13 @@ NAN_METHOD(Iterator::New) {
   if (args.Length() > 1 && args[2]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[2]);
 
-    reverse = NanBooleanOptionValue(optionsObj, NanSymbol("reverse"));
+    reverse = NanBooleanOptionValue(optionsObj, NanNew<v8::String>("reverse"));
 
-    if (optionsObj->Has(NanSymbol("start"))
-        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("start")))
-          || optionsObj->Get(NanSymbol("start"))->IsString())) {
+    if (optionsObj->Has(NanNew<v8::String>("start"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanNew<v8::String>("start")))
+          || optionsObj->Get(NanNew<v8::String>("start"))->IsString())) {
 
-      startHandle = optionsObj->Get(NanSymbol("start")).As<v8::Object>();
+      startHandle = optionsObj->Get(NanNew<v8::String>("start")).As<v8::Object>();
 
       // ignore start if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(startHandle) > 0) {
@@ -322,12 +322,12 @@ NAN_METHOD(Iterator::New) {
       }
     }
 
-    if (optionsObj->Has(NanSymbol("end"))
-        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("end")))
-          || optionsObj->Get(NanSymbol("end"))->IsString())) {
+    if (optionsObj->Has(NanNew<v8::String>("end"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanNew<v8::String>("end")))
+          || optionsObj->Get(NanNew<v8::String>("end"))->IsString())) {
 
       v8::Local<v8::Value> endBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("end")));
+          NanNew(optionsObj->Get(NanNew<v8::String>("end")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(endBuffer) > 0) {
@@ -336,17 +336,17 @@ NAN_METHOD(Iterator::New) {
       }
     }
 
-    if (!optionsObj.IsEmpty() && optionsObj->Has(NanSymbol("limit"))) {
+    if (!optionsObj.IsEmpty() && optionsObj->Has(NanNew<v8::String>("limit"))) {
       limit = v8::Local<v8::Integer>::Cast(optionsObj->Get(
-          NanSymbol("limit")))->Value();
+          NanNew<v8::String>("limit")))->Value();
     }
 
-    if (optionsObj->Has(NanSymbol("lt"))
-        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("lt")))
-          || optionsObj->Get(NanSymbol("lt"))->IsString())) {
+    if (optionsObj->Has(NanNew<v8::String>("lt"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanNew<v8::String>("lt")))
+          || optionsObj->Get(NanNew<v8::String>("lt"))->IsString())) {
 
       v8::Local<v8::Value> ltBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("lt")));
+          NanNew(optionsObj->Get(NanNew<v8::String>("lt")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(ltBuffer) > 0) {
@@ -357,12 +357,12 @@ NAN_METHOD(Iterator::New) {
       }
     }
 
-    if (optionsObj->Has(NanSymbol("lte"))
-        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("lte")))
-          || optionsObj->Get(NanSymbol("lte"))->IsString())) {
+    if (optionsObj->Has(NanNew<v8::String>("lte"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanNew<v8::String>("lte")))
+          || optionsObj->Get(NanNew<v8::String>("lte"))->IsString())) {
 
       v8::Local<v8::Value> lteBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("lte")));
+          NanNew(optionsObj->Get(NanNew<v8::String>("lte")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(lteBuffer) > 0) {
@@ -373,12 +373,12 @@ NAN_METHOD(Iterator::New) {
       }
     }
 
-    if (optionsObj->Has(NanSymbol("gt"))
-        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("gt")))
-          || optionsObj->Get(NanSymbol("gt"))->IsString())) {
+    if (optionsObj->Has(NanNew<v8::String>("gt"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanNew<v8::String>("gt")))
+          || optionsObj->Get(NanNew<v8::String>("gt"))->IsString())) {
 
       v8::Local<v8::Value> gtBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("gt")));
+          NanNew(optionsObj->Get(NanNew<v8::String>("gt")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gtBuffer) > 0) {
@@ -389,12 +389,12 @@ NAN_METHOD(Iterator::New) {
       }
     }
 
-    if (optionsObj->Has(NanSymbol("gte"))
-        && (node::Buffer::HasInstance(optionsObj->Get(NanSymbol("gte")))
-          || optionsObj->Get(NanSymbol("gte"))->IsString())) {
+    if (optionsObj->Has(NanNew<v8::String>("gte"))
+        && (node::Buffer::HasInstance(optionsObj->Get(NanNew<v8::String>("gte")))
+          || optionsObj->Get(NanNew<v8::String>("gte"))->IsString())) {
 
       v8::Local<v8::Value> gteBuffer =
-          NanNewLocal<v8::Value>(optionsObj->Get(NanSymbol("gte")));
+          NanNew(optionsObj->Get(NanNew<v8::String>("gte")));
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gteBuffer) > 0) {
@@ -407,19 +407,19 @@ NAN_METHOD(Iterator::New) {
 
   }
 
-  bool keys = NanBooleanOptionValue(optionsObj, NanSymbol("keys"), true);
-  bool values = NanBooleanOptionValue(optionsObj, NanSymbol("values"), true);
+  bool keys = NanBooleanOptionValue(optionsObj, NanNew<v8::String>("keys"), true);
+  bool values = NanBooleanOptionValue(optionsObj, NanNew<v8::String>("values"), true);
   bool keyAsBuffer = NanBooleanOptionValue(
       optionsObj
-    , NanSymbol("keyAsBuffer")
+    , NanNew<v8::String>("keyAsBuffer")
     , true
   );
   bool valueAsBuffer = NanBooleanOptionValue(
       optionsObj
-    , NanSymbol("valueAsBuffer")
+    , NanNew<v8::String>("valueAsBuffer")
     , true
   );
-  bool fillCache = NanBooleanOptionValue(optionsObj, NanSymbol("fillCache"));
+  bool fillCache = NanBooleanOptionValue(optionsObj, NanNew<v8::String>("fillCache"));
 
   Iterator* iterator = new Iterator(
       database
