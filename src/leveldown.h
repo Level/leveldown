@@ -23,9 +23,9 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::Persistent<v8::Object> &handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(NanPersistentToLocal(handle)->Get(NanSymbol("obj"))))
+  if (!node::Buffer::HasInstance(NanNew(handle)->Get(NanNew<v8::String>("obj"))))
     delete[] slice.data();
-  NanDispose(handle);
+  NanDisposePersistent(handle);
 }
 
 static inline void DisposeStringOrBufferFromSlice(
@@ -69,7 +69,7 @@ static inline void DisposeStringOrBufferFromSlice(
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg)                             \
   if (!callback.IsEmpty() && callback->IsFunction()) {                         \
     v8::Local<v8::Value> argv[] = {                                            \
-      NanNewLocal<v8::Value>(v8::Exception::Error(                          \
+      NanNew(v8::Exception::Error(                          \
         v8::String::New(msg))                                                  \
       )                                                                        \
     };                                                                         \

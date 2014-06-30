@@ -28,7 +28,7 @@ NAN_METHOD(DestroyDB) {
     return NanThrowError("destroy() requires a callback function argument");
   }
 
-  char* location = NanFromV8String(args[0].As<v8::Object>(), Nan::UTF8, NULL, NULL, 0, v8::String::NO_OPTIONS);
+  char* location = (char*)NanRawString(args[0], Nan::UTF8, NULL, NULL, 0, v8::String::NO_OPTIONS);
 
   NanCallback* callback = new NanCallback(
       v8::Local<v8::Function>::Cast(args[1]));
@@ -58,7 +58,7 @@ NAN_METHOD(RepairDB) {
     return NanThrowError("repair() requires a callback function argument");
   }
 
-  char* location = NanFromV8String(args[0].As<v8::Object>(), Nan::UTF8, NULL, NULL, 0, v8::String::NO_OPTIONS);
+  char* location = (char*) NanRawString(args[0], Nan::UTF8, NULL, NULL, 0, v8::String::NO_OPTIONS);
 
  NanCallback* callback = new NanCallback(
       v8::Local<v8::Function>::Cast(args[1]));
@@ -82,16 +82,16 @@ void Init (v8::Handle<v8::Object> target) {
       v8::FunctionTemplate::New(LevelDOWN)->GetFunction();
 
   leveldown->Set(
-      NanSymbol("destroy")
+      NanNew<v8::String>("destroy")
     , v8::FunctionTemplate::New(DestroyDB)->GetFunction()
   );
 
   leveldown->Set(
-      NanSymbol("repair")
+      NanNew<v8::String>("repair")
     , v8::FunctionTemplate::New(RepairDB)->GetFunction()
   );
 
-  target->Set(NanSymbol("leveldown"), leveldown);
+  target->Set(NanNew<v8::String>("leveldown"), leveldown);
 }
 
 NODE_MODULE(leveldown, Init)

@@ -30,8 +30,8 @@ leveldb::Status Batch::Write () {
 
 void Batch::Init () {
   v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(Batch::New);
-  NanAssignPersistent(v8::FunctionTemplate, batch_constructor, tpl);
-  tpl->SetClassName(NanSymbol("Batch"));
+  NanAssignPersistent(batch_constructor, tpl);
+  tpl->SetClassName(NanNew<v8::String>("Batch"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "put", Batch::Put);
   NODE_SET_PROTOTYPE_METHOD(tpl, "del", Batch::Del);
@@ -49,7 +49,7 @@ NAN_METHOD(Batch::New) {
     optionsObj = v8::Local<v8::Object>::Cast(args[1]);
   }
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
+  bool sync = NanBooleanOptionValue(optionsObj, NanNew<v8::String>("sync"));
 
   Batch* batch = new Batch(database, sync);
   batch->Wrap(args.This());
@@ -67,7 +67,7 @@ v8::Handle<v8::Value> Batch::NewInstance (
   v8::Local<v8::Object> instance;
 
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanPersistentToLocal(batch_constructor);
+      NanNew(batch_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[1] = { database };
@@ -165,7 +165,7 @@ NAN_METHOD(Batch::Write) {
     BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);
     // persist to prevent accidental GC
     v8::Local<v8::Object> _this = args.This();
-    worker->SavePersistent("batch", _this);
+    worker->SaveToPersistent("batch", _this);
     NanAsyncQueueWorker(worker);
   } else {
     LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(args[0]), 0, NULL);
