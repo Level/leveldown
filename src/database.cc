@@ -21,7 +21,7 @@ namespace leveldown {
 
 static v8::Persistent<v8::FunctionTemplate> database_constructor;
 
-Database::Database (char* location) : location(location) {
+Database::Database (NanUtf8String* location) : location(location) {
   db = NULL;
   currentIteratorId = 0;
   pendingCloseWorker = NULL;
@@ -32,10 +32,10 @@ Database::Database (char* location) : location(location) {
 Database::~Database () {
   if (db != NULL)
     delete db;
-  delete[] location;
+  delete location;
 };
 
-const char* Database::Location() const { return location; }
+NanUtf8String* Database::Location() { return location; }
 
 /* Calls from worker threads, NO V8 HERE *****************************/
 
@@ -163,7 +163,7 @@ NAN_METHOD(Database::New) {
   if (!args[0]->IsString())
     return NanThrowError("constructor requires a location string argument");
 
-  char* location = NanCString(args[0].As<v8::Object>(), NULL, NULL, 0, v8::String::NO_OPTIONS);
+  NanUtf8String* location = new NanUtf8String(args[0]);
 
   Database* obj = new Database(location);
   obj->Wrap(args.This());

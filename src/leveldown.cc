@@ -28,7 +28,7 @@ NAN_METHOD(DestroyDB) {
     return NanThrowError("destroy() requires a callback function argument");
   }
 
-  char* location = NanCString(args[0].As<v8::Object>(), NULL, NULL, 0, v8::String::NO_OPTIONS);
+  NanUtf8String* location = new NanUtf8String(args[0]);
 
   NanCallback* callback = new NanCallback(
       v8::Local<v8::Function>::Cast(args[1]));
@@ -58,9 +58,9 @@ NAN_METHOD(RepairDB) {
     return NanThrowError("repair() requires a callback function argument");
   }
 
-  char* location = NanCString(args[0].As<v8::Object>(), NULL, NULL, 0, v8::String::NO_OPTIONS);
+  NanUtf8String* location = new NanUtf8String(args[0]);
 
- NanCallback* callback = new NanCallback(
+  NanCallback* callback = new NanCallback(
       v8::Local<v8::Function>::Cast(args[1]));
 
   RepairWorker* worker = new RepairWorker(
