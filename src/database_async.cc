@@ -50,7 +50,7 @@ OpenWorker::~OpenWorker () {
 }
 
 void OpenWorker::Execute () {
-  SetStatus(database->OpenDatabase(options, database->Location()));
+  SetStatus(database->OpenDatabase(options, **(database->Location())));
 }
 
 /** CLOSE WORKER **/

@@ -70,15 +70,15 @@ public:
   const leveldb::Snapshot* NewSnapshot ();
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
   void CloseDatabase ();
-  const char* Location() const;
+  NanUtf8String* Location();
   void ReleaseIterator (uint32_t id);
 
-  Database (char* location);
+  Database (NanUtf8String* location);
   ~Database ();
 
 private:
   leveldb::DB* db;
-  char* location;
+  NanUtf8String* location;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);
 
