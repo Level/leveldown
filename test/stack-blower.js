@@ -9,18 +9,22 @@ const testCommon = require('abstract-leveldown/testCommon')
     , leveldown  = require('../')
 
 if (process.argv[2] == 'run') {
-  var db    = leveldown(testCommon.location())
-    , depth = 0
-  
-  function recurse() {
-    db.iterator({ start: '0' })
-    depth++
-    recurse()
-  }
-  
-  try {
-    recurse()
-  } catch (e) {
-    process.send("Catchable error at depth " + depth)
-  }
+  testCommon.cleanup(function () {
+    var db    = leveldown(testCommon.location())
+      , depth = 0
+
+    db.open(function () {
+      function recurse() {
+        db.iterator({ start: '0' })
+        depth++
+        recurse()
+      }
+
+      try {
+        recurse()
+      } catch (e) {
+        process.send("Catchable error at depth " + depth)
+      }
+    })
+  })
 }
