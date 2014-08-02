@@ -33,7 +33,7 @@ test('try to create an iterator with a blown stack', function (t) {
   // process makes it easier to trigger the bug condition. But making it too low
   // causes the child process to die for other reasons.
   var opts  = { execArgv: ["-stack-size=128"] }
-  ,   child = child_process.fork('stack-blower.js', ["run"], opts)
+  ,   child = child_process.fork(__dirname + '/stack-blower.js', ["run"], opts)
   
   child.on('message', function (m) {
       t.ok(true, m)
