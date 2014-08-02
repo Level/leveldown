@@ -57,6 +57,8 @@ Iterator::Iterator (
 
   options    = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
+  // get a snapshot of the current state
+  options->snapshot = database->NewSnapshot();
   dbIterator = NULL;
   count      = 0;
   nexting    = false;
