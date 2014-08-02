@@ -204,19 +204,7 @@ NAN_METHOD(Iterator::Next) {
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
-  if (args.Length() == 0 || !args[0]->IsFunction()) {
-    return NanThrowError("next() requires a callback argument");
-  }
-
   v8::Local<v8::Function> callback = args[0].As<v8::Function>();
-
-  if (iterator->ended) {
-    LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() after end()")
-  }
-
-  if (iterator->nexting) {
-    LD_RETURN_CALLBACK_OR_ERROR(callback, "cannot call next() before previous next() has completed")
-  }
 
   NextWorker* worker = new NextWorker(
       iterator
@@ -237,14 +225,7 @@ NAN_METHOD(Iterator::End) {
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
-  if (args.Length() == 0 || !args[0]->IsFunction())
-    return NanThrowError("end() requires a callback argument");
-
   v8::Local<v8::Function> callback = v8::Local<v8::Function>::Cast(args[0]);
-
-  if (iterator->ended) {
-    LD_RETURN_CALLBACK_OR_ERROR(callback, "end() already called on iterator")
-  }
 
   EndWorker* worker = new EndWorker(
       iterator

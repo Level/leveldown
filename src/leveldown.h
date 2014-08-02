@@ -38,11 +38,6 @@ static inline void DisposeStringOrBufferFromSlice(
     delete[] slice.data();
 }
 
-#define LD_CB_ERR_IF_NULL_OR_UNDEFINED(thing, name)                            \
-  if (thing->IsNull() || thing->IsUndefined()) {                               \
-    LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be `null` or `undefined`") \
-  }
-
 // NOTE: must call DisposeStringOrBufferFromSlice() on objects created here
 #define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name)                           \
   size_t to ## Sz_;                                                            \
