@@ -43,7 +43,7 @@
     "tap": "~0.4.12"
   },
   "scripts": {
-    "test": "tap test/*-test.js --stderr"
+    "test": "tap test/cleanup-hanging-iterators-test.js --stderr"
   },
   "license": "MIT",
   "gypfile": true
