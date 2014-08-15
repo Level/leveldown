@@ -6,8 +6,8 @@
 #include <node.h>
 #include <node_buffer.h>
 
-#include "leveldb/write_batch.h"
-#include "leveldb/filter_policy.h"
+#include <leveldb/write_batch.h>
+#include <leveldb/filter_policy.h>
 
 #include "database.h"
 #include "leveldown.h"

@@ -7,8 +7,8 @@
 #include <node.h>
 #include <node_buffer.h>
 
-#include "leveldb/db.h"
-#include "leveldb/write_batch.h"
+#include <leveldb/db.h>
+#include <leveldb/write_batch.h>
 
 #include "leveldown.h"
 #include "database.h"
