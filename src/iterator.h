@@ -7,10 +7,9 @@
 #define LD_ITERATOR_H
 
 #include <node.h>
-
 #include <vector>
+#include <nan.h>
 
-#include "nan.h"
 #include "leveldown.h"
 #include "database.h"
 #include "async.h"

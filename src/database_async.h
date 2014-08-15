@@ -9,7 +9,7 @@
 #include <vector>
 #include <node.h>
 
-#include "leveldb/cache.h"
+#include <leveldb/cache.h>
 
 #include "async.h"
 

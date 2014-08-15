@@ -1,8 +1,7 @@
 #include <node.h>
 #include <node_buffer.h>
+#include <nan.h>
 
-
-#include "nan.h"
 #include "database.h"
 #include "batch_async.h"
 #include "batch.h"

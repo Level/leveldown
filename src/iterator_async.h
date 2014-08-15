@@ -7,8 +7,8 @@
 #define LD_ITERATOR_ASYNC_H
 
 #include <node.h>
+#include <nan.h>
 
-#include "nan.h"
 #include "async.h"
 #include "iterator.h"
 
