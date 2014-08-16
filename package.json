@@ -39,8 +39,7 @@
     "readfiletree": "~0.0.0",
     "abstract-leveldown": "~0.11.1",
     "monotonic-timestamp": "~0.0.8",
-    "du": "~0.0.1",
-    "node-gyp": "~0.12.1"
+    "du": "~0.0.1"
   },
   "scripts": {
     "test": "tap test/*-test.js --stderr"
