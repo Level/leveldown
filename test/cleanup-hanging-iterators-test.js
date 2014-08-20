@@ -29,14 +29,14 @@ makeTest('test non-ended iterator', function (db, t, done) {
   })
 })
 
-// makeTest('test multiple non-ended iterators', function (db, t, done) {
-//   // no end() call on our iterator, cleanup should crash Node if not handled properly
-//   db.iterator()
-//   db.iterator().next(function () {})
-//   db.iterator().next(function () {})
-//   db.iterator().next(function () {})
-//   setTimeout(done, 50)
-// })
+makeTest('test multiple non-ended iterators', function (db, t, done) {
+  // no end() call on our iterator, cleanup should crash Node if not handled properly
+  db.iterator()
+  db.iterator().next(function () {})
+  db.iterator().next(function () {})
+  db.iterator().next(function () {})
+  setTimeout(done, 50)
+})
 
 // makeTest('test ending iterators', function (db, t, done) {
 //   // at least one end() should be in progress when we try to close the db
