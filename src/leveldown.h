@@ -66,6 +66,25 @@ static inline void DisposeStringOrBufferFromSlice(
   }                                                                            \
   leveldb::Slice to(to ## Ch_, to ## Sz_);
 
+// NOTE: must call DisposeStringOrBufferFromSlice() on objects created here
+#define LD_STRING_OR_BUFFER_TO_VALUE(to, from, name)                           \
+  size_t to ## Sz_;                                                            \
+  char* to ## Ch_;                                                             \
+  if (node::Buffer::HasInstance(from->ToObject())) {                           \
+    to ## Sz_ = node::Buffer::Length(from->ToObject());                        \
+    to ## Ch_ = node::Buffer::Data(from->ToObject());                          \
+  } else {                                                                     \
+    v8::Local<v8::String> to ## Str = from->ToString();                        \
+    to ## Sz_ = to ## Str->Utf8Length();                                       \
+    to ## Ch_ = new char[to ## Sz_];                                           \
+    to ## Str->WriteUtf8(                                                      \
+        to ## Ch_                                                              \
+      , -1                                                                     \
+      , NULL, v8::String::NO_NULL_TERMINATION                                  \
+    );                                                                         \
+  }                                                                            \
+  leveldb::Slice to(to ## Ch_, to ## Sz_);
+
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg)                             \
   if (!callback.IsEmpty() && callback->IsFunction()) {                         \
     v8::Local<v8::Value> argv[] = {                                            \

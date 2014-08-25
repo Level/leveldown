@@ -326,7 +326,7 @@ NAN_METHOD(Database::Put) {
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value)
+  LD_STRING_OR_BUFFER_TO_VALUE(value, valueHandle, value)
 
   bool sync = NanBooleanOptionValue(optionsObj, NanSymbol("sync"));
 
@@ -447,7 +447,7 @@ NAN_METHOD(Database::Batch) {
       LD_CB_ERR_IF_NULL_OR_UNDEFINED(valueBuffer, value)
 
       LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)
-      LD_STRING_OR_BUFFER_TO_SLICE(value, valueBuffer, value)
+      LD_STRING_OR_BUFFER_TO_VALUE(value, valueBuffer, value)
 
       batch->Put(key, value);
       if (!hasData)
