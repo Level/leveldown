@@ -23,8 +23,11 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::Persistent<v8::Object> &handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(NanNew<v8::Object>(handle)->Get(NanNew<v8::String>("obj"))))
-    delete[] slice.data();
+  if (!slice.empty()) {
+    v8::Local<v8::Value> obj = NanNew<v8::Object>(handle)->Get(NanNew<v8::String>("obj"));
+    if (!node::Buffer::HasInstance(obj))
+      delete[] slice.data();
+  }
 
   NanDisposePersistent(handle);
 }
@@ -33,7 +36,7 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::Local<v8::Value> handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(handle))
+  if (!slice.empty() && !node::Buffer::HasInstance(handle))
     delete[] slice.data();
 }
 
@@ -41,34 +44,10 @@ static inline void DisposeStringOrBufferFromSlice(
 #define LD_STRING_OR_BUFFER_TO_SLICE(to, from, name)                           \
   size_t to ## Sz_;                                                            \
   char* to ## Ch_;                                                             \
-  if (!from->ToObject().IsEmpty()                                              \
+  if (from->IsNull() || from->IsUndefined()) {                                 \
+    to ## Sz_ = 0;                                                             \
+  } else if (!from->ToObject().IsEmpty()                                       \
       && node::Buffer::HasInstance(from->ToObject())) {                        \
-    to ## Sz_ = node::Buffer::Length(from->ToObject());                        \
-    if (to ## Sz_ == 0) {                                                      \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty Buffer") \
-    }                                                                          \
-    to ## Ch_ = node::Buffer::Data(from->ToObject());                          \
-  } else {                                                                     \
-    v8::Local<v8::String> to ## Str = from->ToString();                        \
-    to ## Sz_ = to ## Str->Utf8Length();                                       \
-    if (to ## Sz_ == 0) {                                                      \
-      LD_RETURN_CALLBACK_OR_ERROR(callback, #name " cannot be an empty String") \
-    }                                                                          \
-    to ## Ch_ = new char[to ## Sz_];                                           \
-    to ## Str->WriteUtf8(                                                      \
-        to ## Ch_                                                              \
-      , -1                                                                     \
-      , NULL, v8::String::NO_NULL_TERMINATION                                  \
-    );                                                                         \
-  }                                                                            \
-  leveldb::Slice to(to ## Ch_, to ## Sz_);
-
-// NOTE: must call DisposeStringOrBufferFromSlice() on objects created here
-#define LD_STRING_OR_BUFFER_TO_VALUE(to, from, name)                           \
-  size_t to ## Sz_;                                                            \
-  char* to ## Ch_;                                                             \
-  if (!from->IsNull() && !from->IsUndefined() &&                               \
-        node::Buffer::HasInstance(from->ToObject())) {                         \
     to ## Sz_ = node::Buffer::Length(from->ToObject());                        \
     to ## Ch_ = node::Buffer::Data(from->ToObject());                          \
   } else {                                                                     \
