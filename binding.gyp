@@ -18,6 +18,7 @@
         , ['OS == "linux"', {
               'cflags': [
               ]
+            , 'cflags!': [ '-fno-tree-vrp' ]
           }]
         ]
       , "dependencies": [
