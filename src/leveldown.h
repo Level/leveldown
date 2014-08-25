@@ -46,6 +46,7 @@ static inline void DisposeStringOrBufferFromSlice(
   char* to ## Ch_;                                                             \
   if (from->IsNull() || from->IsUndefined()) {                                 \
     to ## Sz_ = 0;                                                             \
+    to ## Ch_ = 0;                                                             \
   } else if (!from->ToObject().IsEmpty()                                       \
       && node::Buffer::HasInstance(from->ToObject())) {                        \
     to ## Sz_ = node::Buffer::Length(from->ToObject());                        \
