@@ -1,22 +1,26 @@
-var util = require('util')
-  , AbstractIterator = require('abstract-leveldown').AbstractIterator
+const util             = require('util')
+    , AbstractIterator = require('abstract-leveldown').AbstractIterator
 
-  , Iterator = function (db, options) {
-      AbstractIterator.call(this, options)
-      this.binding = db.binding.iterator(options)
-      this.cache = null
-      this.finished = false
-      this.fastFuture = require('fast-future')()
-    }
+
+function Iterator (db, options) {
+  AbstractIterator.call(this, options)
+
+  this.binding    = db.binding.iterator(options)
+  this.cache      = null
+  this.finished   = false
+  this.fastFuture = require('fast-future')()
+}
 
 util.inherits(Iterator, AbstractIterator)
 
+
 Iterator.prototype._next = function (callback) {
   var that = this
-    , row
+    , key
+    , value
 
   if (this.cache && this.cache.length) {
-    key = this.cache.pop()
+    key   = this.cache.pop()
     value = this.cache.pop()
 
     this.fastFuture(function () {
@@ -31,17 +35,20 @@ Iterator.prototype._next = function (callback) {
     this.binding.next(function (err, array, finished) {
       if (err) return callback(err)
 
-      that.cache = array
+      that.cache    = array
       that.finished = finished
       that._next(callback)
     })
   }
+
   return this
 }
+
 
 Iterator.prototype._end = function (callback) {
   delete this.cache
   this.binding.end(callback)
 }
+
 
 module.exports = Iterator

@@ -26,7 +26,7 @@
     "leveldb",
     "level"
   ],
-  "main": "index.js",
+  "main": "leveldown.js",
   "dependencies": {
     "abstract-leveldown": "~2.0.0",
     "bindings": "~1.2.1",
