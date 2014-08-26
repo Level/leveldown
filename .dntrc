@@ -2,7 +2,9 @@
 ## see https://github.com/rvagg/dnt
 
 NODE_VERSIONS="\
-  v0.10.30 \
+  v0.8.28      \
+  v0.10.31     \
+  v0.11.13     \
 "
 OUTPUT_PREFIX="leveldown-"
 TEST_CMD="\
