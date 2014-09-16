@@ -99,4 +99,6 @@ LevelDOWN.repair = function (location, callback) {
 }
 
 
+LevelDOWN.isEmbedded = true
+
 module.exports = LevelDOWN
