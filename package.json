@@ -19,9 +19,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/rvagg/node-leveldown.git"
+    "url": "https://github.com/mafintosh/leveldown-prebuilt.git"
   },
-  "homepage": "https://github.com/rvagg/node-leveldown",
+  "homepage": "https://github.com/mafintosh/leveldown-prebuilt",
   "keywords": [
     "leveldb",
     "level"
