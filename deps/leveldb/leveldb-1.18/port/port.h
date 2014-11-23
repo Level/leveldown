@@ -18,4 +18,12 @@
 #  include "port/port_chromium.h"
 #endif
 
+#ifndef UINT32_MAX
+#  define UINT32_MAX   0xffffffff
+#endif
+
+#ifndef SIZE_MAX
+#  define SIZE_MAX     UINT32_MAX
+#endif
+
 #endif  // STORAGE_LEVELDB_PORT_PORT_H_
