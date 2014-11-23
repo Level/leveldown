@@ -18,6 +18,36 @@ function LevelDOWN (location) {
 util.inherits(LevelDOWN, AbstractLevelDOWN)
 
 
+AbstractLevelDOWN.prototype.get = function (key, options, callback) {
+  var err
+
+  if (typeof options == 'function')
+    callback = options
+
+  if (err = this._checkKey(key, 'key', this._isBuffer)) {
+    if (callback)
+      return callback(err)
+    else
+      throw err
+  }
+
+  if (!this._isBuffer(key))
+    key = String(key)
+
+  if (typeof options != 'object')
+    options = {}
+
+  options.asBuffer = options.asBuffer != false
+
+  if (typeof this._get == 'function')
+    return this._get(key, options, callback)
+
+  if (callback)
+    process.nextTick(function () { callback(new Error('NotFound')) })
+  else
+    throw new Error('NotFound')
+}
+
 LevelDOWN.prototype._open = function (options, callback) {
   this.binding.open(options, callback)
 }
@@ -34,7 +64,7 @@ LevelDOWN.prototype._put = function (key, value, options, callback) {
 
 
 LevelDOWN.prototype._get = function (key, options, callback) {
-  this.binding.get(key, options, callback)
+  return this.binding.get(key, options, callback)
 }
 
 

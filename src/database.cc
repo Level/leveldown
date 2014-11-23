@@ -342,13 +342,35 @@ NAN_METHOD(Database::Put) {
 NAN_METHOD(Database::Get) {
   NanScope();
 
-  LD_METHOD_SETUP_COMMON(get, 1, 2)
+  LD_METHOD_SETUP_COMMON_CBNULL(get, 1, 2)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
 
   bool asBuffer = NanBooleanOptionValue(optionsObj, NanNew("asBuffer"), true);
   bool fillCache = NanBooleanOptionValue(optionsObj, NanNew("fillCache"), true);
+
+  if (!hasCallback) {
+      std::string value;
+      leveldb::ReadOptions* options = new leveldb::ReadOptions();
+      options->fill_cache = fillCache;
+      leveldb::Status status = database->GetFromDatabase(options, key, value);
+      delete options;
+
+      if (!status.ok()) {
+        NanThrowError(status.ToString().c_str());
+        NanReturnUndefined();
+      }
+
+      v8::Local<v8::Value> returnValue;
+      if (asBuffer) {
+        returnValue = NanNewBufferHandle((char*)value.data(), value.size());
+      } else {
+        returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+      }
+      //printf("\n1.get(%s)=%s\n", *NanUtf8String(keyHandle), *NanUtf8String(returnValue));
+      NanReturnValue(returnValue);
+  }
 
   ReadWorker* worker = new ReadWorker(
       database
@@ -362,7 +384,6 @@ NAN_METHOD(Database::Get) {
   v8::Local<v8::Object> _this = args.This();
   worker->SaveToPersistent("database", _this);
   NanAsyncQueueWorker(worker);
-
   NanReturnUndefined();
 }
 

@@ -103,6 +103,28 @@ static inline void DisposeStringOrBufferFromSlice(
     return NanThrowError(#name "() requires a callback argument");             \
   }
 
+//the callback can be null
+#define LD_METHOD_SETUP_COMMON_CBNULL(name, optionPos, callbackPos)            \
+  bool hasCallback = true;                                                     \
+  leveldown::Database* database =                                              \
+    node::ObjectWrap::Unwrap<leveldown::Database>(args.This());                \
+  v8::Local<v8::Object> optionsObj;                                            \
+  v8::Local<v8::Function> callback;                                            \
+  if (optionPos == -1 && args[callbackPos]->IsFunction()) {                    \
+    callback = args[callbackPos].As<v8::Function>();                           \
+  } else if (optionPos != -1 && args[callbackPos - 1]->IsFunction()) {         \
+    callback = args[callbackPos - 1].As<v8::Function>();                       \
+  } else if (optionPos != -1                                                   \
+        && args[optionPos]->IsObject())     {                                  \
+    optionsObj = args[optionPos].As<v8::Object>();                             \
+    if (args[callbackPos]->IsFunction())                                       \
+      callback = args[callbackPos].As<v8::Function>();                         \
+    else                                                                       \
+      hasCallback = false;                                                     \
+  } else {                                                                     \
+    hasCallback = false;                                                       \
+  }
+
 #define LD_METHOD_SETUP_COMMON_ONEARG(name) LD_METHOD_SETUP_COMMON(name, -1, 0)
 
 #endif
