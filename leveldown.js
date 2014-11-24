@@ -152,7 +152,8 @@ AbstractLevelDOWN.prototype.batch = function (array, options, callback) {
   if (typeof this._batch == 'function')
     return this._batch(array, options, callback)
 
-  process.nextTick(callback)
+  if (callback)
+    process.nextTick(callback)
 }
 
 

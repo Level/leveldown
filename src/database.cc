@@ -451,7 +451,7 @@ NAN_METHOD(Database::Batch) {
     NanReturnValue(Batch::NewInstance(args.This(), optionsObj));
   }
 
-  LD_METHOD_SETUP_COMMON(batch, 1, 2)
+  LD_METHOD_SETUP_COMMON_CBNULL(batch, 1, 2)
 
   bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
 
@@ -488,6 +488,24 @@ NAN_METHOD(Database::Batch) {
       DisposeStringOrBufferFromSlice(keyBuffer, key);
       DisposeStringOrBufferFromSlice(valueBuffer, value);
     }
+  }
+
+  if (!hasCallback) {
+    if (hasData) {
+      leveldb::WriteOptions* options = new leveldb::WriteOptions();
+
+      options->sync = sync;
+      leveldb::Status status = database->WriteBatchToDatabase(options, batch);
+      delete batch;
+      delete options;
+
+      if (!status.ok()) {
+        NanThrowError(status.ToString().c_str());
+        NanReturnUndefined();
+      }
+      NanReturnValue(NanTrue());
+    }
+    NanReturnValue(NanFalse());
   }
 
   // don't allow an empty batch through
