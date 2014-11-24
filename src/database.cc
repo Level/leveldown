@@ -312,7 +312,7 @@ NAN_METHOD(Database::Close) {
 NAN_METHOD(Database::Put) {
   NanScope();
 
-  LD_METHOD_SETUP_COMMON(put, 2, 3)
+  LD_METHOD_SETUP_COMMON_CBNULL(put, 2, 3)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
@@ -320,6 +320,20 @@ NAN_METHOD(Database::Put) {
   LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value)
 
   bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+
+  if (!hasCallback) {
+      leveldb::WriteOptions* options = new leveldb::WriteOptions();
+      options->sync = sync;
+      leveldb::Status status = database->PutToDatabase(options, key, value);
+      delete options;
+
+      if (!status.ok()) {
+        NanThrowError(status.ToString().c_str());
+        NanReturnUndefined();
+      }
+
+      NanReturnValue(NanTrue());
+  }
 
   WriteWorker* worker  = new WriteWorker(
       database
@@ -368,7 +382,7 @@ NAN_METHOD(Database::Get) {
       } else {
         returnValue = NanNew<v8::String>((char*)value.data(), value.size());
       }
-      //printf("\n1.get(%s)=%s\n", *NanUtf8String(keyHandle), *NanUtf8String(returnValue));
+      //printf("\ndb.get(%s)=%s\n", *NanUtf8String(keyHandle), *NanUtf8String(returnValue));
       NanReturnValue(returnValue);
   }
 
@@ -390,12 +404,26 @@ NAN_METHOD(Database::Get) {
 NAN_METHOD(Database::Delete) {
   NanScope();
 
-  LD_METHOD_SETUP_COMMON(del, 1, 2)
+  LD_METHOD_SETUP_COMMON_CBNULL(del, 1, 2)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
 
   bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+
+  if (!hasCallback) {
+      leveldb::WriteOptions* options = new leveldb::WriteOptions();
+      options->sync = sync;
+      leveldb::Status status = database->DeleteFromDatabase(options, key);
+      delete options;
+
+      if (!status.ok()) {
+        NanThrowError(status.ToString().c_str());
+        NanReturnUndefined();
+      }
+
+      NanReturnValue(NanTrue());
+  }
 
   DeleteWorker* worker = new DeleteWorker(
       database
