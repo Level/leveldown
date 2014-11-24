@@ -156,6 +156,27 @@ AbstractLevelDOWN.prototype.batch = function (array, options, callback) {
     process.nextTick(callback)
 }
 
+AbstractLevelDOWN.prototype.approximateSize = function (start, end, callback) {
+  if (   start == null
+      || end == null
+      || typeof start == 'function'
+      || typeof end == 'function') {
+    throw new Error('approximateSize() requires valid `start`, `end` and `callback` arguments')
+  }
+
+  if (!this._isBuffer(start))
+    start = String(start)
+
+  if (!this._isBuffer(end))
+    end = String(end)
+
+  if (typeof this._approximateSize == 'function')
+    return this._approximateSize(start, end, callback)
+  if (callback)
+    process.nextTick(function () {
+      callback(null, 0)
+    })
+}
 
 
 LevelDOWN.prototype._open = function (options, callback) {

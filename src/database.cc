@@ -79,6 +79,7 @@ leveldb::Status Database::WriteBatchToDatabase (
 uint64_t Database::ApproximateSizeFromDatabase (const leveldb::Range* range) {
   uint64_t size;
   db->GetApproximateSizes(range, 1, &size);
+  //printf("ApproximateSize(%s, %s)=%lld\n", range->start.ToString().c_str(), range->limit.ToString().c_str(), size);
   return size;
 }
 
@@ -326,6 +327,8 @@ NAN_METHOD(Database::Put) {
       options->sync = sync;
       leveldb::Status status = database->PutToDatabase(options, key, value);
       delete options;
+      DisposeStringOrBufferFromSlice(keyHandle, key);
+      DisposeStringOrBufferFromSlice(valueHandle, value);
 
       if (!status.ok()) {
         NanThrowError(status.ToString().c_str());
@@ -370,6 +373,7 @@ NAN_METHOD(Database::Get) {
       options->fill_cache = fillCache;
       leveldb::Status status = database->GetFromDatabase(options, key, value);
       delete options;
+      DisposeStringOrBufferFromSlice(keyHandle, key);
 
       if (!status.ok()) {
         NanThrowError(status.ToString().c_str());
@@ -416,6 +420,7 @@ NAN_METHOD(Database::Delete) {
       options->sync = sync;
       leveldb::Status status = database->DeleteFromDatabase(options, key);
       delete options;
+      DisposeStringOrBufferFromSlice(keyHandle, key);
 
       if (!status.ok()) {
         NanThrowError(status.ToString().c_str());
@@ -533,10 +538,19 @@ NAN_METHOD(Database::ApproximateSize) {
   v8::Local<v8::Object> startHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> endHandle = args[1].As<v8::Object>();
 
-  LD_METHOD_SETUP_COMMON(approximateSize, -1, 2)
+  LD_METHOD_SETUP_COMMON_CBNULL(approximateSize, -1, 2)
 
   LD_STRING_OR_BUFFER_TO_SLICE(start, startHandle, start)
   LD_STRING_OR_BUFFER_TO_SLICE(end, endHandle, end)
+
+  if (!hasCallback) {
+    leveldb::Range r(start, end);
+    uint64_t size = database->ApproximateSizeFromDatabase(&r);
+    DisposeStringOrBufferFromSlice(startHandle, start);
+    DisposeStringOrBufferFromSlice(endHandle, end);
+
+    NanReturnValue(NanNew((double)size));
+  }
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(
       database
