@@ -38,6 +38,17 @@ function getSync () {
   log(true, count, 'get', duration);
 }
 
+function getStrSync () {
+  start = Date.now();
+
+  for (var i = 0; i < count; i++) {
+    assert(Leveldown.get(i, {asBuffer: false}) == val);
+  }
+
+  duration = Date.now()-start;
+  log(true, count, 'get', duration, "asBuffer:false");
+}
+
 function putAsync(cb) {
   start = Date.now();
 
@@ -65,6 +76,23 @@ function getAsync (cb) {
       if (++received == count) {
         duration = Date.now()-start;
         log(false, count, 'get', duration);
+        if (cb) cb()
+      }
+    })
+  }
+}
+
+function getStrAsync (cb) {
+  start = Date.now();
+
+  var received = 0;
+  for (var i = 0; i < count; i++) {
+    Leveldown.get(i, {asBuffer:false}, function (err, value) {
+      if (err) throw err;
+      assert(value == val);
+      if (++received == count) {
+        duration = Date.now()-start;
+        log(false, count, 'get', duration, "asBuffer:false");
         if (cb) cb()
       }
     })
@@ -113,8 +141,11 @@ putAsync(function () {
   batchAsync(function () {
     batchSync()
     getAsync(function () {
-      getSync()
-      console.log()
+      getStrAsync(function () {
+        getSync()
+        getStrSync()
+        console.log()
+      })
     })
   })
 })
@@ -124,7 +155,9 @@ putAsync(function () {
  */
 
 var last;
-function log(sync, num, op, dur) {
+function log(sync, num, op, dur, desc) {
+  if (!desc) desc = ""
+  else desc = "("+desc+")";
   if (last && last != op) console.log();
   last = op;
   console.log([
@@ -132,7 +165,7 @@ function log(sync, num, op, dur) {
     ':',
     pad(humanize(Math.floor(1000/dur * num)), 9),
     {'batch' : 'w', 'put' : 'w', 'get' : 'r', 'iterator' : 'r'}[op] + '/s',
-    'in ' + pad(humanize(dur), 6) + 'ms'
+    'in ' + pad(humanize(dur), 6) + 'ms' + pad(desc, 18)
    ].join(' '));
 }
 
