@@ -27,11 +27,16 @@ Database::Database (NanUtf8String* location) : location(location) {
   pendingCloseWorker = NULL;
   blockCache = NULL;
   filterPolicy = NULL;
+  writeOptions = new leveldb::WriteOptions();
+  readOptions = new leveldb::ReadOptions();
 };
 
 Database::~Database () {
-  if (db != NULL)
+  if (db != NULL) {
     delete db;
+  }
+  delete writeOptions;
+  delete readOptions;
   delete location;
 };
 
@@ -323,10 +328,9 @@ NAN_METHOD(Database::Put) {
   bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
 
   if (!hasCallback) {
-      leveldb::WriteOptions* options = new leveldb::WriteOptions();
+      leveldb::WriteOptions* options = database->writeOptions;
       options->sync = sync;
       leveldb::Status status = database->PutToDatabase(options, key, value);
-      delete options;
       DisposeStringOrBufferFromSlice(keyHandle, key);
       DisposeStringOrBufferFromSlice(valueHandle, value);
 
@@ -369,10 +373,9 @@ NAN_METHOD(Database::Get) {
 
   if (!hasCallback) {
       std::string value;
-      leveldb::ReadOptions* options = new leveldb::ReadOptions();
+      leveldb::ReadOptions* options = database->readOptions;
       options->fill_cache = fillCache;
       leveldb::Status status = database->GetFromDatabase(options, key, value);
-      delete options;
       DisposeStringOrBufferFromSlice(keyHandle, key);
 
       if (!status.ok()) {
@@ -416,10 +419,9 @@ NAN_METHOD(Database::Delete) {
   bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
 
   if (!hasCallback) {
-      leveldb::WriteOptions* options = new leveldb::WriteOptions();
+      leveldb::WriteOptions* options = database->writeOptions;
       options->sync = sync;
       leveldb::Status status = database->DeleteFromDatabase(options, key);
-      delete options;
       DisposeStringOrBufferFromSlice(keyHandle, key);
 
       if (!status.ok()) {
@@ -497,12 +499,11 @@ NAN_METHOD(Database::Batch) {
 
   if (!hasCallback) {
     if (hasData) {
-      leveldb::WriteOptions* options = new leveldb::WriteOptions();
+      leveldb::WriteOptions* options = database->writeOptions;
 
       options->sync = sync;
       leveldb::Status status = database->WriteBatchToDatabase(options, batch);
       delete batch;
-      delete options;
 
       if (!status.ok()) {
         NanThrowError(status.ToString().c_str());

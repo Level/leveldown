@@ -86,6 +86,8 @@ private:
   NanUtf8String* location;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);
+  leveldb::ReadOptions* readOptions;
+  leveldb::WriteOptions* writeOptions;
 
   std::map< uint32_t, leveldown::Iterator * > iterators;
 
