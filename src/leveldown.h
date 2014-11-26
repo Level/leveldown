@@ -105,26 +105,26 @@ static inline void DisposeStringOrBufferFromSlice(
 
 //the callback can be null
 #define LD_METHOD_SETUP_COMMON_CBNULL(name, optionPos, callbackPos)            \
-  bool hasCallback = true;                                                     \
+  bool hasCallback = args[callbackPos]->IsFunction();                          \
   leveldown::Database* database =                                              \
     node::ObjectWrap::Unwrap<leveldown::Database>(args.This());                \
   v8::Local<v8::Object> optionsObj;                                            \
   v8::Local<v8::Function> callback;                                            \
-  if (optionPos == -1 && args[callbackPos]->IsFunction()) {                    \
+  if (optionPos == -1 && hasCallback) {                                        \
     callback = args[callbackPos].As<v8::Function>();                           \
   } else if (optionPos != -1 && args[callbackPos - 1]->IsFunction()) {         \
+    hasCallback = true;                                                        \
     callback = args[callbackPos - 1].As<v8::Function>();                       \
   } else if (optionPos != -1                                                   \
         && args[optionPos]->IsObject())     {                                  \
     optionsObj = args[optionPos].As<v8::Object>();                             \
-    if (args[callbackPos]->IsFunction())                                       \
+    if (hasCallback)                                                           \
       callback = args[callbackPos].As<v8::Function>();                         \
-    else                                                                       \
-      hasCallback = false;                                                     \
   } else {                                                                     \
     hasCallback = false;                                                       \
   }
 
 #define LD_METHOD_SETUP_COMMON_ONEARG(name) LD_METHOD_SETUP_COMMON(name, -1, 0)
+#define LD_METHOD_SETUP_COMMON_CBNULL_ONEARG(name) LD_METHOD_SETUP_COMMON_CBNULL(name, -1, 0)
 
 #endif

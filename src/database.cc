@@ -29,6 +29,7 @@ Database::Database (NanUtf8String* location) : location(location) {
   filterPolicy = NULL;
   writeOptions = new leveldb::WriteOptions();
   readOptions = new leveldb::ReadOptions();
+  options = new leveldb::Options();
 };
 
 Database::~Database () {
@@ -37,6 +38,7 @@ Database::~Database () {
   }
   delete writeOptions;
   delete readOptions;
+  delete options;
   delete location;
 };
 
@@ -192,7 +194,7 @@ v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
 NAN_METHOD(Database::Open) {
   NanScope();
 
-  LD_METHOD_SETUP_COMMON(open, 0, 1)
+  LD_METHOD_SETUP_COMMON_CBNULL(open, 0, 1)
 
   bool createIfMissing = NanBooleanOptionValue(
       optionsObj
@@ -232,6 +234,29 @@ NAN_METHOD(Database::Open) {
 
   database->blockCache = leveldb::NewLRUCache(cacheSize);
   database->filterPolicy = leveldb::NewBloomFilterPolicy(10);
+
+  if (!hasCallback) {
+      leveldb::Options* options = database->options;
+      options->block_cache            = database->blockCache;
+      options->filter_policy          = database->filterPolicy;
+      options->create_if_missing      = createIfMissing;
+      options->error_if_exists        = errorIfExists;
+      options->compression            = compression
+          ? leveldb::kSnappyCompression
+          : leveldb::kNoCompression;
+      options->write_buffer_size      = writeBufferSize;
+      options->block_size             = blockSize;
+      options->max_open_files         = maxOpenFiles;
+      options->block_restart_interval = blockRestartInterval;
+      leveldb::Status status = database->OpenDatabase(options, **(database->Location()));
+
+      if (!status.ok()) {
+        NanThrowError(status.ToString().c_str());
+        NanReturnUndefined();
+      }
+
+      NanReturnValue(NanTrue());
+  }
 
   OpenWorker* worker = new OpenWorker(
       database

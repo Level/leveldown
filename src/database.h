@@ -88,6 +88,7 @@ private:
   void(*pendingCloseWorker);
   leveldb::ReadOptions* readOptions;
   leveldb::WriteOptions* writeOptions;
+  leveldb::Options* options;
 
   std::map< uint32_t, leveldown::Iterator * > iterators;
 

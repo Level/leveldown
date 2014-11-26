@@ -17,6 +17,22 @@ function LevelDOWN (location) {
 
 util.inherits(LevelDOWN, AbstractLevelDOWN)
 
+AbstractLevelDOWN.prototype.open = function (options, callback) {
+  if (typeof options == 'function')
+    callback = options
+
+
+  if (typeof options != 'object')
+    options = {}
+
+  options.createIfMissing = options.createIfMissing != false
+  options.errorIfExists = !!options.errorIfExists
+
+  if (typeof this._open == 'function')
+    return this._open(options, callback)
+
+  if (callback) process.nextTick(callback)
+}
 
 AbstractLevelDOWN.prototype.get = function (key, options, callback) {
   var err
@@ -180,7 +196,7 @@ AbstractLevelDOWN.prototype.approximateSize = function (start, end, callback) {
 
 
 LevelDOWN.prototype._open = function (options, callback) {
-  this.binding.open(options, callback)
+  return this.binding.open(options, callback)
 }
 
 
