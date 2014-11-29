@@ -61,6 +61,7 @@
                 '-fno-builtin-memcmp'
               , '-fPIC'
             ]
+          , 'cflags': [ '-std=c++0x' ]
           , 'cflags!': [ '-fno-tree-vrp' ]
         }]
       , ['OS != "win"' and 'OS != "freebsd"', {
