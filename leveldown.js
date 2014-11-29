@@ -17,6 +17,42 @@ function LevelDOWN (location) {
 
 util.inherits(LevelDOWN, AbstractLevelDOWN)
 
+//the optimal low-level sync functions:
+AbstractLevelDOWN.prototype.getSync = function (key, options) {
+  if (this._getSync) {
+    var result = this._getSync(key, options)
+    return result
+  }
+}
+
+AbstractLevelDOWN.prototype.putSync = function (key, value, options) {
+  if (this._putSync) {
+    var result = this._putSync(key, value, options)
+    return result
+  }
+}
+
+AbstractLevelDOWN.prototype.delSync = function (key, flushSync) {
+  if (this._delSync) {
+    var result = this._delSync(key, options)
+    return result
+  }
+}
+
+AbstractLevelDOWN.prototype.batchSync = function (operations, options) {
+  if (this._batchSync) {
+    var result = this._batchSync(operations, options)
+    return result
+  }
+}
+
+AbstractLevelDOWN.prototype.openSync = function (options) {
+  if (this._openSync) {
+    var result = this._openSync(options)
+    return result
+  }
+}
+
 AbstractLevelDOWN.prototype.open = function (options, callback) {
   if (typeof options == 'function')
     callback = options
@@ -55,14 +91,22 @@ AbstractLevelDOWN.prototype.get = function (key, options, callback) {
 
   options.asBuffer = options.asBuffer != false
 
-  if (typeof this._get == 'function')
-    return this._get(key, options, callback)
-
-  var vNotFoundError = new Error('NotFound')
-  if (callback)
-    process.nextTick(function () { callback(vNotFoundError) })
-  else
-    throw vNotFoundError
+  if (callback) {
+    if (typeof this._get === 'function')
+      return this._get(key, options, callback)
+    else if (typeof this._getSync === 'function') 
+      process.nextTick(function () {
+        try {
+          callback(null, this._getSync(key, options))
+        } catch (err) {
+          callback(err)
+        }
+      })
+    process.nextTick(function () { callback(new Error('NotFound')) })
+  } else {
+    if (typeof this._getSync === 'function') return this._getSync(key, options)
+    throw new Error('NotFound')
+  }
 }
 
 AbstractLevelDOWN.prototype.put = function (key, value, options, callback) {
@@ -89,10 +133,22 @@ AbstractLevelDOWN.prototype.put = function (key, value, options, callback) {
   if (typeof options != 'object')
     options = {}
 
-  if (typeof this._put == 'function')
-    return this._put(key, value, options, callback)
-
-  process.nextTick(callback)
+  if (callback) {
+    if (typeof this._put == 'function')
+      return this._put(key, value, options, callback)
+    else if (typeof this._putSync === 'function') 
+      process.nextTick(function () {
+        try {
+          callback(null, this._putSync(key, value, options))
+        } catch (err) {
+          callback(err)
+        }
+      })
+    process.nextTick(callback)
+  } else {
+    if (typeof this._putSync === 'function')
+      return this._putSync(key, value, options)
+  }
 }
 
 AbstractLevelDOWN.prototype.del = function (key, options, callback) {
@@ -114,10 +170,24 @@ AbstractLevelDOWN.prototype.del = function (key, options, callback) {
   if (typeof options != 'object')
     options = {}
 
-  if (typeof this._del == 'function')
-    return this._del(key, options, callback)
+  if (callback) {
+    if (typeof this._del == 'function')
+      return this._del(key, options, callback)
+    else if (typeof this._delSync === 'function') 
+      process.nextTick(function () {
+        try {
+          callback(null, this._delSync(key, options))
+        } catch (err) {
+          callback(err)
+        }
+      })
 
-  process.nextTick(callback)
+    process.nextTick(callback)
+  }
+  else {
+    if (typeof this._delSync == 'function')
+      return this._delSync(key, options)
+  }
 }
 
 AbstractLevelDOWN.prototype.batch = function (array, options, callback) {
@@ -165,11 +235,23 @@ AbstractLevelDOWN.prototype.batch = function (array, options, callback) {
         throw err
   }
 
-  if (typeof this._batch == 'function')
-    return this._batch(array, options, callback)
+  if (callback) {
+    if (typeof this._batch == 'function')
+      return this._batch(array, options, callback)
+    else if (typeof this._batchSync === 'function') 
+      process.nextTick(function () {
+        try {
+          callback(null, this._batchSync(array, options))
+        } catch (err) {
+          callback(err)
+        }
+      })
 
-  if (callback)
     process.nextTick(callback)
+  } else {
+    if (typeof this._batchSync == 'function')
+      return this._batchSync(array, options)
+  }
 }
 
 AbstractLevelDOWN.prototype.approximateSize = function (start, end, callback) {
@@ -177,7 +259,7 @@ AbstractLevelDOWN.prototype.approximateSize = function (start, end, callback) {
       || end == null
       || typeof start == 'function'
       || typeof end == 'function') {
-    throw new Error('approximateSize() requires valid `start`, `end` and `callback` arguments')
+    throw new Error('approximateSize() requires valid `start`, `end` arguments')
   }
 
   if (!this._isBuffer(start))
@@ -195,13 +277,46 @@ AbstractLevelDOWN.prototype.approximateSize = function (start, end, callback) {
 }
 
 
+LevelDOWN.prototype._openSync = function (options) {
+  return this.binding.openSync(options)
+}
+
 LevelDOWN.prototype._open = function (options, callback) {
   return this.binding.open(options, callback)
 }
 
-
 LevelDOWN.prototype._close = function (callback) {
   this.binding.close(callback)
+}
+
+LevelDOWN.prototype._getSync = function (key, options) {
+  var fillCache = true;
+  var asBuffer = false;
+  if (typeof options === 'object') {
+    if (options.fillCache === false) fillCache = false;
+    if (options.asBuffer === true) asBuffer = true;
+  }
+  var result = this.binding.getSync(key, fillCache);
+  if (asBuffer) result = new Buffer(result);
+  return result;
+}
+
+LevelDOWN.prototype._putSync = function (key, value, options) {
+  var flushSync = false;
+  if (typeof options === 'object' && options.sync === true) flushSync = true;
+  return this.binding.putSync(key, value, flushSync)
+}
+
+LevelDOWN.prototype._delSync = function (key, options) {
+  var flushSync = false;
+  if (typeof options === 'object' && options.sync === true) flushSync = true;
+  return this.binding.delSync(key, flushSync)
+}
+
+LevelDOWN.prototype._batchSync = function (operations, options) {
+  var flushSync = false;
+  if (typeof options === 'object' && options.sync === true) flushSync = true;
+  return this.binding.batchSync(operations, flushSync)
 }
 
 
@@ -209,11 +324,9 @@ LevelDOWN.prototype._put = function (key, value, options, callback) {
   return this.binding.put(key, value, options, callback)
 }
 
-
 LevelDOWN.prototype._get = function (key, options, callback) {
   return this.binding.get(key, options, callback)
 }
-
 
 LevelDOWN.prototype._del = function (key, options, callback) {
   return this.binding.del(key, options, callback)

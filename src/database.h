@@ -86,9 +86,6 @@ private:
   NanUtf8String* location;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);
-  leveldb::ReadOptions* readOptions;
-  leveldb::WriteOptions* writeOptions;
-  leveldb::Options* options;
 
   std::map< uint32_t, leveldown::Iterator * > iterators;
 
@@ -106,6 +103,11 @@ private:
   static NAN_METHOD(Iterator);
   static NAN_METHOD(ApproximateSize);
   static NAN_METHOD(GetProperty);
+  static NAN_METHOD(OpenSync);
+  static NAN_METHOD(PutSync);
+  static NAN_METHOD(DeleteSync);
+  static NAN_METHOD(BatchSync);
+  static NAN_METHOD(GetSync);
 };
 
 } // namespace leveldown

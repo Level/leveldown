@@ -27,18 +27,12 @@ Database::Database (NanUtf8String* location) : location(location) {
   pendingCloseWorker = NULL;
   blockCache = NULL;
   filterPolicy = NULL;
-  writeOptions = new leveldb::WriteOptions();
-  readOptions = new leveldb::ReadOptions();
-  options = new leveldb::Options();
 };
 
 Database::~Database () {
   if (db != NULL) {
     delete db;
   }
-  delete writeOptions;
-  delete readOptions;
-  delete options;
   delete location;
 };
 
@@ -154,9 +148,13 @@ void Database::Init () {
   NODE_SET_PROTOTYPE_METHOD(tpl, "open", Database::Open);
   NODE_SET_PROTOTYPE_METHOD(tpl, "close", Database::Close);
   NODE_SET_PROTOTYPE_METHOD(tpl, "put", Database::Put);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "putSync", Database::PutSync);
   NODE_SET_PROTOTYPE_METHOD(tpl, "get", Database::Get);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "getSync", Database::GetSync);
   NODE_SET_PROTOTYPE_METHOD(tpl, "del", Database::Delete);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "delSync", Database::DeleteSync);
   NODE_SET_PROTOTYPE_METHOD(tpl, "batch", Database::Batch);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "batchSync", Database::BatchSync);
   NODE_SET_PROTOTYPE_METHOD(tpl, "approximateSize", Database::ApproximateSize);
   NODE_SET_PROTOTYPE_METHOD(tpl, "getProperty", Database::GetProperty);
   NODE_SET_PROTOTYPE_METHOD(tpl, "iterator", Database::Iterator);
@@ -189,6 +187,85 @@ v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
   }
 
   return NanEscapeScope(instance);
+}
+
+NAN_METHOD(Database::OpenSync) {
+  NanScope();
+
+  bool createIfMissing = true;
+  bool errorIfExists = false;
+  bool compression = true;
+  uint32_t cacheSize = 8 << 20;
+  uint32_t writeBufferSize = 4 << 20;
+  uint32_t blockSize = 4096;
+  uint32_t maxOpenFiles = 1000;
+  uint32_t blockRestartInterval = 16;
+
+  leveldown::Database* database = node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+  if (args.Length() > 0) {
+    v8::Local<v8::Object> optionsObj = args[0].As<v8::Object>();
+
+    createIfMissing = NanBooleanOptionValue(
+        optionsObj
+      , NanNew("createIfMissing")
+      , createIfMissing
+    );
+    errorIfExists =
+        NanBooleanOptionValue(optionsObj, NanNew("errorIfExists"));
+    compression =
+        NanBooleanOptionValue(optionsObj, NanNew("compression"), compression);
+
+    cacheSize = NanUInt32OptionValue(
+        optionsObj
+      , NanNew("cacheSize")
+      , cacheSize
+    );
+    writeBufferSize = NanUInt32OptionValue(
+        optionsObj
+      , NanNew("writeBufferSize")
+      , writeBufferSize
+    );
+    blockSize = NanUInt32OptionValue(
+        optionsObj
+      , NanNew("blockSize")
+      , blockSize
+    );
+    maxOpenFiles = NanUInt32OptionValue(
+        optionsObj
+      , NanNew("maxOpenFiles")
+      , maxOpenFiles
+    );
+    blockRestartInterval = NanUInt32OptionValue(
+        optionsObj
+      , NanNew("blockRestartInterval")
+      , blockRestartInterval
+    );
+  }
+
+  database->blockCache = leveldb::NewLRUCache(cacheSize);
+  database->filterPolicy = leveldb::NewBloomFilterPolicy(10);
+
+  leveldb::Options options = leveldb::Options();
+  options.block_cache            = database->blockCache;
+  options.filter_policy          = database->filterPolicy;
+  options.create_if_missing      = createIfMissing;
+  options.error_if_exists        = errorIfExists;
+  options.compression            = compression
+      ? leveldb::kSnappyCompression
+      : leveldb::kNoCompression;
+  options.write_buffer_size      = writeBufferSize;
+  options.block_size             = blockSize;
+  options.max_open_files         = maxOpenFiles;
+  options.block_restart_interval = blockRestartInterval;
+  leveldb::Status status = database->OpenDatabase(&options, **(database->Location()));
+
+  if (!status.ok()) {
+    NanThrowError(status.ToString().c_str());
+    NanReturnUndefined();
+  }
+
+  NanReturnValue(NanTrue());
+
 }
 
 NAN_METHOD(Database::Open) {
@@ -236,19 +313,19 @@ NAN_METHOD(Database::Open) {
   database->filterPolicy = leveldb::NewBloomFilterPolicy(10);
 
   if (!hasCallback) {
-      leveldb::Options* options = database->options;
-      options->block_cache            = database->blockCache;
-      options->filter_policy          = database->filterPolicy;
-      options->create_if_missing      = createIfMissing;
-      options->error_if_exists        = errorIfExists;
-      options->compression            = compression
+      leveldb::Options options = leveldb::Options();
+      options.block_cache            = database->blockCache;
+      options.filter_policy          = database->filterPolicy;
+      options.create_if_missing      = createIfMissing;
+      options.error_if_exists        = errorIfExists;
+      options.compression            = compression
           ? leveldb::kSnappyCompression
           : leveldb::kNoCompression;
-      options->write_buffer_size      = writeBufferSize;
-      options->block_size             = blockSize;
-      options->max_open_files         = maxOpenFiles;
-      options->block_restart_interval = blockRestartInterval;
-      leveldb::Status status = database->OpenDatabase(options, **(database->Location()));
+      options.write_buffer_size      = writeBufferSize;
+      options.block_size             = blockSize;
+      options.max_open_files         = maxOpenFiles;
+      options.block_restart_interval = blockRestartInterval;
+      leveldb::Status status = database->OpenDatabase(&options, **(database->Location()));
 
       if (!status.ok()) {
         NanThrowError(status.ToString().c_str());
@@ -340,6 +417,33 @@ NAN_METHOD(Database::Close) {
   NanReturnUndefined();
 }
 
+//PutSync(key, value, flushSync)
+NAN_METHOD(Database::PutSync) {
+  NanScope();
+  leveldown::Database* database = node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+
+  if (args.Length() < 2) {
+      NanThrowError("PutSync requires the key and value argument.");
+      NanReturnUndefined();
+  }
+
+  v8::String::Utf8Value key(args[0]->ToString());
+  v8::String::Utf8Value value(args[1]->ToString());
+  bool sync = false;
+  if (args.Length() > 1 && args[1]->IsBoolean()) sync = args[1]->BooleanValue();
+
+  leveldb::WriteOptions options = leveldb::WriteOptions();
+  options.sync = sync;
+  leveldb::Status status = database->db->Put(options, *key, *value);
+
+  if (!status.ok()) {
+    NanThrowError(status.ToString().c_str());
+    NanReturnUndefined();
+  }
+
+  NanReturnValue(NanTrue());
+}
+
 NAN_METHOD(Database::Put) {
   NanScope();
 
@@ -353,9 +457,9 @@ NAN_METHOD(Database::Put) {
   bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
 
   if (!hasCallback) {
-      leveldb::WriteOptions* options = database->writeOptions;
-      options->sync = sync;
-      leveldb::Status status = database->PutToDatabase(options, key, value);
+      leveldb::WriteOptions options = leveldb::WriteOptions();
+      options.sync = sync;
+      leveldb::Status status = database->PutToDatabase(&options, key, value);
       DisposeStringOrBufferFromSlice(keyHandle, key);
       DisposeStringOrBufferFromSlice(valueHandle, value);
 
@@ -385,6 +489,38 @@ NAN_METHOD(Database::Put) {
   NanReturnUndefined();
 }
 
+
+//getSync(aKey, fillCache=true)
+NAN_METHOD(Database::GetSync) {
+  NanScope();
+
+  leveldown::Database* database = node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+
+  if (args.Length() == 0) {
+      NanThrowError("GetSync requires the key argument.");
+      NanReturnUndefined();
+  }
+
+  v8::String::Utf8Value key(args[0]->ToString());
+  std::string value;
+  bool fillCache = true;
+  if (args.Length() > 1 && args[1]->IsBoolean()) fillCache = args[1]->BooleanValue();
+
+  leveldb::ReadOptions options = leveldb::ReadOptions();
+  options.fill_cache = fillCache;
+  //if (!fillCache) options.fill_cache = false; //the default is true.
+  leveldb::Status status = database->db->Get(options, *key, &value);
+
+  if (!status.ok()) {
+    NanThrowError(status.ToString().c_str());
+    NanReturnUndefined();
+  }
+
+  v8::Local<v8::Value> returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+  //printf("\ndb.get(%s)=%s\n", *key, *NanUtf8String(returnValue));
+  NanReturnValue(returnValue);
+}
+
 NAN_METHOD(Database::Get) {
   NanScope();
 
@@ -398,9 +534,9 @@ NAN_METHOD(Database::Get) {
 
   if (!hasCallback) {
       std::string value;
-      leveldb::ReadOptions* options = database->readOptions;
-      options->fill_cache = fillCache;
-      leveldb::Status status = database->GetFromDatabase(options, key, value);
+      leveldb::ReadOptions options = leveldb::ReadOptions();
+      options.fill_cache = fillCache;
+      leveldb::Status status = database->GetFromDatabase(&options, key, value);
       DisposeStringOrBufferFromSlice(keyHandle, key);
 
       if (!status.ok()) {
@@ -433,6 +569,31 @@ NAN_METHOD(Database::Get) {
   NanReturnUndefined();
 }
 
+NAN_METHOD(Database::DeleteSync) {
+  NanScope();
+  leveldown::Database* database = node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+
+  if (args.Length() == 0) {
+      NanThrowError("delSync requires the key argument.");
+      NanReturnUndefined();
+  }
+
+  v8::String::Utf8Value key(args[0]->ToString());
+  bool sync = false;
+  if (args.Length() > 1 && args[1]->IsBoolean()) sync = args[1]->BooleanValue();
+
+  leveldb::WriteOptions options = leveldb::WriteOptions();
+  options.sync = sync;
+  leveldb::Status status = database->db->Delete(options, *key);
+
+  if (!status.ok()) {
+    NanThrowError(status.ToString().c_str());
+    NanReturnUndefined();
+  }
+
+  NanReturnValue(NanTrue());
+}
+
 NAN_METHOD(Database::Delete) {
   NanScope();
 
@@ -444,9 +605,9 @@ NAN_METHOD(Database::Delete) {
   bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
 
   if (!hasCallback) {
-      leveldb::WriteOptions* options = database->writeOptions;
-      options->sync = sync;
-      leveldb::Status status = database->DeleteFromDatabase(options, key);
+      leveldb::WriteOptions options = leveldb::WriteOptions();
+      options.sync = sync;
+      leveldb::Status status = database->DeleteFromDatabase(&options, key);
       DisposeStringOrBufferFromSlice(keyHandle, key);
 
       if (!status.ok()) {
@@ -470,6 +631,60 @@ NAN_METHOD(Database::Delete) {
   NanAsyncQueueWorker(worker);
 
   NanReturnUndefined();
+}
+
+//BatchSync(operations, syncFlush)
+NAN_METHOD(Database::BatchSync) {
+  NanScope();
+  leveldown::Database* database = node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+
+  if (args.Length() == 0) {
+      NanThrowError("batchSync requires the batch(operations) argument.");
+      NanReturnUndefined();
+  }
+
+  v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
+  leveldb::WriteBatch batch;
+  bool sync = false;
+  if (args.Length() > 1 && args[1]->IsBoolean()) sync = args[1]->BooleanValue();
+
+  bool hasData = false;
+
+  for (unsigned int i = 0; i < array->Length(); i++) {
+    if (!array->Get(i)->IsObject())
+      continue;
+
+    v8::Local<v8::Object> obj = v8::Local<v8::Object>::Cast(array->Get(i));
+    v8::String::Utf8Value key(obj->Get(NanNew("key"))->ToString());
+    v8::String::Utf8Value type(obj->Get(NanNew("type"))->ToString());
+
+    if (strcmp(*type, "del") == 0) {
+
+      batch.Delete(*key);
+      if (!hasData)
+        hasData = true;
+
+    } else if (strcmp(*type, "put") == 0) {
+      v8::String::Utf8Value value(obj->Get(NanNew("value"))->ToString());
+
+      batch.Put(*key, *value);
+      if (!hasData)
+        hasData = true;
+    }
+  }
+  if (hasData) {
+    leveldb::WriteOptions options = leveldb::WriteOptions();
+
+    options.sync = sync;
+    leveldb::Status status = database->db->Write(options, &batch);
+
+    if (!status.ok()) {
+        NanThrowError(status.ToString().c_str());
+        NanReturnUndefined();
+    }
+    NanReturnValue(NanTrue());
+  }
+  NanReturnValue(NanFalse());
 }
 
 NAN_METHOD(Database::Batch) {
@@ -524,10 +739,10 @@ NAN_METHOD(Database::Batch) {
 
   if (!hasCallback) {
     if (hasData) {
-      leveldb::WriteOptions* options = database->writeOptions;
+      leveldb::WriteOptions options = leveldb::WriteOptions();
 
-      options->sync = sync;
-      leveldb::Status status = database->WriteBatchToDatabase(options, batch);
+      options.sync = sync;
+      leveldb::Status status = database->WriteBatchToDatabase(&options, batch);
       delete batch;
 
       if (!status.ok()) {
