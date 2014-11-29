@@ -18,15 +18,13 @@ Iterator::Iterator (
     Database* database
   , uint32_t id
   , leveldb::Slice* start
-  , std::string* end
-  , bool reverse
+  , std::string end
+  , bool skipStart
+  , bool skipEnd
+  , bool noReverse
   , bool keys
   , bool values
   , int limit
-  , std::string* lt
-  , std::string* lte
-  , std::string* gt
-  , std::string* gte
   , bool fillCache
   , bool keyAsBuffer
   , bool valueAsBuffer
@@ -36,15 +34,13 @@ Iterator::Iterator (
   , id(id)
   , start(start)
   , end(end)
-  , reverse(reverse)
+  , skipStart(skipStart)
+  , skipEnd(skipEnd)
+  , noReverse(noReverse)
+  , limit(limit)
+  , highWaterMark(highWaterMark)
   , keys(keys)
   , values(values)
-  , limit(limit)
-  , lt(lt)
-  , lte(lte)
-  , gt(gt)
-  , gte(gte)
-  , highWaterMark(highWaterMark)
   , keyAsBuffer(keyAsBuffer)
   , valueAsBuffer(valueAsBuffer)
 {
@@ -55,31 +51,65 @@ Iterator::Iterator (
     obj->Set(NanNew("start"), startHandle);
   NanAssignPersistent(persistentHandle, obj);
 
-  options    = new leveldb::ReadOptions();
-  options->fill_cache = fillCache;
-  // get a snapshot of the current state
-  options->snapshot = database->NewSnapshot();
+  options    = leveldb::ReadOptions();
+  options.fill_cache = fillCache;
   dbIterator = NULL;
   count      = 0;
   nexting    = false;
   ended      = false;
   endWorker  = NULL;
+  GetIterator();
 };
 
 Iterator::~Iterator () {
-  delete options;
+  IteratorEnd();
+
   if (!persistentHandle.IsEmpty())
     NanDisposePersistent(persistentHandle);
-  if (start != NULL)
+
+  if (start != NULL) {
+    delete[] start->data();
     delete start;
-  if (end != NULL)
-    delete end;
+  }
 };
 
 bool Iterator::GetIterator () {
   if (dbIterator == NULL) {
-    dbIterator = database->NewIterator(options);
-
+    // get a snapshot of the current state
+    options.snapshot = database->NewSnapshot();
+    dbIterator = database->NewIterator(&options);
+    /*
+    printf("skipStart=%d, skipEnd=%d\n", skipStart, skipEnd);
+    printf("noReverse=%d\n", noReverse);
+    if (end) printf("end=%s\n", end->c_str());
+    */
+    if (start) {
+      //printf("start=%s\n", start->ToString().c_str());
+      dbIterator->Seek(*start);
+      if (noReverse) {
+        if (dbIterator->Valid()) {
+          std::string key_ = dbIterator->key().ToString();
+          if (skipStart && key_ == start->ToString())
+            dbIterator->Next();
+        }
+      } else {
+        if (!dbIterator->Valid()) {
+          // if it's past the last key, step back
+          dbIterator->SeekToLast();
+        } else {
+          std::string key_ = dbIterator->key().ToString();
+          if (key_ > start->ToString()) dbIterator->Prev();
+          if (skipStart && key_ == start->ToString()) dbIterator->Prev();
+        }
+      }
+    }
+    else {
+      if (noReverse)
+        dbIterator->SeekToFirst();
+      else
+        dbIterator->SeekToLast();
+    }
+/*
     if (start != NULL) {
       dbIterator->Seek(*start);
 
@@ -116,7 +146,7 @@ bool Iterator::GetIterator () {
     } else {
       dbIterator->SeekToFirst();
     }
-
+*/
     return true;
   }
   return false;
@@ -125,27 +155,21 @@ bool Iterator::GetIterator () {
 bool Iterator::Read (std::string& key, std::string& value) {
   // if it's not the first call, move to next item.
   if (!GetIterator()) {
-    if (reverse)
-      dbIterator->Prev();
-    else
+    if (noReverse)
       dbIterator->Next();
+    else
+      dbIterator->Prev();
   }
 
   // now check if this is the end or not, if not then return the key & value
   if (dbIterator->Valid()) {
     std::string key_ = dbIterator->key().ToString();
-    int isEnd = end == NULL ? 1 : end->compare(key_);
+    int isEnd = end.empty() ? 1 : end.compare(key_);
 
     if ((limit < 0 || ++count <= limit)
-      && (end == NULL
-          || (reverse && (isEnd <= 0))
-          || (!reverse && (isEnd >= 0)))
-      && ( lt  != NULL ? (lt->compare(key_) > 0)
-         : lte != NULL ? (lte->compare(key_) >= 0)
-         : true )
-      && ( gt  != NULL ? (gt->compare(key_) < 0)
-         : gte != NULL ? (gte->compare(key_) <= 0)
-         : true )
+      && (end.empty()
+          || (!noReverse && (isEnd <= 0))
+          || (noReverse && (isEnd >= 0)))
     ) {
       if (keys)
         key.assign(dbIterator->key().data(), dbIterator->key().size());
@@ -158,14 +182,142 @@ bool Iterator::Read (std::string& key, std::string& value) {
   return false;
 }
 
-bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
+bool Iterator::IteratorNext2 (std::vector<std::pair<std::string, std::string> >& results) {
   size_t size = 0;
+  bool result = (limit < 0 || ++count <= limit);
+
+  if (result) {
+    if (noReverse) {
+      for (;result && dbIterator->Valid();dbIterator->Next()) {
+        std::string key, value;
+        key = dbIterator->key().ToString();
+        result = (end.empty() || key <= end);
+        if (result) {
+          if (skipEnd && !end.empty() && key == end) {
+            result = false;
+            break;
+          }
+          value = dbIterator->value().ToString();
+          results.push_back(std::make_pair(key, value));
+          //(*results)[key] = value;
+          size = size + key.size() + value.size();
+          if (size >= highWaterMark) {
+            dbIterator->Next();
+            break;
+          }
+        }
+        result = result && (limit < 0 || ++count <= limit);
+      }
+    }
+    else {
+      for (;result && dbIterator->Valid();dbIterator->Prev()) {
+        std::string key, value;
+        key = dbIterator->key().ToString();
+        result = (end.empty() || key >= end);
+        if (result) {
+          if (skipEnd && !end.empty() && key == end) {
+            result = false;
+            break;
+          }
+          value = dbIterator->value().ToString();
+          results.push_back(std::make_pair(key, value));
+          //(*results)[key] = value;
+          size = size + key.size() + value.size();
+          if (size >= highWaterMark) {
+            dbIterator->Prev();
+            break;
+          }
+        }
+        result = result && (limit < 0 || ++count <= limit);
+      }
+    }
+  }
+  //printf("%d done, IteratorNext2:count=%d\n", result && dbIterator->Valid(), count);
+  return result && dbIterator->Valid();
+}
+
+bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& results) {
+  size_t size = 0, c=0;
+  std::string key, value;
+  bool result = dbIterator->Valid() && (limit < 0 || ++count <= limit);
+
+  if (result) do {
+    key = dbIterator->key().ToString();
+    if (noReverse)
+      result = (end.empty() || key <= end);
+    else
+      result = (end.empty() || key >= end);
+    if (result) {
+      //if (end)
+      //  printf("%s <= %s  = %d\n", key.c_str(), end->c_str(), key <= *end);
+      if (skipEnd && !end.empty() && key == end) {
+        result = false;
+        break;
+      }
+    ++c;
+      //if (!keys) key.clear();
+      //if (values)
+      value = dbIterator->value().ToString();
+        //value.assign(dbIterator->value().data(), dbIterator->value().size());
+      results.push_back(std::make_pair(key, value));
+      //(*results)[key] = value;
+      size = size + key.size() + value.size();
+      if (size >= highWaterMark) {
+        if (noReverse) dbIterator->Next();
+        else dbIterator->Prev();
+        break;
+      }
+    }
+    if (noReverse) dbIterator->Next();
+    else dbIterator->Prev();
+    result = result && dbIterator->Valid() && (limit < 0 || ++count <= limit);
+  } while (result);
+  //printf("%d done, IteratorNext:count=%lu\n", result, c);
+  return result;
+  //*/
+/*
+
+  if (noReverse) {
+      while (result) {
+        key = dbIterator->key().ToString();
+
+      }
+    for (;dbIterator->Valid() && (size <= highWaterMark) && result;dbIterator->Next()) {
+      key.assign(dbIterator->key().data(), dbIterator->key().size());
+      if (skipStart && start && key == *start) continue;
+      if (skipEnd && end && key == *end) continue;
+      if (!keys) key.clear();
+      if (values)
+        value.assign(dbIterator->value().data(), dbIterator->value().size());
+      result.push_back(std::make_pair(key, value));
+      size = size + key.size() + value.size();
+    }
+  }
+  else
+    for (;dbIterator->Valid() && (size <= highWaterMark) && (limit < 0 || ++count <= limit);dbIterator->Prev()) {
+      key = dbIterator->key().ToString();
+      //key.assign(dbIterator->key().data(), dbIterator->key().size());
+      printf("key=%s\n", key.c_str());
+      if (skipStart && start && key == *start) continue;
+      if (skipEnd && end && key == *end) continue;
+      if (!keys) key.clear();
+      if (values)
+        value = dbIterator->value().ToString();
+        //value.assign(dbIterator->value().data(), dbIterator->value().size());
+      result.push_back(std::make_pair(key, value));
+      size = size + key.size() + value.size();
+    }
+
+  printf("%d done\n", dbIterator->Valid());
+  return dbIterator->Valid();
+  */
+  /*
   while(true) {
     std::string key, value;
     bool ok = Read(key, value);
 
     if (ok) {
-      result.push_back(std::make_pair(key, value));
+      results.push_back(std::make_pair(key, value));
       size = size + key.size() + value.size();
 
       if (size > highWaterMark)
@@ -175,6 +327,7 @@ bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& 
       return false;
     }
   }
+  //*/
 }
 
 leveldb::Status Iterator::IteratorStatus () {
@@ -182,9 +335,14 @@ leveldb::Status Iterator::IteratorStatus () {
 }
 
 void Iterator::IteratorEnd () {
-  //TODO: could return it->status()
-  delete dbIterator;
-  dbIterator = NULL;
+  if (dbIterator) {
+    //printf("free DBIterator\n");
+    //TODO: could return it->status()
+    delete dbIterator;
+    dbIterator = NULL;
+    database->ReleaseSnapshot(options.snapshot);
+  }
+  //printf("Iteratorend\n");
 }
 
 void Iterator::Release () {
@@ -197,6 +355,114 @@ void checkEndCallback (Iterator* iterator) {
     NanAsyncQueueWorker(iterator->endWorker);
     iterator->endWorker = NULL;
   }
+}
+
+//nextSync(resultArray)
+//return the array, the first is the result array, the second is the count of the result. if count <=0 means no more data.
+NAN_METHOD(Iterator::NextSync) {
+  NanScope();
+  //bool hasArgs = args.Length() > 0;
+  //if (hasArgs && !args[0]->IsArray()) {
+  //  NanThrowError("NextSync requires an array argument to store the result.");
+  //  NanReturnUndefined();
+  //}
+  Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
+  iterator->nexting = true;
+  std::vector<std::pair<std::string, std::string> > dict;
+  bool ok = iterator->IteratorNext(dict);
+  iterator->nexting = false;
+  if (!ok) {
+    leveldb::Status s = iterator->IteratorStatus();
+    if (!s.ok()) {
+      NanThrowError(s.ToString().c_str());
+      NanReturnUndefined();
+    }
+  }
+
+  size_t idx = 0;
+  //size_t arraySize = dict.size() * 2;
+  //v8::Handle<v8::internal::JSArray> array = v8::Handle<v8::internal::JSArray>::cast(returnArray);
+  //v8::internal::ElementsAccessor *accessor = returnArray->GetElementsAccessor();
+  //accessor->SetCapacityAndLength(array, arraySize, arraySize); // https://github.com/joyent/node/blob/deps/v8/src/elements.h
+
+
+  size_t arraySize = dict.size()*2;
+  //v8::Local<v8::Object> returnArray = args[0].As<v8::Object>();
+  /*
+  std::map<std::string, std::string>::iterator it;
+  for (it = dict.begin(); it != dict.end(); it++) {
+    std::string key = it->first;
+    std::string value = it->second;
+    v8::Local<v8::Value> returnKey;
+    v8::Local<v8::Value> returnValue;
+    if (iterator->keys) {
+      if (iterator->keyAsBuffer) {
+        returnKey = NanNewBufferHandle((char*)key.data(), key.size());
+      } else {
+        returnKey = NanNew<v8::String>((char*)key.data(), key.size());
+      }
+    } else
+      returnKey = NanNull();
+    if (iterator->values) {
+      if (iterator->valueAsBuffer) {
+        returnValue = NanNewBufferHandle((char*)value.data(), value.size());
+      } else {
+        returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+      }
+    } else
+      returnValue = NanNull();
+    returnArray->Set(returnKey, returnValue);
+    // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
+    //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 1)), returnKey);
+    //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 2)), returnValue);
+    //++idx;
+  }*/
+  //if (hasArgs)
+  //{
+    v8::Local<v8::Array> returnArray = NanNew<v8::Array>(arraySize);//args[0].As<v8::Array>();//= NanNew<v8::Array>(arraySize);
+    for(idx = 0; idx < dict.size(); ++idx) {
+      std::pair<std::string, std::string> row = dict[idx];
+      std::string key = row.first;
+      std::string value = row.second;
+
+      v8::Local<v8::Value> returnKey = NanNew<v8::String>((char*)key.data(), key.size());
+      v8::Local<v8::Value> returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+
+      
+      //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx * 2)), returnKey);
+      //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx * 2+1)), returnValue);
+      //returnArray->Set(returnKey, returnValue);
+      // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
+      returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 1)), returnKey);
+      returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 2)), returnValue);
+    }
+  //}
+
+  
+  ssize_t s =  dict.size();
+  if (!ok) s = -s;
+  v8::Local<v8::Array> result = NanNew<v8::Array>(2);
+  result->Set(NanNew<v8::Integer>(0), returnArray);
+  // when ok === false all data has been read, so it's then finished
+  result->Set(NanNew<v8::Integer>(1), NanNew<v8::Integer>(s));
+
+  NanReturnValue(result);
+  //NanReturnValue(NanNew<v8::Integer>(s));
+
+  //NanReturnValue(NanNew<v8::Boolean>(!ok));
+}
+
+NAN_METHOD(Iterator::EndSync) {
+  NanScope();
+
+  Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
+  if (!iterator->ended) {
+    iterator->ended = true;
+    iterator->IteratorEnd();
+    iterator->Release();
+    NanReturnValue(NanTrue());
+  }
+  NanReturnUndefined();
 }
 
 NAN_METHOD(Iterator::Next) {
@@ -253,7 +519,9 @@ void Iterator::Init () {
   tpl->SetClassName(NanNew("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "next", Iterator::Next);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "nextSync", Iterator::NextSync);
   NODE_SET_PROTOTYPE_METHOD(tpl, "end", Iterator::End);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "endSync", Iterator::EndSync);
 }
 
 v8::Local<v8::Object> Iterator::NewInstance (
@@ -289,7 +557,9 @@ NAN_METHOD(Iterator::New) {
 
   v8::Local<v8::Object> startHandle;
   leveldb::Slice* start = NULL;
-  std::string* end = NULL;
+  std::string end;
+  bool skipStart = false;
+  bool skipEnd = false;
   int limit = -1;
   // default highWaterMark from Readble-streams
   size_t highWaterMark = 16 * 1024;
@@ -302,11 +572,6 @@ NAN_METHOD(Iterator::New) {
   v8::Local<v8::Object> lteHandle;
   v8::Local<v8::Object> gtHandle;
   v8::Local<v8::Object> gteHandle;
-
-  std::string* lt = NULL;
-  std::string* lte = NULL;
-  std::string* gt = NULL;
-  std::string* gte = NULL;
 
   //default to forward.
   bool reverse = false;
@@ -338,7 +603,8 @@ NAN_METHOD(Iterator::New) {
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(endBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, end)
-        end = new std::string(_end.data(), _end.size());
+        end = std::string(_end.data(), _end.size());
+        delete[] _end.data();
       }
     }
 
@@ -361,9 +627,24 @@ NAN_METHOD(Iterator::New) {
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(ltBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_SLICE(_lt, ltBuffer, lt)
-        lt = new std::string(_lt.data(), _lt.size());
-        if (reverse)
-          start = new leveldb::Slice(_lt.data(), _lt.size());
+        if (reverse) {
+          if (!start || _lt.ToString() <= start->ToString()) {
+            if (start) {
+              delete[] start->data();
+              delete start;
+            }
+            start = new leveldb::Slice(_lt.data(), _lt.size());
+            skipStart = true;
+          } else
+            delete[] _lt.data();
+        }
+        else {
+          if (end.empty() || _lt.ToString() <= end) {
+            end = std::string(_lt.data(), _lt.size());
+            skipEnd = true;
+          }
+          delete[] _lt.data();
+        }
       }
     }
 
@@ -376,9 +657,25 @@ NAN_METHOD(Iterator::New) {
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(lteBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_SLICE(_lte, lteBuffer, lte)
-        lte = new std::string(_lte.data(), _lte.size());
-        if (reverse)
-          start = new leveldb::Slice(_lte.data(), _lte.size());
+        //lte = new std::string(_lte.data(), _lte.size());
+        if (reverse) {
+          if (!start || _lte.ToString() < start->ToString()) {
+            if (start) {
+              delete[] start->data();
+              delete start;
+            }
+            start = new leveldb::Slice(_lte.data(), _lte.size());
+            skipStart = false;
+          } else
+            delete[] _lte.data();
+        }
+        else {
+          if (end.empty() || _lte.ToString() < end) {
+            end = std::string(_lte.data(), _lte.size());
+            skipEnd = false;
+          }
+          delete[] _lte.data();
+        }
       }
     }
 
@@ -391,9 +688,24 @@ NAN_METHOD(Iterator::New) {
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gtBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_SLICE(_gt, gtBuffer, gt)
-        gt = new std::string(_gt.data(), _gt.size());
-        if (!reverse)
-          start = new leveldb::Slice(_gt.data(), _gt.size());
+        //gt = new std::string(_gt.data(), _gt.size());
+        if (!reverse) {
+          if (!start || _gt.ToString() >= start->ToString()) {
+            if (start) {
+              delete[] start->data();
+              delete start;
+            }
+            start = new leveldb::Slice(_gt.data(), _gt.size());
+            skipStart = true;
+          } else
+            delete[] _gt.data();
+        } else {
+          if (end.empty() || _gt.ToString() >= end) {
+            end = std::string(_gt.data(), _gt.size());
+            skipEnd = true;
+          }
+          delete[] _gt.data();
+        }
       }
     }
 
@@ -406,9 +718,24 @@ NAN_METHOD(Iterator::New) {
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gteBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_SLICE(_gte, gteBuffer, gte)
-        gte = new std::string(_gte.data(), _gte.size());
-        if (!reverse)
-          start = new leveldb::Slice(_gte.data(), _gte.size());
+        //gte = new std::string(_gte.data(), _gte.size());
+        if (!reverse) {
+          if (!start || _gte.ToString() > start->ToString()) {
+            if (start) {
+              delete[] start->data();
+              delete start;
+            }
+            start = new leveldb::Slice(_gte.data(), _gte.size());
+            skipStart = false;
+          } else
+            delete[] _gte.data();
+        } else {
+          if (end.empty() || _gte.ToString() > end) {
+            end = std::string(_gte.data(), _gte.size());
+            skipEnd = false;
+          }
+          delete[] _gte.data();
+        }
       }
     }
 
@@ -433,14 +760,12 @@ NAN_METHOD(Iterator::New) {
     , (uint32_t)id->Int32Value()
     , start
     , end
-    , reverse
+    , skipStart
+    , skipEnd
+    , !reverse
     , keys
     , values
     , limit
-    , lt
-    , lte
-    , gt
-    , gte
     , fillCache
     , keyAsBuffer
     , valueAsBuffer

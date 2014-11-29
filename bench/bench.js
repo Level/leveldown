@@ -1,52 +1,102 @@
-var Leveldown = require('../');
+var leveldown = require('../');
 var assert = require('assert');
 
-Leveldown = new Leveldown(__dirname+"/dbfoo");
+leveldown = new leveldown(__dirname+"/foodb");
 
-  Leveldown.open({
+try {
+  leveldown.open({
         errorIfExists   : false
       , createIfMissing : true
       , cacheSize       : 8 << 20
       , writeBufferSize : 4 << 20
+  });
+  benchIt();
+} catch(e) {
+  leveldown.open({
+        errorIfExists   : false
+      , createIfMissing : true
+      , cacheSize       : 8 << 20
+      , writeBufferSize : 4 << 20
+  }, function(err){
+    if (err) throw err;
+    benchIt();
   })
+}
 
 
 // bench -----------------------------------
-
-var count = 12000;
+function benchIt() {
+var count = 1201;
 var val = '1337,1337,1337,1337,1337';
 
 function putSync () {
+  if (!leveldown.putSync) {
+    return;
+  }
   var start = Date.now();
 
   for (var i = 0; i < count; i++) {
-    Leveldown.put(i, val);
+    leveldown.put(i, val);
   }
 
   var duration = Date.now()-start;
   log(true, count, 'put', duration);
 }
 
+function putSyncDirect () {
+  if (!leveldown.putSync) {
+    return;
+  }
+  var start = Date.now();
+
+  for (var i = 0; i < count; i++) {
+    leveldown.putSync(i, val);
+  }
+
+  var duration = Date.now()-start;
+  log(true, count, 'put', duration, 'directly');
+}
+
 function getSync () {
+  if (!leveldown.getSync) {
+    return;
+  }
   start = Date.now();
 
   for (var i = 0; i < count; i++) {
-    assert(Leveldown.get(i) == val);
+    assert(leveldown.get(i) == val);
+  }
+
+  duration = Date.now()-start;
+  log(true, count, 'get', duration,"asBuffer");
+}
+
+function getSyncDirect () {
+  if (!leveldown.getSync) {
+    return;
+  }
+  start = Date.now();
+
+  for (var i = 0; i < count; i++) {
+    assert(leveldown.getSync(i) == val);
+  }
+
+  duration = Date.now()-start;
+  log(true, count, 'get', duration, 'directly');
+}
+
+function getStrSync () {
+  if (!leveldown.getSync) {
+    return;
+  }
+  start = Date.now();
+
+  for (var i = 0; i < count; i++) {
+    assert(leveldown.get(i, {asBuffer: false}) == val);
   }
 
   duration = Date.now()-start;
   log(true, count, 'get', duration);
-}
-
-function getStrSync () {
-  start = Date.now();
-
-  for (var i = 0; i < count; i++) {
-    assert(Leveldown.get(i, {asBuffer: false}) == val);
-  }
-
-  duration = Date.now()-start;
-  log(true, count, 'get', duration, "asBuffer:false");
 }
 
 function putAsync(cb) {
@@ -54,7 +104,7 @@ function putAsync(cb) {
 
   var written = 0;
   for (var i = 0; i < count; i++) {
-    Leveldown.put(i, val, function (err) {
+    leveldown.put(i, val, function (err) {
       if (err) throw err;
       if (++written == count) {
         duration = Date.now()-start;
@@ -70,12 +120,12 @@ function getAsync (cb) {
 
   var received = 0;
   for (var i = 0; i < count; i++) {
-    Leveldown.get(i, function (err, value) {
+    leveldown.get(i, function (err, value) {
       if (err) throw err;
       assert(value == val);
       if (++received == count) {
         duration = Date.now()-start;
-        log(false, count, 'get', duration);
+        log(false, count, 'get', duration, "asBuffer");
         if (cb) cb()
       }
     })
@@ -87,12 +137,12 @@ function getStrAsync (cb) {
 
   var received = 0;
   for (var i = 0; i < count; i++) {
-    Leveldown.get(i, {asBuffer:false}, function (err, value) {
+    leveldown.get(i, {asBuffer:false}, function (err, value) {
       if (err) throw err;
       assert(value == val);
       if (++received == count) {
         duration = Date.now()-start;
-        log(false, count, 'get', duration, "asBuffer:false");
+        log(false, count, 'get', duration);
         if (cb) cb()
       }
     })
@@ -100,6 +150,9 @@ function getStrAsync (cb) {
 }
 
 function batchSync () {
+  if (!leveldown.batchSync) {
+    return;
+  }
   var start = Date.now();
 
   var arr = [];
@@ -107,10 +160,27 @@ function batchSync () {
     arr.push({type:"put",key:i, value:val});
   }
 
-  var batch = Leveldown.batch(arr);
+  var batch = leveldown.batch(arr);
 
   var duration = Date.now()-start;
   log(true, count, 'batch', duration);
+}
+
+function batchSyncDirect () {
+  if (!leveldown.batchSync) {
+    return;
+  }
+  var start = Date.now();
+
+  var arr = [];
+  for (var i = 0; i < count; i++) {
+    arr.push({type:"put",key:i, value:val});
+  }
+
+  var batch = leveldown.batchSync(arr);
+
+  var duration = Date.now()-start;
+  log(true, count, 'batch', duration, 'directly');
 }
 
 function batchAsync(cb) {
@@ -121,12 +191,119 @@ function batchAsync(cb) {
     arr.push({type:"put",key:i, value:val});
   }
   
-  Leveldown.batch(arr, function (err) {
+  leveldown.batch(arr, function (err) {
     if (err) throw err;
     var duration = Date.now() - start;
     log(false, count, 'batch', duration);
     if (cb) cb();
   });
+}
+
+function iteratorAsync (cb) {
+  start = Date.now();
+
+  var received = 0;
+  var iterator = leveldown.iterator()
+    , fn = function (err, key, value) {
+        if (err) {
+          console.log(err)
+        }
+        else if (key && value) {
+          received++
+          process.nextTick(next)
+        } else { // end
+          iterator.end(function () {
+            var duration = Date.now()-start;
+            log(false, received, 'iterator', duration, "asBuffer");
+  console.log("receive:", received)
+            if (cb) cb()
+          })
+        }
+      }
+    , next = function () {
+        iterator.next(fn)
+      }
+    next();
+}
+
+function iteratorStrAsync (cb) {
+  start = Date.now();
+
+  var received = 0;
+  var iterator = leveldown.iterator({valueAsBuffer: false, keyAsBuffer: false})
+    , fn = function (err, key, value) {
+        if (err) {
+          console.log(err)
+        }
+        else if (key && value) {
+          received++
+          process.nextTick(next)
+        } else { // end
+          iterator.end(function () {
+            var duration = Date.now()-start;
+            log(false, received, 'iterator', duration);
+  console.log("receive:", received)
+            if (cb) cb()
+          })
+        }
+      }
+    , next = function () {
+        iterator.next(fn)
+      }
+    next();
+}
+
+function iteratorStrAsyncDirect (cb) {
+  start = Date.now();
+
+  var received = 0;
+  var iterator = leveldown.iterator({keyAsBuffer: false, valueAsBuffer:false, highWaterMark: 16*1024*8}) //22 will get all at once.
+    , fn = function (err, arr, finished) {
+        if (err) {
+          console.log(err)
+          if (cb) cb()
+          return
+        }
+        received += arr.length / 2 
+        if (!finished) {
+          process.nextTick(next)
+        } else { // end
+          iterator.end(function () {
+            var duration = Date.now()-start;
+            log(false, received, 'iterator', duration, "directly");
+  console.log("receive:", received)
+            if (cb) cb()
+          })
+        }
+      }
+    , next = function () {
+        iterator.binding.next(fn)
+      }
+    next();
+}
+
+function iteratorStrSyncDirect () {
+  if (!leveldown.putSync) {
+    return;
+  }
+  start = Date.now();
+
+  var received = 0;
+  var iterator = leveldown.iterator({keyAsBuffer: false, valueAsBuffer:false, highWaterMark: 16*1024*8}); //, highWaterMark: 16*1024*22, 22 will get all at once.
+  var result = [];
+  var results = iterator.nextSync(result);
+  var size = results[1];
+  while (size > 0) {
+    received += size;
+    //result = [];
+    results = iterator.nextSync(result);
+    size = results[1];
+  }
+  received += Math.abs(size);
+  var duration = Date.now()-start;
+  log(true, received, 'iterator', duration, "directly");
+  iterator.endSync()
+  console.log("receive:", received)
 }
 
 
@@ -138,13 +315,23 @@ console.log('\n  benchmarking with ' + humanize(count) + ' records, ' + val.leng
 
 putAsync(function () {
   putSync()
+  putSyncDirect()
   batchAsync(function () {
     batchSync()
+    batchSyncDirect()
     getAsync(function () {
       getStrAsync(function () {
         getSync()
         getStrSync()
-        console.log()
+        getSyncDirect()
+        iteratorAsync(function(){
+          iteratorStrAsync(function(){
+            iteratorStrAsyncDirect(function(){
+              iteratorStrSyncDirect()
+              console.log()
+            })
+          })
+        })
       })
     })
   })
@@ -181,4 +368,6 @@ function humanize(n, options){
   n = n.toString().split('.');
   n[0] = n[0].replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + d);
   return n.join(s);
+}
+
 }

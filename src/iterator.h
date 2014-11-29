@@ -32,15 +32,13 @@ public:
       Database* database
     , uint32_t id
     , leveldb::Slice* start
-    , std::string* end
-    , bool reverse
+    , std::string end
+    , bool skipStart
+    , bool skipEnd
+    , bool noReverse
     , bool keys
     , bool values
     , int limit
-    , std::string* lt
-    , std::string* lte
-    , std::string* gt
-    , std::string* gte
     , bool fillCache
     , bool keyAsBuffer
     , bool valueAsBuffer
@@ -50,7 +48,8 @@ public:
 
   ~Iterator ();
 
-  bool IteratorNext (std::vector<std::pair<std::string, std::string> >& result);
+  bool IteratorNext (std::vector<std::pair<std::string, std::string> >& results);
+  bool IteratorNext2 (std::vector<std::pair<std::string, std::string> >& results);
   leveldb::Status IteratorStatus ();
   void IteratorEnd ();
   void Release ();
@@ -59,25 +58,23 @@ private:
   Database* database;
   uint32_t id;
   leveldb::Iterator* dbIterator;
-  leveldb::ReadOptions* options;
+  leveldb::ReadOptions options;
   leveldb::Slice* start;
-  std::string* end;
-  bool reverse;
-  bool keys;
-  bool values;
+  std::string end;
+  bool skipStart;
+  bool skipEnd;
+  bool noReverse;
   int limit;
-  std::string* lt;
-  std::string* lte;
-  std::string* gt;
-  std::string* gte;
-  int count;
   size_t highWaterMark;
 
 public:
+  bool keys;
+  bool values;
   bool keyAsBuffer;
   bool valueAsBuffer;
   bool nexting;
   bool ended;
+  int count;
   AsyncWorker* endWorker;
 
 private:
@@ -88,7 +85,9 @@ private:
 
   static NAN_METHOD(New);
   static NAN_METHOD(Next);
+  static NAN_METHOD(NextSync);
   static NAN_METHOD(End);
+  static NAN_METHOD(EndSync);
 };
 
 } // namespace leveldown
