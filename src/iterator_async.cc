@@ -44,17 +44,25 @@ void NextWorker::HandleOKCallback () {
     std::string value = row.second;
 
     v8::Local<v8::Value> returnKey;
-    if (iterator->keyAsBuffer) {
-      returnKey = NanNewBufferHandle((char*)key.data(), key.size());
+    if (iterator->keys) {
+      if (iterator->keyAsBuffer) {
+        returnKey = NanNewBufferHandle((char*)key.data(), key.size());
+      } else {
+        returnKey = NanNew<v8::String>((char*)key.data(), key.size());
+      }
     } else {
-      returnKey = NanNew<v8::String>((char*)key.data(), key.size());
+      returnKey = NanNull();
     }
 
     v8::Local<v8::Value> returnValue;
-    if (iterator->valueAsBuffer) {
-      returnValue = NanNewBufferHandle((char*)value.data(), value.size());
+    if (iterator->values) {
+      if (iterator->valueAsBuffer) {
+        returnValue = NanNewBufferHandle((char*)value.data(), value.size());
+      } else {
+        returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+      }
     } else {
-      returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+      returnValue = NanNull();
     }
 
     // put the key & value in a descending order, so that they can be .pop:ed in javascript-land

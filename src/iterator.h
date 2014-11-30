@@ -80,7 +80,8 @@ public:
 private:
   v8::Persistent<v8::Object> persistentHandle;
 
-  bool Read (std::string& key, std::string& value);
+  inline bool Read (std::string& key, std::string& value);
+  inline void InitDbIterator();
   bool GetIterator ();
 
   static NAN_METHOD(New);

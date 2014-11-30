@@ -58,7 +58,7 @@ Iterator::Iterator (
   nexting    = false;
   ended      = false;
   endWorker  = NULL;
-  GetIterator();
+  InitDbIterator();
 };
 
 Iterator::~Iterator () {
@@ -73,115 +73,78 @@ Iterator::~Iterator () {
   }
 };
 
-bool Iterator::GetIterator () {
-  if (dbIterator == NULL) {
-    // get a snapshot of the current state
-    options.snapshot = database->NewSnapshot();
-    dbIterator = database->NewIterator(&options);
-    /*
-    printf("skipStart=%d, skipEnd=%d\n", skipStart, skipEnd);
-    printf("noReverse=%d\n", noReverse);
-    if (end) printf("end=%s\n", end->c_str());
-    */
-    if (start) {
-      //printf("start=%s\n", start->ToString().c_str());
-      dbIterator->Seek(*start);
-      if (noReverse) {
-        if (dbIterator->Valid()) {
-          std::string key_ = dbIterator->key().ToString();
-          if (skipStart && key_ == start->ToString())
-            dbIterator->Next();
-        }
-      } else {
-        if (!dbIterator->Valid()) {
-          // if it's past the last key, step back
-          dbIterator->SeekToLast();
-        } else {
-          std::string key_ = dbIterator->key().ToString();
-          if (key_ > start->ToString()) dbIterator->Prev();
-          if (skipStart && key_ == start->ToString()) dbIterator->Prev();
-        }
-      }
-    }
-    else {
-      if (noReverse)
-        dbIterator->SeekToFirst();
-      else
-        dbIterator->SeekToLast();
-    }
-/*
-    if (start != NULL) {
-      dbIterator->Seek(*start);
-
-      if (reverse) {
-        if (!dbIterator->Valid()) {
-          // if it's past the last key, step back
-          dbIterator->SeekToLast();
-        } else {
-          std::string key_ = dbIterator->key().ToString();
-
-          if (lt != NULL) {
-            if (lt->compare(key_) <= 0)
-              dbIterator->Prev();
-          } else if (lte != NULL) {
-            if (lte->compare(key_) < 0)
-              dbIterator->Prev();
-          } else if (start != NULL) {
-            if (start->compare(key_))
-              dbIterator->Prev();
-          }
-        }
-
-        if (dbIterator->Valid() && lt != NULL) {
-          if (lt->compare(dbIterator->key().ToString()) <= 0)
-            dbIterator->Prev();
-        }
-      } else {
-        if (dbIterator->Valid() && gt != NULL
-            && gt->compare(dbIterator->key().ToString()) == 0)
+inline void Iterator::InitDbIterator() {
+  // get a snapshot of the current state
+  options.snapshot = database->NewSnapshot();
+  dbIterator = database->NewIterator(&options);
+  /*
+  printf("skipStart=%d, skipEnd=%d\n", skipStart, skipEnd);
+  printf("noReverse=%d\n", noReverse);
+  if (end) printf("end=%s\n", end->c_str());
+  */
+  if (start) {
+    //printf("start=%s\n", start->ToString().c_str());
+    dbIterator->Seek(*start);
+    if (noReverse) {
+      if (dbIterator->Valid()) {
+        std::string key_ = dbIterator->key().ToString();
+        if (skipStart && key_ == start->ToString())
           dbIterator->Next();
       }
-    } else if (reverse) {
-      dbIterator->SeekToLast();
     } else {
-      dbIterator->SeekToFirst();
+      if (!dbIterator->Valid()) {
+        // if it's past the last key, step back
+        dbIterator->SeekToLast();
+      } else {
+        std::string key_ = dbIterator->key().ToString();
+        if (key_ > start->ToString()) dbIterator->Prev();
+        if (skipStart && key_ == start->ToString()) dbIterator->Prev();
+      }
     }
-*/
+  }
+  else {
+    if (noReverse)
+      dbIterator->SeekToFirst();
+    else
+      dbIterator->SeekToLast();
+  }
+}
+
+bool Iterator::GetIterator () {
+  if (dbIterator == NULL) {
+    InitDbIterator();
     return true;
   }
   return false;
 }
 
-bool Iterator::Read (std::string& key, std::string& value) {
-  // if it's not the first call, move to next item.
-  if (!GetIterator()) {
+//read and move to next
+inline bool Iterator::Read (std::string& key, std::string& value) {
+  bool result = dbIterator->Valid() && (limit < 0 || ++count <= limit);
+  // now check if this is the end or not, if not then return the key & value
+  if (result) {
+    //key = dbIterator->key().ToString();
+    //key.assign(dbIterator->key().data(), dbIterator->key().size());
+    key = dbIterator->key().ToString();
+    result = end.empty() || (noReverse ? (skipEnd ? key < end : key <= end) : (skipEnd ? key > end : key >= end));
+
+    if (result) {
+      if (values)
+        value = dbIterator->value().ToString();
+        //value.assign(dbIterator->value().data(), dbIterator->value().size());
+    }
+  }
+  if (result) {
     if (noReverse)
       dbIterator->Next();
     else
       dbIterator->Prev();
   }
 
-  // now check if this is the end or not, if not then return the key & value
-  if (dbIterator->Valid()) {
-    std::string key_ = dbIterator->key().ToString();
-    int isEnd = end.empty() ? 1 : end.compare(key_);
-
-    if ((limit < 0 || ++count <= limit)
-      && (end.empty()
-          || (!noReverse && (isEnd <= 0))
-          || (noReverse && (isEnd >= 0)))
-    ) {
-      if (keys)
-        key.assign(dbIterator->key().data(), dbIterator->key().size());
-      if (values)
-        value.assign(dbIterator->value().data(), dbIterator->value().size());
-      return true;
-    }
-  }
-
-  return false;
+  return result;
 }
 
+//another implementation for performance.
 bool Iterator::IteratorNext2 (std::vector<std::pair<std::string, std::string> >& results) {
   size_t size = 0;
   bool result = (limit < 0 || ++count <= limit);
@@ -232,12 +195,30 @@ bool Iterator::IteratorNext2 (std::vector<std::pair<std::string, std::string> >&
       }
     }
   }
-  //printf("%d done, IteratorNext2:count=%d\n", result && dbIterator->Valid(), count);
   return result && dbIterator->Valid();
 }
 
 bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& results) {
-  size_t size = 0, c=0;
+  size_t size = 0;
+  bool ok;
+  do {
+    std::string key, value;
+    ok = Read(key, value);
+
+    if (ok) {
+      results.push_back(std::make_pair(key, value));
+      size = size + key.size() + value.size();
+
+      if (size > highWaterMark)
+        return true;
+
+    } else {
+      return false;
+    }
+  } while(ok);
+  return ok;
+/*
+  size_t size = 0;
   std::string key, value;
   bool result = dbIterator->Valid() && (limit < 0 || ++count <= limit);
 
@@ -254,7 +235,6 @@ bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& 
         result = false;
         break;
       }
-    ++c;
       //if (!keys) key.clear();
       //if (values)
       value = dbIterator->value().ToString();
@@ -272,61 +252,7 @@ bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& 
     else dbIterator->Prev();
     result = result && dbIterator->Valid() && (limit < 0 || ++count <= limit);
   } while (result);
-  //printf("%d done, IteratorNext:count=%lu\n", result, c);
   return result;
-  //*/
-/*
-
-  if (noReverse) {
-      while (result) {
-        key = dbIterator->key().ToString();
-
-      }
-    for (;dbIterator->Valid() && (size <= highWaterMark) && result;dbIterator->Next()) {
-      key.assign(dbIterator->key().data(), dbIterator->key().size());
-      if (skipStart && start && key == *start) continue;
-      if (skipEnd && end && key == *end) continue;
-      if (!keys) key.clear();
-      if (values)
-        value.assign(dbIterator->value().data(), dbIterator->value().size());
-      result.push_back(std::make_pair(key, value));
-      size = size + key.size() + value.size();
-    }
-  }
-  else
-    for (;dbIterator->Valid() && (size <= highWaterMark) && (limit < 0 || ++count <= limit);dbIterator->Prev()) {
-      key = dbIterator->key().ToString();
-      //key.assign(dbIterator->key().data(), dbIterator->key().size());
-      printf("key=%s\n", key.c_str());
-      if (skipStart && start && key == *start) continue;
-      if (skipEnd && end && key == *end) continue;
-      if (!keys) key.clear();
-      if (values)
-        value = dbIterator->value().ToString();
-        //value.assign(dbIterator->value().data(), dbIterator->value().size());
-      result.push_back(std::make_pair(key, value));
-      size = size + key.size() + value.size();
-    }
-
-  printf("%d done\n", dbIterator->Valid());
-  return dbIterator->Valid();
-  */
-  /*
-  while(true) {
-    std::string key, value;
-    bool ok = Read(key, value);
-
-    if (ok) {
-      results.push_back(std::make_pair(key, value));
-      size = size + key.size() + value.size();
-
-      if (size > highWaterMark)
-        return true;
-
-    } else {
-      return false;
-    }
-  }
   //*/
 }
 
@@ -336,13 +262,11 @@ leveldb::Status Iterator::IteratorStatus () {
 
 void Iterator::IteratorEnd () {
   if (dbIterator) {
-    //printf("free DBIterator\n");
     //TODO: could return it->status()
     delete dbIterator;
     dbIterator = NULL;
     database->ReleaseSnapshot(options.snapshot);
   }
-  //printf("Iteratorend\n");
 }
 
 void Iterator::Release () {
@@ -357,20 +281,18 @@ void checkEndCallback (Iterator* iterator) {
   }
 }
 
-//nextSync(resultArray)
-//return the array, the first is the result array, the second is the count of the result. if count <=0 means no more data.
+//nextSync()
+//return the array(2), 
+//  the first is the result array, 
+//  the second is the count of the result. if count <=0 means no more data.
 NAN_METHOD(Iterator::NextSync) {
   NanScope();
-  //bool hasArgs = args.Length() > 0;
-  //if (hasArgs && !args[0]->IsArray()) {
-  //  NanThrowError("NextSync requires an array argument to store the result.");
-  //  NanReturnUndefined();
-  //}
+
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
   iterator->nexting = true;
   std::vector<std::pair<std::string, std::string> > dict;
-  bool ok = iterator->IteratorNext(dict);
-  iterator->nexting = false;
+  bool ok = iterator->IteratorNext2(dict);
+  checkEndCallback(iterator);
   if (!ok) {
     leveldb::Status s = iterator->IteratorStatus();
     if (!s.ok()) {
@@ -380,63 +302,42 @@ NAN_METHOD(Iterator::NextSync) {
   }
 
   size_t idx = 0;
-  //size_t arraySize = dict.size() * 2;
-  //v8::Handle<v8::internal::JSArray> array = v8::Handle<v8::internal::JSArray>::cast(returnArray);
-  //v8::internal::ElementsAccessor *accessor = returnArray->GetElementsAccessor();
-  //accessor->SetCapacityAndLength(array, arraySize, arraySize); // https://github.com/joyent/node/blob/deps/v8/src/elements.h
-
-
   size_t arraySize = dict.size()*2;
-  //v8::Local<v8::Object> returnArray = args[0].As<v8::Object>();
-  /*
-  std::map<std::string, std::string>::iterator it;
-  for (it = dict.begin(); it != dict.end(); it++) {
-    std::string key = it->first;
-    std::string value = it->second;
+  v8::Local<v8::Array> returnArray = NanNew<v8::Array>(arraySize);//args[0].As<v8::Array>();
+  for(idx = 0; idx < dict.size(); ++idx) {
+    std::pair<std::string, std::string> row = dict[idx];
+    std::string key = row.first;
+    std::string value = row.second;
+
     v8::Local<v8::Value> returnKey;
-    v8::Local<v8::Value> returnValue;
     if (iterator->keys) {
       if (iterator->keyAsBuffer) {
         returnKey = NanNewBufferHandle((char*)key.data(), key.size());
       } else {
         returnKey = NanNew<v8::String>((char*)key.data(), key.size());
       }
-    } else
+    }
+    else
       returnKey = NanNull();
+    v8::Local<v8::Value> returnValue;
     if (iterator->values) {
       if (iterator->valueAsBuffer) {
         returnValue = NanNewBufferHandle((char*)value.data(), value.size());
       } else {
         returnValue = NanNew<v8::String>((char*)value.data(), value.size());
       }
-    } else
-      returnValue = NanNull();
-    returnArray->Set(returnKey, returnValue);
-    // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
-    //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 1)), returnKey);
-    //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 2)), returnValue);
-    //++idx;
-  }*/
-  //if (hasArgs)
-  //{
-    v8::Local<v8::Array> returnArray = NanNew<v8::Array>(arraySize);//args[0].As<v8::Array>();//= NanNew<v8::Array>(arraySize);
-    for(idx = 0; idx < dict.size(); ++idx) {
-      std::pair<std::string, std::string> row = dict[idx];
-      std::string key = row.first;
-      std::string value = row.second;
-
-      v8::Local<v8::Value> returnKey = NanNew<v8::String>((char*)key.data(), key.size());
-      v8::Local<v8::Value> returnValue = NanNew<v8::String>((char*)value.data(), value.size());
-
-      
-      //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx * 2)), returnKey);
-      //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx * 2+1)), returnValue);
-      //returnArray->Set(returnKey, returnValue);
-      // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
-      returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 1)), returnKey);
-      returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 2)), returnValue);
     }
-  //}
+    else
+      returnValue = NanNull();
+
+    
+    //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx * 2)), returnKey);
+    //returnArray->Set(NanNew<v8::Integer>(static_cast<int>(idx * 2+1)), returnValue);
+    //returnArray->Set(returnKey, returnValue);
+    // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
+    returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 1)), returnKey);
+    returnArray->Set(NanNew<v8::Integer>(static_cast<int>(arraySize - idx * 2 - 2)), returnValue);
+  }
 
   
   ssize_t s =  dict.size();
@@ -447,15 +348,15 @@ NAN_METHOD(Iterator::NextSync) {
   result->Set(NanNew<v8::Integer>(1), NanNew<v8::Integer>(s));
 
   NanReturnValue(result);
-  //NanReturnValue(NanNew<v8::Integer>(s));
-
-  //NanReturnValue(NanNew<v8::Boolean>(!ok));
 }
 
 NAN_METHOD(Iterator::EndSync) {
   NanScope();
 
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
+  if (iterator->nexting) {
+    NanReturnValue(NanFalse());
+  }
   if (!iterator->ended) {
     iterator->ended = true;
     iterator->IteratorEnd();
@@ -551,9 +452,6 @@ NAN_METHOD(Iterator::New) {
   NanScope();
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
-
-  //TODO: remove this, it's only here to make LD_STRING_OR_BUFFER_TO_SLICE happy
-  v8::Handle<v8::Function> callback;
 
   v8::Local<v8::Object> startHandle;
   leveldb::Slice* start = NULL;

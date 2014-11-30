@@ -13,8 +13,8 @@ function Iterator (db, options) {
 
 util.inherits(Iterator, AbstractIterator)
 
-Iterator.prototype.nextSync = function (results) {
-  return this.binding.nextSync(results);
+Iterator.prototype.nextSync = function () {
+  return this.binding.nextSync();
 }
 
 Iterator.prototype.endSync = function () {

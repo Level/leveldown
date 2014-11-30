@@ -26,7 +26,7 @@ try {
 
 // bench -----------------------------------
 function benchIt() {
-var count = 1201;
+var count = 12000;
 var val = '1337,1337,1337,1337,1337';
 
 function putSync () {
@@ -203,6 +203,7 @@ function iteratorAsync (cb) {
   start = Date.now();
 
   var received = 0;
+  var result=[];
   var iterator = leveldown.iterator()
     , fn = function (err, key, value) {
         if (err) {
@@ -210,12 +211,14 @@ function iteratorAsync (cb) {
         }
         else if (key && value) {
           received++
+          result.push(key)
+          result.push(value)
           process.nextTick(next)
         } else { // end
           iterator.end(function () {
             var duration = Date.now()-start;
+            assert(received == count);
             log(false, received, 'iterator', duration, "asBuffer");
-  console.log("receive:", received)
             if (cb) cb()
           })
         }
@@ -230,6 +233,7 @@ function iteratorStrAsync (cb) {
   start = Date.now();
 
   var received = 0;
+  var result=[];
   var iterator = leveldown.iterator({valueAsBuffer: false, keyAsBuffer: false})
     , fn = function (err, key, value) {
         if (err) {
@@ -237,12 +241,14 @@ function iteratorStrAsync (cb) {
         }
         else if (key && value) {
           received++
+          result.push(key)
+          result.push(value)
           process.nextTick(next)
         } else { // end
           iterator.end(function () {
             var duration = Date.now()-start;
+            assert(received == count);
             log(false, received, 'iterator', duration);
-  console.log("receive:", received)
             if (cb) cb()
           })
         }
@@ -257,6 +263,7 @@ function iteratorStrAsyncDirect (cb) {
   start = Date.now();
 
   var received = 0;
+  var result=[];
   var iterator = leveldown.iterator({keyAsBuffer: false, valueAsBuffer:false, highWaterMark: 16*1024*8}) //22 will get all at once.
     , fn = function (err, arr, finished) {
         if (err) {
@@ -264,14 +271,14 @@ function iteratorStrAsyncDirect (cb) {
           if (cb) cb()
           return
         }
-        received += arr.length / 2 
+        received += arr.length / 2
+        result = result.concat(arr)
         if (!finished) {
           process.nextTick(next)
         } else { // end
           iterator.end(function () {
             var duration = Date.now()-start;
             log(false, received, 'iterator', duration, "directly");
-  console.log("receive:", received)
             if (cb) cb()
           })
         }
@@ -294,16 +301,18 @@ function iteratorStrSyncDirect () {
   var results = iterator.nextSync(result);
   var size = results[1];
   while (size > 0) {
+    result = result.concat(results[0])
     received += size;
     //result = [];
     results = iterator.nextSync(result);
     size = results[1];
   }
+  result = result.concat(results[0])
   received += Math.abs(size);
   var duration = Date.now()-start;
+  assert(received == count);
   log(true, received, 'iterator', duration, "directly");
   iterator.endSync()
-  console.log("receive:", received)
 }
 
 
