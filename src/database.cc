@@ -156,6 +156,7 @@ void Database::Init () {
   NODE_SET_PROTOTYPE_METHOD(tpl, "batch", Database::Batch);
   NODE_SET_PROTOTYPE_METHOD(tpl, "batchSync", Database::BatchSync);
   NODE_SET_PROTOTYPE_METHOD(tpl, "approximateSize", Database::ApproximateSize);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "approximateSizeSync", Database::ApproximateSizeSync);
   NODE_SET_PROTOTYPE_METHOD(tpl, "getProperty", Database::GetProperty);
   NODE_SET_PROTOTYPE_METHOD(tpl, "iterator", Database::Iterator);
 }
@@ -771,6 +772,28 @@ NAN_METHOD(Database::Batch) {
   }
 
   NanReturnUndefined();
+}
+
+NAN_METHOD(Database::ApproximateSizeSync) {
+  NanScope();
+
+  if (args.Length() < 2) {
+    NanThrowError("ApproximateSizeSync requires the start and end arguments.");
+    NanReturnUndefined();
+  }
+  leveldown::Database* database = node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+  v8::Local<v8::Object> startHandle = args[0].As<v8::Object>();
+  v8::Local<v8::Object> endHandle = args[1].As<v8::Object>();
+
+  LD_STRING_OR_BUFFER_TO_SLICE(start, startHandle, start)
+  LD_STRING_OR_BUFFER_TO_SLICE(end, endHandle, end)
+
+  leveldb::Range r(start, end);
+  uint64_t size = database->ApproximateSizeFromDatabase(&r);
+  DisposeStringOrBufferFromSlice(startHandle, start);
+  DisposeStringOrBufferFromSlice(endHandle, end);
+
+  NanReturnValue(NanNew((double)size));
 }
 
 NAN_METHOD(Database::ApproximateSize) {
