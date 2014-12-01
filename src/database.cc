@@ -146,6 +146,7 @@ void Database::Init () {
   tpl->SetClassName(NanNew("Database"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   NODE_SET_PROTOTYPE_METHOD(tpl, "open", Database::Open);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "openSync", Database::OpenSync);
   NODE_SET_PROTOTYPE_METHOD(tpl, "close", Database::Close);
   NODE_SET_PROTOTYPE_METHOD(tpl, "put", Database::Put);
   NODE_SET_PROTOTYPE_METHOD(tpl, "putSync", Database::PutSync);
@@ -640,8 +641,13 @@ NAN_METHOD(Database::BatchSync) {
   leveldown::Database* database = node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
 
   if (args.Length() == 0) {
-      NanThrowError("batchSync requires the batch(operations) argument.");
-      NanReturnUndefined();
+    NanThrowError("batchSync requires the batch(operations) argument.");
+    NanReturnUndefined();
+  }
+  if (!database->db)
+  {
+    NanThrowError("database is not opened.");
+    NanReturnUndefined();
   }
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
