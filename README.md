@@ -28,6 +28,14 @@ Tested & supported platforms
     * Node 0.10 and above only, see [issue #5](https://github.com/rvagg/node-levelup/issues/5) for more info
     * See installation instructions for *node-gyp* dependencies [here](https://github.com/TooTallNate/node-gyp#installation), you'll need these (free) components from Microsoft to compile and run any native Node add-on in Windows.
 
+## Chnages
+
++ add the sync methods supports for open, put, get, del, batch, approximateSize.
+
+the methods will be executed as sync method if no callback argument passed.
+if any error occurs it will throw exception.
+* Or call openSync, putSync, getSync, delSync, batchSync, approximateSizeSync directly.
+
 <a name="api"></a>
 ## API
 
