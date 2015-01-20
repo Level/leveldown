@@ -8,6 +8,7 @@
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
+#include <leveldb/comparator.h>
 
 #include "leveldown.h"
 #include "database.h"
@@ -86,6 +87,12 @@ void Database::GetPropertyFromDatabase (
   db->GetProperty(property, value);
 }
 
+int Database::DefaultDatabaseComparator (
+      const leveldb::Slice& a
+    , const leveldb::Slice& b) {
+  return leveldb::BytewiseComparator()->Compare(a, b);
+}
+
 leveldb::Iterator* Database::NewIterator (leveldb::ReadOptions* options) {
   return db->NewIterator(*options);
 }
@@ -145,6 +152,7 @@ void Database::Init () {
   Nan::SetPrototypeMethod(tpl, "approximateSize", Database::ApproximateSize);
   Nan::SetPrototypeMethod(tpl, "getProperty", Database::GetProperty);
   Nan::SetPrototypeMethod(tpl, "iterator", Database::Iterator);
+  Nan::SetPrototypeMethod(tpl, "compare", Database::DefaultComparator);
 }
 
 NAN_METHOD(Database::New) {
@@ -423,6 +431,27 @@ NAN_METHOD(Database::ApproximateSize) {
   v8::Local<v8::Object> _this = info.This();
   worker->SaveToPersistent("database", _this);
   Nan::AsyncQueueWorker(worker);
+}
+
+NAN_METHOD(Database::DefaultComparator) {
+  NanScope();
+
+  v8::Local<v8::Object> handleA = args[0].As<v8::Object>();
+  v8::Local<v8::Object> handleB = args[1].As<v8::Object>();
+
+  LD_STRING_OR_BUFFER_TO_SLICE(a, handleA, a);
+  LD_STRING_OR_BUFFER_TO_SLICE(b, handleB, b);
+
+  leveldown::Database* database =
+      node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+
+  v8::Local<v8::Integer> returnValue
+      = NanNew<v8::Integer>(database->DefaultDatabaseComparator(a, b));
+
+  DisposeStringOrBufferFromSlice(handleA, a);
+  DisposeStringOrBufferFromSlice(handleB, b);
+
+  NanReturnValue(returnValue);
 }
 
 NAN_METHOD(Database::GetProperty) {
