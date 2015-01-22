@@ -158,7 +158,6 @@ NAN_METHOD(Database::New) {
   NanScope();
 
   NanUtf8String* location = new NanUtf8String(args[0]);
-
   Database* obj = new Database(location);
   obj->Wrap(args.This());
 
