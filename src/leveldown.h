@@ -74,7 +74,7 @@ static inline void DisposeStringOrBufferFromSlice(
   return NanThrowError(msg);
 
 #define LD_RUN_CALLBACK(callback, argc, argv)                                  \
-  NanMakeCallback(                                                          \
+  NanMakeCallback(                                                             \
       NanGetCurrentContext()->Global(), callback, argc, argv);
 
 /* LD_METHOD_SETUP_COMMON setup the following objects:
