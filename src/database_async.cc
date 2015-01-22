@@ -132,7 +132,7 @@ void ReadWorker::HandleOKCallback () {
   if (asBuffer) {
     returnValue = NanNewBufferHandle((char*)value.data(), value.size());
   } else {
-    returnValue = v8::String::New((char*)value.data(), value.size());
+    returnValue = NanNew<v8::String>((char*)value.data(), value.size());
   }
   v8::Local<v8::Value> argv[] = {
       NanNew(NanNull())
@@ -257,7 +257,7 @@ void ApproximateSizeWorker::WorkComplete() {
 void ApproximateSizeWorker::HandleOKCallback () {
   NanScope();
 
-  v8::Local<v8::Value> returnValue = v8::Number::New((double) size);
+  v8::Local<v8::Value> returnValue = NanNew<v8::Number>((double) size);
   v8::Local<v8::Value> argv[] = {
       NanNew(NanNull())
     , returnValue

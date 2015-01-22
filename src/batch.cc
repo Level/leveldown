@@ -62,7 +62,7 @@ v8::Handle<v8::Value> Batch::NewInstance (
       , v8::Handle<v8::Object> optionsObj
     ) {
 
-  NanScope();
+  NanEscapableScope();
 
   v8::Local<v8::Object> instance;
 
@@ -77,7 +77,7 @@ v8::Handle<v8::Value> Batch::NewInstance (
     instance = constructorHandle->GetFunction()->NewInstance(2, argv);
   }
 
-  return scope.Close(instance);
+  return NanEscapeScope(instance);
 }
 
 NAN_METHOD(Batch::Put) {

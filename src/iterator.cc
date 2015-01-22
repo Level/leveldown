@@ -48,7 +48,7 @@ Iterator::Iterator (
 {
   NanScope();
 
-  v8::Local<v8::Object> obj = v8::Object::New();
+  v8::Local<v8::Object> obj = NanNew<v8::Object>();
   if (!startHandle.IsEmpty())
     obj->Set(NanNew("start"), startHandle);
   NanAssignPersistent(persistentHandle, obj);

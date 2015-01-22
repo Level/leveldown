@@ -77,8 +77,8 @@ static inline void DisposeStringOrBufferFromSlice(
   return NanThrowError(msg);
 
 #define LD_RUN_CALLBACK(callback, argc, argv)                                  \
-  node::MakeCallback(                                                          \
-      v8::Context::GetCurrent()->Global(), callback, argc, argv);
+  NanMakeCallback(                                                             \
+      NanGetCurrentContext()->Global(), callback, argc, argv);
 
 /* LD_METHOD_SETUP_COMMON setup the following objects:
  *  - Database* database

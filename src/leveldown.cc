@@ -79,7 +79,7 @@ void Init (v8::Handle<v8::Object> target) {
   leveldown::Batch::Init();
 
   v8::Local<v8::Function> leveldown =
-      v8::FunctionTemplate::New(LevelDOWN)->GetFunction();
+      NanNew<v8::FunctionTemplate>(LevelDOWN)->GetFunction();
 
   leveldown->Set(
       NanNew("destroy")

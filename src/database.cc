@@ -129,7 +129,7 @@ NAN_METHOD(LevelDOWN) {
 }
 
 void Database::Init () {
-  v8::Local<v8::FunctionTemplate> tpl = v8::FunctionTemplate::New(Database::New);
+  v8::Local<v8::FunctionTemplate> tpl = NanNew<v8::FunctionTemplate>(Database::New);
   NanAssignPersistent(database_constructor, tpl);
   tpl->SetClassName(NanNew<v8::String>("Database"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -282,11 +282,11 @@ NAN_METHOD(Database::Close) {
         if (!iterator->ended) {
           v8::Local<v8::Function> end =
               v8::Local<v8::Function>::Cast(NanObjectWrapHandle(iterator)->Get(
-                  v8::String::NewSymbol("end")));
+                  NanNew<v8::String>("end")));
           v8::Local<v8::Value> argv[] = {
-              v8::FunctionTemplate::New()->GetFunction() // empty callback
+              NanNew<v8::FunctionTemplate>()->GetFunction() // empty callback
           };
-          node::MakeCallback(
+          NanMakeCallback(
               NanObjectWrapHandle(iterator)
             , end
             , 1
@@ -522,7 +522,7 @@ NAN_METHOD(Database::GetProperty) {
   std::string* value = new std::string();
   database->GetPropertyFromDatabase(property, value);
   v8::Local<v8::String> returnValue
-      = v8::String::New(value->c_str(), value->length());
+      = NanNew<v8::String>(value->c_str(), value->length());
   delete value;
   delete[] property.data();
 
@@ -545,7 +545,7 @@ NAN_METHOD(Database::Iterator) {
   v8::TryCatch try_catch;
   v8::Local<v8::Object> iteratorHandle = Iterator::NewInstance(
       args.This()
-    , v8::Number::New(id)
+    , NanNew<v8::Number>(id)
     , optionsObj
   );
   if (try_catch.HasCaught()) {
