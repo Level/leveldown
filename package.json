@@ -1,7 +1,7 @@
 {
   "name": "leveldown",
   "description": "A Node.js LevelDB binding, primary backend for LevelUP",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "contributors": [
     "Rod Vagg <r@va.gg> (https://github.com/rvagg)",
     "John Chesley <john@chesl.es> (https://github.com/chesles/)",
@@ -29,10 +29,10 @@
   "main": "index.js",
   "dependencies": {
     "bindings": "~1.2.1",
-    "nan": "~1.5.0"
+    "nan": "~1.5.1"
   },
   "devDependencies": {
-    "abstract-leveldown": "~0.12.3",
+    "abstract-leveldown": "~0.11.1",
     "du": "~0.1.0",
     "mkfiletree": "~0.0.1",
     "monotonic-timestamp": "~0.0.8",

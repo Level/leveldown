@@ -67,7 +67,7 @@ v8::Handle<v8::Value> Batch::NewInstance (
   v8::Local<v8::Object> instance;
 
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanPersistentToLocal(batch_constructor);
+      NanNew(batch_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[1] = { database };
@@ -165,7 +165,7 @@ NAN_METHOD(Batch::Write) {
     BatchWriteWorker* worker  = new BatchWriteWorker(batch, callback);
     // persist to prevent accidental GC
     v8::Local<v8::Object> _this = args.This();
-    worker->SavePersistent("batch", _this);
+    worker->SaveToPersistent("batch", _this);
     NanAsyncQueueWorker(worker);
   } else {
     LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(args[0]), 0, NULL);

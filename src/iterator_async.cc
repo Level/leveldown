@@ -33,13 +33,13 @@ void NextWorker::Execute () {
 }
 
 void NextWorker::HandleOKCallback () {
-  //NanScope();
+  NanScope();
 
   v8::Local<v8::Value> returnKey;
   if (iterator->keyAsBuffer) {
     returnKey = NanNewBufferHandle((char*)key.data(), key.size());
   } else {
-    returnKey = v8::String::New((char*)key.data(), key.size());
+    returnKey = NanNew<v8::String>((char*)key.data(), key.size());
   }
 
   v8::Local<v8::Value> returnValue;

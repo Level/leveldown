@@ -65,7 +65,7 @@ Iterator::Iterator (
 Iterator::~Iterator () {
   delete options;
   if (!persistentHandle.IsEmpty())
-    NanDispose(persistentHandle);
+    NanDisposePersistent(persistentHandle);
   if (start != NULL)
     delete start;
   if (end != NULL)
@@ -201,7 +201,7 @@ NAN_METHOD(Iterator::Next) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("iterator", _this);
+  worker->SaveToPersistent("iterator", _this);
   iterator->nexting = true;
   NanAsyncQueueWorker(worker);
 
@@ -228,7 +228,7 @@ NAN_METHOD(Iterator::End) {
   );
   // persist to prevent accidental GC
   v8::Local<v8::Object> _this = args.This();
-  worker->SavePersistent("iterator", _this);
+  worker->SaveToPersistent("iterator", _this);
   iterator->ended = true;
 
   if (iterator->nexting) {
@@ -261,7 +261,7 @@ v8::Local<v8::Object> Iterator::NewInstance (
 
   v8::Local<v8::Object> instance;
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanPersistentToLocal(iterator_constructor);
+      NanNew(iterator_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[2] = { database, id };
