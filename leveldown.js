@@ -57,7 +57,7 @@ LevelDOWN.prototype._approximateSize = function (start, end, callback) {
   this.binding.approximateSize(start, end, callback)
 }
 
-LevelDOWN.prototype.compare = function (keyA, keyB) {
+LevelDOWN.prototype._compare = function (keyA, keyB) {
   return this.binding.compare(keyA, keyB)
 }
 
