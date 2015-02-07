@@ -12,7 +12,8 @@
 #include "nan.h"
 
 static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
-  return node::Buffer::HasInstance(obj->ToObject())
+  return (!obj->ToObject().IsEmpty()
+    && node::Buffer::HasInstance(obj->ToObject()))
     ? node::Buffer::Length(obj->ToObject())
     : obj->ToString()->Utf8Length();
 }
@@ -23,8 +24,12 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::Persistent<v8::Object> &handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(NanNew<v8::Object>(handle)->Get(NanNew<v8::String>("obj"))))
-    delete[] slice.data();
+  if (!slice.empty()) {
+    v8::Local<v8::Value> obj = NanNew<v8::Object>(handle)->Get(NanNew<v8::String>("obj"));
+    if (!node::Buffer::HasInstance(obj))
+      delete[] slice.data();
+  }
+
   NanDisposePersistent(handle);
 }
 
@@ -32,7 +37,7 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::Local<v8::Value> handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(handle))
+  if (!slice.empty() && !node::Buffer::HasInstance(handle))
     delete[] slice.data();
 }
 

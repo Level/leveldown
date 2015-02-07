@@ -257,11 +257,11 @@ v8::Local<v8::Object> Iterator::NewInstance (
       , v8::Local<v8::Object> optionsObj
     ) {
 
-  NanScope();
+  NanEscapableScope();
 
   v8::Local<v8::Object> instance;
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanNew(iterator_constructor);
+      NanNew<v8::FunctionTemplate>(iterator_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[2] = { database, id };
@@ -271,7 +271,7 @@ v8::Local<v8::Object> Iterator::NewInstance (
     instance = constructorHandle->GetFunction()->NewInstance(3, argv);
   }
 
-  return instance;
+  return NanEscapeScope(instance);
 }
 
 NAN_METHOD(Iterator::New) {

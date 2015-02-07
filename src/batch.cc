@@ -67,7 +67,7 @@ v8::Handle<v8::Value> Batch::NewInstance (
   v8::Local<v8::Object> instance;
 
   v8::Local<v8::FunctionTemplate> constructorHandle =
-      NanNew(batch_constructor);
+      NanNew<v8::FunctionTemplate>(batch_constructor);
 
   if (optionsObj.IsEmpty()) {
     v8::Handle<v8::Value> argv[1] = { database };

@@ -135,7 +135,7 @@ void ReadWorker::HandleOKCallback () {
     returnValue = NanNew<v8::String>((char*)value.data(), value.size());
   }
   v8::Local<v8::Value> argv[] = {
-      NanNew(NanNull())
+      NanNull()
     , returnValue
   };
   callback->Call(2, argv);
@@ -188,7 +188,6 @@ WriteWorker::~WriteWorker () {}
 
 void WriteWorker::Execute () {
   SetStatus(database->PutToDatabase(options, key, value));
-  //printf("WriteWorker::Execute\n");fflush(stdout);
 }
 
 void WriteWorker::WorkComplete () {
@@ -196,7 +195,6 @@ void WriteWorker::WorkComplete () {
 
   DisposeStringOrBufferFromSlice(GetFromPersistent("value"), value);
   IOWorker::WorkComplete();
-  //printf("WriteWorker::WorkComplete\n");fflush(stdout);
 }
 
 /** BATCH WORKER **/
@@ -259,7 +257,7 @@ void ApproximateSizeWorker::HandleOKCallback () {
 
   v8::Local<v8::Value> returnValue = NanNew<v8::Number>((double) size);
   v8::Local<v8::Value> argv[] = {
-      NanNew(NanNull())
+      NanNull()
     , returnValue
   };
   callback->Call(2, argv);
