@@ -1,14 +1,14 @@
 {
   "name": "leveldown-prebuilt",
   "description": "A Node.js LevelDB binding, primary backend for LevelUP",
-  "version": "0.10.3",
+  "version": "1.0.1",
   "contributors": [
     "Rod Vagg <r@va.gg> (https://github.com/rvagg)",
     "John Chesley <john@chesl.es> (https://github.com/chesles/)",
     "Jake Verbaten <raynos2@gmail.com> (https://github.com/raynos)",
     "Dominic Tarr <dominic.tarr@gmail.com> (https://github.com/dominictarr)",
     "Max Ogden <max@maxogden.com> (https://github.com/maxogden)",
-    "Lars-Magnus Skog <lars.magnus.skog@gmail.com> (https://github.com/ralphtheninja)",
+    "Lars-Magnus Skog <ralphtheninja@riseup.net> (https://github.com/ralphtheninja)",
     "David Björklund <david.bjorklund@gmail.com> (https://github.com/kesla)",
     "Julian Gruber <julian@juliangruber.com> (https://github.com/juliangruber)",
     "Paolo Fragomeni <paolo@async.ly> (https://github.com/hij1nx)",
@@ -26,22 +26,22 @@
     "leveldb",
     "level"
   ],
-  "main": "index.js",
+  "main": "leveldown.js",
   "dependencies": {
-    "node-pre-gyp": "0.5.x",
-    "bindings": "~1.1.1",
-    "nan": "~0.6.0",
-    "abstract-leveldown": "^0.11.4"
+    "abstract-leveldown": "~2.0.0",
+    "bindings": "~1.2.1",
+    "fast-future": "~1.0.0",
+    "nan": "~1.5.0",
+    "node-pre-gyp": "0.5.x"
   },
   "devDependencies": {
-    "tap": "~0.4.1",
-    "rimraf": "~2.1.4",
-    "mkfiletree": "~0.0.0",
-    "readfiletree": "~0.0.0",
-    "abstract-leveldown": "~0.11.1",
+    "du": "~0.1.0",
+    "mkfiletree": "~0.0.1",
     "monotonic-timestamp": "~0.0.8",
-    "du": "~0.0.1",
-    "node-gyp": "~0.12.1"
+    "node-gyp": "~1.0.1",
+    "readfiletree": "~0.0.1",
+    "rimraf": "~2.2.8",
+    "tap": "~0.4.12"
   },
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
