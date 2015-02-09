@@ -32,7 +32,7 @@
     "bindings": "~1.2.1",
     "fast-future": "~1.0.0",
     "nan": "~1.5.0",
-    "node-pre-gyp": "0.5.x"
+    "node-pre-gyp": "~0.6.2"
   },
   "devDependencies": {
     "du": "~0.1.0",
