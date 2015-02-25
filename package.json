@@ -1,7 +1,7 @@
 {
   "name": "leveldown-prebuilt",
   "description": "A Node.js LevelDB binding, primary backend for LevelUP",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "contributors": [
     "Rod Vagg <r@va.gg> (https://github.com/rvagg)",
     "John Chesley <john@chesl.es> (https://github.com/chesles/)",
@@ -56,6 +56,6 @@
   "binary": {
     "module_name": "leveldown",
     "module_path": "./build-pre-gyp/",
-    "host": "https://github.com/mafintosh/node-leveldown/releases/download/v1.0.1"
+    "host": "https://github.com/mafintosh/node-leveldown/releases/download/v1.0.3"
   }
 }
