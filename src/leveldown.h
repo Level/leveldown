@@ -12,7 +12,8 @@
 #include "nan.h"
 
 static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
-  return node::Buffer::HasInstance(obj->ToObject())
+  return (!obj->ToObject().IsEmpty()
+    && node::Buffer::HasInstance(obj->ToObject()))
     ? node::Buffer::Length(obj->ToObject())
     : obj->ToString()->Utf8Length();
 }
@@ -23,16 +24,20 @@ static inline void DisposeStringOrBufferFromSlice(
         v8::Persistent<v8::Object> &handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(NanPersistentToLocal(handle)->Get(NanSymbol("obj"))))
-    delete[] slice.data();
-  NanDispose(handle);
+  if (!slice.empty()) {
+    v8::Local<v8::Value> obj = NanNew<v8::Object>(handle)->Get(NanNew<v8::String>("obj"));
+    if (!node::Buffer::HasInstance(obj))
+      delete[] slice.data();
+  }
+
+  NanDisposePersistent(handle);
 }
 
 static inline void DisposeStringOrBufferFromSlice(
         v8::Local<v8::Value> handle
       , leveldb::Slice slice) {
 
-  if (!node::Buffer::HasInstance(handle))
+  if (!slice.empty() && !node::Buffer::HasInstance(handle))
     delete[] slice.data();
 }
 
@@ -69,9 +74,7 @@ static inline void DisposeStringOrBufferFromSlice(
 #define LD_RETURN_CALLBACK_OR_ERROR(callback, msg)                             \
   if (!callback.IsEmpty() && callback->IsFunction()) {                         \
     v8::Local<v8::Value> argv[] = {                                            \
-      NanNewLocal<v8::Value>(v8::Exception::Error(                          \
-        v8::String::New(msg))                                                  \
-      )                                                                        \
+      NanError(msg)                                                            \
     };                                                                         \
     LD_RUN_CALLBACK(callback, 1, argv)                                         \
     NanReturnUndefined();                                                      \
@@ -79,8 +82,8 @@ static inline void DisposeStringOrBufferFromSlice(
   return NanThrowError(msg);
 
 #define LD_RUN_CALLBACK(callback, argc, argv)                                  \
-  node::MakeCallback(                                                          \
-      v8::Context::GetCurrent()->Global(), callback, argc, argv);
+  NanMakeCallback(                                                             \
+      NanGetCurrentContext()->Global(), callback, argc, argv);
 
 /* LD_METHOD_SETUP_COMMON setup the following objects:
  *  - Database* database

@@ -13,37 +13,37 @@ namespace leveldown {
 /** DESTROY WORKER **/
 
 DestroyWorker::DestroyWorker (
-    char* location
+    NanUtf8String* location
   , NanCallback *callback
 ) : AsyncWorker(NULL, callback)
   , location(location)
 {};
 
 DestroyWorker::~DestroyWorker () {
-  delete[] location;
+  delete location;
 }
 
 void DestroyWorker::Execute () {
   leveldb::Options options;
-  SetStatus(leveldb::DestroyDB(location, options));
+  SetStatus(leveldb::DestroyDB(**location, options));
 }
 
 /** REPAIR WORKER **/
 
 RepairWorker::RepairWorker (
-    char* location
+    NanUtf8String* location
   , NanCallback *callback
 ) : AsyncWorker(NULL, callback)
   , location(location)
 {};
 
 RepairWorker::~RepairWorker () {
-  delete[] location;
+  delete location;
 }
 
 void RepairWorker::Execute () {
   leveldb::Options options;
-  SetStatus(leveldb::RepairDB(location, options));
+  SetStatus(leveldb::RepairDB(**location, options));
 }
 
 } // namespace leveldown

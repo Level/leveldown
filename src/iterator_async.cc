@@ -39,14 +39,14 @@ void NextWorker::HandleOKCallback () {
   if (iterator->keyAsBuffer) {
     returnKey = NanNewBufferHandle((char*)key.data(), key.size());
   } else {
-    returnKey = v8::String::New((char*)key.data(), key.size());
+    returnKey = NanNew<v8::String>((char*)key.data(), key.size());
   }
 
   v8::Local<v8::Value> returnValue;
   if (iterator->valueAsBuffer) {
     returnValue = NanNewBufferHandle((char*)value.data(), value.size());
   } else {
-    returnValue = v8::String::New((char*)value.data(), value.size());
+    returnValue = NanNew<v8::String>((char*)value.data(), value.size());
   }
 
   // clean up & handle the next/end state see iterator.cc/checkEndCallback
@@ -54,7 +54,7 @@ void NextWorker::HandleOKCallback () {
 
   if (ok) {
     v8::Local<v8::Value> argv[] = {
-        NanNewLocal<v8::Value>(v8::Null())
+        NanNew(NanNull())
       , returnKey
       , returnValue
     };

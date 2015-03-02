@@ -21,15 +21,15 @@ public:
     , NanCallback *callback
   ) : NanAsyncWorker(callback), database(database) {
     NanScope();
-    v8::Local<v8::Object> obj = v8::Object::New();
-    NanAssignPersistent(v8::Object, persistentHandle, obj);
+    v8::Local<v8::Object> obj = NanNew<v8::Object>();
+    NanAssignPersistent(persistentHandle, obj);
   }
 
 protected:
   void SetStatus(leveldb::Status status) {
     this->status = status;
     if (!status.ok())
-      this->errmsg = strdup(status.ToString().c_str());
+      SetErrorMessage(status.ToString().c_str());
   }
   Database* database;
 private:

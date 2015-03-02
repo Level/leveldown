@@ -1,7 +1,7 @@
 LevelDOWN
 =========
 
-![LevelDB Logo](https://twimg0-a.akamaihd.net/profile_images/3360574989/92fc472928b444980408147e5e5db2fa_bigger.png)
+<img alt="LevelDB Logo" height="100" src="http://leveldb.org/img/logo.svg">
 
 A Low-level Node.js LevelDB binding
 -------------------------
@@ -306,7 +306,7 @@ A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](
 Licence &amp; copyright
 -------------------
 
-Copyright (c) 2012-2013 LevelDOWN contributors (listed above).
+Copyright (c) 2012-2015 LevelDOWN contributors (listed above).
 
 LevelDOWN is licensed under an MIT +no-false-attribs license. All rights not explicitly granted in the MIT license are reserved. See the included LICENSE file for more details.
 
