@@ -101,6 +101,7 @@ private:
   static NAN_METHOD(Batch);
   static NAN_METHOD(Write);
   static NAN_METHOD(Iterator);
+  static NAN_METHOD(Snapshot);
   static NAN_METHOD(ApproximateSize);
   static NAN_METHOD(GetProperty);
 };
