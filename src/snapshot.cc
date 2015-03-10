@@ -60,6 +60,12 @@ v8::Local<v8::Object> Snapshot::NewInstance (
   return NanEscapeScope(instance);
 }
 
+bool Snapshot::HasInstance (
+        v8::Handle<v8::Value> value
+    ) {
+  return NanHasInstance(snapshot_constructor, value);
+}
+
 NAN_METHOD(Snapshot::New) {
   NanScope();
 

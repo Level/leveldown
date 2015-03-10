@@ -26,6 +26,7 @@ public:
       v8::Local<v8::Object> database
     , v8::Local<v8::Object> optionsObj
   );
+  static bool HasInstance (v8::Handle<v8::Value> value);
 
   Snapshot (
       Database* database

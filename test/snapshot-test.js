@@ -14,3 +14,35 @@ makeTest('test snapshot', function (db, t, done) {
     });
   });
 })
+
+makeTest('test snapshot invalid type with internal field',
+         function (db, t, done) {
+  db.put('x', '1', function (err) {
+    try {
+      db.get('x', { snapshot: db.iterator() }, function(err, data) {
+        t.notOk(true, 'should have thrown exception');
+        done();
+      });
+    } catch (err) {
+      t.ok(err);
+      t.equal('Snapshot type is incorrect', err.message, 'exception message');
+      done();
+    }
+  });
+})
+
+makeTest('test snapshot invalid type without internal field',
+         function (db, t, done) {
+  db.put('x', '1', function (err) {
+    try {
+      db.get('x', { snapshot: Object() }, function(err, data) {
+        t.notOk(true, 'should have thrown exception');
+        done();
+      });
+    } catch (err) {
+      t.ok(err);
+      t.equal('Snapshot type is incorrect', err.message, 'exception message');
+      done();
+    }
+  });
+})

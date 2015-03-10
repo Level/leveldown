@@ -352,12 +352,16 @@ NAN_METHOD(Database::Get) {
   bool asBuffer = NanBooleanOptionValue(optionsObj, NanNew("asBuffer"), true);
   bool fillCache = NanBooleanOptionValue(optionsObj, NanNew("fillCache"), true);
 
+  v8::Local<v8::Object> snapshotHandle = optionsObj->Get(
+      NanNew("snapshot")).As<v8::Object>();
   const leveldb::Snapshot* dbSnapshot = NULL;
-  leveldown::Snapshot* snapshot =
-    node::ObjectWrap::Unwrap<leveldown::Snapshot>(optionsObj->
-      Get(NanNew("snapshot")).As<v8::Object>());
-  if (snapshot != NULL)
+  if (!snapshotHandle.IsEmpty() && !snapshotHandle->IsUndefined()) {
+    if (!leveldown::Snapshot::HasInstance(snapshotHandle))
+      return NanThrowError("Snapshot type is incorrect");
+    leveldown::Snapshot* snapshot =
+        node::ObjectWrap::Unwrap<leveldown::Snapshot>(snapshotHandle);
     dbSnapshot = snapshot->dbSnapshot;
+  }
 
   ReadWorker* worker = new ReadWorker(
       database
