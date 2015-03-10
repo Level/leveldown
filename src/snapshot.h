@@ -24,7 +24,6 @@ public:
   static void Init ();
   static v8::Local<v8::Object> NewInstance (
       v8::Local<v8::Object> database
-    , v8::Local<v8::Object> optionsObj
   );
   static bool HasInstance (v8::Handle<v8::Value> value);
 

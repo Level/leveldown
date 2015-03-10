@@ -41,7 +41,6 @@ void Snapshot::Init () {
 
 v8::Local<v8::Object> Snapshot::NewInstance (
         v8::Local<v8::Object> database
-      , v8::Local<v8::Object> optionsObj
     ) {
   NanEscapableScope();
 
@@ -49,13 +48,8 @@ v8::Local<v8::Object> Snapshot::NewInstance (
   v8::Local<v8::FunctionTemplate> constructorHandle =
       NanNew<v8::FunctionTemplate>(snapshot_constructor);
 
-  if (optionsObj.IsEmpty()) {
-    v8::Handle<v8::Value> argv[1] = { database };
-    instance = constructorHandle->GetFunction()->NewInstance(1, argv);
-  } else {
-    v8::Handle<v8::Value> argv[2] = { database, optionsObj };
-    instance = constructorHandle->GetFunction()->NewInstance(2, argv);
-  }
+  v8::Handle<v8::Value> argv[1] = { database };
+  instance = constructorHandle->GetFunction()->NewInstance(1, argv);
 
   return NanEscapeScope(instance);
 }

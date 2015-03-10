@@ -239,12 +239,8 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 
 --------------------------------------------------------
 <a name="leveldown_snapshot"></a>
-### leveldown#snapshot([options])
+### leveldown#snapshot()
 <code>snapshot()</code> is an instance method on an existing database object. It returns a new **Snapshot** instance. This can be passed into `get()`.
-
-#### `options`
-
-There are no options currently defined.
 
 --------------------------------------------------------
 <a name="leveldown_destroy"></a>

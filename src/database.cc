@@ -567,15 +567,9 @@ NAN_METHOD(Database::Iterator) {
 NAN_METHOD(Database::Snapshot) {
   NanScope();
 
-  v8::Local<v8::Object> optionsObj;
-  if (args.Length() > 0 && args[0]->IsObject()) {
-    optionsObj = v8::Local<v8::Object>::Cast(args[0]);
-  }
-
   v8::TryCatch try_catch;
   v8::Local<v8::Object> snapshotHandle = Snapshot::NewInstance(
       args.This()
-    , optionsObj
   );
   if (try_catch.HasCaught()) {
     // NB: node::FatalException can segfault here if there is no room on stack.
