@@ -14,4 +14,5 @@ script: npm test
 
 before_install:
   - npm install -g npm@latest
+  - npm -v
 
