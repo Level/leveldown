@@ -1,12 +1,15 @@
 language: node_js
 node_js:
   - "0.10"
+  - "0.12"
+  - "iojs"
 branches:
   only:
     - master
 notifications:
   email:
     - rod@vagg.org
+    - ralphtheninja@riseup.net
 script: npm test
 
 before_install:
