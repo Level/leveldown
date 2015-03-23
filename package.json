@@ -43,7 +43,9 @@
     "tap": "~0.4.12"
   },
   "scripts": {
-    "test": "tap test/*-test.js --stderr"
+    "test": "tap test/*-test.js --stderr",
+    "preinstall": "true",
+    "postinstall": "JOBS=max node-gyp rebuild"
   },
   "license": "MIT",
   "gypfile": true
