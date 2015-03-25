@@ -44,8 +44,7 @@
   },
   "scripts": {
     "test": "tap test/*-test.js --stderr",
-    "preinstall": "true",
-    "postinstall": "JOBS=max node-gyp rebuild"
+    "install": "JOBS=max node-gyp rebuild"
   },
   "license": "MIT",
   "gypfile": true
