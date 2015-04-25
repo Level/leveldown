@@ -265,6 +265,12 @@ Currently LevelDOWN does not track the state of the underlying LevelDB instance.
 
 LevelUP currently tracks and manages state and will prevent out-of-state operations from being send to LevelDOWN. If you use LevelDOWN directly then you must track and manage state for yourself.
 
+<a name="snapshots"></a>
+Snapshots
+---------------
+
+LevelDOWN exposes a feature of LevelDB called [snapshots](http://leveldb.googlecode.com/git-history/f779e7a5d89f853fc5224f9eb8103ca2b8f2f555/doc/index.html). This means that when you do e.g. `createReadStream` and `createWriteStream` at the same time, any data modified by the write stream will not affect data emitted from the read stream. In other words, a LevelDB Snapshot captures the latest state at the time the snapshot was created, enabling the snapshot to iterate or read the data without seeing any subsequent writes. Any read not performed on a snapshot will implicitly use the latest state.
+
 <a name="support"></a>
 Getting support
 ---------------
