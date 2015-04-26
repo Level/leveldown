@@ -11,17 +11,17 @@ before_install:
 script:
   - n 0.10
   - node -v; which node; npm -v; which npm
-  - npm install
+  - JOBS=max npm install
   - npm test && rm -rf node_modules/
 
   - n latest
   - node -v; which node; npm -v; which npm
-  - npm install
+  - JOBS=max npm install
   - npm test && rm -rf node_modules/
 
   - n io latest
   - iojs -v; which iojs; npm -v; which npm
-  - npm install
+  - JOBS=max npm install
   - npm test
 
 notifications:
