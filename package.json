@@ -38,8 +38,10 @@
     "mkfiletree": "~0.0.1",
     "monotonic-timestamp": "~0.0.8",
     "node-gyp": "~1.0.1",
+    "optimist": "~0.6.1",
     "readfiletree": "~0.0.1",
     "rimraf": "~2.2.8",
+    "slump": "~2.0.0",
     "tap": "~0.4.12"
   },
   "scripts": {
