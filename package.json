@@ -35,6 +35,7 @@
   },
   "devDependencies": {
     "du": "~0.1.0",
+    "faucet": "0.0.1",
     "mkfiletree": "~0.0.1",
     "monotonic-timestamp": "~0.0.8",
     "node-gyp": "~1.0.1",
@@ -43,10 +44,10 @@
     "readfiletree": "~0.0.1",
     "rimraf": "~2.2.8",
     "slump": "~2.0.0",
-    "tap": "~0.4.12"
+    "tape": "~4.0.0"
   },
   "scripts": {
-    "test": "tap test/*-test.js --stderr"
+    "test": "tape test/*-test.js | faucet"
   },
   "license": "MIT",
   "gypfile": true

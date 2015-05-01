@@ -1,11 +1,11 @@
-const test         = require('tap').test
+const test         = require('tape')
     , fs           = require('fs')
     , path         = require('path')
     , mkfiletree   = require('mkfiletree')
     , readfiletree = require('readfiletree')
     , testCommon   = require('abstract-leveldown/testCommon')
     , leveldown    = require('../')
-    , makeTest     = require('./make-test')
+    , makeTest     = require('./make')
 
 test('test argument-less repair() throws', function (t) {
   t.throws(
@@ -27,7 +27,7 @@ test('test callback-less, 1-arg, repair() throws', function (t) {
 
 test('test repair non-existant directory returns error', function (t) {
   leveldown.repair('/1/2/3/4', function (err) {
-    t.like(/no such/i, err, 'error on callback')
+    t.ok(/no such/i.test(err), 'error on callback')
     t.end()
   })
 })
