@@ -29,7 +29,7 @@
   "main": "index.js",
   "dependencies": {
     "bindings": "~1.2.1",
-    "nan": "~1.6.2"
+    "nan": "~1.8.4"
   },
   "devDependencies": {
     "abstract-leveldown": "~0.11.1",
