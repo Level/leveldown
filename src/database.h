@@ -28,9 +28,9 @@ struct Reference {
   leveldb::Slice slice;
 
   Reference(v8::Local<v8::Value> obj, leveldb::Slice slice) : slice(slice) {
-    v8::Local<v8::Object> _obj = v8::Object::New();
-    _obj->Set(NanSymbol("obj"), obj);
-    NanAssignPersistent(v8::Object, handle, _obj);
+    v8::Local<v8::Object> _obj = NanNew<v8::Object>();
+    _obj->Set(NanNew("obj"), obj);
+    NanAssignPersistent(handle, _obj);
   };
 };
 
@@ -75,17 +75,17 @@ public:
   const leveldb::Snapshot* NewSnapshot ();
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
   void CloseDatabase ();
-  const char* Location() const;
+  NanUtf8String* Location();
   void ReleaseIterator (uint32_t id);
 
-  Database (char* location);
+  Database (NanUtf8String* location);
   ~Database ();
 
 private:
   leveldb::DB* db;
   const leveldb::FilterPolicy* filterPolicy;
   leveldb::Cache* blockCache;
-  char* location;
+  NanUtf8String* location;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);
 
