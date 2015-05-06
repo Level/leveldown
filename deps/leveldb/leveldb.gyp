@@ -1,7 +1,7 @@
 {'targets': [{
     'target_name': 'leveldb'
   , 'variables': {
-        'ldbversion': '1.17.0'
+        'ldbversion': '1.18.0'
     }
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
@@ -135,6 +135,7 @@
       , 'leveldb-<(ldbversion)/db/filename.h'
       , 'leveldb-<(ldbversion)/db/dbformat.cc'
       , 'leveldb-<(ldbversion)/db/dbformat.h'
+      , 'leveldb-<(ldbversion)/db/leveldb_main.cc'
       , 'leveldb-<(ldbversion)/db/log_format.h'
       , 'leveldb-<(ldbversion)/db/log_reader.cc'
       , 'leveldb-<(ldbversion)/db/log_reader.h'
@@ -158,6 +159,7 @@
       , 'leveldb-<(ldbversion)/include/leveldb/cache.h'
       , 'leveldb-<(ldbversion)/include/leveldb/comparator.h'
       , 'leveldb-<(ldbversion)/include/leveldb/db.h'
+      , 'leveldb-<(ldbversion)/include/leveldb/dumpfile.h'
       , 'leveldb-<(ldbversion)/include/leveldb/env.h'
       , 'leveldb-<(ldbversion)/include/leveldb/filter_policy.h'
       , 'leveldb-<(ldbversion)/include/leveldb/iterator.h'
@@ -197,6 +199,7 @@
       , 'leveldb-<(ldbversion)/util/filter_policy.cc'
       , 'leveldb-<(ldbversion)/util/hash.cc'
       , 'leveldb-<(ldbversion)/util/hash.h'
+      , 'leveldb-<(ldbversion)/util/hash_test.cc'
       , 'leveldb-<(ldbversion)/util/logging.cc'
       , 'leveldb-<(ldbversion)/util/logging.h'
       , 'leveldb-<(ldbversion)/util/mutexlock.h'
