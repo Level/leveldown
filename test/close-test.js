@@ -1,4 +1,4 @@
-const test       = require('tap').test
+const test       = require('tape')
     , testCommon = require('abstract-leveldown/testCommon')
     , leveldown  = require('../')
     , abstract   = require('abstract-leveldown/abstract/close-test')
@@ -19,5 +19,4 @@ module.exports.all = function (leveldown) {
   module.exports.tearDown()
 }
 
-if (require.main === module)
-  module.exports.all(leveldown)
+module.exports.all(leveldown)

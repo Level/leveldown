@@ -1,3 +1,15 @@
+### 1.0.2 Apr 26 2015
+  * [[`8470a63678`](https://github.com/level/leveldown/commit/8470a63678)] - s/rvagg\/node-/level\// (Lars-Magnus Skog)
+  * [[`9cbf592bea`](https://github.com/level/leveldown/commit/9cbf592bea)] - add documentation about snapshots (Max Ogden)
+  * [[`b57827cd29`](https://github.com/level/leveldown/commit/b57827cd29)] - use n instead of nvm for working iojs support (Lars-Magnus Skog)
+  * [[`a19927667a`](https://github.com/level/leveldown/commit/a19927667a)] - abstract-leveldown ~2.1.0 (ralphtheninja)
+  * [[`95ccdf0850`](https://github.com/level/leveldown/commit/95ccdf0850)] - update logo and copyright (Lars-Magnus Skog)
+  * [[`09e89d7abb`](https://github.com/level/leveldown/commit/09e89d7abb)] - updated my email (ralphtheninja)
+
+### 1.0.1 Jan 16 2015
+  * [[`6df3ecd6f5`](https://github.com/level/leveldown/commit/6df3ecd6f5)] - nan 1.5 for io.js support (Rod Vagg)
+  * [[`5198231a88`](https://github.com/level/leveldown/commit/5198231a88)] - Fix LevelDB builds for modern gcc versions (Sharvil Nanavati)
+
 ### 1.0.0 Aug 26 2014
   * NAN@1.3 for Node 0.11.13+ support (@rvagg)
   * Allow writing empty values: null, undefined, '', [] and Buffer(0). Entries come out as '' or Buffer(0) (@ggreer, @juliangruber, @rvagg)

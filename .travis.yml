@@ -1,14 +1,14 @@
 language: node_js
-node_js:
-  - "0.10"
-branches:
-  only:
-    - master
-notifications:
-  email:
-    - rod@vagg.org
-script: npm test
 
 before_install:
-  - npm install -g npm@latest
+  - export JOBS=max
+
+node_js:
+  - "2.0.0"
+  - "1.8.1"
+  - "0.12"
+  - "0.10"
+
+script:
+  - npm test
 

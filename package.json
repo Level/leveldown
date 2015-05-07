@@ -28,24 +28,28 @@
   ],
   "main": "leveldown.js",
   "dependencies": {
-    "abstract-leveldown": "~2.0.0",
+    "abstract-leveldown": "~2.1.0",
     "bindings": "~1.2.1",
     "fast-future": "~1.0.0",
-    "nan": "~1.5.0",
+    "nan": "~1.8.4",
     "node-pre-gyp": "~0.6.2"
   },
   "devDependencies": {
     "du": "~0.1.0",
+    "faucet": "0.0.1",
     "mkfiletree": "~0.0.1",
     "monotonic-timestamp": "~0.0.8",
     "node-gyp": "~1.0.1",
+    "node-uuid": "~1.4.3",
+    "optimist": "~0.6.1",
     "readfiletree": "~0.0.1",
     "rimraf": "~2.2.8",
-    "tap": "~0.4.12"
+    "slump": "~2.0.0",
+    "tape": "~4.0.0"
   },
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
-    "test": "tap test/*-test.js --stderr",
+    "test": "tape test/*-test.js | faucet",
     "prebuild": "node-pre-gyp rebuild && node-pre-gyp package"
   },
   "license": "MIT",
