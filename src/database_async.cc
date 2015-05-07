@@ -108,6 +108,7 @@ ReadWorker::ReadWorker (
   , bool asBuffer
   , bool fillCache
   , v8::Local<v8::Object> &keyHandle
+  , const leveldb::Snapshot *snapshot
 ) : IOWorker(database, callback, key, keyHandle)
   , asBuffer(asBuffer)
 {
@@ -115,6 +116,7 @@ ReadWorker::ReadWorker (
 
   options = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
+  options->snapshot = snapshot;
   SaveToPersistent("key", keyHandle);
 };
 

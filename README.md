@@ -43,6 +43,7 @@ Tested & supported platforms
   * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
   * <a href="#iterator_end"><code><b>iterator#end()</b></code></a>
+  * <a href="#leveldown_snapshot"><code><b>leveldown#snapshot()</b></code></a>
   * <a href="#leveldown_destroy"><code><b>leveldown.destroy()</b></code></a>
   * <a href="#leveldown_repair"><code><b>leveldown.repair()</b></code></a>
 
@@ -125,6 +126,8 @@ The optional `options` object may contain:
 * `'fillCache'` *(boolean, default: `true`)*: LevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`.
 
 * `'asBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UFT8 string) then you should fetch it as one with `asBuffer: true` and you'll avoid this conversion cost.
+
+* `'snapshot'` *(Snapshot, default: `undefined`)*: Used to read from a previous point in time.
 
 The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a `String` or `Buffer` depending on the `asBuffer` option.
 
@@ -234,6 +237,10 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 ### iterator#end(callback)
 <code>end()</code> is an instance method on an existing iterator object. The underlying LevelDB iterator will be deleted and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
+--------------------------------------------------------
+<a name="leveldown_snapshot"></a>
+### leveldown#snapshot()
+<code>snapshot()</code> is an instance method on an existing database object. It returns a new **Snapshot** instance. This can be passed into `get()`.
 
 --------------------------------------------------------
 <a name="leveldown_destroy"></a>

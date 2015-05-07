@@ -70,6 +70,10 @@ LevelDOWN.prototype._iterator = function (options) {
   return new Iterator(this, options)
 }
 
+LevelDOWN.prototype.snapshot = function (options) {
+  return this.binding.snapshot(options)
+}
+
 
 LevelDOWN.destroy = function (location, callback) {
   if (arguments.length < 2)

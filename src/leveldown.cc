@@ -8,6 +8,7 @@
 #include "leveldown.h"
 #include "database.h"
 #include "iterator.h"
+#include "snapshot.h"
 #include "batch.h"
 #include "leveldown_async.h"
 
@@ -52,6 +53,7 @@ NAN_METHOD(RepairDB) {
 void Init (v8::Handle<v8::Object> target) {
   Database::Init();
   leveldown::Iterator::Init();
+  leveldown::Snapshot::Init();
   leveldown::Batch::Init();
 
   v8::Local<v8::Function> leveldown =
