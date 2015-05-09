@@ -24,6 +24,16 @@ NAN_INLINE bool BooleanOptionValue(v8::Local<v8::Object> options,
   }
 }
 
+NAN_INLINE uint32_t UInt32OptionValue(v8::Local<v8::Object> options,
+                                      v8::Handle<v8::String> key,
+                                      uint32_t def) {
+  return !options.IsEmpty()
+    && options->Has(key)
+    && options->Get(key)->IsNumber()
+    ? options->Get(key)->Uint32Value()
+    : def;
+}
+
 } // namespace leveldown
 
 #endif

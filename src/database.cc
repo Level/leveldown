@@ -197,27 +197,27 @@ NAN_METHOD(Database::Open) {
   bool compression =
       BooleanOptionValue(optionsObj, NanNew("compression"), true);
 
-  uint32_t cacheSize = NanUInt32OptionValue(
+  uint32_t cacheSize = UInt32OptionValue(
       optionsObj
     , NanNew("cacheSize")
     , 8 << 20
   );
-  uint32_t writeBufferSize = NanUInt32OptionValue(
+  uint32_t writeBufferSize = UInt32OptionValue(
       optionsObj
     , NanNew("writeBufferSize")
     , 4 << 20
   );
-  uint32_t blockSize = NanUInt32OptionValue(
+  uint32_t blockSize = UInt32OptionValue(
       optionsObj
     , NanNew("blockSize")
     , 4096
   );
-  uint32_t maxOpenFiles = NanUInt32OptionValue(
+  uint32_t maxOpenFiles = UInt32OptionValue(
       optionsObj
     , NanNew("maxOpenFiles")
     , 1000
   );
-  uint32_t blockRestartInterval = NanUInt32OptionValue(
+  uint32_t blockRestartInterval = UInt32OptionValue(
       optionsObj
     , NanNew("blockRestartInterval")
     , 16
