@@ -5,6 +5,7 @@
 #include "database.h"
 #include "batch_async.h"
 #include "batch.h"
+#include "common.h"
 
 namespace leveldown {
 
@@ -47,7 +48,7 @@ NAN_METHOD(Batch::New) {
     optionsObj = v8::Local<v8::Object>::Cast(args[1]);
   }
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, NanNew("sync"));
 
   Batch* batch = new Batch(database, sync);
   batch->Wrap(args.This());

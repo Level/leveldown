@@ -15,6 +15,7 @@
 #include "database_async.h"
 #include "batch.h"
 #include "iterator.h"
+#include "common.h"
 
 namespace leveldown {
 
@@ -187,15 +188,14 @@ NAN_METHOD(Database::Open) {
 
   LD_METHOD_SETUP_COMMON(open, 0, 1)
 
-  bool createIfMissing = NanBooleanOptionValue(
+  bool createIfMissing = BooleanOptionValue(
       optionsObj
     , NanNew("createIfMissing")
     , true
   );
-  bool errorIfExists =
-      NanBooleanOptionValue(optionsObj, NanNew("errorIfExists"));
+  bool errorIfExists = BooleanOptionValue(optionsObj, NanNew("errorIfExists"));
   bool compression =
-      NanBooleanOptionValue(optionsObj, NanNew("compression"), true);
+      BooleanOptionValue(optionsObj, NanNew("compression"), true);
 
   uint32_t cacheSize = NanUInt32OptionValue(
       optionsObj
@@ -318,7 +318,7 @@ NAN_METHOD(Database::Put) {
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
   LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value)
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, NanNew("sync"));
 
   WriteWorker* worker  = new WriteWorker(
       database
@@ -346,8 +346,8 @@ NAN_METHOD(Database::Get) {
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
 
-  bool asBuffer = NanBooleanOptionValue(optionsObj, NanNew("asBuffer"), true);
-  bool fillCache = NanBooleanOptionValue(optionsObj, NanNew("fillCache"), true);
+  bool asBuffer = BooleanOptionValue(optionsObj, NanNew("asBuffer"), true);
+  bool fillCache = BooleanOptionValue(optionsObj, NanNew("fillCache"), true);
 
   ReadWorker* worker = new ReadWorker(
       database
@@ -373,7 +373,7 @@ NAN_METHOD(Database::Delete) {
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, NanNew("sync"));
 
   DeleteWorker* worker = new DeleteWorker(
       database
@@ -403,7 +403,7 @@ NAN_METHOD(Database::Batch) {
 
   LD_METHOD_SETUP_COMMON(batch, 1, 2)
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, NanNew("sync"));
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 
