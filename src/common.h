@@ -13,15 +13,10 @@ namespace leveldown {
 NAN_INLINE bool BooleanOptionValue(v8::Local<v8::Object> options,
                                    v8::Handle<v8::String> key,
                                    bool def = false) {
-  if (def) {
-    return options.IsEmpty()
-      || !options->Has(key)
-      || options->Get(key)->BooleanValue();
-  } else {
-    return !options.IsEmpty()
-      && options->Has(key)
-      && options->Get(key)->BooleanValue();
-  }
+  return !options.IsEmpty()
+    && options->Has(key)
+    ? options->Get(key)->BooleanValue()
+    : def;
 }
 
 NAN_INLINE uint32_t UInt32OptionValue(v8::Local<v8::Object> options,
