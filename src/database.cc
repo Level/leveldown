@@ -188,38 +188,21 @@ NAN_METHOD(Database::Open) {
 
   LD_METHOD_SETUP_COMMON(open, 0, 1)
 
-  bool createIfMissing = BooleanOptionValue(
-      optionsObj
-    , NanNew("createIfMissing")
-    , true
-  );
-  bool errorIfExists = BooleanOptionValue(optionsObj, NanNew("errorIfExists"));
-  bool compression =
-      BooleanOptionValue(optionsObj, NanNew("compression"), true);
+  bool createIfMissing = BooleanOptionValue(optionsObj, "createIfMissing", true);
+  bool errorIfExists = BooleanOptionValue(optionsObj, "errorIfExists");
+  bool compression = BooleanOptionValue(optionsObj, "compression", true);
 
-  uint32_t cacheSize = UInt32OptionValue(
-      optionsObj
-    , NanNew("cacheSize")
-    , 8 << 20
-  );
+  uint32_t cacheSize = UInt32OptionValue(optionsObj, "cacheSize", 8 << 20);
   uint32_t writeBufferSize = UInt32OptionValue(
       optionsObj
-    , NanNew("writeBufferSize")
+    , "writeBufferSize"
     , 4 << 20
   );
-  uint32_t blockSize = UInt32OptionValue(
-      optionsObj
-    , NanNew("blockSize")
-    , 4096
-  );
-  uint32_t maxOpenFiles = UInt32OptionValue(
-      optionsObj
-    , NanNew("maxOpenFiles")
-    , 1000
-  );
+  uint32_t blockSize = UInt32OptionValue(optionsObj, "blockSize", 4096);
+  uint32_t maxOpenFiles = UInt32OptionValue(optionsObj, "maxOpenFiles", 1000);
   uint32_t blockRestartInterval = UInt32OptionValue(
       optionsObj
-    , NanNew("blockRestartInterval")
+    , "blockRestartInterval"
     , 16
   );
 
@@ -315,10 +298,10 @@ NAN_METHOD(Database::Put) {
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key);
+  LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value);
 
-  bool sync = BooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, "sync");
 
   WriteWorker* worker  = new WriteWorker(
       database
@@ -344,10 +327,10 @@ NAN_METHOD(Database::Get) {
   LD_METHOD_SETUP_COMMON(get, 1, 2)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key);
 
-  bool asBuffer = BooleanOptionValue(optionsObj, NanNew("asBuffer"), true);
-  bool fillCache = BooleanOptionValue(optionsObj, NanNew("fillCache"), true);
+  bool asBuffer = BooleanOptionValue(optionsObj, "asBuffer", true);
+  bool fillCache = BooleanOptionValue(optionsObj, "fillCache", true);
 
   ReadWorker* worker = new ReadWorker(
       database
@@ -371,9 +354,9 @@ NAN_METHOD(Database::Delete) {
   LD_METHOD_SETUP_COMMON(del, 1, 2)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key);
 
-  bool sync = BooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, "sync");
 
   DeleteWorker* worker = new DeleteWorker(
       database
@@ -401,9 +384,9 @@ NAN_METHOD(Database::Batch) {
     NanReturnValue(Batch::NewInstance(args.This(), optionsObj));
   }
 
-  LD_METHOD_SETUP_COMMON(batch, 1, 2)
+  LD_METHOD_SETUP_COMMON(batch, 1, 2);
 
-  bool sync = BooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, "sync");
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 

@@ -48,7 +48,7 @@ NAN_METHOD(Batch::New) {
     optionsObj = v8::Local<v8::Object>::Cast(args[1]);
   }
 
-  bool sync = BooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, "sync");
 
   Batch* batch = new Batch(database, sync);
   batch->Wrap(args.This());
