@@ -272,6 +272,7 @@ LiveBackupWorker::LiveBackupWorker (
 ) : AsyncWorker(database, callback)
   , name(name)
 {
+  NanScope();
   SaveToPersistent("name", nameHandle);
 };
 
@@ -282,6 +283,7 @@ void LiveBackupWorker::Execute () {
 }
 
 void LiveBackupWorker::WorkComplete () {
+  NanScope();
   DisposeStringOrBufferFromSlice(GetFromPersistent("name"), name);
   AsyncWorker::WorkComplete();
 }
