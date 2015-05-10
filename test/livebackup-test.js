@@ -8,22 +8,37 @@ test('setUp common', testCommon.setUp)
 
 test('setUp db', function (t) {
   db = leveldown(testCommon.location())
-  db.open(t.end.bind(t))
-})
-
-test('liveBackup', function (t) {
-  var key = 'beep'
-    , value = 'boop'
-  db.put(key, value, function (err) {
-    t.ok(!err, 'no put error')
-    db.get(key, function (err, _value) {
-      t.equal(_value.toString(), value)
-      var backup = 'backup-' + Date.now()
-      db.liveBackup(backup, function (err) {
-        t.ok(!err, 'no liveBackup error')
+  db.open(function (err) {
+    t.ok(!err, 'no error')
+    var key = 'beep'
+      , value = 'boop'
+    db.put(key, value, function (err) {
+      t.ok(!err, 'no put error')
+      db.get(key, function (err, _value) {
+        t.equal(_value.toString(), value)
         t.end()
       })
     })
+  })
+})
+
+test('liveBackup', function (t) {
+  t.throws(db.liveBackup.bind(db, null), {
+    name: 'Error',
+    message: 'liveBackup() requires a valid `name` argument'
+  })
+  t.throws(db.liveBackup.bind(db), {
+    name: 'Error',
+    message: 'liveBackup() requires a valid `name` argument'
+  })
+  t.throws(db.liveBackup.bind(db, function () {}), {
+    name: 'Error',
+    message: 'liveBackup() requires a valid `name` argument'
+  })
+  var backup = 'backup-' + Date.now()
+  db.liveBackup(backup, function (err) {
+    t.ok(!err, 'no liveBackup error')
+    t.end()
   })
 })
 
