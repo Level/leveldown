@@ -28,7 +28,7 @@
   ],
   "main": "leveldown.js",
   "dependencies": {
-    "abstract-leveldown": "~2.1.0",
+    "abstract-leveldown": "~2.2.1",
     "bindings": "~1.2.1",
     "fast-future": "~1.0.0",
     "nan": "~1.8.4"
