@@ -20,7 +20,7 @@ namespace leveldown {
 
 static v8::Persistent<v8::FunctionTemplate> database_constructor;
 
-Database::Database (v8::Handle<v8::Value> from)
+Database::Database (const v8::Handle<v8::Value>& from)
   : location(new NanUtf8String(from))
   , db(NULL)
   , currentIteratorId(0)

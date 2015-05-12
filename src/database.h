@@ -75,7 +75,7 @@ public:
   void CloseDatabase ();
   void ReleaseIterator (uint32_t id);
 
-  Database (v8::Handle<v8::Value> from);
+  Database (const v8::Handle<v8::Value>& from);
   ~Database ();
 
 private:
