@@ -20,13 +20,13 @@ namespace leveldown {
 
 static v8::Persistent<v8::FunctionTemplate> database_constructor;
 
-Database::Database (NanUtf8String* location) : location(location) {
-  db = NULL;
-  currentIteratorId = 0;
-  pendingCloseWorker = NULL;
-  blockCache = NULL;
-  filterPolicy = NULL;
-};
+Database::Database (v8::Handle<v8::Value> from)
+  : location(new NanUtf8String(from))
+  , db(NULL)
+  , currentIteratorId(0)
+  , pendingCloseWorker(NULL)
+  , blockCache(NULL)
+  , filterPolicy(NULL) {};
 
 Database::~Database () {
   if (db != NULL)
@@ -34,15 +34,12 @@ Database::~Database () {
   delete location;
 };
 
-NanUtf8String* Database::Location() { return location; }
-
 /* Calls from worker threads, NO V8 HERE *****************************/
 
 leveldb::Status Database::OpenDatabase (
         leveldb::Options* options
-      , std::string location
     ) {
-  return leveldb::DB::Open(*options, location, &db);
+  return leveldb::DB::Open(*options, **location, &db);
 }
 
 leveldb::Status Database::PutToDatabase (
@@ -131,9 +128,7 @@ void Database::CloseDatabase () {
 NAN_METHOD(LevelDOWN) {
   NanScope();
 
-  v8::Local<v8::String> location;
-  if (args.Length() != 0 && args[0]->IsString())
-    location = args[0].As<v8::String>();
+  v8::Local<v8::String> location = args[0].As<v8::String>();
   NanReturnValue(Database::NewInstance(location));
 }
 
@@ -156,9 +151,7 @@ void Database::Init () {
 NAN_METHOD(Database::New) {
   NanScope();
 
-  NanUtf8String* location = new NanUtf8String(args[0]);
-
-  Database* obj = new Database(location);
+  Database* obj = new Database(args[0]);
   obj->Wrap(args.This());
 
   NanReturnValue(args.This());
@@ -172,12 +165,8 @@ v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
   v8::Local<v8::FunctionTemplate> constructorHandle =
       NanNew<v8::FunctionTemplate>(database_constructor);
 
-  if (location.IsEmpty()) {
-    instance = constructorHandle->GetFunction()->NewInstance(0, NULL);
-  } else {
-    v8::Handle<v8::Value> argv[] = { location };
-    instance = constructorHandle->GetFunction()->NewInstance(1, argv);
-  }
+  v8::Handle<v8::Value> argv[] = { location };
+  instance = constructorHandle->GetFunction()->NewInstance(1, argv);
 
   return NanEscapeScope(instance);
 }
