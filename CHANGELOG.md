@@ -1,3 +1,17 @@
+### 1.0.5/1.0.6 May 5 2015
+
+* [[`9064099fe7`](https://github.com/level/leveldown/commit/9064099fe7)] - pass db to abstractIterator so gc keeps it (Julian Gruber)
+
+### 1.0.4 May 5 2015
+
+ * [[`b550c98291`](https://github.com/level/leveldown/commit/b550c98291)] - update nan for iojs 2.0.0 (Lars-Magnus Skog)
+
+### 1.0.3 May 2 2015
+
+ * [[`82479b689f`](https://github.com/level/leveldown/commit/82479b689f)] - tap -> tape + faucet (Lars-Magnus Skog)
+ * [[`ca9101542a`](https://github.com/level/leveldown/commit/ca9101542a)] - fix write-random.js, use leveldown instead of lmdb (Lars-Magnus Skog)
+ * [[`03fbbfb99f`](https://github.com/level/leveldown/commit/03fbbfb99f)] - fix bench/db-bench.js (Lars-Magnus Skog)
+
 ### 1.0.2 Apr 26 2015
   * [[`8470a63678`](https://github.com/level/leveldown/commit/8470a63678)] - s/rvagg\/node-/level\// (Lars-Magnus Skog)
   * [[`9cbf592bea`](https://github.com/level/leveldown/commit/9cbf592bea)] - add documentation about snapshots (Max Ogden)
