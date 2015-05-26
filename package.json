@@ -34,6 +34,8 @@
     "nan": "~1.8.4"
   },
   "devDependencies": {
+    "async": "~1.0.0",
+    "delayed": "~1.0.1",
     "du": "~0.1.0",
     "faucet": "0.0.1",
     "mkfiletree": "~0.0.1",
