@@ -9,6 +9,7 @@
 #include "database.h"
 #include "iterator.h"
 #include "iterator_async.h"
+#include "common.h"
 
 namespace leveldown {
 
@@ -314,7 +315,7 @@ NAN_METHOD(Iterator::New) {
   if (args.Length() > 1 && args[2]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[2]);
 
-    reverse = NanBooleanOptionValue(optionsObj, NanNew("reverse"));
+    reverse = BooleanOptionValue(optionsObj, "reverse");
 
     if (optionsObj->Has(NanNew("start"))
         && (node::Buffer::HasInstance(optionsObj->Get(NanNew("start")))
@@ -414,19 +415,11 @@ NAN_METHOD(Iterator::New) {
 
   }
 
-  bool keys = NanBooleanOptionValue(optionsObj, NanNew("keys"), true);
-  bool values = NanBooleanOptionValue(optionsObj, NanNew("values"), true);
-  bool keyAsBuffer = NanBooleanOptionValue(
-      optionsObj
-    , NanNew("keyAsBuffer")
-    , true
-  );
-  bool valueAsBuffer = NanBooleanOptionValue(
-      optionsObj
-    , NanNew("valueAsBuffer")
-    , true
-  );
-  bool fillCache = NanBooleanOptionValue(optionsObj, NanNew("fillCache"));
+  bool keys = BooleanOptionValue(optionsObj, "keys", true);
+  bool values = BooleanOptionValue(optionsObj, "values", true);
+  bool keyAsBuffer = BooleanOptionValue(optionsObj, "keyAsBuffer", true);
+  bool valueAsBuffer = BooleanOptionValue(optionsObj, "valueAsBuffer", true);
+  bool fillCache = BooleanOptionValue(optionsObj, "fillCache");
 
   Iterator* iterator = new Iterator(
       database
