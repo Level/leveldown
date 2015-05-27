@@ -1,3 +1,19 @@
+Note that we have filtered out commits related to new tags, updating changelog and we're also not listing any merge commits, i.e. we are only listing things that changed between versions.
+
+### 1.0.7 May 27 2015
+
+ * [[`61398a0056`](https://github.com/level/leveldown/commit/61398a0056)] - link to level/community (Lars-Magnus Skog)
+ * [[`382a1a7fa3`](https://github.com/level/leveldown/commit/382a1a7fa3)] - add compression test suite (Julian Gruber)
+ * [[`139db7bc7f`](https://github.com/level/leveldown/commit/139db7bc7f)] - use const reference instead of by value in Database constructor (Lars-Magnus Skog)
+ * [[`b56a86323e`](https://github.com/level/leveldown/commit/b56a86323e)] - refactor NanNew() on strings into option value functions (Lars-Magnus Skog)
+ * [[`ca1f4746c4`](https://github.com/level/leveldown/commit/ca1f4746c4)] - refactor BooleanOptionValue (Lars-Magnus Skog)
+ * [[`56def2d7c8`](https://github.com/level/leveldown/commit/56def2d7c8)] - NanUInt32OptionValue -> UInt32OptionValue (Lars-Magnus Skog)
+ * [[`39c614a24f`](https://github.com/level/leveldown/commit/39c614a24f)] - NanBooleanOptionValue -> BooleanOptionValue (Lars-Magnus Skog)
+ * [[`fcdc46183e`](https://github.com/level/leveldown/commit/fcdc46183e)] - simplify location logic, let Database take care of allocation (Lars-Magnus Skog)
+ * [[`8cb90e6b6d`](https://github.com/level/leveldown/commit/8cb90e6b6d)] - update abstract-leveldown (Lars-Magnus Skog)
+ * [[`f70b6576e7`](https://github.com/level/leveldown/commit/f70b6576e7)] - update .travis.yml (nvm works on travis now) (Lars-Magnus Skog)
+ * [[`007550e7f7`](https://github.com/level/leveldown/commit/007550e7f7)] - 1.0.6 (Lars-Magnus Skog)
+
 ### 1.0.5/1.0.6 May 5 2015
 
 * [[`9064099fe7`](https://github.com/level/leveldown/commit/9064099fe7)] - pass db to abstractIterator so gc keeps it (Julian Gruber)
