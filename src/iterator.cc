@@ -62,6 +62,7 @@ Iterator::Iterator (
   options->snapshot = database->NewSnapshot();
   dbIterator = NULL;
   count      = 0;
+  seeking    = false;
   nexting    = false;
   ended      = false;
   endWorker  = NULL;
@@ -125,12 +126,14 @@ bool Iterator::GetIterator () {
 
 bool Iterator::Read (std::string& key, std::string& value) {
   // if it's not the first call, move to next item.
-  if (!GetIterator()) {
+  if (!GetIterator() && !seeking) {
     if (reverse)
       dbIterator->Prev();
     else
       dbIterator->Next();
   }
+
+  seeking = false;
 
   // now check if this is the end or not, if not then return the key & value
   if (dbIterator->Valid()) {
@@ -200,6 +203,47 @@ void checkEndCallback (Iterator* iterator) {
   }
 }
 
+NAN_METHOD(Iterator::Seek) {
+  NanScope();
+
+  Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
+  iterator->GetIterator();
+  leveldb::Iterator* dbIterator = iterator->dbIterator;
+  NanUtf8String key(args[0]);
+
+  dbIterator->Seek(*key);
+  iterator->seeking = true;
+
+  if (dbIterator->Valid()) {
+    int cmp = dbIterator->key().compare(*key);
+    if (cmp > 0 && iterator->reverse) {
+      dbIterator->Prev();
+    }
+    if (cmp < 0 && !iterator->reverse) {
+      dbIterator->Next();
+    }
+  } else {
+    if (iterator->reverse) {
+      dbIterator->SeekToLast();
+    } else {
+      dbIterator->SeekToFirst();
+    }
+    if (dbIterator->Valid()) {
+      int cmp = dbIterator->key().compare(*key);
+      if (cmp > 0 && iterator->reverse) {
+        dbIterator->SeekToFirst();
+        dbIterator->Prev();
+      }
+      if (cmp < 0 && !iterator->reverse) {
+        dbIterator->SeekToLast();
+        dbIterator->Next();
+      }
+    }
+  }
+
+  NanReturnValue(args.Holder());
+}
+
 NAN_METHOD(Iterator::Next) {
   NanScope();
 
@@ -253,6 +297,7 @@ void Iterator::Init () {
   NanAssignPersistent(iterator_constructor, tpl);
   tpl->SetClassName(NanNew("Iterator"));
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "seek", Iterator::Seek);
   NODE_SET_PROTOTYPE_METHOD(tpl, "next", Iterator::Next);
   NODE_SET_PROTOTYPE_METHOD(tpl, "end", Iterator::End);
 }
