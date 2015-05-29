@@ -128,6 +128,10 @@ void Database::CloseDatabase () {
 
 NAN_METHOD(LevelDOWN) {
   NanScope();
+  
+  if (args.Length() < 1 || !args[0]->IsString()) {
+    return NanThrowError("LevelDOWN expects a string argument");
+  }
 
   v8::Local<v8::String> location = args[0].As<v8::String>();
   NanReturnValue(Database::NewInstance(location));
@@ -152,6 +156,8 @@ void Database::Init () {
 NAN_METHOD(Database::New) {
   NanScope();
 
+  assert(args.Length()>0 && "Database::New expects an Object argument");
+  
   Database* obj = new Database(args[0]);
   obj->Wrap(args.This());
 
@@ -282,6 +288,10 @@ NAN_METHOD(Database::Close) {
 
 NAN_METHOD(Database::Put) {
   NanScope();
+  
+  if (args.Length() < 2) {
+    return NanThrowError("Database::Put expects 2 arguments (keyHandle, valueHandle)");
+  }
 
   LD_METHOD_SETUP_COMMON(put, 2, 3)
 
@@ -312,6 +322,10 @@ NAN_METHOD(Database::Put) {
 
 NAN_METHOD(Database::Get) {
   NanScope();
+  
+  if (args.Length() < 1) {
+    return NanThrowError("Database::Get expects an argument (keyHandle)");
+  }
 
   LD_METHOD_SETUP_COMMON(get, 1, 2)
 
@@ -339,6 +353,10 @@ NAN_METHOD(Database::Get) {
 
 NAN_METHOD(Database::Delete) {
   NanScope();
+  
+  if (args.Length() < 1) {
+    return NanThrowError("Database::Delete expects an argument (keyHandle)");
+  }
 
   LD_METHOD_SETUP_COMMON(del, 1, 2)
 
@@ -365,7 +383,7 @@ NAN_METHOD(Database::Delete) {
 NAN_METHOD(Database::Batch) {
   NanScope();
 
-  if ((args.Length() == 0 || args.Length() == 1) && !args[0]->IsArray()) {
+  if (args.Length() == 0 || (args.Length() > 0 && args[0]->IsObject())) {
     v8::Local<v8::Object> optionsObj;
     if (args.Length() > 0 && args[0]->IsObject()) {
       optionsObj = args[0].As<v8::Object>();
@@ -433,6 +451,11 @@ NAN_METHOD(Database::Batch) {
 
 NAN_METHOD(Database::ApproximateSize) {
   NanScope();
+  
+  if (args.Length() < 2) {
+    return NanThrowError(
+        "Database::ApproximateSize expects 2 arguments (startHandle, endHandle)");
+  }
 
   v8::Local<v8::Object> startHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> endHandle = args[1].As<v8::Object>();
@@ -460,6 +483,10 @@ NAN_METHOD(Database::ApproximateSize) {
 
 NAN_METHOD(Database::GetProperty) {
   NanScope();
+  
+  if (args.Length() < 1) {
+    return NanThrowError("Database::GetProperty expects an argument (propertyHandle)");
+  }
 
   v8::Local<v8::Value> propertyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Function> callback; // for LD_STRING_OR_BUFFER_TO_SLICE
