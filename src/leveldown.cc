@@ -15,6 +15,10 @@ namespace leveldown {
 
 NAN_METHOD(DestroyDB) {
   NanScope();
+  
+  if (args.Length() < 1 || !args[0]->IsString()) {
+    return NanThrowError("DestroyDB expects an argument (location)");
+  }
 
   NanUtf8String* location = new NanUtf8String(args[0]);
 
@@ -33,6 +37,10 @@ NAN_METHOD(DestroyDB) {
 
 NAN_METHOD(RepairDB) {
   NanScope();
+  
+  if (args.Length() < 1 || !args[0]->IsString()) {
+    return NanThrowError("RepairDB expects an argument (location)");
+  }
 
   NanUtf8String* location = new NanUtf8String(args[0]);
 

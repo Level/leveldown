@@ -40,15 +40,17 @@ void Batch::Init () {
 
 NAN_METHOD(Batch::New) {
   NanScope();
+  
+  assert(args.Length()>0 && "Batch::New expects an Object argument");
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
   v8::Local<v8::Object> optionsObj;
 
+  bool sync = false;
   if (args.Length() > 1 && args[1]->IsObject()) {
     optionsObj = v8::Local<v8::Object>::Cast(args[1]);
+    sync = BooleanOptionValue(optionsObj, "sync");
   }
-
-  bool sync = BooleanOptionValue(optionsObj, "sync");
 
   Batch* batch = new Batch(database, sync);
   batch->Wrap(args.This());
@@ -82,6 +84,10 @@ v8::Handle<v8::Value> Batch::NewInstance (
 NAN_METHOD(Batch::Put) {
   NanScope();
 
+  if (args.Length() < 2) {
+    return NanThrowError("Batch::Put expects 2 arguments (keyBuffer, valueBuffer)");
+  }
+
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
   v8::Handle<v8::Function> callback; // purely for the error macros
 
@@ -102,6 +108,10 @@ NAN_METHOD(Batch::Put) {
 
 NAN_METHOD(Batch::Del) {
   NanScope();
+  
+  if (args.Length() < 1) {
+    return NanThrowError("Batch::Del expects an argument (keyBuffer)");
+  }
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
@@ -132,6 +142,10 @@ NAN_METHOD(Batch::Clear) {
 
 NAN_METHOD(Batch::Write) {
   NanScope();
+  
+  if (args.Length() < 1 || !args[0]->IsFunction()) {
+    return NanThrowError("Batch::Write expects a function argument");
+  }
 
   Batch* batch = ObjectWrap::Unwrap<Batch>(args.Holder());
 
