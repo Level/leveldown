@@ -383,7 +383,7 @@ NAN_METHOD(Database::Delete) {
 NAN_METHOD(Database::Batch) {
   NanScope();
 
-  if (args.Length() == 0 || (args.Length() == 1 && args[0]->IsObject())) {
+  if (args.Length() == 0 || (args.Length() > 0 && args[0]->IsObject())) {
     v8::Local<v8::Object> optionsObj;
     if (args.Length() > 0 && args[0]->IsObject()) {
       optionsObj = args[0].As<v8::Object>();
