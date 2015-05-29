@@ -353,7 +353,7 @@ NAN_METHOD(Iterator::New) {
       }
     }
 
-    if (!optionsObj.IsEmpty() && optionsObj->Has(NanNew("limit"))) {
+    if (optionsObj->Has(NanNew("limit"))) {
       limit = v8::Local<v8::Integer>::Cast(optionsObj->Get(
           NanNew("limit")))->Value();
     }
