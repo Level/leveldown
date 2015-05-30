@@ -23,11 +23,11 @@ LevelDOWN
 A Low-level Node.js LevelDB binding
 -------------------------
 
-[![Build Status](https://secure.travis-ci.org/rvagg/node-leveldown.png)](http://travis-ci.org/rvagg/node-leveldown)
+[![Build Status](https://secure.travis-ci.org/Level/leveldown.png)](http://travis-ci.org/Level/leveldown)
 
 [![NPM](https://nodei.co/npm/leveldown.png?stars&downloads&downloadRank)](https://nodei.co/npm/leveldown/) [![NPM](https://nodei.co/npm-dl/leveldown.png?months=6&height=3)](https://nodei.co/npm/leveldown/)
 
-LevelDOWN was extracted from [LevelUP](https://github.com/rvagg/node-levelup) and now serves as a stand-alone binding for LevelDB.
+LevelDOWN was extracted from [LevelUP](https://github.com/level/levelup) and now serves as a stand-alone binding for LevelDB.
 
 It is **strongly recommended** that you use LevelUP in preference to LevelDOWN unless you have measurable performance reasons to do so. LevelUP is optimised for usability and safety. Although we are working to improve the safety of the LevelDOWN interface it is still easy to crash your Node process if you don't do things in just the right way.
 
@@ -42,7 +42,7 @@ Tested & supported platforms
   * **Solaris** (SmartOS & Nodejitsu)
   * **FreeBSD**
   * **Windows**
-    * Node 0.10 and above only, see [issue #5](https://github.com/rvagg/node-levelup/issues/5) for more info
+    * Node 0.10 and above only, see [issue #5](https://github.com/level/levelup/issues/5) for more info
     * See installation instructions for *node-gyp* dependencies [here](https://github.com/TooTallNate/node-gyp#installation), you'll need these (free) components from Microsoft to compile and run any native Node add-on in Windows.
 
 <a name="api"></a>
@@ -165,7 +165,7 @@ The `callback` function will be called with no arguments if the operation is suc
 ### leveldown#batch(operations[, options], callback)
 <code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should be an `Array` containing a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation inside LevelDB. Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the *type* is `'put'` that have a `'value'` of `undefined`, `null`, `[]`, `''` or `new Buffer(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `new Buffer(0)` depending on how they are requested.
 
-See [LevelUP](https://github.com/rvagg/node-levelup#batch) for full documentation on how this works in practice.
+See [LevelUP](https://github.com/level/levelup#batch) for full documentation on how this works in practice.
 
 #### `options`
 
@@ -282,6 +282,12 @@ Currently LevelDOWN does not track the state of the underlying LevelDB instance.
 
 LevelUP currently tracks and manages state and will prevent out-of-state operations from being send to LevelDOWN. If you use LevelDOWN directly then you must track and manage state for yourself.
 
+<a name="snapshots"></a>
+Snapshots
+---------------
+
+LevelDOWN exposes a feature of LevelDB called [snapshots](http://leveldb.googlecode.com/git-history/f779e7a5d89f853fc5224f9eb8103ca2b8f2f555/doc/index.html). This means that when you do e.g. `createReadStream` and `createWriteStream` at the same time, any data modified by the write stream will not affect data emitted from the read stream. In other words, a LevelDB Snapshot captures the latest state at the time the snapshot was created, enabling the snapshot to iterate or read the data without seeing any subsequent writes. Any read not performed on a snapshot will implicitly use the latest state.
+
 <a name="support"></a>
 Getting support
 ---------------
@@ -300,27 +306,7 @@ LevelDOWN is an **OPEN Open Source Project**. This means that:
 
 > Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
-See the [CONTRIBUTING.md](https://github.com/rvagg/node-leveldown/blob/master/CONTRIBUTING.md) file for more details.
-
-### Contributors
-
-LevelDOWN is only possible due to the excellent work of the following contributors:
-
-<table><tbody>
-<tr><th align="left">Rod Vagg</th><td><a href="https://github.com/rvagg">GitHub/rvagg</a></td><td><a href="http://twitter.com/rvagg">Twitter/@rvagg</a></td></tr>
-<tr><th align="left">John Chesley</th><td><a href="https://github.com/chesles/">GitHub/chesles</a></td><td><a href="http://twitter.com/chesles">Twitter/@chesles</a></td></tr>
-<tr><th align="left">Jake Verbaten</th><td><a href="https://github.com/raynos">GitHub/raynos</a></td><td><a href="http://twitter.com/raynos2">Twitter/@raynos2</a></td></tr>
-<tr><th align="left">Dominic Tarr</th><td><a href="https://github.com/dominictarr">GitHub/dominictarr</a></td><td><a href="http://twitter.com/dominictarr">Twitter/@dominictarr</a></td></tr>
-<tr><th align="left">Max Ogden</th><td><a href="https://github.com/maxogden">GitHub/maxogden</a></td><td><a href="http://twitter.com/maxogden">Twitter/@maxogden</a></td></tr>
-<tr><th align="left">Lars-Magnus Skog</th><td><a href="https://github.com/ralphtheninja">GitHub/ralphtheninja</a></td><td><a href="http://twitter.com/ralphtheninja">Twitter/@ralphtheninja</a></td></tr>
-<tr><th align="left">David Björklund</th><td><a href="https://github.com/kesla">GitHub/kesla</a></td><td><a href="http://twitter.com/david_bjorklund">Twitter/@david_bjorklund</a></td></tr>
-<tr><th align="left">Julian Gruber</th><td><a href="https://github.com/juliangruber">GitHub/juliangruber</a></td><td><a href="http://twitter.com/juliangruber">Twitter/@juliangruber</a></td></tr>
-<tr><th align="left">Paolo Fragomeni</th><td><a href="https://github.com/hij1nx">GitHub/hij1nx</a></td><td><a href="http://twitter.com/hij1nx">Twitter/@hij1nx</a></td></tr>
-<tr><th align="left">Anton Whalley</th><td><a href="https://github.com/No9">GitHub/No9</a></td><td><a href="https://twitter.com/antonwhalley">Twitter/@antonwhalley</a></td></tr>
-<tr><th align="left">Matteo Collina</th><td><a href="https://github.com/mcollina">GitHub/mcollina</a></td><td><a href="https://twitter.com/matteocollina">Twitter/@matteocollina</a></td></tr>
-<tr><th align="left">Pedro Teixeira</th><td><a href="https://github.com/pgte">GitHub/pgte</a></td><td><a href="https://twitter.com/pgte">Twitter/@pgte</a></td></tr>
-<tr><th align="left">James Halliday</th><td><a href="https://github.com/substack">GitHub/substack</a></td><td><a href="https://twitter.com/substack">Twitter/@substack</a></td></tr>
-</tbody></table>
+See the [contribution guide](https://github.com/Level/community/blob/master/CONTRIBUTING.md) for more details.
 
 ### Windows
 
@@ -331,8 +317,8 @@ A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](
 License &amp; copyright
 -------------------
 
-Copyright (c) 2012-2015 LevelDOWN contributors (listed above).
+Copyright &copy; 2012-2015 **LevelDOWN** [contributors](https://github.com/level/community#contributors).
 
-LevelDOWN is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included LICENSE.md file for more details.
+**LevelDOWN** is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included `LICENSE.md` file for more details.
 
 *LevelDOWN builds on the excellent work of the LevelDB and Snappy teams from Google and additional contributors. LevelDB and Snappy are both issued under the [New BSD Licence](http://opensource.org/licenses/BSD-3-Clause).*

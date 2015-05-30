@@ -1,4 +1,4 @@
-const test = require('tap').test
+const test = require('tape')
     , path = require('path')
     , fs   = require('fs')
 

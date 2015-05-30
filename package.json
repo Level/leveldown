@@ -1,7 +1,7 @@
 {
-  "name": "leveldown-prebuilt",
+  "name": "leveldown",
   "description": "A Node.js LevelDB binding, primary backend for LevelUP",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "contributors": [
     "Rod Vagg <r@va.gg> (https://github.com/rvagg)",
     "John Chesley <john@chesl.es> (https://github.com/chesles/)",
@@ -19,33 +19,39 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mafintosh/leveldown-prebuilt.git"
+    "url": "https://github.com/level/leveldown.git"
   },
-  "homepage": "https://github.com/mafintosh/leveldown-prebuilt",
+  "homepage": "https://github.com/level/leveldown",
   "keywords": [
     "leveldb",
     "level"
   ],
   "main": "leveldown.js",
   "dependencies": {
-    "abstract-leveldown": "~2.0.0",
+    "abstract-leveldown": "~2.4.0",
     "bindings": "~1.2.1",
     "fast-future": "~1.0.0",
-    "nan": "~1.5.0",
+    "nan": "~1.8.4",
     "node-pre-gyp": "~0.6.2"
   },
   "devDependencies": {
+    "async": "~1.0.0",
+    "delayed": "~1.0.1",
     "du": "~0.1.0",
+    "faucet": "0.0.1",
     "mkfiletree": "~0.0.1",
     "monotonic-timestamp": "~0.0.8",
     "node-gyp": "~1.0.1",
+    "node-uuid": "~1.4.3",
+    "optimist": "~0.6.1",
     "readfiletree": "~0.0.1",
     "rimraf": "~2.2.8",
-    "tap": "~0.4.12"
+    "slump": "~2.0.0",
+    "tape": "~4.0.0"
   },
   "scripts": {
     "install": "node-pre-gyp install --fallback-to-build",
-    "test": "tap test/*-test.js --stderr",
+    "test": "tape test/*-test.js | faucet",
     "prebuild": "node-pre-gyp rebuild && node-pre-gyp package"
   },
   "license": "MIT",
@@ -56,6 +62,6 @@
   "binary": {
     "module_name": "leveldown",
     "module_path": "./build-pre-gyp/",
-    "host": "https://github.com/mafintosh/node-leveldown/releases/download/v0.10.2"
+    "host": "https://github.com/level/leveldown/releases/download/v1.1.0"
   }
 }

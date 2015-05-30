@@ -1,3 +1,45 @@
+Note that we have filtered out commits related to new tags, updating changelog and we're also not listing any merge commits, i.e. we are only listing things that changed between versions.
+
+### 1.0.7 May 27 2015
+
+ * [[`61398a0056`](https://github.com/level/leveldown/commit/61398a0056)] - link to level/community (Lars-Magnus Skog)
+ * [[`382a1a7fa3`](https://github.com/level/leveldown/commit/382a1a7fa3)] - add compression test suite (Julian Gruber)
+ * [[`139db7bc7f`](https://github.com/level/leveldown/commit/139db7bc7f)] - use const reference instead of by value in Database constructor (Lars-Magnus Skog)
+ * [[`b56a86323e`](https://github.com/level/leveldown/commit/b56a86323e)] - refactor NanNew() on strings into option value functions (Lars-Magnus Skog)
+ * [[`ca1f4746c4`](https://github.com/level/leveldown/commit/ca1f4746c4)] - refactor BooleanOptionValue (Lars-Magnus Skog)
+ * [[`56def2d7c8`](https://github.com/level/leveldown/commit/56def2d7c8)] - NanUInt32OptionValue -> UInt32OptionValue (Lars-Magnus Skog)
+ * [[`39c614a24f`](https://github.com/level/leveldown/commit/39c614a24f)] - NanBooleanOptionValue -> BooleanOptionValue (Lars-Magnus Skog)
+ * [[`fcdc46183e`](https://github.com/level/leveldown/commit/fcdc46183e)] - simplify location logic, let Database take care of allocation (Lars-Magnus Skog)
+ * [[`8cb90e6b6d`](https://github.com/level/leveldown/commit/8cb90e6b6d)] - update abstract-leveldown (Lars-Magnus Skog)
+ * [[`f70b6576e7`](https://github.com/level/leveldown/commit/f70b6576e7)] - update .travis.yml (nvm works on travis now) (Lars-Magnus Skog)
+ * [[`007550e7f7`](https://github.com/level/leveldown/commit/007550e7f7)] - 1.0.6 (Lars-Magnus Skog)
+
+### 1.0.5/1.0.6 May 5 2015
+
+* [[`9064099fe7`](https://github.com/level/leveldown/commit/9064099fe7)] - pass db to abstractIterator so gc keeps it (Julian Gruber)
+
+### 1.0.4 May 5 2015
+
+ * [[`b550c98291`](https://github.com/level/leveldown/commit/b550c98291)] - update nan for iojs 2.0.0 (Lars-Magnus Skog)
+
+### 1.0.3 May 2 2015
+
+ * [[`82479b689f`](https://github.com/level/leveldown/commit/82479b689f)] - tap -> tape + faucet (Lars-Magnus Skog)
+ * [[`ca9101542a`](https://github.com/level/leveldown/commit/ca9101542a)] - fix write-random.js, use leveldown instead of lmdb (Lars-Magnus Skog)
+ * [[`03fbbfb99f`](https://github.com/level/leveldown/commit/03fbbfb99f)] - fix bench/db-bench.js (Lars-Magnus Skog)
+
+### 1.0.2 Apr 26 2015
+  * [[`8470a63678`](https://github.com/level/leveldown/commit/8470a63678)] - s/rvagg\/node-/level\// (Lars-Magnus Skog)
+  * [[`9cbf592bea`](https://github.com/level/leveldown/commit/9cbf592bea)] - add documentation about snapshots (Max Ogden)
+  * [[`b57827cd29`](https://github.com/level/leveldown/commit/b57827cd29)] - use n instead of nvm for working iojs support (Lars-Magnus Skog)
+  * [[`a19927667a`](https://github.com/level/leveldown/commit/a19927667a)] - abstract-leveldown ~2.1.0 (ralphtheninja)
+  * [[`95ccdf0850`](https://github.com/level/leveldown/commit/95ccdf0850)] - update logo and copyright (Lars-Magnus Skog)
+  * [[`09e89d7abb`](https://github.com/level/leveldown/commit/09e89d7abb)] - updated my email (ralphtheninja)
+
+### 1.0.1 Jan 16 2015
+  * [[`6df3ecd6f5`](https://github.com/level/leveldown/commit/6df3ecd6f5)] - nan 1.5 for io.js support (Rod Vagg)
+  * [[`5198231a88`](https://github.com/level/leveldown/commit/5198231a88)] - Fix LevelDB builds for modern gcc versions (Sharvil Nanavati)
+
 ### 1.0.0 Aug 26 2014
   * NAN@1.3 for Node 0.11.13+ support (@rvagg)
   * Allow writing empty values: null, undefined, '', [] and Buffer(0). Entries come out as '' or Buffer(0) (@ggreer, @juliangruber, @rvagg)

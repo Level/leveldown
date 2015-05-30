@@ -1,7 +1,6 @@
-/* Copyright (c) 2012-2014 LevelDOWN contributors
- * See list at <https://github.com/rvagg/node-leveldown#contributing>
- * MIT License
- * <https://github.com/rvagg/node-leveldown/blob/master/LICENSE.md>
+/* Copyright (c) 2012-2015 LevelDOWN contributors
+ * See list at <https://github.com/level/leveldown#contributing>
+ * MIT License <https://github.com/level/leveldown/blob/master/LICENSE.md>
  */
 
 #include <node.h>
@@ -16,18 +15,19 @@
 #include "database_async.h"
 #include "batch.h"
 #include "iterator.h"
+#include "common.h"
 
 namespace leveldown {
 
 static v8::Persistent<v8::FunctionTemplate> database_constructor;
 
-Database::Database (NanUtf8String* location) : location(location) {
-  db = NULL;
-  currentIteratorId = 0;
-  pendingCloseWorker = NULL;
-  blockCache = NULL;
-  filterPolicy = NULL;
-};
+Database::Database (const v8::Handle<v8::Value>& from)
+  : location(new NanUtf8String(from))
+  , db(NULL)
+  , currentIteratorId(0)
+  , pendingCloseWorker(NULL)
+  , blockCache(NULL)
+  , filterPolicy(NULL) {};
 
 Database::~Database () {
   if (db != NULL)
@@ -35,15 +35,12 @@ Database::~Database () {
   delete location;
 };
 
-NanUtf8String* Database::Location() { return location; }
-
 /* Calls from worker threads, NO V8 HERE *****************************/
 
 leveldb::Status Database::OpenDatabase (
         leveldb::Options* options
-      , std::string location
     ) {
-  return leveldb::DB::Open(*options, location, &db);
+  return leveldb::DB::Open(*options, **location, &db);
 }
 
 leveldb::Status Database::PutToDatabase (
@@ -132,9 +129,7 @@ void Database::CloseDatabase () {
 NAN_METHOD(LevelDOWN) {
   NanScope();
 
-  v8::Local<v8::String> location;
-  if (args.Length() != 0 && args[0]->IsString())
-    location = args[0].As<v8::String>();
+  v8::Local<v8::String> location = args[0].As<v8::String>();
   NanReturnValue(Database::NewInstance(location));
 }
 
@@ -157,9 +152,7 @@ void Database::Init () {
 NAN_METHOD(Database::New) {
   NanScope();
 
-  NanUtf8String* location = new NanUtf8String(args[0]);
-
-  Database* obj = new Database(location);
+  Database* obj = new Database(args[0]);
   obj->Wrap(args.This());
 
   NanReturnValue(args.This());
@@ -173,12 +166,8 @@ v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
   v8::Local<v8::FunctionTemplate> constructorHandle =
       NanNew<v8::FunctionTemplate>(database_constructor);
 
-  if (location.IsEmpty()) {
-    instance = constructorHandle->GetFunction()->NewInstance(0, NULL);
-  } else {
-    v8::Handle<v8::Value> argv[] = { location };
-    instance = constructorHandle->GetFunction()->NewInstance(1, argv);
-  }
+  v8::Handle<v8::Value> argv[] = { location };
+  instance = constructorHandle->GetFunction()->NewInstance(1, argv);
 
   return NanEscapeScope(instance);
 }
@@ -188,39 +177,21 @@ NAN_METHOD(Database::Open) {
 
   LD_METHOD_SETUP_COMMON(open, 0, 1)
 
-  bool createIfMissing = NanBooleanOptionValue(
-      optionsObj
-    , NanNew("createIfMissing")
-    , true
-  );
-  bool errorIfExists =
-      NanBooleanOptionValue(optionsObj, NanNew("errorIfExists"));
-  bool compression =
-      NanBooleanOptionValue(optionsObj, NanNew("compression"), true);
+  bool createIfMissing = BooleanOptionValue(optionsObj, "createIfMissing", true);
+  bool errorIfExists = BooleanOptionValue(optionsObj, "errorIfExists");
+  bool compression = BooleanOptionValue(optionsObj, "compression", true);
 
-  uint32_t cacheSize = NanUInt32OptionValue(
+  uint32_t cacheSize = UInt32OptionValue(optionsObj, "cacheSize", 8 << 20);
+  uint32_t writeBufferSize = UInt32OptionValue(
       optionsObj
-    , NanNew("cacheSize")
-    , 8 << 20
-  );
-  uint32_t writeBufferSize = NanUInt32OptionValue(
-      optionsObj
-    , NanNew("writeBufferSize")
+    , "writeBufferSize"
     , 4 << 20
   );
-  uint32_t blockSize = NanUInt32OptionValue(
+  uint32_t blockSize = UInt32OptionValue(optionsObj, "blockSize", 4096);
+  uint32_t maxOpenFiles = UInt32OptionValue(optionsObj, "maxOpenFiles", 1000);
+  uint32_t blockRestartInterval = UInt32OptionValue(
       optionsObj
-    , NanNew("blockSize")
-    , 4096
-  );
-  uint32_t maxOpenFiles = NanUInt32OptionValue(
-      optionsObj
-    , NanNew("maxOpenFiles")
-    , 1000
-  );
-  uint32_t blockRestartInterval = NanUInt32OptionValue(
-      optionsObj
-    , NanNew("blockRestartInterval")
+    , "blockRestartInterval"
     , 16
   );
 
@@ -316,10 +287,10 @@ NAN_METHOD(Database::Put) {
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
   v8::Local<v8::Object> valueHandle = args[1].As<v8::Object>();
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
-  LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key);
+  LD_STRING_OR_BUFFER_TO_SLICE(value, valueHandle, value);
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, "sync");
 
   WriteWorker* worker  = new WriteWorker(
       database
@@ -345,10 +316,10 @@ NAN_METHOD(Database::Get) {
   LD_METHOD_SETUP_COMMON(get, 1, 2)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key);
 
-  bool asBuffer = NanBooleanOptionValue(optionsObj, NanNew("asBuffer"), true);
-  bool fillCache = NanBooleanOptionValue(optionsObj, NanNew("fillCache"), true);
+  bool asBuffer = BooleanOptionValue(optionsObj, "asBuffer", true);
+  bool fillCache = BooleanOptionValue(optionsObj, "fillCache", true);
 
   ReadWorker* worker = new ReadWorker(
       database
@@ -372,9 +343,9 @@ NAN_METHOD(Database::Delete) {
   LD_METHOD_SETUP_COMMON(del, 1, 2)
 
   v8::Local<v8::Object> keyHandle = args[0].As<v8::Object>();
-  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
+  LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key);
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, "sync");
 
   DeleteWorker* worker = new DeleteWorker(
       database
@@ -402,9 +373,9 @@ NAN_METHOD(Database::Batch) {
     NanReturnValue(Batch::NewInstance(args.This(), optionsObj));
   }
 
-  LD_METHOD_SETUP_COMMON(batch, 1, 2)
+  LD_METHOD_SETUP_COMMON(batch, 1, 2);
 
-  bool sync = NanBooleanOptionValue(optionsObj, NanNew("sync"));
+  bool sync = BooleanOptionValue(optionsObj, "sync");
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(args[0]);
 

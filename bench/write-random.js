@@ -1,4 +1,4 @@
-const leveldown   = require('../../lmdb/')
+const leveldown   = require('../')
     , crypto      = require('crypto')
     , fs          = require('fs')
     , du          = require('du')
@@ -31,15 +31,12 @@ db.open(function (err) {
   var inProgress  = 0
     , totalWrites = 0
     , startTime   = Date.now()
-    //, timesTotal  = 0
     , writeBuf    = ''
 
   function write() {
     if (totalWrites % 100000 == 0) console.log(inProgress, totalWrites)
 
     if (totalWrites % 1000 == 0) {
-      //timesStream.write((Date.now() - startTime) + ',' + Math.floor(timesTotal / 1000) + '\n')
-      //timesTotal = 0
       timesStream.write(writeBuf)
       writeBuf = ''
     }
@@ -56,7 +53,6 @@ db.open(function (err) {
     db.put(uuid.v4(), data, function (err) {
       if (err)
         throw err
-      //timesTotal += process.hrtime(time)[1]
       writeBuf += (Date.now() - startTime) + ',' + process.hrtime(time)[1] + '\n'
       inProgress--
       process.nextTick(write)

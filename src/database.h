@@ -1,6 +1,6 @@
-/* Copyright (c) 2012-2014 LevelDOWN contributors
- * See list at <https://github.com/rvagg/node-leveldown#contributing>
- * MIT License <https://github.com/rvagg/node-leveldown/blob/master/LICENSE.md>
+/* Copyright (c) 2012-2015 LevelDOWN contributors
+ * See list at <https://github.com/level/leveldown#contributing>
+ * MIT License <https://github.com/level/leveldown/blob/master/LICENSE.md>
  */
 
 #ifndef LD_DATABASE_H
@@ -48,7 +48,7 @@ public:
   static void Init ();
   static v8::Handle<v8::Value> NewInstance (v8::Local<v8::String> &location);
 
-  leveldb::Status OpenDatabase (leveldb::Options* options, std::string location);
+  leveldb::Status OpenDatabase (leveldb::Options* options);
   leveldb::Status PutToDatabase (
       leveldb::WriteOptions* options
     , leveldb::Slice key
@@ -73,19 +73,18 @@ public:
   const leveldb::Snapshot* NewSnapshot ();
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
   void CloseDatabase ();
-  NanUtf8String* Location();
   void ReleaseIterator (uint32_t id);
 
-  Database (NanUtf8String* location);
+  Database (const v8::Handle<v8::Value>& from);
   ~Database ();
 
 private:
-  leveldb::DB* db;
-  const leveldb::FilterPolicy* filterPolicy;
-  leveldb::Cache* blockCache;
   NanUtf8String* location;
+  leveldb::DB* db;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);
+  leveldb::Cache* blockCache;
+  const leveldb::FilterPolicy* filterPolicy;
 
   std::map< uint32_t, leveldown::Iterator * > iterators;
 

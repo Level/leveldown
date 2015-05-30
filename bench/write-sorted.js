@@ -31,15 +31,12 @@ db.open({ errorIfExists: true, createIfMissing: true }, function (err) {
   var inProgress  = 0
     , totalWrites = 0
     , startTime   = Date.now()
-    //, timesTotal  = 0
     , writeBuf    = ''
 
   function write() {
     if (totalWrites % 100000 == 0) console.log(inProgress, totalWrites)
 
     if (totalWrites % 1000 == 0) {
-      //timesStream.write((Date.now() - startTime) + ',' + Math.floor(timesTotal / 1000) + '\n')
-      //timesTotal = 0
       timesStream.write(writeBuf)
       writeBuf = ''
     }
@@ -56,7 +53,6 @@ db.open({ errorIfExists: true, createIfMissing: true }, function (err) {
     db.put(timestamp(), data, function (err) {
       if (err)
         throw err
-      //timesTotal += process.hrtime(time)[1]
       writeBuf += (Date.now() - startTime) + ',' + process.hrtime(time)[1] + '\n'
       inProgress--
       process.nextTick(write)

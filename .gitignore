@@ -12,3 +12,4 @@ bench/
 *.obj
 *.1sdk.pdb
 *.lastbuildstate
+npm-debug.log

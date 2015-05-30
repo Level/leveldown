@@ -3,7 +3,7 @@ const util             = require('util')
 
 
 function Iterator (db, options) {
-  AbstractIterator.call(this, options)
+  AbstractIterator.call(this, db)
 
   this.binding    = db.binding.iterator(options)
   this.cache      = null

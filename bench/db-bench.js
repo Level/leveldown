@@ -1,40 +1,36 @@
 #!/usr/bin/env node
 
-const leveldown = require('../')
-    , fs        = require('fs')
-    , du        = require('du')
-    , rimraf    = require('rimraf')
+const leveldown    = require('../')
+    , fs           = require('fs')
+    , du           = require('du')
+    , rimraf       = require('rimraf')
 
-    , argv      = require('optimist').argv
+    , argv         = require('optimist').argv
 
-    , options   = {
+    , options      = {
           benchmark        : argv.benchmark
         , useExisting      : argv.use_existing
-        , db               : argv.db
+        , db               : argv.db              || __dirname + '/db'
         , num              : argv.num             || 1000000
         , concurrency      : argv.concurrency     || 4
         , cacheSize        : argv.cacheSize       || 8
         , writeBufferSize  : argv.writeBufferSize || 4
         , valueSize        : argv.valueSize       || 100
-        , timingOutput     : argv.timingOutput
+        , timingOutput     : argv.timingOutput    || __dirname + '/timingOutput'
         , throughputOutput : argv.throughputOutput
       }
 
-    , randomData = require('./random-data')()
-    , keyTmpl = '0000000000000000'
+    , randomString = require('slump').string
+    , keyTmpl      = '0000000000000000'
 
 if (!options.useExisting) {
   leveldown.destroy(options.db, function () {})
 }
 
 var db          = leveldown(options.db)
-  , timesStream = options.timingOutput
-        && fs.createWriteStream(options.timingOutput, 'utf8')
-//  , throughputStream = options.throughputOutput
-//        && fs.createWriteStream(options.throughputOutput, 'utf8')
+  , timesStream = fs.createWriteStream(options.timingOutput, 'utf8')
 
-// make a 16 char padded key
-function makeKey () {
+function make16CharPaddedKey () {
   var r = Math.floor(Math.random() * options.num)
     , k = keyTmpl + r
   return k.substr(k.length - 16)
@@ -42,17 +38,7 @@ function makeKey () {
 
 timesStream.write('Elapsed (ms), Entries, Bytes, Last 1000 Avg Time, MB/s\n')
 
-setTimeout(function () {
-  db.open({
-        errorIfExists   : false
-      , createIfMissing : true
-      , cacheSize       : options.cacheSize << 20
-      , writeBufferSize : options.writeBufferSize << 20
-  }, function (err) {
-
-  if (err)
-    throw err
-
+function start () {
   var inProgress  = 0
     , totalWrites = 0
     , totalBytes  = 0
@@ -103,19 +89,16 @@ setTimeout(function () {
         + ',' + (Math.floor(((totalBytes / 1048576) / (elapsed / 1000)) * 100) / 100)
         + '\n')
       timesAccum = 0
-      //timesStream.write(writeBuf)
-      //writeBuf = ''
     }
 
     var time = process.hrtime()
 
-    db.put(makeKey(), randomData.generate(options.valueSize), function (err) {
+    db.put(make16CharPaddedKey(), randomString({ length: options.valueSize }), function (err) {
       if (err)
         throw err
 
       totalBytes += keyTmpl.length + options.valueSize
       timesAccum += process.hrtime(time)[1]
-      //writeBuf += (Date.now() - startTime) + ',' + process.hrtime(time)[1] + '\n'
       inProgress--
       process.nextTick(write)
     })
@@ -123,4 +106,19 @@ setTimeout(function () {
 
   for (var i = 0; i < options.concurrency; i++)
     write()
-})}, 500)
+}
+
+setTimeout(function () {
+  db.open({
+        errorIfExists   : false
+      , createIfMissing : true
+      , cacheSize       : options.cacheSize << 20
+      , writeBufferSize : options.writeBufferSize << 20
+  }, function (err) {
+    if (err)
+      throw err
+
+    start()
+
+  })
+}, 500)
