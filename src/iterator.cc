@@ -218,8 +218,7 @@ NAN_METHOD(Iterator::Seek) {
     int cmp = dbIterator->key().compare(*key);
     if (cmp > 0 && iterator->reverse) {
       dbIterator->Prev();
-    }
-    if (cmp < 0 && !iterator->reverse) {
+    } else if (cmp < 0 && !iterator->reverse) {
       dbIterator->Next();
     }
   } else {
@@ -233,8 +232,7 @@ NAN_METHOD(Iterator::Seek) {
       if (cmp > 0 && iterator->reverse) {
         dbIterator->SeekToFirst();
         dbIterator->Prev();
-      }
-      if (cmp < 0 && !iterator->reverse) {
+      } else if (cmp < 0 && !iterator->reverse) {
         dbIterator->SeekToLast();
         dbIterator->Next();
       }
