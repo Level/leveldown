@@ -304,6 +304,11 @@ See the [contribution guide](https://github.com/Level/community/blob/master/CONT
 A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using LevelUP on Windows, you should give him your thanks!
 
 
+Prebuilt binaries
+-----------------
+
+LevelDOWN uses `node-pre-gyp` to support prebuilt binaries. For a list of supported prebuilt platform binaries see https://github.com/Level/leveldown/releases
+
 <a name="license"></a>
 License &amp; copyright
 -------------------
