@@ -62,6 +62,7 @@
   "binary": {
     "module_name": "leveldown",
     "module_path": "./build-pre-gyp/",
-    "host": "https://github.com/level/leveldown/releases/download/v1.2.1"
+    "host": "https://github.com/level/leveldown/releases/download",
+    "remote_path": "./v{version}"
   }
 }
