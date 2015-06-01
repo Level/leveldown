@@ -62,6 +62,7 @@ private:
   leveldb::ReadOptions* options;
   leveldb::Slice* start;
   std::string* end;
+  bool seeking;
   bool reverse;
   bool keys;
   bool values;
@@ -87,6 +88,7 @@ private:
   bool GetIterator ();
 
   static NAN_METHOD(New);
+  static NAN_METHOD(Seek);
   static NAN_METHOD(Next);
   static NAN_METHOD(End);
 };

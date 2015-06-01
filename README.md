@@ -42,6 +42,7 @@ Tested & supported platforms
   * <a href="#leveldown_getProperty"><code><b>leveldown#getProperty()</b></code></a>
   * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
+  * <a href="#iterator_seek"><code><b>iterator#seek()</b></code></a>
   * <a href="#iterator_end"><code><b>iterator#end()</b></code></a>
   * <a href="#leveldown_destroy"><code><b>leveldown.destroy()</b></code></a>
   * <a href="#leveldown_repair"><code><b>leveldown.repair()</b></code></a>
@@ -228,6 +229,13 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 * `key` - either a `String` or a Node.js `Buffer` object depending on the `keyAsBuffer` argument when the `iterator()` was called.
 * `value` - either a `String` or a Node.js `Buffer` object depending on the `valueAsBuffer` argument when the `iterator()` was called.
 
+
+--------------------------------------------------------
+<a name="iterator_seek"></a>
+### iterator#seek(key)
+<code>seek()</code> is an instance method on an existing iterator object, used to seek the underlying LevelDB iterator to a given key.
+
+By calling <code>seek(key)</code>, subsequent calls to <code>next(cb)</code> will return key/values larger or smaller than key, based on your <code>reverse</code> setting in the iterator constructor.
 
 --------------------------------------------------------
 <a name="iterator_end"></a>
