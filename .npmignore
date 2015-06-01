@@ -1,5 +1,6 @@
 *.tar.gz
 build/
+build-pre-gyp/
 test-data.tar
 test-data.db.tar
 deps/leveldb/leveldb-basho/
