@@ -14,39 +14,39 @@
 namespace leveldown {
 
 NAN_METHOD(DestroyDB) {
-  NanScope();
+  Nan::HandleScope scope;
 
-  NanUtf8String* location = new NanUtf8String(args[0]);
+  Nan::Utf8String* location = new Nan::Utf8String(info[0]);
 
-  NanCallback* callback = new NanCallback(
-      v8::Local<v8::Function>::Cast(args[1]));
+  Nan::Callback* callback = new Nan::Callback(
+      v8::Local<v8::Function>::Cast(info[1]));
 
   DestroyWorker* worker = new DestroyWorker(
       location
     , callback
   );
 
-  NanAsyncQueueWorker(worker);
+  Nan::AsyncQueueWorker(worker);
 
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
 NAN_METHOD(RepairDB) {
-  NanScope();
+  Nan::HandleScope scope;
 
-  NanUtf8String* location = new NanUtf8String(args[0]);
+  Nan::Utf8String* location = new Nan::Utf8String(info[0]);
 
-  NanCallback* callback = new NanCallback(
-      v8::Local<v8::Function>::Cast(args[1]));
+  Nan::Callback* callback = new Nan::Callback(
+      v8::Local<v8::Function>::Cast(info[1]));
 
   RepairWorker* worker = new RepairWorker(
       location
     , callback
   );
 
-  NanAsyncQueueWorker(worker);
+  Nan::AsyncQueueWorker(worker);
 
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
 void Init (v8::Handle<v8::Object> target) {
@@ -55,19 +55,19 @@ void Init (v8::Handle<v8::Object> target) {
   leveldown::Batch::Init();
 
   v8::Local<v8::Function> leveldown =
-      NanNew<v8::FunctionTemplate>(LevelDOWN)->GetFunction();
+      Nan::New<v8::FunctionTemplate>(LevelDOWN)->GetFunction();
 
   leveldown->Set(
-      NanNew("destroy")
-    , NanNew<v8::FunctionTemplate>(DestroyDB)->GetFunction()
+      Nan::New("destroy").ToLocalChecked()
+    , Nan::New<v8::FunctionTemplate>(DestroyDB)->GetFunction()
   );
 
   leveldown->Set(
-      NanNew("repair")
-    , NanNew<v8::FunctionTemplate>(RepairDB)->GetFunction()
+      Nan::New("repair").ToLocalChecked()
+    , Nan::New<v8::FunctionTemplate>(RepairDB)->GetFunction()
   );
 
-  target->Set(NanNew("leveldown"), leveldown);
+  target->Set(Nan::New("leveldown").ToLocalChecked(), leveldown);
 }
 
 NODE_MODULE(leveldown, Init)

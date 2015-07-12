@@ -20,7 +20,7 @@ namespace leveldown {
 
 OpenWorker::OpenWorker (
     Database *database
-  , NanCallback *callback
+  , Nan::Callback *callback
   , leveldb::Cache* blockCache
   , const leveldb::FilterPolicy* filterPolicy
   , bool createIfMissing
@@ -58,7 +58,7 @@ void OpenWorker::Execute () {
 
 CloseWorker::CloseWorker (
     Database *database
-  , NanCallback *callback
+  , Nan::Callback *callback
 ) : AsyncWorker(database, callback)
 {};
 
@@ -69,7 +69,7 @@ void CloseWorker::Execute () {
 }
 
 void CloseWorker::WorkComplete () {
-  NanScope();
+  Nan::HandleScope scope;
   HandleOKCallback();
   delete callback;
   callback = NULL;
@@ -79,13 +79,13 @@ void CloseWorker::WorkComplete () {
 
 IOWorker::IOWorker (
     Database *database
-  , NanCallback *callback
+  , Nan::Callback *callback
   , leveldb::Slice key
   , v8::Local<v8::Object> &keyHandle
 ) : AsyncWorker(database, callback)
   , key(key)
 {
-  NanScope();
+  Nan::HandleScope scope;
 
   SaveToPersistent("key", keyHandle);
 };
@@ -93,7 +93,7 @@ IOWorker::IOWorker (
 IOWorker::~IOWorker () {}
 
 void IOWorker::WorkComplete () {
-  NanScope();
+  Nan::HandleScope scope;
 
   DisposeStringOrBufferFromSlice(GetFromPersistent("key"), key);
   AsyncWorker::WorkComplete();
@@ -103,7 +103,7 @@ void IOWorker::WorkComplete () {
 
 ReadWorker::ReadWorker (
     Database *database
-  , NanCallback *callback
+  , Nan::Callback *callback
   , leveldb::Slice key
   , bool asBuffer
   , bool fillCache
@@ -111,7 +111,7 @@ ReadWorker::ReadWorker (
 ) : IOWorker(database, callback, key, keyHandle)
   , asBuffer(asBuffer)
 {
-  NanScope();
+  Nan::HandleScope scope;
 
   options = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
@@ -127,16 +127,19 @@ void ReadWorker::Execute () {
 }
 
 void ReadWorker::HandleOKCallback () {
-  NanScope();
+  Nan::HandleScope scope;
 
   v8::Local<v8::Value> returnValue;
   if (asBuffer) {
-    returnValue = NanNewBufferHandle((char*)value.data(), value.size());
+    //TODO: could use NewBuffer if we carefully manage the lifecycle of `value`
+    //and avoid an an extra allocation. We'd have to clean up properly when not OK
+    //and let the new Buffer manage the data when OK
+    returnValue = Nan::CopyBuffer((char*)value.data(), value.size()).ToLocalChecked();
   } else {
-    returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+    returnValue = Nan::New<v8::String>((char*)value.data(), value.size()).ToLocalChecked();
   }
   v8::Local<v8::Value> argv[] = {
-      NanNull()
+      Nan::Null()
     , returnValue
   };
   callback->Call(2, argv);
@@ -146,13 +149,13 @@ void ReadWorker::HandleOKCallback () {
 
 DeleteWorker::DeleteWorker (
     Database *database
-  , NanCallback *callback
+  , Nan::Callback *callback
   , leveldb::Slice key
   , bool sync
   , v8::Local<v8::Object> &keyHandle
 ) : IOWorker(database, callback, key, keyHandle)
 {
-  NanScope();
+  Nan::HandleScope scope;
 
   options = new leveldb::WriteOptions();
   options->sync = sync;
@@ -171,7 +174,7 @@ void DeleteWorker::Execute () {
 
 WriteWorker::WriteWorker (
     Database *database
-  , NanCallback *callback
+  , Nan::Callback *callback
   , leveldb::Slice key
   , leveldb::Slice value
   , bool sync
@@ -180,7 +183,7 @@ WriteWorker::WriteWorker (
 ) : DeleteWorker(database, callback, key, sync, keyHandle)
   , value(value)
 {
-  NanScope();
+  Nan::HandleScope scope;
 
   SaveToPersistent("value", valueHandle);
 };
@@ -192,7 +195,7 @@ void WriteWorker::Execute () {
 }
 
 void WriteWorker::WorkComplete () {
-  NanScope();
+  Nan::HandleScope scope;
 
   DisposeStringOrBufferFromSlice(GetFromPersistent("value"), value);
   IOWorker::WorkComplete();
@@ -202,7 +205,7 @@ void WriteWorker::WorkComplete () {
 
 BatchWorker::BatchWorker (
     Database *database
-  , NanCallback *callback
+  , Nan::Callback *callback
   , leveldb::WriteBatch* batch
   , bool sync
 ) : AsyncWorker(database, callback)
@@ -225,7 +228,7 @@ void BatchWorker::Execute () {
 
 ApproximateSizeWorker::ApproximateSizeWorker (
     Database *database
-  , NanCallback *callback
+  , Nan::Callback *callback
   , leveldb::Slice start
   , leveldb::Slice end
   , v8::Local<v8::Object> &startHandle
@@ -233,7 +236,7 @@ ApproximateSizeWorker::ApproximateSizeWorker (
 ) : AsyncWorker(database, callback)
   , range(start, end)
 {
-  NanScope();
+  Nan::HandleScope scope;
 
   SaveToPersistent("start", startHandle);
   SaveToPersistent("end", endHandle);
@@ -246,7 +249,7 @@ void ApproximateSizeWorker::Execute () {
 }
 
 void ApproximateSizeWorker::WorkComplete() {
-  NanScope();
+  Nan::HandleScope scope;
 
   DisposeStringOrBufferFromSlice(GetFromPersistent("start"), range.start);
   DisposeStringOrBufferFromSlice(GetFromPersistent("end"), range.limit);
@@ -254,11 +257,11 @@ void ApproximateSizeWorker::WorkComplete() {
 }
 
 void ApproximateSizeWorker::HandleOKCallback () {
-  NanScope();
+  Nan::HandleScope scope;
 
-  v8::Local<v8::Value> returnValue = NanNew<v8::Number>((double) size);
+  v8::Local<v8::Value> returnValue = Nan::New<v8::Number>((double) size);
   v8::Local<v8::Value> argv[] = {
-      NanNull()
+      Nan::Null()
     , returnValue
   };
   callback->Call(2, argv);
