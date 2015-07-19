@@ -199,7 +199,6 @@
       , 'leveldb-<(ldbversion)/util/filter_policy.cc'
       , 'leveldb-<(ldbversion)/util/hash.cc'
       , 'leveldb-<(ldbversion)/util/hash.h'
-      , 'leveldb-<(ldbversion)/util/hash_test.cc'
       , 'leveldb-<(ldbversion)/util/logging.cc'
       , 'leveldb-<(ldbversion)/util/logging.h'
       , 'leveldb-<(ldbversion)/util/mutexlock.h'
