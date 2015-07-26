@@ -2,8 +2,7 @@ language: node_js
 
 before_install:
   - export JOBS=max
-  - npm install -g node-gyp-install
-  - node-gyp-install
+  - export prebuild_compile=true
 
 node_js:
   - "2.2"
@@ -13,7 +12,7 @@ node_js:
   - "0.10"
 
 install:
-  - npm install --build-from-source
+  - npm install
 
 script:
   - npm test
