@@ -1,7 +1,7 @@
 const util              = require('util')
     , AbstractLevelDOWN = require('abstract-leveldown').AbstractLevelDOWN
 
-    , binding           = require('./prebuilt')
+    , binding           = require('./binding')
 
     , ChainedBatch      = require('./chained-batch')
     , Iterator          = require('./iterator')
