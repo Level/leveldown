@@ -50,15 +50,8 @@
   },
   "scripts": {
     "install": "prebuild --download",
-    "test": "tape test/*-test.js | faucet",
-    "rebuild": "rm -rf build-pre-gyp build && prebuild --compile"
+    "test": "tape test/*-test.js | faucet"
   },
   "license": "MIT",
-  "gypfile": true,
-  "binary": {
-    "module_name": "leveldown",
-    "module_path": "./build-pre-gyp/",
-    "host": "https://github.com/level/leveldown/releases/download",
-    "remote_path": "./v{version}"
-  }
+  "gypfile": true
 }
