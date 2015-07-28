@@ -13,3 +13,4 @@ bench/
 *.1sdk.pdb
 *.lastbuildstate
 npm-debug.log
+prebuilds/
