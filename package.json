@@ -32,7 +32,7 @@
     "bindings": "~1.2.1",
     "fast-future": "~1.0.0",
     "nan": "~1.8.4",
-    "prebuild": "~2.2.2"
+    "prebuild": "~2.3.3"
   },
   "devDependencies": {
     "async": "~1.0.0",
