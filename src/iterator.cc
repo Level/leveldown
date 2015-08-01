@@ -245,6 +245,10 @@ NAN_METHOD(Iterator::Seek) {
 NAN_METHOD(Iterator::Next) {
   NanScope();
 
+  if (args.Length() < 1 || !args[0]->IsFunction()) {
+    return NanThrowError("Iterator::Next expects a function argument");
+  }
+  
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   v8::Local<v8::Function> callback = args[0].As<v8::Function>();
@@ -266,6 +270,10 @@ NAN_METHOD(Iterator::Next) {
 NAN_METHOD(Iterator::End) {
   NanScope();
 
+  if (args.Length() < 1 || !args[0]->IsFunction()) {
+    return NanThrowError("Iterator::End expects a function argument");
+  }
+  
   Iterator* iterator = node::ObjectWrap::Unwrap<Iterator>(args.This());
 
   v8::Local<v8::Function> callback = v8::Local<v8::Function>::Cast(args[0]);
@@ -325,6 +333,8 @@ v8::Local<v8::Object> Iterator::NewInstance (
 
 NAN_METHOD(Iterator::New) {
   NanScope();
+  
+  assert(args.Length()>0 && "Iterator::New expects an Object argument");
 
   Database* database = node::ObjectWrap::Unwrap<Database>(args[0]->ToObject());
 
@@ -386,7 +396,7 @@ NAN_METHOD(Iterator::New) {
       }
     }
 
-    if (!optionsObj.IsEmpty() && optionsObj->Has(NanNew("limit"))) {
+    if (optionsObj->Has(NanNew("limit"))) {
       limit = v8::Local<v8::Integer>::Cast(optionsObj->Get(
           NanNew("limit")))->Value();
     }
