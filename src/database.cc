@@ -142,6 +142,7 @@ void Database::Init () {
   NODE_SET_PROTOTYPE_METHOD(tpl, "close", Database::Close);
   NODE_SET_PROTOTYPE_METHOD(tpl, "put", Database::Put);
   NODE_SET_PROTOTYPE_METHOD(tpl, "get", Database::Get);
+  NODE_SET_PROTOTYPE_METHOD(tpl, "multiget", Database::MultiGet);
   NODE_SET_PROTOTYPE_METHOD(tpl, "del", Database::Delete);
   NODE_SET_PROTOTYPE_METHOD(tpl, "batch", Database::Batch);
   NODE_SET_PROTOTYPE_METHOD(tpl, "approximateSize", Database::ApproximateSize);
@@ -333,6 +334,36 @@ NAN_METHOD(Database::Get) {
   v8::Local<v8::Object> _this = args.This();
   worker->SaveToPersistent("database", _this);
   NanAsyncQueueWorker(worker);
+
+  NanReturnUndefined();
+}
+
+NAN_METHOD(Database::MultiGet) {
+  NanScope();
+
+  LD_METHOD_SETUP_COMMON(multiget, 1, 2)
+
+  LD_CB_ERR_IF_NULL_OR_UNDEFINED(args[0], keys)
+
+  v8::Local<v8::Array> keys = args[0].As<v8::Array>();
+
+  bool asBuffer = NanBooleanOptionValue(optionsObj, NanSymbol("asBuffer"), true);
+  bool fillCache = NanBooleanOptionValue(optionsObj, NanSymbol("fillCache"), true);
+
+  for (unsigned int i = 0; i < keys->Length(); i++) {
+    v8::Local<v8::Object> keyHandle = v8::Local<v8::Object>::Cast(keys->Get(i));
+    LD_STRING_OR_BUFFER_TO_SLICE(key, keyHandle, key)
+
+    ReadWorker* worker = new ReadWorker(
+        database
+      , new NanCallback(callback)
+      , key
+      , asBuffer
+      , fillCache
+      , keyHandle
+    );
+    NanAsyncQueueWorker(worker);
+  }
 
   NanReturnUndefined();
 }

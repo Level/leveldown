@@ -97,6 +97,7 @@ private:
   static NAN_METHOD(Put);
   static NAN_METHOD(Delete);
   static NAN_METHOD(Get);
+  static NAN_METHOD(MultiGet);
   static NAN_METHOD(Batch);
   static NAN_METHOD(Write);
   static NAN_METHOD(Iterator);
