@@ -46,7 +46,7 @@ static inline void ClearReferences (std::vector<Reference *> *references) {
 class Database : public Nan::ObjectWrap {
 public:
   static void Init ();
-  static v8::Handle<v8::Value> NewInstance (v8::Local<v8::String> &location);
+  static v8::Local<v8::Value> NewInstance (v8::Local<v8::String> &location);
 
   leveldb::Status OpenDatabase (leveldb::Options* options);
   leveldb::Status PutToDatabase (
@@ -75,7 +75,7 @@ public:
   void CloseDatabase ();
   void ReleaseIterator (uint32_t id);
 
-  Database (const v8::Handle<v8::Value>& from);
+  Database (const v8::Local<v8::Value>& from);
   ~Database ();
 
 private:

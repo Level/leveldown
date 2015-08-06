@@ -21,7 +21,7 @@ namespace leveldown {
 
 static Nan::Persistent<v8::FunctionTemplate> database_constructor;
 
-Database::Database (const v8::Handle<v8::Value>& from)
+Database::Database (const v8::Local<v8::Value>& from)
   : location(new Nan::Utf8String(from))
   , db(NULL)
   , currentIteratorId(0)
@@ -154,7 +154,7 @@ NAN_METHOD(Database::New) {
   info.GetReturnValue().Set(info.This());
 }
 
-v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
+v8::Local<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
   Nan::EscapableHandleScope scope;
 
   v8::Local<v8::Object> instance;
@@ -162,7 +162,7 @@ v8::Handle<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
   v8::Local<v8::FunctionTemplate> constructorHandle =
       Nan::New<v8::FunctionTemplate>(database_constructor);
 
-  v8::Handle<v8::Value> argv[] = { location };
+  v8::Local<v8::Value> argv[] = { location };
   instance = constructorHandle->GetFunction()->NewInstance(1, argv);
 
   return scope.Escape(instance);

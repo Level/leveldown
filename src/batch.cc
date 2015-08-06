@@ -54,9 +54,9 @@ NAN_METHOD(Batch::New) {
   info.GetReturnValue().Set(info.This());
 }
 
-v8::Handle<v8::Value> Batch::NewInstance (
-        v8::Handle<v8::Object> database
-      , v8::Handle<v8::Object> optionsObj
+v8::Local<v8::Value> Batch::NewInstance (
+        v8::Local<v8::Object> database
+      , v8::Local<v8::Object> optionsObj
     ) {
 
   Nan::EscapableHandleScope scope;
@@ -67,10 +67,10 @@ v8::Handle<v8::Value> Batch::NewInstance (
       Nan::New<v8::FunctionTemplate>(batch_constructor);
 
   if (optionsObj.IsEmpty()) {
-    v8::Handle<v8::Value> argv[1] = { database };
+    v8::Local<v8::Value> argv[1] = { database };
     instance = constructorHandle->GetFunction()->NewInstance(1, argv);
   } else {
-    v8::Handle<v8::Value> argv[2] = { database, optionsObj };
+    v8::Local<v8::Value> argv[2] = { database, optionsObj };
     instance = constructorHandle->GetFunction()->NewInstance(2, argv);
   }
 
@@ -79,7 +79,7 @@ v8::Handle<v8::Value> Batch::NewInstance (
 
 NAN_METHOD(Batch::Put) {
   Batch* batch = ObjectWrap::Unwrap<Batch>(info.Holder());
-  v8::Handle<v8::Function> callback; // purely for the error macros
+  v8::Local<v8::Function> callback; // purely for the error macros
 
   v8::Local<v8::Value> keyBuffer = info[0];
   v8::Local<v8::Value> valueBuffer = info[1];
@@ -99,7 +99,7 @@ NAN_METHOD(Batch::Put) {
 NAN_METHOD(Batch::Del) {
   Batch* batch = ObjectWrap::Unwrap<Batch>(info.Holder());
 
-  v8::Handle<v8::Function> callback; // purely for the error macros
+  v8::Local<v8::Function> callback; // purely for the error macros
 
   v8::Local<v8::Value> keyBuffer = info[0];
   LD_STRING_OR_BUFFER_TO_SLICE(key, keyBuffer, key)

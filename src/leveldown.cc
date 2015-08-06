@@ -49,7 +49,7 @@ NAN_METHOD(RepairDB) {
   info.GetReturnValue().SetUndefined();
 }
 
-void Init (v8::Handle<v8::Object> target) {
+void Init (v8::Local<v8::Object> target) {
   Database::Init();
   leveldown::Iterator::Init();
   leveldown::Batch::Init();

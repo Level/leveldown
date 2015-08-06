@@ -317,10 +317,10 @@ v8::Local<v8::Object> Iterator::NewInstance (
       Nan::New<v8::FunctionTemplate>(iterator_constructor);
 
   if (optionsObj.IsEmpty()) {
-    v8::Handle<v8::Value> argv[2] = { database, id };
+    v8::Local<v8::Value> argv[2] = { database, id };
     instance = constructorHandle->GetFunction()->NewInstance(2, argv);
   } else {
-    v8::Handle<v8::Value> argv[3] = { database, id, optionsObj };
+    v8::Local<v8::Value> argv[3] = { database, id, optionsObj };
     instance = constructorHandle->GetFunction()->NewInstance(3, argv);
   }
 
@@ -331,7 +331,7 @@ NAN_METHOD(Iterator::New) {
   Database* database = Nan::ObjectWrap::Unwrap<Database>(info[0]->ToObject());
 
   //TODO: remove this, it's only here to make LD_STRING_OR_BUFFER_TO_SLICE happy
-  v8::Handle<v8::Function> callback;
+  v8::Local<v8::Function> callback;
 
   v8::Local<v8::Object> startHandle;
   leveldb::Slice* start = NULL;
