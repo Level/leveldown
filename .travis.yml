@@ -5,6 +5,7 @@ before_install:
   - export prebuild_compile=true
 
 node_js:
+  - "3.0"
   - "2.4"
   - "1.8"
   - "1.0"
