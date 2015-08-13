@@ -15,29 +15,29 @@ namespace leveldown {
 class DestroyWorker : public AsyncWorker {
 public:
   DestroyWorker (
-      NanUtf8String* location
-    , NanCallback *callback
+      Nan::Utf8String* location
+    , Nan::Callback *callback
   );
 
   virtual ~DestroyWorker ();
   virtual void Execute ();
 
 private:
-  NanUtf8String* location;
+  Nan::Utf8String* location;
 };
 
 class RepairWorker : public AsyncWorker {
 public:
   RepairWorker (
-      NanUtf8String* location
-    , NanCallback *callback
+      Nan::Utf8String* location
+    , Nan::Callback *callback
   );
 
   virtual ~RepairWorker ();
   virtual void Execute ();
 
 private:
-  NanUtf8String* location;
+  Nan::Utf8String* location;
 };
 
 } // namespace leveldown

@@ -10,12 +10,12 @@
 
 namespace leveldown {
 
-class Batch : public node::ObjectWrap {
+class Batch : public Nan::ObjectWrap {
 public:
   static void Init();
-  static v8::Handle<v8::Value> NewInstance (
-      v8::Handle<v8::Object> database
-    , v8::Handle<v8::Object> optionsObj
+  static v8::Local<v8::Value> NewInstance (
+      v8::Local<v8::Object> database
+    , v8::Local<v8::Object> optionsObj
   );
 
   Batch  (leveldown::Database* database, bool sync);
