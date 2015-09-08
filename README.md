@@ -307,7 +307,19 @@ A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](
 Prebuilt binaries
 -----------------
 
-LevelDOWN uses `node-pre-gyp` to support prebuilt binaries. For a list of supported prebuilt platform binaries see https://github.com/Level/leveldown/releases
+LevelDOWN uses `prebuild` to support prebuilt binaries. See [this list](https://github.com/Level/leveldown/releases) of supported prebuilt platform binaries. When installing LevelDOWN `prebuild --download` will download prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't.
+
+If you are working on LevelDOWN and want to compile the C++ code you can do:
+
+```
+$ npm run rebuild [--debug] [--verbose]
+```
+
+or
+
+```
+$ npm i --build-from-source [--debug] [--verbose]
+```
 
 <a name="license"></a>
 License &amp; copyright

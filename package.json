@@ -51,6 +51,7 @@
   "scripts": {
     "install": "prebuild --download",
     "test": "tape test/*-test.js | faucet",
+    "rebuild": "prebuild --compile",
     "prebuild": "prebuild --verbose --strip"
   },
   "license": "MIT",
