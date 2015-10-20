@@ -1,5 +1,6 @@
 const util             = require('util')
     , AbstractIterator = require('abstract-leveldown').AbstractIterator
+    , fastFuture       = require('fast-future')
 
 
 function Iterator (db, options) {
@@ -8,7 +9,7 @@ function Iterator (db, options) {
   this.binding    = db.binding.iterator(options)
   this.cache      = null
   this.finished   = false
-  this.fastFuture = require('fast-future')()
+  this.fastFuture = fastFuture()
 }
 
 util.inherits(Iterator, AbstractIterator)
