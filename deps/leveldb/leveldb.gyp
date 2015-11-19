@@ -26,9 +26,13 @@
     ]
   , 'conditions': [
         ['OS == "win"', {
+            'conditions': [
+                ['MSVS_VERSION != "2015" and MSVS_VERSION != "2013"', {
+                     'include_dirs': [ 'leveldb-<(ldbversion)/port/win' ]
+                }]
+            ],
             'include_dirs': [
-                'leveldb-<(ldbversion)/port/win'
-              , 'port-libuv/'
+                'port-libuv/'
             ]
           , 'defines': [
                 'LEVELDB_PLATFORM_UV=1'
