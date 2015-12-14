@@ -3,10 +3,10 @@ LevelDOWN
 
 <img alt="LevelDB Logo" height="100" src="http://leveldb.org/img/logo.svg">
 
-A Low-level Node.js LevelDB binding
--------------------------
+**A Low-level Node.js LevelDB binding**
 
 [![Build Status](https://secure.travis-ci.org/Level/leveldown.png)](http://travis-ci.org/Level/leveldown)
+[![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown)
 
 [![NPM](https://nodei.co/npm/leveldown.png?stars&downloads&downloadRank)](https://nodei.co/npm/leveldown/) [![NPM](https://nodei.co/npm-dl/leveldown.png?months=6&height=3)](https://nodei.co/npm/leveldown/)
 
