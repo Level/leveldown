@@ -85,7 +85,7 @@ The following options are for advanced performance tuning. Modify them only if y
 
 * `'maxOpenFiles'` *(number, default: `1000`)*: The maximum number of files that LevelDB is allowed to have open at a time. If your data store is likely to have a large working set, you may increase this value to prevent file descriptor churn. To calculate the number of files required for your working set, divide your total data by 2MB, as each table file is a maximum of 2MB. 
 
-* `'blockRestartInterval'` *(number, default: `16`)*: The number of entries before restarting the "delta encoding" of keys within blocks. Each "restart" point stores the full key for the entry, between restarts, the common prefix of the keys for those entries is omitted. Restarts are similar to the concept of keyframs in video encoding and are used to minimise the amount of space required to store keys. This is particularly helpful when using deep namespacing / prefixing in your keys.
+* `'blockRestartInterval'` *(number, default: `16`)*: The number of entries before restarting the "delta encoding" of keys within blocks. Each "restart" point stores the full key for the entry, between restarts, the common prefix of the keys for those entries is omitted. Restarts are similar to the concept of keyframes in video encoding and are used to minimise the amount of space required to store keys. This is particularly helpful when using deep namespacing / prefixing in your keys.
 
 
 --------------------------------------------------------
@@ -125,7 +125,7 @@ The optional `options` object may contain:
 
 * `'fillCache'` *(boolean, default: `true`)*: LevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`.
 
-* `'asBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UFT8 string) then you should fetch it as one with `asBuffer: true` and you'll avoid this conversion cost.
+* `'asBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `asBuffer: true` and you'll avoid this conversion cost.
 
 The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a `String` or `Buffer` depending on the `asBuffer` option.
 
@@ -147,7 +147,9 @@ The `callback` function will be called with no arguments if the operation is suc
 --------------------------------------------------------
 <a name="leveldown_batch"></a>
 ### leveldown#batch(operations[, options], callback)
-<code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should be an `Array` containing a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation inside LevelDB. Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the *type* is `'put'` that have a `'value'` of `undefined`, `null`, `[]`, `''` or `new Buffer(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `new Buffer(0)` depending on how they are requested.
+<code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should be an `Array` containing a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation inside LevelDB.
+
+Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the *type* is `'put'` that have a `'value'` of `undefined`, `null`, `[]`, `''` or `new Buffer(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `new Buffer(0)` depending on how they are requested.
 
 See [LevelUP](https://github.com/level/levelup#batch) for full documentation on how this works in practice.
 
@@ -191,13 +193,13 @@ Currently, the only valid properties are:
 
 The optional `options` object may contain:
 
-* `'gt'` (greater than), `'gte'` (greater than or equal) define the lower bound of the values to be fetched and will determine the starting point where `'reverse'` is not `true`. Only records where the key is greater than (or equal to) this option will be included in the range. When `'reverse'` is 'true` the order will be reversed, but the records returned will be the same.
+* `'gt'` (greater than), `'gte'` (greater than or equal) define the lower bound of the values to be fetched and will determine the starting point where `'reverse'` is *not* `true`. Only records where the key is greater than (or equal to) this option will be included in the range. When `'reverse'` is `true` the order will be reversed, but the records returned will be the same.
 
-* `'lt'` (less than), `'lte'` (less than or equal) define the higher bound of the range to be fetched and will determine the starting poitn where `'reverse'` is *not* `true`. Only key / value pairs where the key is less than (or equal to) this option will be included in the range. When `'reverse'` is `true` the order will be reversed, but the records returned will be the same.
+* `'lt'` (less than), `'lte'` (less than or equal) define the higher bound of the range to be fetched and will determine the starting point where `'reverse'` is *not* `true`. Only records where the key is less than (or equal to) this option will be included in the range. When `'reverse'` is `true` the order will be reversed, but the records returned will be the same.
 
 * `'start', 'end'` legacy ranges - instead use `'gte', 'lte'`
 
-* `'reverse'` *(boolean, default: `false`)*: a boolean, set to true if you want the stream to go in reverse order. Beware that due to the way LevelDB works, a reverse seek will be slower than a forward seek.
+* `'reverse'` *(boolean, default: `false`)*: a boolean, set to `true` if you want the stream to go in reverse order. Beware that due to the way LevelDB works, a reverse seek will be slower than a forward seek.
 
 * `'keys'` *(boolean, default: `true`)*: whether the callback to the `next()` method should receive a non-null `key`. There is a small efficiency gain if you ultimately don't care what the keys are as they don't need to be converted and copied into JavaScript.
 
@@ -205,9 +207,9 @@ The optional `options` object may contain:
 
 * `'limit'` *(number, default: `-1`)*: limit the number of results collected by this iterator. This number represents a *maximum* number of results and may not be reached if you get to the end of the store or your `'end'` value first. A value of `-1` means there is no limit.
 
-* `'fillCache'` *(boolean, default: `false`)*: wheather LevelDB's LRU-cache should be filled with data read.
+* `'fillCache'` *(boolean, default: `false`)*: whether LevelDB's LRU-cache should be filled with data read.
 
-* `'keyAsBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `key` of each entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UFT8 string) then you should fetch it as one.
+* `'keyAsBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `key` of each entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UTF8 string) then you should fetch it as one.
 
 * `'valueAsBuffer'` *(boolean, default: `true`)*: Used to determine whether to return the `value` of each entry as a `String` or a Node.js `Buffer` object.
 
@@ -235,7 +237,7 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 ### iterator#seek(key)
 <code>seek()</code> is an instance method on an existing iterator object, used to seek the underlying LevelDB iterator to a given key.
 
-By calling <code>seek(key)</code>, subsequent calls to <code>next(cb)</code> will return key/values larger or smaller than key, based on your <code>reverse</code> setting in the iterator constructor.
+By calling <code>seek(key)</code>, subsequent calls to <code>next(cb)</code> will return key/values larger or smaller than `key`, based on your <code>reverse</code> setting in the iterator constructor.
 
 --------------------------------------------------------
 <a name="iterator_end"></a>
@@ -250,6 +252,7 @@ By calling <code>seek(key)</code>, subsequent calls to <code>next(cb)</code> wil
 
 The callback will be called when the destroy operation is complete, with a possible `error` argument.
 
+--------------------------------------------------------
 <a name="leveldown_repair"></a>
 ### leveldown.repair(location, callback)
 <code>repair()</code> can be used to attempt a restoration of a damaged LevelDB store. From the LevelDB documentation:
