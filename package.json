@@ -44,9 +44,9 @@
     "node-uuid": "~1.4.3",
     "optimist": "~0.6.1",
     "readfiletree": "~0.0.1",
-    "rimraf": "~2.4.4",
+    "rimraf": "~2.5.0",
     "slump": "~2.0.0",
-    "tape": "~4.2.2"
+    "tape": "~4.3.0"
   },
   "scripts": {
     "install": "prebuild --download",
