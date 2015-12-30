@@ -40,6 +40,7 @@ Tested & supported platforms
   * <a href="#leveldown_batch"><code><b>leveldown#batch()</b></code></a>
   * <a href="#leveldown_approximateSize"><code><b>leveldown#approximateSize()</b></code></a>
   * <a href="#leveldown_getProperty"><code><b>leveldown#getProperty()</b></code></a>
+  * <a href="#leveldown_compare"><code><b>leveldown#compare()</b></code></a>
   * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
   * <a href="#iterator_seek"><code><b>iterator#seek()</b></code></a>
@@ -192,9 +193,9 @@ Returns:
 
 * <b><code>0</code></b>: if keyA == keyB
 
-* <b><code>-1</code></b>: if keyA < keyB
+* <b><code>-ve number denoting the difference between the keys</code></b>: if keyA < keyB
 
-* <b><code>+1</code></b>: if keyA > keyB
+* <b><code>+ve number denoting the difference between the keys</code></b>: if keyA > keyB
 
 
 --------------------------------------------------------

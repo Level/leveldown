@@ -434,24 +434,22 @@ NAN_METHOD(Database::ApproximateSize) {
 }
 
 NAN_METHOD(Database::DefaultComparator) {
-  NanScope();
-
-  v8::Local<v8::Object> handleA = args[0].As<v8::Object>();
-  v8::Local<v8::Object> handleB = args[1].As<v8::Object>();
+  v8::Local<v8::Object> handleA = info[0].As<v8::Object>();
+  v8::Local<v8::Object> handleB = info[1].As<v8::Object>();
 
   LD_STRING_OR_BUFFER_TO_SLICE(a, handleA, a);
   LD_STRING_OR_BUFFER_TO_SLICE(b, handleB, b);
 
   leveldown::Database* database =
-      node::ObjectWrap::Unwrap<leveldown::Database>(args.This());
+      Nan::ObjectWrap::Unwrap<leveldown::Database>(info.This());
 
   v8::Local<v8::Integer> returnValue
-      = NanNew<v8::Integer>(database->DefaultDatabaseComparator(a, b));
+      = Nan::New<v8::Integer>(database->DefaultDatabaseComparator(a, b));
 
   DisposeStringOrBufferFromSlice(handleA, a);
   DisposeStringOrBufferFromSlice(handleB, b);
 
-  NanReturnValue(returnValue);
+  info.GetReturnValue().Set(returnValue);
 }
 
 NAN_METHOD(Database::GetProperty) {

@@ -1,4 +1,4 @@
-const test       = require('tap').test
+const test       = require('tape')
 , testCommon = require('abstract-leveldown/testCommon')
 , leveldown  = require('../')
 
@@ -22,7 +22,9 @@ test('test argument-less compare() throws', function (t) {
 
 test('test compare() returns integer', function (t) {
   t.equal(db.compare('foo', 'foo'), 0, 'keys are equal')
-  t.equal(db.compare('foo', 'bar'), 1, 'keys are not equal')
+  t.equal(db.compare('foo', 'bar'), 4, 'keys are not equal')
+  t.equal(db.compare('foo', 'hat'), -2, 'keys are not equal')
+  t.equal(db.compare('foo', 'BaZ'), 36, 'keys are not equal')
   t.end()
 })
 
