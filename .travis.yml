@@ -14,7 +14,6 @@ addons:
 
 before_install:
   - export JOBS=max
-  - export prebuild_compile=true
 
 node_js:
   - "5"
