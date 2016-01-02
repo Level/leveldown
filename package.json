@@ -32,7 +32,7 @@
     "bindings": "~1.2.1",
     "fast-future": "~1.0.0",
     "nan": "~2.1.0",
-    "prebuild": "^2.7.0"
+    "prebuild": "^2.8.0"
   },
   "devDependencies": {
     "async": "~1.5.0",
@@ -49,7 +49,7 @@
     "tape": "~4.3.0"
   },
   "scripts": {
-    "install": "prebuild --download",
+    "install": "prebuild --install",
     "test": "tape test/*-test.js | faucet",
     "rebuild": "prebuild --compile",
     "prebuild": "prebuild --all --strip --verbose"
