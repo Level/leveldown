@@ -57,8 +57,8 @@ NAN_METHOD(Batch::New) {
 }
 
 v8::Local<v8::Value> Batch::NewInstance (
-        v8::Handle<v8::Object> database
-      , v8::Handle<v8::Object> optionsObj
+        v8::Local<v8::Object> database
+      , v8::Local<v8::Object> optionsObj
     ) {
 
   Nan::EscapableHandleScope scope;
@@ -69,10 +69,10 @@ v8::Local<v8::Value> Batch::NewInstance (
       Nan::New<v8::FunctionTemplate>(batch_constructor);
 
   if (optionsObj.IsEmpty()) {
-    v8::Handle<v8::Value> argv[1] = { database };
+    v8::Local<v8::Value> argv[1] = { database };
     instance = constructorHandle->GetFunction()->NewInstance(1, argv);
   } else {
-    v8::Handle<v8::Value> argv[2] = { database, optionsObj };
+    v8::Local<v8::Value> argv[2] = { database, optionsObj };
     instance = constructorHandle->GetFunction()->NewInstance(2, argv);
   }
 
@@ -85,7 +85,7 @@ NAN_METHOD(Batch::Put) {
   if (batch->written)
     return Nan::ThrowError("write() already called on this batch");
 
-  v8::Handle<v8::Function> callback; // purely for the error macros
+  v8::Local<v8::Function> callback; // purely for the error macros
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(info[0], key)
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(info[1], value)
@@ -111,7 +111,7 @@ NAN_METHOD(Batch::Del) {
   if (batch->written)
     return Nan::ThrowError("write() already called on this batch");
 
-  v8::Handle<v8::Function> callback; // purely for the error macros
+  v8::Local<v8::Function> callback; // purely for the error macros
 
   LD_CB_ERR_IF_NULL_OR_UNDEFINED(info[0], key)
 
