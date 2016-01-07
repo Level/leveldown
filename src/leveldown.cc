@@ -14,63 +14,62 @@
 namespace leveldown {
 
 NAN_METHOD(DestroyDB) {
-  NanScope();
+  Nan::HandleScope scope;
 
-  if (args.Length() < 2) {
-    return NanThrowError("destroy() requires `location` and `callback` arguments");
+  if (info.Length() < 2) {
+    return Nan::ThrowError("destroy() requires `location` and `callback` arguments");
   }
 
-  if (!args[0]->IsString()) {
-    return NanThrowError("destroy() requires a location string argument");
+  if (!info[0]->IsString()) {
+    return Nan::ThrowError("destroy() requires a location string argument");
   }
 
-  if (!args[1]->IsFunction()) {
-    return NanThrowError("destroy() requires a callback function argument");
+  if (!info[1]->IsFunction()) {
+    return Nan::ThrowError("destroy() requires a callback function argument");
   }
 
-  NanUtf8String* location = new NanUtf8String(args[0]);
+  Nan::Utf8String* location = new Nan::Utf8String(info[0]);
 
-  NanCallback* callback = new NanCallback(
-      v8::Local<v8::Function>::Cast(args[1]));
+  Nan::Callback* callback = new Nan::Callback(
+      v8::Local<v8::Function>::Cast(info[1]));
 
   DestroyWorker* worker = new DestroyWorker(
       location
     , callback
   );
 
-  NanAsyncQueueWorker(worker);
-
-  NanReturnUndefined();
+  Nan::AsyncQueueWorker(worker);
+  info.GetReturnValue().SetUndefined();
 }
 
 NAN_METHOD(RepairDB) {
-  NanScope();
+  Nan::HandleScope scope;
 
-  if (args.Length() < 2) {
-    return NanThrowError("repair() requires `location` and `callback` arguments");
+  if (info.Length() < 2) {
+    return Nan::ThrowError("repair() requires `location` and `callback` arguments");
   }
 
-  if (!args[0]->IsString()) {
-    return NanThrowError("repair() requires a location string argument");
+  if (!info[0]->IsString()) {
+    return Nan::ThrowError("repair() requires a location string argument");
   }
 
-  if (!args[1]->IsFunction()) {
-    return NanThrowError("repair() requires a callback function argument");
+  if (!info[1]->IsFunction()) {
+    return Nan::ThrowError("repair() requires a callback function argument");
   }
 
-  NanUtf8String* location = new NanUtf8String(args[0]);
+  Nan::Utf8String* location = new Nan::Utf8String(info[0]);
 
-  NanCallback* callback = new NanCallback(
-      v8::Local<v8::Function>::Cast(args[1]));
+  Nan::Callback* callback = new Nan::Callback(
+      v8::Local<v8::Function>::Cast(info[1]));
 
   RepairWorker* worker = new RepairWorker(
       location
     , callback
   );
 
-  NanAsyncQueueWorker(worker);
+  Nan::AsyncQueueWorker(worker);
 
-  NanReturnUndefined();
+  info.GetReturnValue().SetUndefined();
 }
 
 void Init (v8::Handle<v8::Object> target) {
@@ -79,19 +78,19 @@ void Init (v8::Handle<v8::Object> target) {
   leveldown::Batch::Init();
 
   v8::Local<v8::Function> leveldown =
-      NanNew<v8::FunctionTemplate>(LevelDOWN)->GetFunction();
+      Nan::New<v8::FunctionTemplate>(LevelDOWN)->GetFunction();
 
   leveldown->Set(
-      NanNew("destroy")
-    , NanNew<v8::FunctionTemplate>(DestroyDB)->GetFunction()
+      Nan::New("destroy").ToLocalChecked()
+    , Nan::New<v8::FunctionTemplate>(DestroyDB)->GetFunction()
   );
 
   leveldown->Set(
-      NanNew("repair")
-    , NanNew<v8::FunctionTemplate>(RepairDB)->GetFunction()
+      Nan::New("repair").ToLocalChecked()
+    , Nan::New<v8::FunctionTemplate>(RepairDB)->GetFunction()
   );
 
-  target->Set(NanNew("leveldown"), leveldown);
+  target->Set(Nan::New("leveldown").ToLocalChecked(), leveldown);
 }
 
 NODE_MODULE(leveldown, Init)

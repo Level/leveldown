@@ -14,16 +14,12 @@ namespace leveldown {
 
 class Database;
 
-/* abstract */ class AsyncWorker : public NanAsyncWorker {
+/* abstract */ class AsyncWorker : public Nan::AsyncWorker {
 public:
   AsyncWorker (
       leveldown::Database* database
-    , NanCallback *callback
-  ) : NanAsyncWorker(callback), database(database) {
-    NanScope();
-    v8::Local<v8::Object> obj = NanNew<v8::Object>();
-    NanAssignPersistent(persistentHandle, obj);
-  }
+    , Nan::Callback *callback
+  ) : Nan::AsyncWorker(callback), database(database) {}
 
 protected:
   void SetStatus(leveldb::Status status) {

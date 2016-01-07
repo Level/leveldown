@@ -19,7 +19,7 @@ class OpenWorker : public AsyncWorker {
 public:
   OpenWorker (
       Database *database
-    , NanCallback *callback
+    , Nan::Callback *callback
     , bool createIfMissing
     , bool errorIfExists
     , bool compression
@@ -41,7 +41,7 @@ class CloseWorker : public AsyncWorker {
 public:
   CloseWorker (
       Database *database
-    , NanCallback *callback
+    , Nan::Callback *callback
   );
 
   virtual ~CloseWorker ();
@@ -53,7 +53,7 @@ class IOWorker    : public AsyncWorker {
 public:
   IOWorker (
       Database *database
-    , NanCallback *callback
+    , Nan::Callback *callback
     , leveldb::Slice key
     , v8::Local<v8::Object> &keyHandle
   );
@@ -69,7 +69,7 @@ class ReadWorker : public IOWorker {
 public:
   ReadWorker (
       Database *database
-    , NanCallback *callback
+    , Nan::Callback *callback
     , leveldb::Slice key
     , bool asBuffer
     , bool fillCache
@@ -90,7 +90,7 @@ class DeleteWorker : public IOWorker {
 public:
   DeleteWorker (
       Database *database
-    , NanCallback *callback
+    , Nan::Callback *callback
     , leveldb::Slice key
     , bool sync
     , v8::Local<v8::Object> &keyHandle
@@ -107,7 +107,7 @@ class WriteWorker : public DeleteWorker {
 public:
   WriteWorker (
       Database *database
-    , NanCallback *callback
+    , Nan::Callback *callback
     , leveldb::Slice key
     , leveldb::Slice value
     , bool sync
@@ -127,7 +127,7 @@ class BatchWorker : public AsyncWorker {
 public:
   BatchWorker (
       Database *database
-    , NanCallback *callback
+    , Nan::Callback *callback
     , leveldb::WriteBatch* batch
     , bool sync
   );
@@ -144,7 +144,7 @@ class ApproximateSizeWorker : public AsyncWorker {
 public:
   ApproximateSizeWorker (
       Database *database
-    , NanCallback *callback
+    , Nan::Callback *callback
     , leveldb::Slice start
     , leveldb::Slice end
     , v8::Local<v8::Object> &startHandle

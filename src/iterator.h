@@ -18,7 +18,7 @@ namespace leveldown {
 class Database;
 class AsyncWorker;
 
-class Iterator : public node::ObjectWrap {
+class Iterator : public Nan::ObjectWrap {
 public:
   static void Init ();
   static v8::Local<v8::Object> NewInstance (
@@ -78,7 +78,7 @@ public:
   AsyncWorker* endWorker;
 
 private:
-  v8::Persistent<v8::Object> persistentHandle;
+  Nan::Persistent<v8::Object> persistentHandle;
 
   bool GetIterator ();
 

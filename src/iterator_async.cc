@@ -17,7 +17,7 @@ namespace leveldown {
 
 NextWorker::NextWorker (
     Iterator* iterator
-  , NanCallback *callback
+  , Nan::Callback *callback
   , void (*localCallback)(Iterator*)
 ) : AsyncWorker(NULL, callback)
   , iterator(iterator)
@@ -33,20 +33,18 @@ void NextWorker::Execute () {
 }
 
 void NextWorker::HandleOKCallback () {
-  NanScope();
-
   v8::Local<v8::Value> returnKey;
   if (iterator->keyAsBuffer) {
-    returnKey = NanNewBufferHandle((char*)key.data(), key.size());
+    returnKey = Nan::CopyBuffer((char*)key.data(), key.size()).ToLocalChecked();
   } else {
-    returnKey = NanNew<v8::String>((char*)key.data(), key.size());
+    returnKey = Nan::New<v8::String>((char*)key.data(), key.size()).ToLocalChecked();
   }
 
   v8::Local<v8::Value> returnValue;
   if (iterator->valueAsBuffer) {
-    returnValue = NanNewBufferHandle((char*)value.data(), value.size());
+    returnValue = Nan::CopyBuffer((char*)value.data(), value.size()).ToLocalChecked();
   } else {
-    returnValue = NanNew<v8::String>((char*)value.data(), value.size());
+    returnValue = Nan::New<v8::String>((char*)value.data(), value.size()).ToLocalChecked();
   }
 
   // clean up & handle the next/end state see iterator.cc/checkEndCallback
@@ -54,7 +52,7 @@ void NextWorker::HandleOKCallback () {
 
   if (ok) {
     v8::Local<v8::Value> argv[] = {
-        NanNew(NanNull())
+        Nan::Null()
       , returnKey
       , returnValue
     };
@@ -68,7 +66,7 @@ void NextWorker::HandleOKCallback () {
 
 EndWorker::EndWorker (
     Iterator* iterator
-  , NanCallback *callback
+  , Nan::Callback *callback
 ) : AsyncWorker(NULL, callback)
   , iterator(iterator)
 {};
