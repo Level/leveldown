@@ -27,7 +27,10 @@ test('test callback-less, 1-arg, repair() throws', function (t) {
 
 test('test repair non-existant directory returns error', function (t) {
   leveldown.repair('/1/2/3/4', function (err) {
-    t.ok(/no such/i.test(err), 'error on callback')
+    if (process.platform !== 'win32')
+      t.ok(/no such file or directory/i.test(err), 'error on callback')
+    else
+      t.ok(/the system cannot find the path specified/i.test(err), 'error on callback')
     t.end()
   })
 })
