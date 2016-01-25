@@ -26,9 +26,13 @@
   #include <sys/types.h>
   #include <sys/endian.h>
 #elif defined(_MSC_VER)
+#if _MSC_VER < 1600
   #include "stdint-msvc2008.h"
+#endif
   #define PLATFORM_IS_LITTLE_ENDIAN true
+#if _MSC_VER < 1900
   #define snprintf _snprintf
+#endif
   #define close _close
   #define fread_unlocked _fread_nolock
 #else
