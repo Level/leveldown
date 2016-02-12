@@ -328,7 +328,7 @@ $ npm i --build-from-source [--debug] [--verbose]
 License &amp; copyright
 -------------------
 
-Copyright &copy; 2012-2015 **LevelDOWN** [contributors](https://github.com/level/community#contributors).
+Copyright &copy; 2012-2016 **LevelDOWN** [contributors](https://github.com/level/community#contributors).
 
 **LevelDOWN** is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included `LICENSE.md` file for more details.
 
