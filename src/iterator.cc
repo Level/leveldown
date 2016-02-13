@@ -78,47 +78,48 @@ Iterator::~Iterator () {
     delete end;
 };
 
+void Iterator::IteratorSeek (leveldb::Slice* start) {
+  if (start != NULL) {
+    dbIterator->Seek(*start);
+
+    if (reverse) {
+      if (!dbIterator->Valid()) {
+        // if it's past the last key, step back
+        dbIterator->SeekToLast();
+      } else {
+        std::string key_ = dbIterator->key().ToString();
+
+        if (lt != NULL) {
+          if (lt->compare(key_) <= 0)
+            dbIterator->Prev();
+        } else if (lte != NULL) {
+          if (lte->compare(key_) < 0)
+            dbIterator->Prev();
+        } else if (start->compare(key_)) {
+          dbIterator->Prev();
+        }
+      }
+
+      if (dbIterator->Valid() && lt != NULL) {
+        if (lt->compare(dbIterator->key().ToString()) <= 0)
+          dbIterator->Prev();
+      }
+    } else {
+      if (dbIterator->Valid() && gt != NULL
+          && gt->compare(dbIterator->key().ToString()) == 0)
+        dbIterator->Next();
+    }
+  } else if (reverse) {
+    dbIterator->SeekToLast();
+  } else {
+    dbIterator->SeekToFirst();
+  }
+}
+
 bool Iterator::GetIterator () {
   if (dbIterator == NULL) {
     dbIterator = database->NewIterator(options);
-
-    if (start != NULL) {
-      dbIterator->Seek(*start);
-
-      if (reverse) {
-        if (!dbIterator->Valid()) {
-          // if it's past the last key, step back
-          dbIterator->SeekToLast();
-        } else {
-          std::string key_ = dbIterator->key().ToString();
-
-          if (lt != NULL) {
-            if (lt->compare(key_) <= 0)
-              dbIterator->Prev();
-          } else if (lte != NULL) {
-            if (lte->compare(key_) < 0)
-              dbIterator->Prev();
-          } else if (start != NULL) {
-            if (start->compare(key_))
-              dbIterator->Prev();
-          }
-        }
-
-        if (dbIterator->Valid() && lt != NULL) {
-          if (lt->compare(dbIterator->key().ToString()) <= 0)
-            dbIterator->Prev();
-        }
-      } else {
-        if (dbIterator->Valid() && gt != NULL
-            && gt->compare(dbIterator->key().ToString()) == 0)
-          dbIterator->Next();
-      }
-    } else if (reverse) {
-      dbIterator->SeekToLast();
-    } else {
-      dbIterator->SeekToFirst();
-    }
-
+    if (!seeking) IteratorSeek(start);
     return true;
   }
   return false;
@@ -205,34 +206,26 @@ void checkEndCallback (Iterator* iterator) {
 
 NAN_METHOD(Iterator::Seek) {
   Iterator* iterator = Nan::ObjectWrap::Unwrap<Iterator>(info.This());
-  iterator->GetIterator();
-  leveldb::Iterator* dbIterator = iterator->dbIterator;
-  Nan::Utf8String key(info[0]);
 
-  dbIterator->Seek(*key);
+  leveldb::Slice* target;
+  v8::Local<v8::Object> targetHandle = info[0].As<v8::Object>();
+  LD_STRING_OR_BUFFER_TO_SLICE(_target, targetHandle, target);
+  target = new leveldb::Slice(_target.data(), _target.size());
+
+  // This boolean prevents nexting in Read() and seeking in GetIterator().
   iterator->seeking = true;
+  iterator->GetIterator();
+  iterator->IteratorSeek(target);
 
-  if (dbIterator->Valid()) {
-    int cmp = dbIterator->key().compare(*key);
-    if (cmp > 0 && iterator->reverse) {
-      dbIterator->Prev();
-    } else if (cmp < 0 && !iterator->reverse) {
-      dbIterator->Next();
-    }
-  } else {
-    if (iterator->reverse) {
-      dbIterator->SeekToLast();
-    } else {
-      dbIterator->SeekToFirst();
-    }
+  if (iterator->reverse) {
+    // Seek(target) lands on or after the target. But in reverse,
+    // it should land on or *before* the target. I.e. if a seek
+    // to "b" lands on "c", go back to "a".
+    leveldb::Iterator* dbIterator = iterator->dbIterator;
+
     if (dbIterator->Valid()) {
-      int cmp = dbIterator->key().compare(*key);
-      if (cmp > 0 && iterator->reverse) {
-        dbIterator->SeekToFirst();
+      if (target->compare(dbIterator->key().ToString()) < 0) {
         dbIterator->Prev();
-      } else if (cmp < 0 && !iterator->reverse) {
-        dbIterator->SeekToLast();
-        dbIterator->Next();
       }
     }
   }

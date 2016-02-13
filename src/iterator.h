@@ -86,6 +86,7 @@ private:
 
   bool Read (std::string& key, std::string& value);
   bool GetIterator ();
+  void IteratorSeek (leveldb::Slice* start);
 
   static NAN_METHOD(New);
   static NAN_METHOD(Seek);
