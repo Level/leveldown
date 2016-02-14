@@ -15,12 +15,12 @@ make('iterator seek throws if key is not a string or buffer', function (db, t, d
   keys.forEach(function(key){
     var ite = db.iterator(), error;
     try { ite.seek(key) } catch (e) { error = e }
-    t.ok(error, 'had error')
+    t.ok(error, 'had error from seek()')
     ite.end(end)
   })
 
   function end(err) {
-    t.error(err, 'no end error')
+    t.error(err, 'no error from end()')
     if (!--pending) done()
   }
 })
@@ -29,17 +29,17 @@ make('iterator is seekable', function (db, t, done) {
   var ite = db.iterator()
   ite.seek('three')
   ite.next(function (err, key, value) {
-    t.error(err, 'no error')
+    t.error(err, 'no error from next()')
     t.same(key.toString(), 'three', 'key matches')
     t.same(value.toString(), '3', 'value matches')
 
     ite.next(function (err, key, value) {
-      t.error(err, 'no error')
+      t.error(err, 'no error from next()')
       t.same(key.toString(), 'two', 'key matches')
       t.same(value.toString(), '2', 'value matches')
 
       ite.next(function (err, key, value) {
-        t.error(err, 'no error')
+        t.error(err, 'no error from next()')
         t.same(key, undefined, 'end of iterator')
         t.same(value, undefined, 'end of iterator')
         ite.end(done)
@@ -52,11 +52,11 @@ make('iterator is seekable with buffer', function (db, t, done) {
   var ite = db.iterator()
   ite.seek(new Buffer('two'))
   ite.next(function (err, key, value) {
-    t.error(err, 'no error')
+    t.error(err, 'no error from next()')
     t.same(key.toString(), 'two', 'key matches')
     t.same(value.toString(), '2', 'value matches')
     ite.next(function (err, key, value) {
-      t.error(err, 'no error')
+      t.error(err, 'no error from next()')
       t.same(key, undefined, 'end of iterator')
       t.same(value, undefined, 'end of iterator')
       ite.end(done)
@@ -68,7 +68,7 @@ make('iterator reverse seek in the middle', function (db, t, done) {
   var ite = db.iterator({reverse: true, limit: 1})
   ite.seek('three!')
   ite.next(function (err, key, value) {
-    t.error(err, 'no error')
+    t.error(err, 'no error from next()')
     t.same(key.toString(), 'three', 'key matches')
     t.same(value.toString(), '3', 'value matches')
     ite.end(done)
@@ -77,17 +77,17 @@ make('iterator reverse seek in the middle', function (db, t, done) {
 
 make('iterator seeks', function (db, t, done) {
   db.batch(pairs(10, { not: 7 }), function(err){
-    t.error(err, 'no error')
+    t.error(err, 'no error from batch()')
 
     var ite = db.iterator({gte: '4'})
     ite.seek('5')
     ite.next(function (err, key, value) {
-      t.error(err, 'no error')
+      t.error(err, 'no error from next()')
       t.same(key.toString(), '5', 'key matches')
       t.same(value.toString(), '5', 'value matches')
       ite.seek('7')
       ite.next(function (err, key, value) {
-        t.error(err, 'no error')
+        t.error(err, 'no error from next()')
         t.same(key && key.toString(), '8', 'key matches')
         t.same(value && value.toString(), '8', 'value matches')
         ite.end(done)
@@ -98,18 +98,18 @@ make('iterator seeks', function (db, t, done) {
 
 make('iterator seeks without cache', function (db, t, done) {
   db.batch(pairs(10, { not: 7 }), function(err){
-    t.error(err, 'no error')
+    t.error(err, 'no error from batch()')
 
     var ite = db.iterator({gte: '4', highWaterMark: 1})
     ite.seek('5')
     ite.next(function (err, key, value) {
-      t.error(err, 'no error')
+      t.error(err, 'no error from next()')
       t.is(ite.cache.length, 0, 'nothing cached')
       t.same(key.toString(), '5', 'key matches')
       t.same(value.toString(), '5', 'value matches')
       ite.seek('7')
       ite.next(function (err, key, value) {
-        t.error(err, 'no error')
+        t.error(err, 'no error from next()')
         t.is(ite.cache.length, 0, 'nothing cached')
         t.same(key && key.toString(), '8', 'key matches')
         t.same(value && value.toString(), '8', 'value matches')
@@ -121,16 +121,16 @@ make('iterator seeks without cache', function (db, t, done) {
 
 make('iterator reverse seeks', function (db, t, done) {
   db.batch(pairs(10, { not: 5 }), function(err){
-    t.error(err, 'no error')
+    t.error(err, 'no error from batch()')
 
     var ite = db.iterator({reverse: true, lte: '8'})
     ite.next(function (err, key, value) {
-      t.error(err, 'no error')
+      t.error(err, 'no error from next()')
       t.same(key.toString(), '8', 'key matches')
       t.same(value.toString(), '8', 'value matches')
       ite.seek('5')
       ite.next(function (err, key, value) {
-        t.error(err, 'no error')
+        t.error(err, 'no error from next()')
         t.same(key.toString(), '4', 'key matches')
         t.same(value.toString(), '4', 'value matches')
         ite.end(done)
@@ -141,17 +141,17 @@ make('iterator reverse seeks', function (db, t, done) {
 
 make('iterator reverse seeks without cache', function (db, t, done) {
   db.batch(pairs(10, { not: 5 }), function(err){
-    t.error(err, 'no error')
+    t.error(err, 'no error from batch()')
 
     var ite = db.iterator({reverse: true, lte: '8', highWaterMark: 1})
     ite.next(function (err, key, value) {
-      t.error(err, 'no error')
+      t.error(err, 'no error from next()')
       t.is(ite.cache.length, 0, 'nothing cached')
       t.same(key.toString(), '8', 'key matches')
       t.same(value.toString(), '8', 'value matches')
       ite.seek('5')
       ite.next(function (err, key, value) {
-        t.error(err, 'no error')
+        t.error(err, 'no error from next()')
         t.is(ite.cache.length, 0, 'nothing cached')
         t.same(key.toString(), '4', 'key matches')
         t.same(value.toString(), '4', 'value matches')
@@ -165,7 +165,7 @@ make('iterator invalid seek', function (db, t, done) {
   var ite = db.iterator()
   ite.seek('zzz')
   ite.next(function (err, key, value) {
-    t.error(err, 'no error')
+    t.error(err, 'no error from next()')
     t.same(key, undefined, 'end of iterator')
     t.same(value, undefined, 'end of iterator')
     ite.end(done)
@@ -176,7 +176,7 @@ make('iterator reverse seek from invalid range', function (db, t, done) {
   var ite = db.iterator({reverse: true})
   ite.seek('zzz')
   ite.next(function (err, key, value) {
-    t.error(err, 'no error')
+    t.error(err, 'no error from next()')
     t.same(key.toString(), 'two', 'end of iterator')
     t.same(value.toString(), '2', 'end of iterator')
     ite.end(done)
@@ -186,11 +186,11 @@ make('iterator reverse seek from invalid range', function (db, t, done) {
 make('iterator seek lands on or after target', function(db, t, done) {
   var max = 100, step = 15
   db.batch(pairs(max, {lex: true, not: even}), function(err){
-    t.error(err, 'no error')
+    t.error(err, 'no error from batch()')
 
     var pending = 3
     var cb = function(err) {
-      t.error(err, 'no end error')
+      t.error(err, 'no error from end()')
       if (--pending === 0) done()
     }
 
@@ -213,11 +213,11 @@ make('iterator seek lands on or after target', function(db, t, done) {
 make('iterator reverse seek lands on or before target', function(db, t, done) {
   var max = 100, step = 15
   db.batch(pairs(max, {lex: true, not: even}), function(err){
-    t.error(err, 'no error')
+    t.error(err, 'no error from batch()')
 
     var pending = 3
     var cb = function(err) {
-      t.error(err, 'no end error')
+      t.error(err, 'no error from end()')
       if (--pending === 0) done()
     }
 
