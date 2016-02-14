@@ -3,20 +3,26 @@ const test       = require('tape')
     , leveldown  = require('../')
     , abstract   = require('abstract-leveldown/abstract/iterator-test')
     , make       = require('./make')
+    , iota       = require('iota-array')
+    , lexi       = require('lexicographic-integer')
 
 abstract.all(leveldown, test, testCommon)
 
-make('iterator throws if key is not a string or buffer', function (db, t, done) {
-  var ite = db.iterator()
-  var error
-  try {
-    ite.seek()
-  } catch (e) {
-    error = e
-  }
+make('iterator seek throws if key is not a string or buffer', function (db, t, done) {
+  var keys = [void 0, 10, true, null]
+  var pending = keys.length
 
-  t.ok(error, 'had error')
-  done()
+  keys.forEach(function(key){
+    var ite = db.iterator(), error;
+    try { ite.seek(key) } catch (e) { error = e }
+    t.ok(error, 'had error')
+    ite.end(end)
+  })
+
+  function end(err) {
+    t.error(err, 'no end error')
+    if (!--pending) done()
+  }
 })
 
 make('iterator is seekable', function (db, t, done) {
@@ -58,7 +64,7 @@ make('iterator is seekable with buffer', function (db, t, done) {
   })
 })
 
-make('reverse seek in the middle', function (db, t, done) {
+make('iterator reverse seek in the middle', function (db, t, done) {
   var ite = db.iterator({reverse: true, limit: 1})
   ite.seek('three!')
   ite.next(function (err, key, value) {
@@ -69,12 +75,8 @@ make('reverse seek in the middle', function (db, t, done) {
   })
 })
 
-make('multiple seeks', function (db, t, done) {
-  var ops = [0,1,2,3,4,5,6,8,9,10].reduce(function(a,k){
-    return a.push({ type: 'put', key: ''+k, value: ''+k }), a
-  }, [])
-
-  db.batch(ops, function(err){
+make('iterator seeks', function (db, t, done) {
+  db.batch(pairs(10, { not: 7 }), function(err){
     t.error(err, 'no error')
 
     var ite = db.iterator({gte: '4'})
@@ -94,12 +96,8 @@ make('multiple seeks', function (db, t, done) {
   })
 })
 
-make('multiple seeks without cache', function (db, t, done) {
-  var ops = [0,1,2,3,4,5,6,8,9,10].reduce(function(a,k){
-    return a.push({ type: 'put', key: ''+k, value: ''+k }), a
-  }, [])
-
-  db.batch(ops, function(err){
+make('iterator seeks without cache', function (db, t, done) {
+  db.batch(pairs(10, { not: 7 }), function(err){
     t.error(err, 'no error')
 
     var ite = db.iterator({gte: '4', highWaterMark: 1})
@@ -121,12 +119,8 @@ make('multiple seeks without cache', function (db, t, done) {
   })
 })
 
-make('multiple reverse seeks', function (db, t, done) {
-  var ops = [0,1,2,3,4,6,7,8,9,10].reduce(function(a,k){
-    return a.push({ type: 'put', key: ''+k, value: ''+k }), a
-  }, [])
-
-  db.batch(ops, function(err){
+make('iterator reverse seeks', function (db, t, done) {
+  db.batch(pairs(10, { not: 5 }), function(err){
     t.error(err, 'no error')
 
     var ite = db.iterator({reverse: true, lte: '8'})
@@ -145,12 +139,8 @@ make('multiple reverse seeks', function (db, t, done) {
   })
 })
 
-make('multiple reverse seeks without cache', function (db, t, done) {
-  var ops = [0,1,2,3,4,6,7,8,9,10].reduce(function(a,k){
-    return a.push({ type: 'put', key: ''+k, value: ''+k }), a
-  }, [])
-
-  db.batch(ops, function(err){
+make('iterator reverse seeks without cache', function (db, t, done) {
+  db.batch(pairs(10, { not: 5 }), function(err){
     t.error(err, 'no error')
 
     var ite = db.iterator({reverse: true, lte: '8', highWaterMark: 1})
@@ -182,7 +172,7 @@ make('iterator invalid seek', function (db, t, done) {
   })
 })
 
-make('reverse seek from invalid range', function (db, t, done) {
+make('iterator reverse seek from invalid range', function (db, t, done) {
   var ite = db.iterator({reverse: true})
   ite.seek('zzz')
   ite.next(function (err, key, value) {
@@ -192,3 +182,74 @@ make('reverse seek from invalid range', function (db, t, done) {
     ite.end(done)
   })
 })
+
+make('iterator seek lands on or after target', function(db, t, done) {
+  var max = 100, step = 15
+  db.batch(pairs(max, {lex: true, not: even}), function(err){
+    t.error(err, 'no error')
+
+    var pending = 3
+    var cb = function(err) {
+      t.error(err, 'no end error')
+      if (--pending === 0) done()
+    }
+
+    loop(db.iterator(), 0, cb)
+    loop(db.iterator({gt: '0a'}), 10, cb)
+    loop(db.iterator({highWaterMark: 1}), 0, cb)
+
+    function loop(ite, i, done) {
+      if (i >= max) return ite.end(done)
+      ite.seek(lexi.pack(i, 'hex'))
+      ite.next(function (err, key, value) {
+        var expected = even(i) ? i+1 : i
+        t.is(value && value.toString(), ''+expected, 'k'+expected)
+        loop(ite, i+step, done)
+      })
+    }
+  })
+})
+
+make('iterator reverse seek lands on or before target', function(db, t, done) {
+  var max = 100, step = 15
+  db.batch(pairs(max, {lex: true, not: even}), function(err){
+    t.error(err, 'no error')
+
+    var pending = 3
+    var cb = function(err) {
+      t.error(err, 'no end error')
+      if (--pending === 0) done()
+    }
+
+    loop(db.iterator({reverse:true}), max, cb)
+    loop(db.iterator({reverse:true, lt: lexi.pack(90, 'hex')}), 90, cb)
+    loop(db.iterator({reverse:true, highWaterMark: 1}), max, cb)
+
+    function loop(ite, i, done) {
+      if (i <= 0) return ite.end(done)
+      ite.seek(lexi.pack(i, 'hex'))
+      ite.next(function (err, key, value) {
+        var expected = even(i) ? i-1 : i
+        t.is(value && value.toString(), ''+expected, 'k'+expected)
+        loop(ite, i-step, done)
+      })
+    }
+  })
+})
+
+function pairs(length, opts) {
+  opts = opts || {}
+  return iota(length).filter(not(opts.not)).map(function(k){
+    var key = opts.lex ? lexi.pack(k, 'hex') : ''+k
+    return { type: opts.type || 'put', key: key, value: ''+k }
+  })
+}
+
+function not(n) {
+  if (typeof n === 'function') return function(k) { return !n(k) }
+  return function(k) { return k !== n }
+}
+
+function even(n) {
+  return n % 2 === 0
+}
