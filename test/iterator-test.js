@@ -28,23 +28,16 @@ make('iterator seek throws if key is not a string or buffer', function (db, t, d
 
 make('iterator is seekable', function (db, t, done) {
   var ite = db.iterator()
-  ite.seek('three')
+  ite.seek('two')
   ite.next(function (err, key, value) {
     t.error(err, 'no error from next()')
-    t.same(key.toString(), 'three', 'key matches')
-    t.same(value.toString(), '3', 'value matches')
-
+    t.same(key.toString(), 'two', 'key matches')
+    t.same(value.toString(), '2', 'value matches')
     ite.next(function (err, key, value) {
       t.error(err, 'no error from next()')
-      t.same(key.toString(), 'two', 'key matches')
-      t.same(value.toString(), '2', 'value matches')
-
-      ite.next(function (err, key, value) {
-        t.error(err, 'no error from next()')
-        t.same(key, undefined, 'end of iterator')
-        t.same(value, undefined, 'end of iterator')
-        ite.end(done)
-      })
+      t.same(key, undefined, 'end of iterator')
+      t.same(value, undefined, 'end of iterator')
+      ite.end(done)
     })
   })
 })
