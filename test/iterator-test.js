@@ -5,6 +5,7 @@ const test       = require('tape')
     , make       = require('./make')
     , iota       = require('iota-array')
     , lexi       = require('lexicographic-integer')
+    , util       = require('util')
 
 abstract.all(leveldown, test, testCommon)
 
@@ -233,6 +234,64 @@ make('iterator reverse seek lands on or before target', function(db, t, done) {
         t.is(value && value.toString(), ''+expected, 'k'+expected)
         loop(ite, i-step, done)
       })
+    }
+  })
+})
+
+make('iterator seek stays in range', function(db, t, done) {
+  db.batch(pairs(10), function(err){
+    t.error(err, 'no error from batch()')
+
+    var pending = 0
+
+    expect({ gt: 5 }, 5, 6) // hm, should it?
+    expect({ gt: 5 }, 6, 6)
+    expect({ gt: 5 }, 4, undefined)
+
+    expect({ lt: 5 }, 5, undefined)
+    expect({ lt: 5 }, 4, 4)
+    expect({ lt: 5 }, 6, undefined)
+
+    function expect(range, target, expected) {
+      var ite1 = create(range)
+      ite1.seek(''+target)
+      ite1.next(function(err, key, value) {
+        verify('initial seek', ite1, err, key, value)
+      })
+
+      var ite2 = create(range)
+      ite2.next(function(err, key, value) {
+        t.error(err, 'no error from next()')
+        t.ok(key, 'has key')
+        ite2.seek(''+target)
+        ite2.next(function(err, key, value) {
+          verify('secondary seek', ite2, err, key, value)
+        })
+      })
+
+      function verify(name, ite, err, key, value) {
+        t.error(err, 'no error from next()')
+
+        var tpl = '%s(%d) on %s yields %s'
+        var msg = util.format(tpl, name, target, util.inspect(range), expected)
+
+        t.is(value ? value.toString() : ''+value, ''+expected, msg)
+
+        ite.end(function end(err) {
+          t.error(err, 'no error from end()')
+          if (!--pending) done()
+        })
+      }
+    }
+
+    function create(range) {
+      pending++
+      var opts = { highWaterMark: 1 }
+      if ('gt' in range) opts.gt = ''+range.gt
+      if ('gte' in range) opts.gte = ''+range.gte
+      if ('lt' in range) opts.lt = ''+range.lt
+      if ('lte' in range) opts.lte = ''+range.lte
+      return db.iterator(opts)
     }
   })
 })
