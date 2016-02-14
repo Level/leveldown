@@ -69,6 +69,20 @@ make('iterator reverse seek in the middle', function (db, t, done) {
   })
 })
 
+make('iterator seek resets state', function(db, t, done) {
+  var ite = db.iterator()
+  ite.next(function (err, key, value) {
+    t.error(err, 'no error from next()')
+    t.same(key.toString(), 'one', 'key matches')
+    t.ok(ite.cache, 'has cached items')
+    t.is(ite.finished, true, 'finished')
+    ite.seek('two')
+    t.notOk(ite.cache, 'cache is removed')
+    t.is(ite.finished, false, 'resets finished state')
+    done()
+  })
+})
+
 make('iterator seeks', function (db, t, done) {
   db.batch(pairs(10, { not: 7 }), function(err){
     t.error(err, 'no error from batch()')

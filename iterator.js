@@ -1,7 +1,6 @@
 const util             = require('util')
     , AbstractIterator = require('abstract-leveldown').AbstractIterator
     , fastFuture       = require('fast-future')
-    , compare          = require('ltgt').compare
 
 
 function Iterator (db, options) {
@@ -24,22 +23,7 @@ Iterator.prototype.seek = function (target) {
   if (typeof target !== 'string' && !Buffer.isBuffer(target))
     throw new Error('seek() requires a string or buffer target')
 
-  // Check if target is cached
-  var length = this.cache ? this.cache.length : 0
-
-  if (length) {
-    if (typeof target === 'string') {
-      target = new Buffer(target)
-    }
-
-    for(var i=length-1; i>0; i-=2) {
-      var c = compare(this.cache[i], target)
-      if (this.reverse ? c <= 0 : c >= 0) {
-        return void this.cache.splice(i+1, length)
-      }
-    }
-  }
-
+  this.finished = false
   this.cache = null
   this.binding.seek(target)
 }
