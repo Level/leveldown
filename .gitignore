@@ -1,6 +1,7 @@
 node_modules/
 build/
 build-pre-gyp/
+Release/
 libleveldb.so
 libleveldb.a
 leakydb
