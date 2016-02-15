@@ -62,9 +62,10 @@ Iterator::Iterator (
   options->snapshot = database->NewSnapshot();
   dbIterator = NULL;
   count      = 0;
-  seeking    = false;
+  target     = NULL;
   nexting    = false;
   ended      = false;
+  outOfRange = false;
   endWorker  = NULL;
 };
 
@@ -76,6 +77,8 @@ Iterator::~Iterator () {
     delete start;
   if (end != NULL)
     delete end;
+  if (target != NULL)
+    delete target;
 };
 
 void Iterator::IteratorSeek (leveldb::Slice* start) {
@@ -89,17 +92,22 @@ void Iterator::IteratorSeek (leveldb::Slice* start) {
       } else {
         std::string key_ = dbIterator->key().ToString();
 
-        if (lt != NULL) {
+        // in reverse, a manual seek should land on or before the target.
+        if (start->compare(key_) < 0) {
+          dbIterator->Prev();
+        } else if (lt != NULL) {
           if (lt->compare(key_) <= 0)
             dbIterator->Prev();
         } else if (lte != NULL) {
           if (lte->compare(key_) < 0)
             dbIterator->Prev();
-        } else if (start->compare(key_)) {
-          dbIterator->Prev();
+        } else if (start != NULL) {
+          if (start->compare(key_))
+            dbIterator->Prev();
         }
       }
 
+      // TODO: what's the purpose of this? test suite passes without it
       if (dbIterator->Valid() && lt != NULL) {
         if (lt->compare(dbIterator->key().ToString()) <= 0)
           dbIterator->Prev();
@@ -119,22 +127,29 @@ void Iterator::IteratorSeek (leveldb::Slice* start) {
 bool Iterator::GetIterator () {
   if (dbIterator == NULL) {
     dbIterator = database->NewIterator(options);
-    if (!seeking) IteratorSeek(start);
     return true;
   }
   return false;
 }
 
 bool Iterator::Read (std::string& key, std::string& value) {
-  // if it's not the first call, move to next item.
-  if (!GetIterator() && !seeking) {
-    if (reverse)
-      dbIterator->Prev();
-    else
-      dbIterator->Next();
-  }
+  bool isFirstCall = GetIterator();
 
-  seeking = false;
+  // skip read if manual seek is out of range
+  if (outOfRange)
+    return false;
+
+  // do manual seek, initial seek, or move to next item
+  if (target != NULL) {
+    IteratorSeek(target);
+    target = NULL;
+  } else if (isFirstCall) {
+    IteratorSeek(start);
+  } else if (reverse) {
+    dbIterator->Prev();
+  } else {
+    dbIterator->Next();
+  }
 
   // now check if this is the end or not, if not then return the key & value
   if (dbIterator->Valid()) {
@@ -207,28 +222,32 @@ void checkEndCallback (Iterator* iterator) {
 NAN_METHOD(Iterator::Seek) {
   Iterator* iterator = Nan::ObjectWrap::Unwrap<Iterator>(info.This());
 
+  // TODO: check if slice size > 0?
   leveldb::Slice* target;
   v8::Local<v8::Object> targetHandle = info[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(_target, targetHandle, target);
   target = new leveldb::Slice(_target.data(), _target.size());
 
-  // This boolean prevents nexting in Read() and seeking in GetIterator().
-  iterator->seeking = true;
-  iterator->GetIterator();
-  iterator->IteratorSeek(target);
+  iterator->outOfRange = false;
 
-  if (iterator->reverse) {
-    // Seek(target) lands on or after the target. But in reverse,
-    // it should land on or *before* the target. I.e. if a seek
-    // to "b" lands on "c", go back to "a".
-    leveldb::Iterator* dbIterator = iterator->dbIterator;
-
-    if (dbIterator->Valid()) {
-      if (target->compare(dbIterator->key().ToString()) < 0) {
-        dbIterator->Prev();
-      }
-    }
+  if (iterator->lt != NULL) {
+    if (target->compare(*iterator->lt) >= 0)
+      iterator->outOfRange = true;
+  } else if (iterator->lte != NULL) {
+    if (target->compare(*iterator->lte) > 0)
+      iterator->outOfRange = true;
   }
+
+  if (iterator->gt != NULL) {
+    if (target->compare(*iterator->gt) <= 0)
+      iterator->outOfRange = true;
+  } else if (iterator->gte != NULL) {
+    if (target->compare(*iterator->gte) < 0)
+      iterator->outOfRange = true;
+  }
+
+  // when next() is called, seek to target
+  iterator->target = target;
 
   info.GetReturnValue().Set(info.Holder());
 }

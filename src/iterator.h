@@ -61,11 +61,12 @@ private:
   leveldb::Iterator* dbIterator;
   leveldb::ReadOptions* options;
   leveldb::Slice* start;
+  leveldb::Slice* target;
   std::string* end;
-  bool seeking;
   bool reverse;
   bool keys;
   bool values;
+  bool outOfRange;
   int limit;
   std::string* lt;
   std::string* lte;

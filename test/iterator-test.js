@@ -203,7 +203,7 @@ make('iterator seek lands on or after target', function(db, t, done) {
     }
 
     loop(db.iterator(), 0, cb)
-    loop(db.iterator({gt: '0a'}), 10, cb)
+    loop(db.iterator({gte: '0a'}), 10, cb)
     loop(db.iterator({highWaterMark: 1}), 0, cb)
 
     function loop(ite, i, done) {
@@ -230,7 +230,7 @@ make('iterator reverse seek lands on or before target', function(db, t, done) {
     }
 
     loop(db.iterator({reverse:true}), max, cb)
-    loop(db.iterator({reverse:true, lt: lexi.pack(90, 'hex')}), 90, cb)
+    loop(db.iterator({reverse:true, lte: lexi.pack(90, 'hex')}), 90, cb)
     loop(db.iterator({reverse:true, highWaterMark: 1}), max, cb)
 
     function loop(ite, i, done) {
@@ -251,13 +251,29 @@ make('iterator seek stays in range', function(db, t, done) {
 
     var pending = 0
 
-    expect({ gt: 5 }, 5, 6) // hm, should it?
-    expect({ gt: 5 }, 6, 6)
     expect({ gt: 5 }, 4, undefined)
+    expect({ gt: 5 }, 5, undefined)
+    expect({ gt: 5 }, 6, 6)
 
-    expect({ lt: 5 }, 5, undefined)
+    expect({ gte: 5 }, 4, undefined)
+    expect({ gte: 5 }, 5, 5)
+    expect({ gte: 5 }, 6, 6)
+
     expect({ lt: 5 }, 4, 4)
+    expect({ lt: 5 }, 5, undefined)
     expect({ lt: 5 }, 6, undefined)
+
+    expect({ lt: 5, reverse: true }, 4, 4)
+    expect({ lt: 5, reverse: true }, 5, undefined)
+    expect({ lt: 5, reverse: true }, 6, undefined)
+
+    expect({ lte: 5, reverse: true }, 4, 4)
+    expect({ lte: 5, reverse: true }, 5, 5)
+    expect({ lte: 5, reverse: true }, 6, undefined)
+
+    expect({ gt: 5, reverse: true }, 4, undefined)
+    expect({ gt: 5, reverse: true }, 5, undefined)
+    expect({ gt: 5, reverse: true }, 6, 6)
 
     function expect(range, target, expected) {
       var ite1 = create(range)
@@ -293,7 +309,7 @@ make('iterator seek stays in range', function(db, t, done) {
 
     function create(range) {
       pending++
-      var opts = { highWaterMark: 1 }
+      var opts = { highWaterMark: 1, reverse: !!range.reverse }
       if ('gt' in range) opts.gt = ''+range.gt
       if ('gte' in range) opts.gte = ''+range.gte
       if ('lt' in range) opts.lt = ''+range.lt
