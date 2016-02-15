@@ -6,7 +6,6 @@ const util             = require('util')
 function Iterator (db, options) {
   AbstractIterator.call(this, db)
 
-  this.reverse    = options && options.reverse
   this.binding    = db.binding.iterator(options)
   this.cache      = null
   this.finished   = false
