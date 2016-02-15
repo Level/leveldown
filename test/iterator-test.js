@@ -108,11 +108,11 @@ make('iterator seek resets state', function (db, t, done) {
     ite.seek('two')
     t.notOk(ite.cache, 'cache is removed')
     t.equal(ite.finished, false, 'resets finished state')
-    done()
+    ite.end(done)
   })
 })
 
-make('iterator seeks', function (db, t, done) {
+make('iterator seek lands on or after target', function (db, t, done) {
   db.batch(pairs(10, { not: 7 }), function (err) {
     t.error(err, 'no error from batch()')
 
@@ -133,30 +133,7 @@ make('iterator seeks', function (db, t, done) {
   })
 })
 
-make('iterator seeks without cache', function (db, t, done) {
-  db.batch(pairs(10, { not: 7 }), function (err) {
-    t.error(err, 'no error from batch()')
-
-    var ite = db.iterator({gte: '4', highWaterMark: 1})
-    ite.seek('5')
-    ite.next(function (err, key, value) {
-      t.error(err, 'no error from next()')
-      t.equal(ite.cache.length, 0, 'nothing cached')
-      t.equal(key.toString(), '5', 'key matches')
-      t.equal(value.toString(), '5', 'value matches')
-      ite.seek('7')
-      ite.next(function (err, key, value) {
-        t.error(err, 'no error from next()')
-        t.equal(ite.cache.length, 0, 'nothing cached')
-        t.equal(key.toString(), '8', 'key matches')
-        t.equal(value.toString(), '8', 'value matches')
-        ite.end(done)
-      })
-    })
-  })
-})
-
-make('iterator reverse seeks', function (db, t, done) {
+make('iterator reverse seek lands on or before target', function (db, t, done) {
   db.batch(pairs(10, { not: 5 }), function (err) {
     t.error(err, 'no error from batch()')
 
@@ -176,34 +153,12 @@ make('iterator reverse seeks', function (db, t, done) {
   })
 })
 
-make('iterator reverse seeks without cache', function (db, t, done) {
-  db.batch(pairs(10, { not: 5 }), function (err) {
-    t.error(err, 'no error from batch()')
-
-    var ite = db.iterator({reverse: true, lte: '8', highWaterMark: 1})
-    ite.next(function (err, key, value) {
-      t.error(err, 'no error from next()')
-      t.equal(ite.cache.length, 0, 'nothing cached')
-      t.equal(key.toString(), '8', 'key matches')
-      t.equal(value.toString(), '8', 'value matches')
-      ite.seek('5')
-      ite.next(function (err, key, value) {
-        t.error(err, 'no error from next()')
-        t.equal(ite.cache.length, 0, 'nothing cached')
-        t.equal(key.toString(), '4', 'key matches')
-        t.equal(value.toString(), '4', 'value matches')
-        ite.end(done)
-      })
-    })
-  })
-})
-
-make('iterator seek lands on or after target', function (db, t, done) {
+make('iterator seeks land on or after target', function (db, t, done) {
   var max = 100, step = 15
   db.batch(pairs(max, {lex: true, not: even}), function (err) {
     t.error(err, 'no error from batch()')
 
-    var pending = 3
+    var pending = 2
     var cb = function (err) {
       t.error(err, 'no error from end()')
       if (--pending === 0) done()
@@ -211,7 +166,6 @@ make('iterator seek lands on or after target', function (db, t, done) {
 
     loop(db.iterator(), 0, cb)
     loop(db.iterator({gte: '0a'}), 10, cb)
-    loop(db.iterator({highWaterMark: 1}), 0, cb)
 
     function loop(ite, i, done) {
       if (i >= max) return ite.end(done)
@@ -225,12 +179,12 @@ make('iterator seek lands on or after target', function (db, t, done) {
   })
 })
 
-make('iterator reverse seek lands on or before target', function (db, t, done) {
+make('iterator reverse seeks land on or before target', function (db, t, done) {
   var max = 100, step = 15
   db.batch(pairs(max, {lex: true, not: even}), function (err) {
     t.error(err, 'no error from batch()')
 
-    var pending = 3
+    var pending = 2
     var cb = function (err) {
       t.error(err, 'no error from end()')
       if (--pending === 0) done()
@@ -238,7 +192,6 @@ make('iterator reverse seek lands on or before target', function (db, t, done) {
 
     loop(db.iterator({reverse:true}), max, cb)
     loop(db.iterator({reverse:true, lte: lexi.pack(90, 'hex')}), 90, cb)
-    loop(db.iterator({reverse:true, highWaterMark: 1}), max, cb)
 
     function loop(ite, i, done) {
       if (i <= 0) return ite.end(done)
@@ -252,7 +205,7 @@ make('iterator reverse seek lands on or before target', function (db, t, done) {
   })
 })
 
-make('iterator seek stays in range', function (db, t, done) {
+make('iterator seek respects range', function (db, t, done) {
   db.batch(pairs(10), function (err) {
     t.error(err, 'no error from batch()')
 
@@ -284,8 +237,6 @@ make('iterator seek stays in range', function (db, t, done) {
 
     function expect (range, target, expected) {
       pending++
-      range.highWaterMark = 1
-
       var ite = db.iterator(range)
 
       ite.seek(target)
