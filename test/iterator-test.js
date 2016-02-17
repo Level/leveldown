@@ -320,6 +320,15 @@ make('iterator seek after end throws', function (db, t, done) {
   })
 })
 
+make('iterator seek to empty target throws', function (db, t, done) {
+  var ite = db.iterator()
+
+  t.throws(ite.seek.bind(ite, ''))
+  t.throws(ite.seek.bind(ite, Buffer(0)))
+
+  ite.end(done)
+})
+
 function pairs (length, opts) {
   opts = opts || {}
   return iota(length).filter(not(opts.not)).map(function (k) {
