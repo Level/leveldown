@@ -6,6 +6,7 @@ const test       = require('tape')
     , iota       = require('iota-array')
     , lexi       = require('lexicographic-integer')
     , util       = require('util')
+    , crypto     = require('crypto')
 
 abstract.all(leveldown, test, testCommon)
 
@@ -258,6 +259,27 @@ make('iterator seek respects range', function (db, t, done) {
       })
     }
   })
+})
+
+make('iterator seek memory release', function (db, t, done) {
+  var ite = db.iterator()
+  var rssBase = process.memoryUsage().rss
+
+  for(var i = 0; i < 1e4; i++) {
+    ite.seek(crypto.randomBytes(1024).toString('hex'))
+
+    if (i % 1000 === 0) {
+      if (typeof gc != 'undefined')
+        gc()
+      console.log('i = %d, rss = %s %s'
+        , i
+        , Math.round(process.memoryUsage().rss / rssBase * 100) + '%'
+        , Math.round(process.memoryUsage().rss / 1024 / 1024) + 'M'
+      )
+    }
+  }
+
+  ite.end(done)
 })
 
 function pairs (length, opts) {

@@ -54,6 +54,7 @@ public:
   leveldb::Status IteratorStatus ();
   void IteratorEnd ();
   void Release ();
+  void ReleaseTarget ();
 
 private:
   Database* database;
@@ -66,7 +67,6 @@ private:
   bool reverse;
   bool keys;
   bool values;
-  bool outOfRange;
   int limit;
   std::string* lt;
   std::string* lte;
@@ -84,10 +84,12 @@ public:
 
 private:
   Nan::Persistent<v8::Object> persistentHandle;
+  Nan::Persistent<v8::Object> persistentTargetHandle;
 
   bool Read (std::string& key, std::string& value);
   bool GetIterator ();
   void IteratorSeek (leveldb::Slice* start);
+  bool OutOfRange (leveldb::Slice* target);
 
   static NAN_METHOD(New);
   static NAN_METHOD(Seek);

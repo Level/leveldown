@@ -65,20 +65,18 @@ Iterator::Iterator (
   target     = NULL;
   nexting    = false;
   ended      = false;
-  outOfRange = false;
   endWorker  = NULL;
 };
 
 Iterator::~Iterator () {
   delete options;
+  ReleaseTarget();
   if (!persistentHandle.IsEmpty())
     persistentHandle.Reset();
   if (start != NULL)
     delete start;
   if (end != NULL)
     delete end;
-  if (target != NULL)
-    delete target;
 };
 
 void Iterator::IteratorSeek (leveldb::Slice* start) {
@@ -133,25 +131,7 @@ bool Iterator::GetIterator () {
 }
 
 bool Iterator::Read (std::string& key, std::string& value) {
-  bool isFirstCall = GetIterator();
-
-  // skip read if manual seek is out of range
-  if (outOfRange)
-    return false;
-
-  // do manual seek, initial seek, or move to next item
-  if (target != NULL) {
-    IteratorSeek(target);
-    target = NULL;
-  } else if (isFirstCall) {
-    IteratorSeek(start);
-  } else if (reverse) {
-    dbIterator->Prev();
-  } else {
-    dbIterator->Next();
-  }
-
-  // now check if this is the end or not, if not then return the key & value
+  // check if this is the end or not, if not then return the key & value
   if (dbIterator->Valid()) {
     std::string key_ = dbIterator->key().ToString();
     int isEnd = end == NULL ? 1 : end->compare(key_);
@@ -178,10 +158,52 @@ bool Iterator::Read (std::string& key, std::string& value) {
   return false;
 }
 
+bool Iterator::OutOfRange (leveldb::Slice* target) {
+  if (lt != NULL) {
+    if (target->compare(*lt) >= 0)
+      return true;
+  } else if (lte != NULL) {
+    if (target->compare(*lte) > 0)
+      return true;
+  }
+
+  if (gt != NULL) {
+    if (target->compare(*gt) <= 0)
+      return true;
+  } else if (gte != NULL) {
+    if (target->compare(*gte) < 0)
+      return true;
+  }
+
+  return false;
+}
+
 bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
+  bool isFirstCall = GetIterator();
+
+  // do manual seek or initial seek
+  if (target != NULL) {
+    if (OutOfRange(target))
+      return false;
+
+    isFirstCall = true;
+    IteratorSeek(target);
+  } else if (isFirstCall) {
+    IteratorSeek(start);
+  }
+
   size_t size = 0;
   while(true) {
     std::string key, value;
+
+    // move to next item
+    if (isFirstCall)
+      isFirstCall = false;
+    else if (reverse)
+      dbIterator->Prev();
+    else
+      dbIterator->Next();
+
     bool ok = Read(key, value);
 
     if (ok) {
@@ -211,7 +233,18 @@ void Iterator::Release () {
   database->ReleaseIterator(id);
 }
 
+void Iterator::ReleaseTarget () {
+  if (target != NULL) {
+    if (!persistentTargetHandle.IsEmpty())
+      DisposeStringOrBufferFromSlice(persistentTargetHandle, *target);
+
+    delete target;
+    target = NULL;
+  }
+}
+
 void checkEndCallback (Iterator* iterator) {
+  iterator->ReleaseTarget();
   iterator->nexting = false;
   if (iterator->endWorker != NULL) {
     Nan::AsyncQueueWorker(iterator->endWorker);
@@ -222,32 +255,21 @@ void checkEndCallback (Iterator* iterator) {
 NAN_METHOD(Iterator::Seek) {
   Iterator* iterator = Nan::ObjectWrap::Unwrap<Iterator>(info.This());
 
+  // release memory of previous target, in case next() wasn't called
+  iterator->ReleaseTarget();
+
   // TODO: check if slice size > 0?
   leveldb::Slice* target;
   v8::Local<v8::Object> targetHandle = info[0].As<v8::Object>();
   LD_STRING_OR_BUFFER_TO_SLICE(_target, targetHandle, target);
   target = new leveldb::Slice(_target.data(), _target.size());
 
-  iterator->outOfRange = false;
-
-  if (iterator->lt != NULL) {
-    if (target->compare(*iterator->lt) >= 0)
-      iterator->outOfRange = true;
-  } else if (iterator->lte != NULL) {
-    if (target->compare(*iterator->lte) > 0)
-      iterator->outOfRange = true;
-  }
-
-  if (iterator->gt != NULL) {
-    if (target->compare(*iterator->gt) <= 0)
-      iterator->outOfRange = true;
-  } else if (iterator->gte != NULL) {
-    if (target->compare(*iterator->gte) < 0)
-      iterator->outOfRange = true;
-  }
-
   // when next() is called, seek to target
   iterator->target = target;
+
+  v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+  obj->Set(Nan::New("obj").ToLocalChecked(), targetHandle);
+  iterator->persistentTargetHandle.Reset(obj);
 
   info.GetReturnValue().Set(info.Holder());
 }
