@@ -311,6 +311,15 @@ make('iterator seek memory release', function (db, t, done) {
   ite.end(done)
 })
 
+make('iterator seek after end throws', function (db, t, done) {
+  var ite = db.iterator()
+  ite.end(function (err) {
+    t.error(err, 'no error from end()')
+    t.throws(ite.seek.bind(ite, 'one'))
+    done()
+  })
+})
+
 function pairs (length, opts) {
   opts = opts || {}
   return iota(length).filter(not(opts.not)).map(function (k) {
