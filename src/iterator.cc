@@ -165,6 +165,15 @@ bool Iterator::OutOfRange (leveldb::Slice* target) {
   } else if (lte != NULL) {
     if (target->compare(*lte) > 0)
       return true;
+  } else if (start != NULL && reverse) {
+    if (target->compare(*start) > 0)
+      return true;
+  }
+
+  if (end != NULL) {
+    int d = target->compare(*end);
+    if (reverse ? d < 0 : d > 0)
+      return true;
   }
 
   if (gt != NULL) {
@@ -172,6 +181,9 @@ bool Iterator::OutOfRange (leveldb::Slice* target) {
       return true;
   } else if (gte != NULL) {
     if (target->compare(*gte) < 0)
+      return true;
+  } else if (start != NULL && !reverse) {
+    if (target->compare(*start) < 0)
       return true;
   }
 
