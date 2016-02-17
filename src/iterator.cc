@@ -270,15 +270,19 @@ NAN_METHOD(Iterator::Seek) {
   // release memory of previous target, in case next() wasn't called
   iterator->ReleaseTarget();
 
-  // TODO: check if slice size > 0?
-  leveldb::Slice* target;
   v8::Local<v8::Object> targetHandle = info[0].As<v8::Object>();
+
+  if (!node::Buffer::HasInstance(targetHandle) && !targetHandle->IsString())
+    return Nan::ThrowError("seek() requires a string or buffer key");
+
+  if (StringOrBufferLength(targetHandle) == 0)
+    return Nan::ThrowError("cannot seek() to an empty key");
+
+  // seek will be performed by NextWorker
   LD_STRING_OR_BUFFER_TO_SLICE(_target, targetHandle, target);
-  target = new leveldb::Slice(_target.data(), _target.size());
+  iterator->target = new leveldb::Slice(_target.data(), _target.size());
 
-  // when next() is called, seek to target
-  iterator->target = target;
-
+  // handle will be released when NextWorker ends
   v8::Local<v8::Object> obj = Nan::New<v8::Object>();
   obj->Set(Nan::New("obj").ToLocalChecked(), targetHandle);
   iterator->persistentTargetHandle.Reset(obj);

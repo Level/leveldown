@@ -19,12 +19,10 @@ Iterator.prototype.seek = function (key) {
     throw new Error('cannot call seek() after end()')
   if (this._nexting)
     throw new Error('cannot call seek() before next() has completed')
-  if (typeof key !== 'string' && !Buffer.isBuffer(key))
-    throw new Error('seek() requires a string or buffer key')
 
-  this.finished = false
   this.cache = null
   this.binding.seek(key)
+  this.finished = false
 }
 
 Iterator.prototype._next = function (callback) {
