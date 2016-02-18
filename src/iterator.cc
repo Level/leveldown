@@ -90,19 +90,10 @@ void Iterator::IteratorSeek (leveldb::Slice* start) {
       } else {
         std::string key_ = dbIterator->key().ToString();
 
-        // in reverse, a manual seek should land on or before the target.
-        if (start->compare(key_) < 0) {
+        if (start->compare(key_) < 0)
           dbIterator->Prev();
-        } else if (lt != NULL) {
-          if (lt->compare(key_) <= 0)
-            dbIterator->Prev();
-        } else if (lte != NULL) {
-          if (lte->compare(key_) < 0)
-            dbIterator->Prev();
-        } else if (start != NULL) {
-          if (start->compare(key_))
-            dbIterator->Prev();
-        }
+        else if (lt != NULL && lt->compare(key_) <= 0)
+          dbIterator->Prev();
       }
 
       // TODO: what's the purpose of this? test suite passes without it
