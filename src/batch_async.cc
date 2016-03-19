@@ -19,7 +19,10 @@ BatchWriteWorker::BatchWriteWorker (
   , batch(batch)
 {};
 
-BatchWriteWorker::~BatchWriteWorker () {}
+BatchWriteWorker::~BatchWriteWorker () {
+  delete callback;
+  callback = NULL;
+}
 
 void BatchWriteWorker::Execute () {
   SetStatus(batch->Write());

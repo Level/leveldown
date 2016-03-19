@@ -21,6 +21,8 @@ DestroyWorker::DestroyWorker (
 
 DestroyWorker::~DestroyWorker () {
   delete location;
+  delete callback;
+  callback = NULL;
 }
 
 void DestroyWorker::Execute () {
@@ -39,6 +41,8 @@ RepairWorker::RepairWorker (
 
 RepairWorker::~RepairWorker () {
   delete location;
+  delete callback;
+  callback = NULL;
 }
 
 void RepairWorker::Execute () {
