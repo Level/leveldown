@@ -76,6 +76,14 @@ Iterator::~Iterator () {
     delete start;
   if (end != NULL)
     delete end;
+  if (lt != NULL)
+    delete lt;
+  if (gt != NULL)
+    delete gt;
+  if (lte != NULL)
+    delete lte;
+  if (gte != NULL)
+    delete gte;
 };
 
 bool Iterator::GetIterator () {
