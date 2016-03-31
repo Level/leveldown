@@ -62,7 +62,7 @@ Iterator::Iterator (
   options->snapshot = database->NewSnapshot();
   dbIterator = NULL;
   count      = 0;
-  seeking    = false;
+  target     = NULL;
   nexting    = false;
   ended      = false;
   endWorker  = NULL;
@@ -70,6 +70,7 @@ Iterator::Iterator (
 
 Iterator::~Iterator () {
   delete options;
+  ReleaseTarget();
   if (!persistentHandle.IsEmpty())
     persistentHandle.Reset();
   if (start != NULL)
@@ -86,64 +87,50 @@ Iterator::~Iterator () {
     delete gte;
 };
 
+void Iterator::IteratorSeek (leveldb::Slice* start) {
+  if (start != NULL) {
+    dbIterator->Seek(*start);
+
+    if (reverse) {
+      if (!dbIterator->Valid()) {
+        // if it's past the last key, step back
+        dbIterator->SeekToLast();
+      } else {
+        std::string key_ = dbIterator->key().ToString();
+
+        if (start->compare(key_) < 0)
+          dbIterator->Prev();
+        else if (lt != NULL && lt->compare(key_) <= 0)
+          dbIterator->Prev();
+      }
+
+      // TODO: what's the purpose of this? test suite passes without it
+      if (dbIterator->Valid() && lt != NULL) {
+        if (lt->compare(dbIterator->key().ToString()) <= 0)
+          dbIterator->Prev();
+      }
+    } else {
+      if (dbIterator->Valid() && gt != NULL
+          && gt->compare(dbIterator->key().ToString()) == 0)
+        dbIterator->Next();
+    }
+  } else if (reverse) {
+    dbIterator->SeekToLast();
+  } else {
+    dbIterator->SeekToFirst();
+  }
+}
+
 bool Iterator::GetIterator () {
   if (dbIterator == NULL) {
     dbIterator = database->NewIterator(options);
-
-    if (start != NULL) {
-      dbIterator->Seek(*start);
-
-      if (reverse) {
-        if (!dbIterator->Valid()) {
-          // if it's past the last key, step back
-          dbIterator->SeekToLast();
-        } else {
-          std::string key_ = dbIterator->key().ToString();
-
-          if (lt != NULL) {
-            if (lt->compare(key_) <= 0)
-              dbIterator->Prev();
-          } else if (lte != NULL) {
-            if (lte->compare(key_) < 0)
-              dbIterator->Prev();
-          } else if (start != NULL) {
-            if (start->compare(key_))
-              dbIterator->Prev();
-          }
-        }
-
-        if (dbIterator->Valid() && lt != NULL) {
-          if (lt->compare(dbIterator->key().ToString()) <= 0)
-            dbIterator->Prev();
-        }
-      } else {
-        if (dbIterator->Valid() && gt != NULL
-            && gt->compare(dbIterator->key().ToString()) == 0)
-          dbIterator->Next();
-      }
-    } else if (reverse) {
-      dbIterator->SeekToLast();
-    } else {
-      dbIterator->SeekToFirst();
-    }
-
     return true;
   }
   return false;
 }
 
 bool Iterator::Read (std::string& key, std::string& value) {
-  // if it's not the first call, move to next item.
-  if (!GetIterator() && !seeking) {
-    if (reverse)
-      dbIterator->Prev();
-    else
-      dbIterator->Next();
-  }
-
-  seeking = false;
-
-  // now check if this is the end or not, if not then return the key & value
+  // check if this is the end or not, if not then return the key & value
   if (dbIterator->Valid()) {
     std::string key_ = dbIterator->key().ToString();
     int isEnd = end == NULL ? 1 : end->compare(key_);
@@ -170,10 +157,64 @@ bool Iterator::Read (std::string& key, std::string& value) {
   return false;
 }
 
+bool Iterator::OutOfRange (leveldb::Slice* target) {
+  if (lt != NULL) {
+    if (target->compare(*lt) >= 0)
+      return true;
+  } else if (lte != NULL) {
+    if (target->compare(*lte) > 0)
+      return true;
+  } else if (start != NULL && reverse) {
+    if (target->compare(*start) > 0)
+      return true;
+  }
+
+  if (end != NULL) {
+    int d = target->compare(*end);
+    if (reverse ? d < 0 : d > 0)
+      return true;
+  }
+
+  if (gt != NULL) {
+    if (target->compare(*gt) <= 0)
+      return true;
+  } else if (gte != NULL) {
+    if (target->compare(*gte) < 0)
+      return true;
+  } else if (start != NULL && !reverse) {
+    if (target->compare(*start) < 0)
+      return true;
+  }
+
+  return false;
+}
+
 bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
+  bool isFirstCall = GetIterator();
+
+  // do manual seek or initial seek
+  if (target != NULL) {
+    if (OutOfRange(target))
+      return false;
+
+    isFirstCall = true;
+    IteratorSeek(target);
+  } else if (isFirstCall) {
+    IteratorSeek(start);
+  }
+
   size_t size = 0;
   while(true) {
     std::string key, value;
+
+    // move to next item
+    if (isFirstCall)
+      isFirstCall = false;
+    else if (reverse)
+      dbIterator->Prev();
+    else
+      dbIterator->Next();
+
     bool ok = Read(key, value);
 
     if (ok) {
@@ -203,7 +244,18 @@ void Iterator::Release () {
   database->ReleaseIterator(id);
 }
 
+void Iterator::ReleaseTarget () {
+  if (target != NULL) {
+    if (!persistentTargetHandle.IsEmpty())
+      DisposeStringOrBufferFromSlice(persistentTargetHandle, *target);
+
+    delete target;
+    target = NULL;
+  }
+}
+
 void checkEndCallback (Iterator* iterator) {
+  iterator->ReleaseTarget();
   iterator->nexting = false;
   if (iterator->endWorker != NULL) {
     Nan::AsyncQueueWorker(iterator->endWorker);
@@ -213,37 +265,25 @@ void checkEndCallback (Iterator* iterator) {
 
 NAN_METHOD(Iterator::Seek) {
   Iterator* iterator = Nan::ObjectWrap::Unwrap<Iterator>(info.This());
-  iterator->GetIterator();
-  leveldb::Iterator* dbIterator = iterator->dbIterator;
-  Nan::Utf8String key(info[0]);
 
-  dbIterator->Seek(*key);
-  iterator->seeking = true;
+  // release memory of previous target, in case next() wasn't called
+  iterator->ReleaseTarget();
 
-  if (dbIterator->Valid()) {
-    int cmp = dbIterator->key().compare(*key);
-    if (cmp > 0 && iterator->reverse) {
-      dbIterator->Prev();
-    } else if (cmp < 0 && !iterator->reverse) {
-      dbIterator->Next();
-    }
-  } else {
-    if (iterator->reverse) {
-      dbIterator->SeekToLast();
-    } else {
-      dbIterator->SeekToFirst();
-    }
-    if (dbIterator->Valid()) {
-      int cmp = dbIterator->key().compare(*key);
-      if (cmp > 0 && iterator->reverse) {
-        dbIterator->SeekToFirst();
-        dbIterator->Prev();
-      } else if (cmp < 0 && !iterator->reverse) {
-        dbIterator->SeekToLast();
-        dbIterator->Next();
-      }
-    }
-  }
+  if (!node::Buffer::HasInstance(info[0]) && !info[0]->IsString())
+    return Nan::ThrowError("seek() requires a string or buffer key");
+
+  if (StringOrBufferLength(info[0]) == 0)
+    return Nan::ThrowError("cannot seek() to an empty key");
+
+  // seek will be performed by NextWorker
+  v8::Local<v8::Object> targetHandle = info[0].As<v8::Object>();
+  LD_STRING_OR_BUFFER_TO_SLICE(_target, targetHandle, target);
+  iterator->target = new leveldb::Slice(_target.data(), _target.size());
+
+  // handle will be released when NextWorker ends
+  v8::Local<v8::Object> obj = Nan::New<v8::Object>();
+  obj->Set(Nan::New("obj").ToLocalChecked(), targetHandle);
+  iterator->persistentTargetHandle.Reset(obj);
 
   info.GetReturnValue().Set(info.Holder());
 }

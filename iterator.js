@@ -15,10 +15,14 @@ function Iterator (db, options) {
 util.inherits(Iterator, AbstractIterator)
 
 Iterator.prototype.seek = function (key) {
-  if (typeof key !== 'string')
-    throw new Error('seek requires a string key')
+  if (this._ended)
+    throw new Error('cannot call seek() after end()')
+  if (this._nexting)
+    throw new Error('cannot call seek() before next() has completed')
+
   this.cache = null
   this.binding.seek(key)
+  this.finished = false
 }
 
 Iterator.prototype._next = function (callback) {
