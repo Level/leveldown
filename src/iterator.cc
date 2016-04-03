@@ -197,6 +197,7 @@ void Iterator::IteratorEnd () {
   //TODO: could return it->status()
   delete dbIterator;
   dbIterator = NULL;
+  database->ReleaseSnapshot(options->snapshot);
 }
 
 void Iterator::Release () {
