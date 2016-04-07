@@ -71,7 +71,9 @@ The optional `options` argument may contain:
 
 * `'compression'` *(boolean, default: `true`)*: If `true`, all *compressible* data will be run through the Snappy compression algorithm before being stored. Snappy is very fast and shouldn't gain much speed by disabling so leave this on unless you have good reason to turn it off.
 
-* `'cacheSize'` *(number, default: `8 * 1024 * 1024` = 8MB)*: The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents. 
+* `'cacheSize'` *(number, default: `8 * 1024 * 1024` = 8MB)*: The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents.
+
+* `'paranoidChecks'` *(boolean, default: `false`)*: LevelDB can optionally store checksums with your records and will verify them when reading. If `true`, an error will be thrown if LevelDB detects corruption (your data can hopefully be salvaged with `leveldown.repair()`).
 
 **Advanced options**
 
@@ -83,9 +85,11 @@ The following options are for advanced performance tuning. Modify them only if y
 
 * `'blockSize'` *(number, default `4096` = 4K)*: The *approximate* size of the blocks that make up the table files. The size related to uncompressed data (hence "approximate"). Blocks are indexed in the table file and entry-lookups involve reading an entire block and parsing to discover the required entry.
 
-* `'maxOpenFiles'` *(number, default: `1000`)*: The maximum number of files that LevelDB is allowed to have open at a time. If your data store is likely to have a large working set, you may increase this value to prevent file descriptor churn. To calculate the number of files required for your working set, divide your total data by 2MB, as each table file is a maximum of 2MB. 
+* `'maxOpenFiles'` *(number, default: `1000`)*: The maximum number of files that LevelDB is allowed to have open at a time. If your data store is likely to have a large working set, you may increase this value to prevent file descriptor churn. To calculate the number of files required for your working set, divide your total data by 2MB, as each table file is a maximum of 2MB.
 
 * `'blockRestartInterval'` *(number, default: `16`)*: The number of entries before restarting the "delta encoding" of keys within blocks. Each "restart" point stores the full key for the entry, between restarts, the common prefix of the keys for those entries is omitted. Restarts are similar to the concept of keyframes in video encoding and are used to minimise the amount of space required to store keys. This is particularly helpful when using deep namespacing / prefixing in your keys.
+
+* `'filterBits'` *(number, default: `10`)*: The number of bits per key to be used for leveldb's [bloom filter](https://en.wikipedia.org/wiki/Bloom_filter) policy. LevelDB can use a bloom filter to avoid looking up keys that do not exist. Bloom filters have a tendency to give false positives as data is added. This option allows you to tweak the potential false positive rate on the bloom filter in order to further reduce disk reads for non-existent data. The use of a bloom filter is generally recommended, however, it comes at the cost of storage and memory usage. No bloom filter will be allocated if zero (only do this if you expect to have very few read misses and you absolutely need the extra memory/diskspace).
 
 
 --------------------------------------------------------
@@ -259,7 +263,7 @@ The callback will be called when the destroy operation is complete, with a possi
 
 > If a DB cannot be opened, you may attempt to call this method to resurrect as much of the contents of the database as possible. Some data may be lost, so be careful when calling this function on a database that contains important information.
 
-You will find information on the *repair* operation in the *LOG* file inside the store directory. 
+You will find information on the *repair* operation in the *LOG* file inside the store directory.
 
 A `repair()` can also be used to perform a compaction of the LevelDB log into table files.
 

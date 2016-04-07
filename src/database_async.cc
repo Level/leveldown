@@ -30,6 +30,7 @@ OpenWorker::OpenWorker (
   , uint32_t blockSize
   , uint32_t maxOpenFiles
   , uint32_t blockRestartInterval
+  , bool paranoidChecks
 ) : AsyncWorker(database, callback)
 {
   options = new leveldb::Options();
@@ -44,6 +45,7 @@ OpenWorker::OpenWorker (
   options->block_size             = blockSize;
   options->max_open_files         = maxOpenFiles;
   options->block_restart_interval = blockRestartInterval;
+  options->paranoid_checks        = paranoidChecks;
 };
 
 OpenWorker::~OpenWorker () {
