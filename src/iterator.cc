@@ -421,8 +421,10 @@ NAN_METHOD(Iterator::New) {
         LD_STRING_OR_BUFFER_TO_SLICE(_lt, ltBuffer, lt)
         lt = new std::string(_lt.data(), _lt.size());
         if (reverse) {
-          if (start != NULL)
+          if (start != NULL) {
             DisposeStringOrBufferFromSlice(startHandle, *start);
+            delete start;
+          }
           start = new leveldb::Slice(_lt.data(), _lt.size());
           startHandle = optionsObj->Get(Nan::New("lt").ToLocalChecked()).As<v8::Object>();
         } else {
@@ -442,8 +444,10 @@ NAN_METHOD(Iterator::New) {
         LD_STRING_OR_BUFFER_TO_SLICE(_lte, lteBuffer, lte)
         lte = new std::string(_lte.data(), _lte.size());
         if (reverse) {
-          if (start != NULL)
+          if (start != NULL) {
             DisposeStringOrBufferFromSlice(startHandle, *start);
+            delete start;
+          }
           start = new leveldb::Slice(_lte.data(), _lte.size());
           startHandle = optionsObj->Get(Nan::New("lte").ToLocalChecked()).As<v8::Object>();
         } else {
@@ -463,8 +467,10 @@ NAN_METHOD(Iterator::New) {
         LD_STRING_OR_BUFFER_TO_SLICE(_gt, gtBuffer, gt)
         gt = new std::string(_gt.data(), _gt.size());
         if (!reverse) {
-          if (start != NULL)
+          if (start != NULL) {
             DisposeStringOrBufferFromSlice(startHandle, *start);
+            delete start;
+          }
           start = new leveldb::Slice(_gt.data(), _gt.size());
           startHandle = optionsObj->Get(Nan::New("gt").ToLocalChecked()).As<v8::Object>();
         } else {
@@ -484,8 +490,10 @@ NAN_METHOD(Iterator::New) {
         LD_STRING_OR_BUFFER_TO_SLICE(_gte, gteBuffer, gte)
         gte = new std::string(_gte.data(), _gte.size());
         if (!reverse) {
-          if (start != NULL)
+          if (start != NULL) {
             DisposeStringOrBufferFromSlice(startHandle, *start);
+            delete start;
+          }
           start = new leveldb::Slice(_gte.data(), _gte.size());
           startHandle = optionsObj->Get(Nan::New("gte").ToLocalChecked()).As<v8::Object>();
         } else {
