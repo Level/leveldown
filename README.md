@@ -75,7 +75,7 @@ The optional `options` argument may contain:
 
 * `'memory'` *(boolean, default: `false`)*: If `true` the database will be stored in-memory.
 
-* `'paranoidChecks'` *(boolean, default: `false`)*: LevelDB can optionally store checksums with your records and will verify them when reading. If `true`, an error will be thrown if LevelDB detects corruption (your data can hopefully be salvaged with `leveldown.repair()`).
+* `'paranoidChecks'` *(boolean, default: `false`)*: If `true`, an error will be thrown if LevelDB detects corruption (your data can hopefully be salvaged with `leveldown.repair()`).
 
 **Advanced options**
 
