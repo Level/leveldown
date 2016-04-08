@@ -8,7 +8,6 @@
 
 #include <leveldb/write_batch.h>
 #include <leveldb/filter_policy.h>
-#include <helpers/memenv/memenv.h>
 
 #include "database.h"
 #include "leveldown.h"
