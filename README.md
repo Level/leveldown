@@ -73,6 +73,8 @@ The optional `options` argument may contain:
 
 * `'cacheSize'` *(number, default: `8 * 1024 * 1024` = 8MB)*: The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents.
 
+* `'memory'` *(boolean, default: `false`)*: If `true` the database will be stored in-memory.
+
 * `'paranoidChecks'` *(boolean, default: `false`)*: LevelDB can optionally store checksums with your records and will verify them when reading. If `true`, an error will be thrown if LevelDB detects corruption (your data can hopefully be salvaged with `leveldown.repair()`).
 
 **Advanced options**

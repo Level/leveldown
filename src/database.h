@@ -12,6 +12,7 @@
 
 #include <leveldb/cache.h>
 #include <leveldb/db.h>
+#include <leveldb/env.h>
 #include <leveldb/filter_policy.h>
 #include <nan.h>
 
@@ -83,6 +84,7 @@ private:
   leveldb::DB* db;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);
+  leveldb::Env* env;
   leveldb::Cache* blockCache;
   const leveldb::FilterPolicy* filterPolicy;
 
