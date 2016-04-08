@@ -44,7 +44,6 @@ public:
     , bool fillCache
     , bool keyAsBuffer
     , bool valueAsBuffer
-    , v8::Local<v8::Object> &startHandle
     , size_t highWaterMark
   );
 
@@ -82,8 +81,6 @@ public:
   AsyncWorker* endWorker;
 
 private:
-  Nan::Persistent<v8::Object> persistentHandle;
-
   bool Read (std::string& key, std::string& value);
   bool GetIterator ();
 
