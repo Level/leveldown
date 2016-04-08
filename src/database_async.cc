@@ -35,7 +35,8 @@ OpenWorker::OpenWorker (
 ) : AsyncWorker(database, callback)
 {
   options = new leveldb::Options();
-  options->env                    = env;
+  if (env)
+    options->env                  = env;
   options->block_cache            = blockCache;
   options->filter_policy          = filterPolicy;
   options->create_if_missing      = createIfMissing;
