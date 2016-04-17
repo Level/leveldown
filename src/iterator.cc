@@ -31,7 +31,6 @@ Iterator::Iterator (
   , bool fillCache
   , bool keyAsBuffer
   , bool valueAsBuffer
-  , v8::Local<v8::Object> &startHandle
   , size_t highWaterMark
 ) : database(database)
   , id(id)
@@ -51,11 +50,6 @@ Iterator::Iterator (
 {
   Nan::HandleScope scope;
 
-  v8::Local<v8::Object> obj = Nan::New<v8::Object>();
-  if (!startHandle.IsEmpty())
-    obj->Set(Nan::New("start").ToLocalChecked(), startHandle);
-  persistentHandle.Reset(obj);
-
   options    = new leveldb::ReadOptions();
   options->fill_cache = fillCache;
   // get a snapshot of the current state
@@ -70,10 +64,17 @@ Iterator::Iterator (
 
 Iterator::~Iterator () {
   delete options;
-  if (!persistentHandle.IsEmpty())
-    persistentHandle.Reset();
-  if (start != NULL)
+  if (start != NULL) {
+    // Special case for `start` option: it won't be
+    // freed up by any of the delete calls below.
+    if (!((lt != NULL && reverse)
+        || (lte != NULL && reverse)
+        || (gt != NULL && !reverse)
+        || (gte != NULL && !reverse))) {
+      delete[] start->data();
+    }
     delete start;
+  }
   if (end != NULL)
     delete end;
   if (lt != NULL)
@@ -197,6 +198,7 @@ void Iterator::IteratorEnd () {
   //TODO: could return it->status()
   delete dbIterator;
   dbIterator = NULL;
+  database->ReleaseSnapshot(options->snapshot);
 }
 
 void Iterator::Release () {
@@ -338,10 +340,6 @@ v8::Local<v8::Object> Iterator::NewInstance (
 NAN_METHOD(Iterator::New) {
   Database* database = Nan::ObjectWrap::Unwrap<Database>(info[0]->ToObject());
 
-  //TODO: remove this, it's only here to make LD_STRING_OR_BUFFER_TO_SLICE happy
-  v8::Local<v8::Function> callback;
-
-  v8::Local<v8::Object> startHandle;
   leveldb::Slice* start = NULL;
   std::string* end = NULL;
   int limit = -1;
@@ -357,6 +355,7 @@ NAN_METHOD(Iterator::New) {
   v8::Local<v8::Object> gtHandle;
   v8::Local<v8::Object> gteHandle;
 
+  char *startStr = NULL;
   std::string* lt = NULL;
   std::string* lte = NULL;
   std::string* gt = NULL;
@@ -374,12 +373,13 @@ NAN_METHOD(Iterator::New) {
         && (node::Buffer::HasInstance(optionsObj->Get(Nan::New("start").ToLocalChecked()))
           || optionsObj->Get(Nan::New("start").ToLocalChecked())->IsString())) {
 
-      startHandle = optionsObj->Get(Nan::New("start").ToLocalChecked()).As<v8::Object>();
+      v8::Local<v8::Value> startBuffer = optionsObj->Get(Nan::New("start").ToLocalChecked());
 
       // ignore start if it has size 0 since a Slice can't have length 0
-      if (StringOrBufferLength(startHandle) > 0) {
-        LD_STRING_OR_BUFFER_TO_SLICE(_start, startHandle, start)
-        start = new leveldb::Slice(_start.data(), _start.size());
+      if (StringOrBufferLength(startBuffer) > 0) {
+        LD_STRING_OR_BUFFER_TO_COPY(_start, startBuffer, start)
+        start = new leveldb::Slice(_startCh_, _startSz_);
+        startStr = _startCh_;
       }
     }
 
@@ -391,8 +391,9 @@ NAN_METHOD(Iterator::New) {
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(endBuffer) > 0) {
-        LD_STRING_OR_BUFFER_TO_SLICE(_end, endBuffer, end)
-        end = new std::string(_end.data(), _end.size());
+        LD_STRING_OR_BUFFER_TO_COPY(_end, endBuffer, end)
+        end = new std::string(_endCh_, _endSz_);
+        delete[] _endCh_;
       }
     }
 
@@ -414,10 +415,18 @@ NAN_METHOD(Iterator::New) {
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(ltBuffer) > 0) {
-        LD_STRING_OR_BUFFER_TO_SLICE(_lt, ltBuffer, lt)
-        lt = new std::string(_lt.data(), _lt.size());
-        if (reverse)
-          start = new leveldb::Slice(_lt.data(), _lt.size());
+        LD_STRING_OR_BUFFER_TO_COPY(_lt, ltBuffer, lt)
+        lt = new std::string(_ltCh_, _ltSz_);
+        delete[] _ltCh_;
+        if (reverse) {
+          if (startStr != NULL) {
+            delete[] startStr;
+            startStr = NULL;
+          }
+          if (start != NULL)
+            delete start;
+          start = new leveldb::Slice(lt->data(), lt->size());
+        }
       }
     }
 
@@ -429,10 +438,18 @@ NAN_METHOD(Iterator::New) {
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(lteBuffer) > 0) {
-        LD_STRING_OR_BUFFER_TO_SLICE(_lte, lteBuffer, lte)
-        lte = new std::string(_lte.data(), _lte.size());
-        if (reverse)
-          start = new leveldb::Slice(_lte.data(), _lte.size());
+        LD_STRING_OR_BUFFER_TO_COPY(_lte, lteBuffer, lte)
+        lte = new std::string(_lteCh_, _lteSz_);
+        delete[] _lteCh_;
+        if (reverse) {
+          if (startStr != NULL) {
+            delete[] startStr;
+            startStr = NULL;
+          }
+          if (start != NULL)
+            delete start;
+          start = new leveldb::Slice(lte->data(), lte->size());
+        }
       }
     }
 
@@ -444,10 +461,18 @@ NAN_METHOD(Iterator::New) {
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gtBuffer) > 0) {
-        LD_STRING_OR_BUFFER_TO_SLICE(_gt, gtBuffer, gt)
-        gt = new std::string(_gt.data(), _gt.size());
-        if (!reverse)
-          start = new leveldb::Slice(_gt.data(), _gt.size());
+        LD_STRING_OR_BUFFER_TO_COPY(_gt, gtBuffer, gt)
+        gt = new std::string(_gtCh_, _gtSz_);
+        delete[] _gtCh_;
+        if (!reverse) {
+          if (startStr != NULL) {
+            delete[] startStr;
+            startStr = NULL;
+          }
+          if (start != NULL)
+            delete start;
+          start = new leveldb::Slice(gt->data(), gt->size());
+        }
       }
     }
 
@@ -459,10 +484,18 @@ NAN_METHOD(Iterator::New) {
 
       // ignore end if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(gteBuffer) > 0) {
-        LD_STRING_OR_BUFFER_TO_SLICE(_gte, gteBuffer, gte)
-        gte = new std::string(_gte.data(), _gte.size());
-        if (!reverse)
-          start = new leveldb::Slice(_gte.data(), _gte.size());
+        LD_STRING_OR_BUFFER_TO_COPY(_gte, gteBuffer, gte)
+        gte = new std::string(_gteCh_, _gteSz_);
+        delete[] _gteCh_;
+        if (!reverse) {
+          if (startStr != NULL) {
+            delete[] startStr;
+            startStr = NULL;
+          }
+          if (start != NULL)
+            delete start;
+          start = new leveldb::Slice(gte->data(), gte->size());
+        }
       }
     }
 
@@ -490,7 +523,6 @@ NAN_METHOD(Iterator::New) {
     , fillCache
     , keyAsBuffer
     , valueAsBuffer
-    , startHandle
     , highWaterMark
   );
   iterator->Wrap(info.This());
