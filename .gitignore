@@ -5,7 +5,6 @@ Release/
 libleveldb.so
 libleveldb.a
 leakydb
-bench/
 *.sln
 *.vcxproj
 *.vcxproj.filters
