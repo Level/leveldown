@@ -1,7 +1,7 @@
 {'targets': [{
     'target_name': 'leveldb'
   , 'variables': {
-        'ldbversion': '1.18.0'
+        'ldbversion': '1.18-ea992b467b9f3c892ae87267ba908e97d532b1b2'
     }
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
@@ -139,7 +139,7 @@
       , 'leveldb-<(ldbversion)/db/filename.h'
       , 'leveldb-<(ldbversion)/db/dbformat.cc'
       , 'leveldb-<(ldbversion)/db/dbformat.h'
-      , 'leveldb-<(ldbversion)/db/leveldb_main.cc'
+      , 'leveldb-<(ldbversion)/db/leveldbutil.cc'
       , 'leveldb-<(ldbversion)/db/log_format.h'
       , 'leveldb-<(ldbversion)/db/log_reader.cc'
       , 'leveldb-<(ldbversion)/db/log_reader.h'
