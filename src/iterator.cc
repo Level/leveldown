@@ -397,12 +397,14 @@ NAN_METHOD(Iterator::New) {
       }
     }
 
-    if (!optionsObj.IsEmpty() && optionsObj->Has(Nan::New("limit").ToLocalChecked())) {
+    if (optionsObj->Has(Nan::New("limit").ToLocalChecked())
+        && optionsObj->Get(Nan::New("limit").ToLocalChecked())->IsNumber()) {
       limit = v8::Local<v8::Integer>::Cast(optionsObj->Get(
           Nan::New("limit").ToLocalChecked()))->Value();
     }
 
-    if (optionsObj->Has(Nan::New("highWaterMark").ToLocalChecked())) {
+    if (optionsObj->Has(Nan::New("highWaterMark").ToLocalChecked())
+        && optionsObj->Get(Nan::New("highWaterMark").ToLocalChecked())->IsNumber()) {
       highWaterMark = v8::Local<v8::Integer>::Cast(optionsObj->Get(
             Nan::New("highWaterMark").ToLocalChecked()))->Value();
     }
