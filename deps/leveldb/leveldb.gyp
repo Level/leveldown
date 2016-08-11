@@ -139,7 +139,6 @@
       , 'leveldb-<(ldbversion)/db/filename.h'
       , 'leveldb-<(ldbversion)/db/dbformat.cc'
       , 'leveldb-<(ldbversion)/db/dbformat.h'
-      , 'leveldb-<(ldbversion)/db/leveldb_main.cc'
       , 'leveldb-<(ldbversion)/db/log_format.h'
       , 'leveldb-<(ldbversion)/db/log_reader.cc'
       , 'leveldb-<(ldbversion)/db/log_reader.h'
