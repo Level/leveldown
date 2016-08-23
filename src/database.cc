@@ -157,14 +157,19 @@ NAN_METHOD(Database::New) {
 v8::Local<v8::Value> Database::NewInstance (v8::Local<v8::String> &location) {
   Nan::EscapableHandleScope scope;
 
+  Nan::MaybeLocal<v8::Object> maybeInstance;
   v8::Local<v8::Object> instance;
 
   v8::Local<v8::FunctionTemplate> constructorHandle =
       Nan::New<v8::FunctionTemplate>(database_constructor);
 
   v8::Local<v8::Value> argv[] = { location };
-  instance = constructorHandle->GetFunction()->NewInstance(1, argv);
+  maybeInstance = Nan::NewInstance(constructorHandle->GetFunction(), 1, argv);
 
+  if (maybeInstance.IsEmpty())
+      Nan::ThrowError("Could not create new Database instance");
+  else
+    instance = maybeInstance.ToLocalChecked();
   return scope.Escape(instance);
 }
 
@@ -455,7 +460,7 @@ NAN_METHOD(Database::Iterator) {
   // each iterator gets a unique id for this Database, so we can
   // easily store & lookup on our `iterators` map
   uint32_t id = database->currentIteratorId++;
-  v8::TryCatch try_catch;
+  Nan::TryCatch try_catch;
   v8::Local<v8::Object> iteratorHandle = Iterator::NewInstance(
       info.This()
     , Nan::New<v8::Number>(id)
