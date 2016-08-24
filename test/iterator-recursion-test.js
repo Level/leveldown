@@ -21,13 +21,6 @@ var db
 
 test('setUp common', testCommon.setUp)
 
-test('setUp db', function (t) {
-  db = leveldown(testCommon.location())
-  db.open(function () {
-    db.batch(sourceData, t.end.bind(t))
-  })
-})
-
 test('try to create an iterator with a blown stack', function (t) {
   // Reducing the stack size down from the default 984 for the child node
   // process makes it easier to trigger the bug condition. But making it too low
@@ -44,6 +37,14 @@ test('try to create an iterator with a blown stack', function (t) {
 
   child.on('exit', function (code, sig) {
     t.equal(code, 0, 'child exited normally')
+  })
+})
+
+test('setUp db', function (t) {
+  db = leveldown(testCommon.location())
+  db.open(function (err) {
+    t.error(err)
+    db.batch(sourceData, t.end.bind(t))
   })
 })
 

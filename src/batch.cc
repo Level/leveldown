@@ -61,6 +61,7 @@ v8::Local<v8::Value> Batch::NewInstance (
 
   Nan::EscapableHandleScope scope;
 
+  Nan::MaybeLocal<v8::Object> maybeInstance;
   v8::Local<v8::Object> instance;
 
   v8::Local<v8::FunctionTemplate> constructorHandle =
@@ -68,12 +69,16 @@ v8::Local<v8::Value> Batch::NewInstance (
 
   if (optionsObj.IsEmpty()) {
     v8::Local<v8::Value> argv[1] = { database };
-    instance = constructorHandle->GetFunction()->NewInstance(1, argv);
+    maybeInstance = Nan::NewInstance(constructorHandle->GetFunction(), 1, argv);
   } else {
     v8::Local<v8::Value> argv[2] = { database, optionsObj };
-    instance = constructorHandle->GetFunction()->NewInstance(2, argv);
+    maybeInstance = Nan::NewInstance(constructorHandle->GetFunction(), 2, argv);
   }
 
+  if (maybeInstance.IsEmpty())
+      Nan::ThrowError("Could not create new Batch instance");
+  else
+    instance = maybeInstance.ToLocalChecked();
   return scope.Escape(instance);
 }
 
