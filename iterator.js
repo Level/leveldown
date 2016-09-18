@@ -32,19 +32,27 @@ Iterator.prototype._next = function (callback) {
 
     this.fastFuture(function () {
       callback(null, key, value)
+      callback = null
+      key = null
+      value = null
     })
 
   } else if (this.finished) {
     this.fastFuture(function () {
       callback()
+      callback = null
     })
   } else {
     this.binding.next(function (err, array, finished) {
-      if (err) return callback(err)
-
-      that.cache    = array
-      that.finished = finished
-      that._next(callback)
+      if (err) {
+        callback(err)
+      } else {
+        that.cache    = array
+        that.finished = finished
+        that._next(callback)
+      }
+      callback = null
+      that = null
     })
   }
 
