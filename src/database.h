@@ -69,6 +69,7 @@ public:
   );
   uint64_t ApproximateSizeFromDatabase (const leveldb::Range* range);
   void GetPropertyFromDatabase (const leveldb::Slice& property, std::string* value);
+  int DefaultDatabaseComparator (const leveldb::Slice& a, const leveldb::Slice& b);
   leveldb::Iterator* NewIterator (leveldb::ReadOptions* options);
   const leveldb::Snapshot* NewSnapshot ();
   void ReleaseSnapshot (const leveldb::Snapshot* snapshot);
@@ -102,6 +103,7 @@ private:
   static NAN_METHOD(Iterator);
   static NAN_METHOD(ApproximateSize);
   static NAN_METHOD(GetProperty);
+  static NAN_METHOD(DefaultComparator);
 };
 
 } // namespace leveldown

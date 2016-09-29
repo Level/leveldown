@@ -57,6 +57,9 @@ LevelDOWN.prototype._approximateSize = function (start, end, callback) {
   this.binding.approximateSize(start, end, callback)
 }
 
+LevelDOWN.prototype._compare = function (keyA, keyB) {
+  return this.binding.compare(keyA, keyB)
+}
 
 LevelDOWN.prototype.getProperty = function (property) {
   if (typeof property != 'string')
