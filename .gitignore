@@ -14,3 +14,4 @@ leakydb
 *.lastbuildstate
 npm-debug.log
 prebuilds/
+yarn.lock
