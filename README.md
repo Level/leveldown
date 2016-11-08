@@ -6,6 +6,7 @@ LevelDOWN
 **A Low-level Node.js LevelDB binding**
 
 [![Build Status](https://secure.travis-ci.org/Level/leveldown.png)](http://travis-ci.org/Level/leveldown)
+[![AppVeyor build status](https://img.shields.io/appveyor/ci/Level/leveldown.svg)](https://ci.appveyor.com/project/Level/leveldown)
 [![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown)
 
 [![NPM](https://nodei.co/npm/leveldown.png?stars&downloads&downloadRank)](https://nodei.co/npm/leveldown/) [![NPM](https://nodei.co/npm-dl/leveldown.png?months=6&height=3)](https://nodei.co/npm/leveldown/)
