@@ -215,9 +215,21 @@ void checkEndCallback (Iterator* iterator) {
 
 NAN_METHOD(Iterator::Seek) {
   Iterator* iterator = Nan::ObjectWrap::Unwrap<Iterator>(info.This());
+
+  if (!node::Buffer::HasInstance(info[0]) && !info[0]->IsString())
+    return Nan::ThrowError("seek() requires a string or buffer key");
+
+  if (StringOrBufferLength(info[0]) == 0)
+    return Nan::ThrowError("cannot seek() to an empty key");
+
+  std::string* key = NULL;
+  v8::Local<v8::Value> keyBuffer = info[0].As<v8::Value>();
+  LD_STRING_OR_BUFFER_TO_COPY(_key, keyBuffer, key);
+  key = new std::string(_keyCh_, _keySz_);
+  delete[] _keyCh_;
+
   iterator->GetIterator();
   leveldb::Iterator* dbIterator = iterator->dbIterator;
-  Nan::Utf8String key(info[0]);
 
   dbIterator->Seek(*key);
   iterator->seeking = true;

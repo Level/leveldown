@@ -6,17 +6,28 @@ const test       = require('tape')
 
 abstract.all(leveldown, test, testCommon)
 
-make('iterator throws if key is not a string', function (db, t, done) {
-  var ite = db.iterator()
-  var error
-  try {
-    ite.seek()
-  } catch (e) {
-    error = e
-  }
+make('iterator throws if key is not a string or buffer', function (db, t, done) {
+  var keys = [null, undefined, 1, true, false]
+  var pending = keys.length
 
-  t.ok(error, 'had error')
-  t.end()
+  keys.forEach(function (key) {
+    var error
+    var ite = db.iterator()
+
+    try {
+      ite.seek(key)
+    } catch (e) {
+      error = e
+    }
+
+    t.ok(error, 'had error from seek()')
+    ite.end(end)
+  })
+
+  function end(err) {
+    t.error(err, 'no error from end()')
+    if (!--pending) done()
+  }
 })
 
 make('iterator is seekable', function (db, t, done) {
@@ -30,6 +41,22 @@ make('iterator is seekable', function (db, t, done) {
       t.error(err, 'no error')
       t.same(key, undefined, 'end of iterator')
       t.same(value, undefined, 'end of iterator')
+      ite.end(done)
+    })
+  })
+})
+
+make('iterator is seekable with buffer', function (db, t, done) {
+  var ite = db.iterator()
+  ite.seek(Buffer('two'))
+  ite.next(function (err, key, value) {
+    t.error(err, 'no error from next()')
+    t.equal(key.toString(), 'two', 'key matches')
+    t.equal(value.toString(), '2', 'value matches')
+    ite.next(function (err, key, value) {
+      t.error(err, 'no error from next()')
+      t.equal(key, undefined, 'end of iterator')
+      t.equal(value, undefined, 'end of iterator')
       ite.end(done)
     })
   })
