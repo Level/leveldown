@@ -53,6 +53,7 @@ public:
   leveldb::Status IteratorStatus ();
   void IteratorEnd ();
   void Release ();
+  void ReleaseTarget ();
 
 private:
   Database* database;
@@ -60,6 +61,7 @@ private:
   leveldb::Iterator* dbIterator;
   leveldb::ReadOptions* options;
   leveldb::Slice* start;
+  leveldb::Slice* target;
   std::string* end;
   bool seeking;
   bool reverse;

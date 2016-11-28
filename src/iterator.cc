@@ -56,6 +56,7 @@ Iterator::Iterator (
   options->snapshot = database->NewSnapshot();
   dbIterator = NULL;
   count      = 0;
+  target     = NULL;
   seeking    = false;
   nexting    = false;
   ended      = false;
@@ -64,6 +65,7 @@ Iterator::Iterator (
 
 Iterator::~Iterator () {
   delete options;
+  ReleaseTarget();
   if (start != NULL) {
     // Special case for `start` option: it won't be
     // freed up by any of the delete calls below.
@@ -205,7 +207,19 @@ void Iterator::Release () {
   database->ReleaseIterator(id);
 }
 
+void Iterator::ReleaseTarget () {
+  if (target != NULL) {
+
+    if (!target->empty())
+      delete[] target->data();
+
+    delete target;
+    target = NULL;
+  }
+}
+
 void checkEndCallback (Iterator* iterator) {
+  iterator->ReleaseTarget();
   iterator->nexting = false;
   if (iterator->endWorker != NULL) {
     Nan::AsyncQueueWorker(iterator->endWorker);
@@ -216,26 +230,26 @@ void checkEndCallback (Iterator* iterator) {
 NAN_METHOD(Iterator::Seek) {
   Iterator* iterator = Nan::ObjectWrap::Unwrap<Iterator>(info.This());
 
+  iterator->ReleaseTarget();
+
   if (!node::Buffer::HasInstance(info[0]) && !info[0]->IsString())
     return Nan::ThrowError("seek() requires a string or buffer key");
 
   if (StringOrBufferLength(info[0]) == 0)
     return Nan::ThrowError("cannot seek() to an empty key");
 
-  std::string* key = NULL;
-  v8::Local<v8::Value> keyBuffer = info[0].As<v8::Value>();
-  LD_STRING_OR_BUFFER_TO_COPY(_key, keyBuffer, key);
-  key = new std::string(_keyCh_, _keySz_);
-  delete[] _keyCh_;
+  v8::Local<v8::Value> targetBuffer = info[0].As<v8::Value>();
+  LD_STRING_OR_BUFFER_TO_COPY(_target, targetBuffer, target);
+  iterator->target = new leveldb::Slice(_targetCh_, _targetSz_);
 
   iterator->GetIterator();
   leveldb::Iterator* dbIterator = iterator->dbIterator;
 
-  dbIterator->Seek(*key);
+  dbIterator->Seek(*iterator->target);
   iterator->seeking = true;
 
   if (dbIterator->Valid()) {
-    int cmp = dbIterator->key().compare(*key);
+    int cmp = dbIterator->key().compare(*iterator->target);
     if (cmp > 0 && iterator->reverse) {
       dbIterator->Prev();
     } else if (cmp < 0 && !iterator->reverse) {
@@ -248,7 +262,7 @@ NAN_METHOD(Iterator::Seek) {
       dbIterator->SeekToFirst();
     }
     if (dbIterator->Valid()) {
-      int cmp = dbIterator->key().compare(*key);
+      int cmp = dbIterator->key().compare(*iterator->target);
       if (cmp > 0 && iterator->reverse) {
         dbIterator->SeekToFirst();
         dbIterator->Prev();
