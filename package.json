@@ -39,6 +39,8 @@
     "delayed": "~1.0.1",
     "du": "~0.1.0",
     "faucet": "0.0.1",
+    "iota-array": "~1.0.0",
+    "lexicographic-integer": "~1.1.0",
     "mkfiletree": "~1.0.1",
     "monotonic-timestamp": "~0.0.8",
     "node-uuid": "~1.4.3",

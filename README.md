@@ -224,7 +224,8 @@ the `callback` function will be called with no arguments in any of the following
 
 * the iterator comes to the end of the store
 * the `end` key has been reached; or
-* the `limit` has been reached
+* the `limit` has been reached; or
+* the last `seek()` was out of range
 
 Otherwise, the `callback` function will be called with the following 3 arguments:
 

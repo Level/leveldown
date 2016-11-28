@@ -173,6 +173,38 @@ bool Iterator::Read (std::string& key, std::string& value) {
   return false;
 }
 
+bool Iterator::OutOfRange (leveldb::Slice* target) {
+  if (lt != NULL) {
+    if (target->compare(*lt) >= 0)
+      return true;
+  } else if (lte != NULL) {
+    if (target->compare(*lte) > 0)
+      return true;
+  } else if (start != NULL && reverse) {
+    if (target->compare(*start) > 0)
+      return true;
+  }
+
+  if (end != NULL) {
+    int d = target->compare(*end);
+    if (reverse ? d < 0 : d > 0)
+      return true;
+  }
+
+  if (gt != NULL) {
+    if (target->compare(*gt) <= 0)
+      return true;
+  } else if (gte != NULL) {
+    if (target->compare(*gte) < 0)
+      return true;
+  } else if (start != NULL && !reverse) {
+    if (target->compare(*start) < 0)
+      return true;
+  }
+
+  return false;
+}
+
 bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
   size_t size = 0;
   while(true) {
@@ -248,27 +280,38 @@ NAN_METHOD(Iterator::Seek) {
   dbIterator->Seek(*iterator->target);
   iterator->seeking = true;
 
-  if (dbIterator->Valid()) {
-    int cmp = dbIterator->key().compare(*iterator->target);
-    if (cmp > 0 && iterator->reverse) {
+  if (iterator->OutOfRange(iterator->target)) {
+    if (iterator->reverse) {
+      dbIterator->SeekToFirst();
       dbIterator->Prev();
-    } else if (cmp < 0 && !iterator->reverse) {
+    } else {
+      dbIterator->SeekToLast();
       dbIterator->Next();
     }
-  } else {
-    if (iterator->reverse) {
-      dbIterator->SeekToLast();
-    } else {
-      dbIterator->SeekToFirst();
-    }
+  }
+  else {
     if (dbIterator->Valid()) {
       int cmp = dbIterator->key().compare(*iterator->target);
       if (cmp > 0 && iterator->reverse) {
-        dbIterator->SeekToFirst();
         dbIterator->Prev();
       } else if (cmp < 0 && !iterator->reverse) {
-        dbIterator->SeekToLast();
         dbIterator->Next();
+      }
+    } else {
+      if (iterator->reverse) {
+        dbIterator->SeekToLast();
+      } else {
+        dbIterator->SeekToFirst();
+      }
+      if (dbIterator->Valid()) {
+        int cmp = dbIterator->key().compare(*iterator->target);
+        if (cmp > 0 && iterator->reverse) {
+          dbIterator->SeekToFirst();
+          dbIterator->Prev();
+        } else if (cmp < 0 && !iterator->reverse) {
+          dbIterator->SeekToLast();
+          dbIterator->Next();
+        }
       }
     }
   }
