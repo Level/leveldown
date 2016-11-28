@@ -97,6 +97,21 @@ make('reverse seek from invalid range', function (db, t, done) {
     ite.end(done)
   })
 })
+
+make('iterator seek resets state', function (db, t, done) {
+  var ite = db.iterator()
+  ite.next(function (err, key, value) {
+    t.error(err, 'no error from next()')
+    t.equal(key.toString(), 'one', 'key matches')
+    t.ok(ite.cache, 'has cached items')
+    t.equal(ite.finished, true, 'finished')
+    ite.seek('two')
+    t.notOk(ite.cache, 'cache is removed')
+    t.equal(ite.finished, false, 'resets finished state')
+    ite.end(done)
+  })
+})
+
 make('iterator seek respects range', function (db, t, done) {
   db.batch(pairs(10), function (err) {
     t.error(err, 'no error from batch()')

@@ -14,9 +14,15 @@ function Iterator (db, options) {
 
 util.inherits(Iterator, AbstractIterator)
 
-Iterator.prototype.seek = function (key) {
+Iterator.prototype.seek = function (target) {
+  if (this._ended)
+    throw new Error('cannot call seek() after end()')
+  if (this._nexting)
+    throw new Error('cannot call seek() before next() has completed')
+
   this.cache = null
-  this.binding.seek(key)
+  this.binding.seek(target)
+  this.finished = false
 }
 
 Iterator.prototype._next = function (callback) {
