@@ -112,6 +112,41 @@ make('iterator seek resets state', function (db, t, done) {
   })
 })
 
+make('iterator seek before next has completed', function (db, t, done) {
+  var ite = db.iterator()
+  ite.next(function (err, key, value) {
+    t.error(err, 'no error from end()')
+    done()
+  })
+  var error
+  try {
+    ite.seek("two")
+  }
+  catch (e) {
+    error = e;
+  }
+  t.ok(error, 'had error from seek() before next() has completed')
+})
+
+make('iterator seek after end', function (db, t, done) {
+  var ite = db.iterator()
+  ite.next(function (err, key, value) {
+    t.error(err, 'no error from next()')
+    ite.end(function (err){
+      t.error(err, 'no error from end()')
+      var error
+      try {
+        ite.seek('two')
+      }
+      catch (e) {
+        error = e
+      }
+      t.ok(error, 'had error from seek() after end()')
+      done()
+    })
+  })
+})
+
 make('iterator seek respects range', function (db, t, done) {
   db.batch(pairs(10), function (err) {
     t.error(err, 'no error from batch()')
