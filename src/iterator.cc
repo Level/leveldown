@@ -264,12 +264,6 @@ NAN_METHOD(Iterator::Seek) {
 
   iterator->ReleaseTarget();
 
-  if (!node::Buffer::HasInstance(info[0]) && !info[0]->IsString())
-    return Nan::ThrowError("seek() requires a string or buffer key");
-
-  if (StringOrBufferLength(info[0]) == 0)
-    return Nan::ThrowError("cannot seek() to an empty key");
-
   v8::Local<v8::Value> targetBuffer = info[0].As<v8::Value>();
   LD_STRING_OR_BUFFER_TO_COPY(_target, targetBuffer, target);
   iterator->target = new leveldb::Slice(_targetCh_, _targetSz_);
