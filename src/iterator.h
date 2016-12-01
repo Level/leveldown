@@ -85,6 +85,7 @@ public:
 private:
   bool Read (std::string& key, std::string& value);
   bool GetIterator ();
+  bool OutOfRange (leveldb::Slice* target);
 
   static NAN_METHOD(New);
   static NAN_METHOD(Seek);
