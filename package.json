@@ -43,6 +43,7 @@
     "monotonic-timestamp": "~0.0.8",
     "node-uuid": "~1.4.3",
     "optimist": "~0.6.1",
+    "prebuild-ci": "^1.0.9",
     "readfiletree": "~0.0.1",
     "rimraf": "~2.5.0",
     "slump": "~2.0.0",
@@ -50,7 +51,7 @@
   },
   "scripts": {
     "install": "prebuild --install",
-    "test": "tape test/*-test.js | faucet",
+    "test": "(tape test/*-test.js | faucet) && prebuild-ci",
     "rebuild": "prebuild --compile",
     "prebuild": "prebuild --all --strip --verbose"
   },
