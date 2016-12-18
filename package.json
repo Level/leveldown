@@ -30,7 +30,7 @@
   "dependencies": {
     "abstract-leveldown": "~2.6.1",
     "bindings": "~1.2.1",
-    "fast-future": "~1.0.0",
+    "fast-future": "~1.0.2",
     "nan": "~2.4.0",
     "prebuild": "^5.0.2"
   },
