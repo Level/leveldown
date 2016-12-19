@@ -64,6 +64,7 @@ private:
   leveldb::Slice* target;
   std::string* end;
   bool seeking;
+  bool landed;
   bool reverse;
   bool keys;
   bool values;

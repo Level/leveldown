@@ -58,6 +58,7 @@ Iterator::Iterator (
   count      = 0;
   target     = NULL;
   seeking    = false;
+  landed     = false;
   nexting    = false;
   ended      = false;
   endWorker  = NULL;
@@ -215,6 +216,11 @@ bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& 
       result.push_back(std::make_pair(key, value));
       size = size + key.size() + value.size();
 
+      if (!landed) {
+        landed = true;
+        return true;
+      }
+
       if (size > highWaterMark)
         return true;
 
@@ -273,6 +279,7 @@ NAN_METHOD(Iterator::Seek) {
 
   dbIterator->Seek(*iterator->target);
   iterator->seeking = true;
+  iterator->landed = false;
 
   if (iterator->OutOfRange(iterator->target)) {
     if (iterator->reverse) {
