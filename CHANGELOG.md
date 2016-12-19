@@ -1,5 +1,116 @@
 Note that we have filtered out commits related to new tags, updating changelog and we're also not listing any merge commits, i.e. we are only listing things that changed between versions.
 
+### 1.5.0 September 27 2016
+
+* [[`a3fe375834`](https://github.com/level/leveldown/commit/a3fe375834)] - bump dependencies (Lars-Magnus Skog)
+* [[`c02a3ad9e7`](https://github.com/level/leveldown/commit/c02a3ad9e7)] - chmod 644 leveldown dep (Julian Gruber)
+* [[`4976d49a5f`](https://github.com/level/leveldown/commit/4976d49a5f)] - remove leveldb .travis.yml (Julian Gruber)
+* [[`a0f91ad497`](https://github.com/level/leveldown/commit/a0f91ad497)] - upgrade nan, remove Function::NewInstance() deprecation warnings (Rod Vagg)
+* [[`21dc91ebe6`](https://github.com/level/leveldown/commit/21dc91ebe6)] - apply port_uv.h patch (Julian Gruber)
+* [[`a39c3ea3f3`](https://github.com/level/leveldown/commit/a39c3ea3f3)] - remove deleted file from leveldb.gyp (Julian Gruber)
+* [[`a8b9f009c4`](https://github.com/level/leveldown/commit/a8b9f009c4)] - import leveldb-1.19 and point bindings file to it (Julian Gruber)
+
+### 1.4.6 April 29 2016
+
+* [[`267586b02b`](https://github.com/level/leveldown/commit/267586b02b)] - bump nan to 2.3.0 to remove deprecated calls (Lars-Magnus Skog)
+* [[`1ef0452f81`](https://github.com/level/leveldown/commit/1ef0452f81)] - add node 6 to travis (Lars-Magnus Skog)
+
+### 1.4.5 April 18 2016
+
+* [[`df2b52217b`](https://github.com/level/leveldown/commit/df2b52217b)] - steal chjjs script for checking memory consumption (Lars-Magnus Skog)
+* [[`b86e72bc76`](https://github.com/level/leveldown/commit/b86e72bc76)] - delete calls. (Christopher Jeffrey)
+* [[`ce3eb77faf`](https://github.com/level/leveldown/commit/ce3eb77faf)] - optimize iterators by avoiding handles. (Christopher Jeffrey)
+* [[`259a5b7e64`](https://github.com/level/leveldown/commit/259a5b7e64)] - free start slices on conflicting options. (Christopher Jeffrey)
+* [[`ab2d68db3d`](https://github.com/level/leveldown/commit/ab2d68db3d)] - dispose of unused slices. (Christopher Jeffrey)
+* [[`160e0b2fba`](https://github.com/level/leveldown/commit/160e0b2fba)] - release iterator snapshots. (Christopher Jeffrey)
+* [[`bd95ec136f`](https://github.com/level/leveldown/commit/bd95ec136f)] - bump dependencies (Lars-Magnus Skog)
+* [[`547681f33a`](https://github.com/level/leveldown/commit/547681f33a)] - fix iterator leak. (Christopher Jeffrey)
+* [[`9cf6ea07d0`](https://github.com/level/leveldown/commit/9cf6ea07d0)] - add handlescopes to fix potential memory leaks. (Christopher Jeffrey)
+* [[`a02ac81bc9`](https://github.com/level/leveldown/commit/a02ac81bc9)] - Fix repair-test for multilang windows (Vincent Weevers)
+* [[`553e631e9b`](https://github.com/level/leveldown/commit/553e631e9b)] - gitignore Release folder for Windows (Vincent Weevers)
+* [[`415b6fc3c6`](https://github.com/level/leveldown/commit/415b6fc3c6)] - remove unsupported versions (Lars-Magnus Skog)
+* [[`e312f26add`](https://github.com/level/leveldown/commit/e312f26add)] - 2015 -> 2016 (Lars-Magnus Skog)
+* [[`fa9fe64cd8`](https://github.com/level/leveldown/commit/fa9fe64cd8)] - chore(package): update prebuild to version 3.0.0 (greenkeeperio-bot)
+* [[`2ae07c3b2c`](https://github.com/level/leveldown/commit/2ae07c3b2c)] - repair error is different on windows (Lars-Magnus Skog)
+
+### 1.4.4 January 1 2016
+
+* [[`63d9dfc4f9`](https://github.com/level/leveldown/commit/63d9dfc4f9)] - Fixes #247 (Oguz Bastemur)
+* [[`6566032b2e`](https://github.com/level/leveldown/commit/6566032b2e)] - chore(package): update nan to version 2.2.0 (greenkeeperio-bot)
+* [[`7535949bbf`](https://github.com/level/leveldown/commit/7535949bbf)] - use prebuild --install (Lars-Magnus Skog)
+* [[`7e5c2fa836`](https://github.com/level/leveldown/commit/7e5c2fa836)] - chore(package): update prebuild to version 2.8.0 (greenkeeperio-bot)
+* [[`041be035c7`](https://github.com/level/leveldown/commit/041be035c7)] - README fixes (Lars-Magnus Skog)
+* [[`9af352465b`](https://github.com/level/leveldown/commit/9af352465b)] - chore(package): update rimraf to version 2.5.0 (greenkeeperio-bot)
+* [[`c858adc32a`](https://github.com/level/leveldown/commit/c858adc32a)] - chore(package): update tape to version 4.3.0 (greenkeeperio-bot)
+
+### 1.4.3 December 14 2015
+
+* [[`3303be2f5d`](https://github.com/level/leveldown/commit/3303be2f5d)] - bump dependencies (Lars-Magnus Skog)
+* [[`fc46cdc81f`](https://github.com/level/leveldown/commit/fc46cdc81f)] - add dependency badge (Lars-Magnus Skog)
+* [[`f9d80f68c4`](https://github.com/level/leveldown/commit/f9d80f68c4)] - bump prebuild for --all functionality (Lars-Magnus Skog)
+* [[`0fa159729f`](https://github.com/level/leveldown/commit/0fa159729f)] - Fixes https://github.com/Level/leveldown/issues/196 (Oguz Bastemur)
+* [[`173454a31e`](https://github.com/level/leveldown/commit/173454a31e)] - test on node 5 (Lars-Magnus Skog)
+* [[`369352d0a8`](https://github.com/level/leveldown/commit/369352d0a8)] - prebuild abi 47 (node 5.0) (Lars-Magnus Skog)
+
+### 1.4.2 October 21 2015
+
+* [[`8f81825384`](https://github.com/level/leveldown/commit/8f81825384)] - test on latest node versions (Lars-Magnus Skog)
+* [[`7d85c74057`](https://github.com/level/leveldown/commit/7d85c74057)] - require at start, not later (Tim Kuijsten)
+* [[`949a2c26d6`](https://github.com/level/leveldown/commit/949a2c26d6)] - add node v4.0.0 to travis (Lars-Magnus Skog)
+* [[`8f3863b6dd`](https://github.com/level/leveldown/commit/8f3863b6dd)] - add node v4.0.0 (abi 46) (Lars-Magnus Skog)
+* [[`8b8c29e147`](https://github.com/level/leveldown/commit/8b8c29e147)] - Document prebuild and explain different compile steps (Lars-Magnus Skog)
+* [[`b136753695`](https://github.com/level/leveldown/commit/b136753695)] - update prebuild for --debug support (Lars-Magnus Skog)
+* [[`0f6a776639`](https://github.com/level/leveldown/commit/0f6a776639)] - update prebuild for --strip functionality (Lars-Magnus Skog)
+* [[`372c09c768`](https://github.com/level/leveldown/commit/372c09c768)] - add @kkoopa's travis fix (Mathias Buus)
+
+### 1.4.1 August 15 2015
+
+* [[`3d9d73ff64`](https://github.com/level/leveldown/commit/3d9d73ff64)] - add abi 45 to prebuild (Mathias Buus)
+* [[`2bc173b08d`](https://github.com/level/leveldown/commit/2bc173b08d)] - add iojs 3.0 to travis (Mathias Buus)
+* [[`ff8a40b378`](https://github.com/level/leveldown/commit/ff8a40b378)] - Merge pull request #195 from Level/iojs-v3-nan-next (Mathias Buus)
+* [[`89df0bd046`](https://github.com/level/leveldown/commit/89df0bd046)] - replace missing Handle<...> with Local<...> (Mathias Buus)
+* [[`b7272db9f1`](https://github.com/level/leveldown/commit/b7272db9f1)] - upgrade to NAN v2 (Rod Vagg)
+* [[`15e01d4c6d`](https://github.com/level/leveldown/commit/15e01d4c6d)] - update prebuild (LM)
+
+### 1.4.0 July 28 2015
+
+* [[`8b6c3cf37e`](https://github.com/level/leveldown/commit/8b6c3cf37e)] - add .prebuildrc, update travis and prebuild, add prebuild npm script (LM)
+* [[`c580c36271`](https://github.com/level/leveldown/commit/c580c36271)] - clean up (LM)
+* [[`de7ff9c426`](https://github.com/level/leveldown/commit/de7ff9c426)] - add rebuild npm script (LM)
+* [[`0899a359da`](https://github.com/level/leveldown/commit/0899a359da)] - no longer need node-gyp directly (LM)
+* [[`a3f429da46`](https://github.com/level/leveldown/commit/a3f429da46)] - switch from node-pre-gyp to prebuild (LM)
+* [[`269c77e5bc`](https://github.com/level/leveldown/commit/269c77e5bc)] - node-pre-gyp should build binaries on travis (LM)
+* [[`da1d679540`](https://github.com/level/leveldown/commit/da1d679540)] - Remove hash_test.cc source (Michael Nisi)
+
+### 1.3.0 June 16 2015
+
+* [[`9ed4d812bc`](https://github.com/level/leveldown/commit/9ed4d812bc)] - Added LEVELDB_PLATFORM_UV to LevelDB port.h to fix test. (Braydon Fuller)
+* [[`f9fa2c06b0`](https://github.com/level/leveldown/commit/f9fa2c06b0)] - Upgrade leveldb to 1.18.0 (Braydon Fuller)
+* [[`8a57fab2f8`](https://github.com/level/leveldown/commit/8a57fab2f8)] - build for for all different ABI versions (Lars-Magnus Skog)
+
+### 1.2.2 June 2 2015
+
+* [[`405a303c3b`](https://github.com/level/leveldown/commit/405a303c3b)] - ignore build-pre-gyp/ folder when publishing to npm (Lars-Magnus Skog)
+
+### 1.2.1 June 2 2015
+
+* [[`ddcc9ce303`](https://github.com/level/leveldown/commit/ddcc9ce303)] - Merge pull request #188 from ralphtheninja/prebuilt (Lars-Magnus Skog)
+* [[`25d5f6206a`](https://github.com/level/leveldown/commit/25d5f6206a)] - use remote_path with node-pre-gyp to dodge preparing package.json every time (Lars-Magnus Skog)
+* [[`78068f26ca`](https://github.com/level/leveldown/commit/78068f26ca)] - add more iojs versions (Lars-Magnus Skog)
+* [[`ec81d77746`](https://github.com/level/leveldown/commit/ec81d77746)] - use node-gyp-install to make sure correct node-gyp headers are downloaded (Lars-Magnus Skog)
+* [[`245b54a4e6`](https://github.com/level/leveldown/commit/245b54a4e6)] - prepare v1.2.1 (Lars-Magnus Skog)
+
+### 1.2.0 June 1 2015
+
+* [[`a134de131d`](https://github.com/level/leveldown/commit/a134de131d)] - minor changes based on pr review (Mathias Buus)
+* [[`8ded32b8d3`](https://github.com/level/leveldown/commit/8ded32b8d3)] - added iterator.seek() (Mathias Buus)
+* [[`aa982df780`](https://github.com/level/leveldown/commit/aa982df780)] - change NOTICE to Prebuilt binaries section (Lars-Magnus Skog)
+* [[`79412de76f`](https://github.com/level/leveldown/commit/79412de76f)] - solved conflict and updated leveldown-prebuilt to leveldown (Lars-Magnus Skog)
+
+### 1.1.0 May 28 2015
+
+* [[`d5da7fa357`](https://github.com/level/leveldown/commit/d5da7fa357)] - upgrade abstract-leveldown, mainly for .status (Julian Gruber)
+
 ### 1.0.7 May 27 2015
 
  * [[`61398a0056`](https://github.com/level/leveldown/commit/61398a0056)] - link to level/community (Lars-Magnus Skog)
