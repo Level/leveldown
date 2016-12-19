@@ -98,17 +98,41 @@ make('reverse seek from invalid range', function (db, t, done) {
   })
 })
 
-make('iterator seek resets state', function (db, t, done) {
-  var ite = db.iterator()
-  ite.next(function (err, key, value) {
-    t.error(err, 'no error from next()')
-    t.equal(key.toString(), 'one', 'key matches')
-    t.ok(ite.cache, 'has cached items')
-    t.equal(ite.finished, true, 'finished')
-    ite.seek('two')
-    t.notOk(ite.cache, 'cache is removed')
-    t.equal(ite.finished, false, 'resets finished state')
-    ite.end(done)
+make('iterator optimized for seek', function (db, t, done) {
+  var batch = db.batch()
+  batch.put('a', 1)
+  batch.put('b', 1)
+  batch.put('c', 1)
+  batch.put('d', 1)
+  batch.put('e', 1)
+  batch.put('f', 1)
+  batch.put('g', 1)
+  batch.write(function (err) {
+    var ite = db.iterator()
+    t.error(err, 'no error from batch')
+    ite.next(function (err, key, value) {
+      t.error(err, 'no error from next()')
+      t.equal(key.toString(), 'a', 'key matches')
+      t.equal(ite.cache.length, 0, "no cache")
+      ite.next(function (err, key, value) {
+        t.error(err, 'no error from next()')
+        t.equal(key.toString(), 'b', 'key matches')
+        t.ok(ite.cache.length > 0, "has cached items")
+        ite.seek('d')
+        t.notOk(ite.cache, 'cache is removed')
+        ite.next(function (err, key, value) {
+          t.error(err, 'no error from next()')
+          t.equal(key.toString(), 'd', 'key matches')
+          t.equal(ite.cache.length, 0, "no cache")
+          ite.next(function (err, key, value) {
+            t.error(err, 'no error from next()')
+            t.equal(key.toString(), 'e', 'key matches')
+            t.ok(ite.cache.length > 0, "has cached items")
+            done();
+          })
+        })
+      })
+    })
   })
 })
 
