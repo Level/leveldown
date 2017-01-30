@@ -79,6 +79,11 @@ uint64_t Database::ApproximateSizeFromDatabase (const leveldb::Range* range) {
   return size;
 }
 
+void Database::CompactRangeFromDatabase (const leveldb::Slice* start, 
+                                         const leveldb::Slice* end) {
+  db->CompactRange(start, end);
+}
+
 void Database::GetPropertyFromDatabase (
       const leveldb::Slice& property
     , std::string* value) {
@@ -143,6 +148,7 @@ void Database::Init () {
   Nan::SetPrototypeMethod(tpl, "del", Database::Delete);
   Nan::SetPrototypeMethod(tpl, "batch", Database::Batch);
   Nan::SetPrototypeMethod(tpl, "approximateSize", Database::ApproximateSize);
+  Nan::SetPrototypeMethod(tpl, "compactRange", Database::CompactRange);
   Nan::SetPrototypeMethod(tpl, "getProperty", Database::GetProperty);
   Nan::SetPrototypeMethod(tpl, "iterator", Database::Iterator);
 }
@@ -417,6 +423,29 @@ NAN_METHOD(Database::ApproximateSize) {
   LD_STRING_OR_BUFFER_TO_SLICE(end, endHandle, end)
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(
+      database
+    , new Nan::Callback(callback)
+    , start
+    , end
+    , startHandle
+    , endHandle
+  );
+  // persist to prevent accidental GC
+  v8::Local<v8::Object> _this = info.This();
+  worker->SaveToPersistent("database", _this);
+  Nan::AsyncQueueWorker(worker);
+}
+
+NAN_METHOD(Database::CompactRange) {
+  v8::Local<v8::Object> startHandle = info[0].As<v8::Object>();
+  v8::Local<v8::Object> endHandle = info[1].As<v8::Object>();
+
+  LD_METHOD_SETUP_COMMON(compactRange, -1, 2)
+
+  LD_STRING_OR_BUFFER_TO_SLICE(start, startHandle, start)
+  LD_STRING_OR_BUFFER_TO_SLICE(end, endHandle, end)
+
+  CompactRangeWorker* worker  = new CompactRangeWorker(
       database
     , new Nan::Callback(callback)
     , start

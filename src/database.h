@@ -68,6 +68,7 @@ public:
     , leveldb::WriteBatch* batch
   );
   uint64_t ApproximateSizeFromDatabase (const leveldb::Range* range);
+  void CompactRangeFromDatabase (const leveldb::Slice* start, const leveldb::Slice* end);
   void GetPropertyFromDatabase (const leveldb::Slice& property, std::string* value);
   leveldb::Iterator* NewIterator (leveldb::ReadOptions* options);
   const leveldb::Snapshot* NewSnapshot ();
@@ -101,6 +102,7 @@ private:
   static NAN_METHOD(Write);
   static NAN_METHOD(Iterator);
   static NAN_METHOD(ApproximateSize);
+  static NAN_METHOD(CompactRange);
   static NAN_METHOD(GetProperty);
 };
 

@@ -58,6 +58,11 @@ LevelDOWN.prototype._approximateSize = function (start, end, callback) {
 }
 
 
+LevelDOWN.prototype.compactRange = function (start, end, callback) {
+  this.binding.compactRange(start, end, callback)
+}
+
+
 LevelDOWN.prototype.getProperty = function (property) {
   if (typeof property != 'string')
     throw new Error('getProperty() requires a valid `property` argument')
