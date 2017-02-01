@@ -172,6 +172,16 @@ The `callback` function will be called with no arguments if the operation is suc
 
 
 --------------------------------------------------------
+<a name="leveldown_compactRange"></a>
+### leveldown#compactRange(start, end, callback)
+<code>compactRange()</code> is an instance method on an existing database object. Used to manually trigger a database compaction in the range `[start..end)`.
+
+The `start` and `end` parameters may be either `String` or Node.js `Buffer` objects representing keys in the LevelDB store.
+
+The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+
+--------------------------------------------------------
 <a name="leveldown_getProperty"></a>
 ### leveldown#getProperty(property)
 <code>getProperty</code> can be used to get internal details from LevelDB. When issued with a valid property string, a readable string will be returned (this method is synchronous).
