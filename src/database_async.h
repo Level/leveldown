@@ -179,8 +179,8 @@ public:
   virtual void WorkComplete ();
 
   private:
-    leveldb::Slice start;
-    leveldb::Slice end;
+    leveldb::Slice rangeStart;
+    leveldb::Slice rangeEnd;
 };
 
 

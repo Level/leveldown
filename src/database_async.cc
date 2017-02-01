@@ -280,21 +280,24 @@ CompactRangeWorker::CompactRangeWorker (
 {
   Nan::HandleScope scope;
 
-  SaveToPersistent("start", startHandle);
-  SaveToPersistent("end", endHandle);
+  rangeStart = start;
+  rangeEnd = end;
+
+  SaveToPersistent("compactStart", startHandle);
+  SaveToPersistent("compactEnd", endHandle);
 };
 
 CompactRangeWorker::~CompactRangeWorker () {}
 
 void CompactRangeWorker::Execute () {
-  database->CompactRangeFromDatabase(&start, &end);
+  database->CompactRangeFromDatabase(&rangeStart, &rangeEnd);
 }
 
 void CompactRangeWorker::WorkComplete() {
   Nan::HandleScope scope;
 
-  DisposeStringOrBufferFromSlice(GetFromPersistent("start"), start);
-  DisposeStringOrBufferFromSlice(GetFromPersistent("end"), end);
+  DisposeStringOrBufferFromSlice(GetFromPersistent("compactStart"), rangeStart);
+  DisposeStringOrBufferFromSlice(GetFromPersistent("compactEnd"), rangeEnd);
   AsyncWorker::WorkComplete();
 }
 

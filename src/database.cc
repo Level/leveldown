@@ -441,7 +441,6 @@ NAN_METHOD(Database::CompactRange) {
   v8::Local<v8::Object> endHandle = info[1].As<v8::Object>();
 
   LD_METHOD_SETUP_COMMON(compactRange, -1, 2)
-
   LD_STRING_OR_BUFFER_TO_SLICE(start, startHandle, start)
   LD_STRING_OR_BUFFER_TO_SLICE(end, endHandle, end)
 
