@@ -32,7 +32,7 @@
     "bindings": "~1.2.1",
     "fast-future": "~1.0.2",
     "nan": "~2.4.0",
-    "prebuild": "^5.0.2"
+    "prebuild-install": "^2.1.0"
   },
   "devDependencies": {
     "async": "^2.0.1",
@@ -45,14 +45,15 @@
     "monotonic-timestamp": "~0.0.8",
     "node-uuid": "~1.4.3",
     "optimist": "~0.6.1",
-    "prebuild-ci": "^1.0.9",
+    "prebuild": "^6.0.2",
+    "prebuild-ci": "^2.0.0",
     "readfiletree": "~0.0.1",
     "rimraf": "~2.5.0",
     "slump": "~2.0.0",
     "tape": "^4.5.1"
   },
   "scripts": {
-    "install": "prebuild --install",
+    "install": "prebuild-install || node-gyp rebuild",
     "test": "(tape test/*-test.js | faucet) && prebuild-ci",
     "rebuild": "prebuild --compile",
     "prebuild": "prebuild --all --strip --verbose"
