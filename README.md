@@ -40,6 +40,7 @@ Tested & supported platforms
   * <a href="#leveldown_del"><code><b>leveldown#del()</b></code></a>
   * <a href="#leveldown_batch"><code><b>leveldown#batch()</b></code></a>
   * <a href="#leveldown_approximateSize"><code><b>leveldown#approximateSize()</b></code></a>
+  * <a href="#leveldown_compactRange"><code><b>leveldown#compactRange()</b></code></a>
   * <a href="#leveldown_getProperty"><code><b>leveldown#getProperty()</b></code></a>
   * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>

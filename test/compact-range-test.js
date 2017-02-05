@@ -24,7 +24,7 @@ test('test compactRange() frees disk space after key deletion', function (t) {
             db.del(key2, function() {
               db.compactRange(key1, key2, function() {
                 db.approximateSize('0', 'z', function(err, sizeAfterCompact) {
-                  t.notEqual(sizeAfterCompact, sizeAfterPuts);
+                  t.ok(sizeAfterCompact < sizeAfterPuts);
                   t.end();
                 });
               });
