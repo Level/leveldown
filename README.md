@@ -323,25 +323,17 @@ A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](
 Prebuilt binaries
 -----------------
 
-LevelDOWN uses `prebuild` to support prebuilt binaries. See [this list](https://github.com/Level/leveldown/releases) of supported prebuilt platform binaries. When installing LevelDOWN `prebuild --download` will download prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't.
+LevelDOWN uses `prebuild` and `prebuild-install` for handling prebuilt binaries. See [this list](https://github.com/Level/leveldown/releases) of supported prebuilt platform binaries. When installing LevelDOWN `prebuild-install` will install prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't.
 
-If you are working on LevelDOWN and want to compile the C++ code you can do:
+If you are working on LevelDOWN and want to re-compile the C++ code it's enough to do `npm install`.
 
-```
-$ npm run rebuild [--debug] [--verbose]
-```
-
-or
-
-```
-$ npm i --build-from-source [--debug] [--verbose]
-```
+If you don't want to use the `prebuild` for the platform you are installing on, specify the `--build-from-source` flag when you install.
 
 <a name="license"></a>
 License &amp; copyright
 -------------------
 
-Copyright &copy; 2012-2016 **LevelDOWN** [contributors](https://github.com/level/community#contributors).
+Copyright &copy; 2012-2017 **LevelDOWN** [contributors](https://github.com/level/community#contributors).
 
 **LevelDOWN** is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included `LICENSE.md` file for more details.
 

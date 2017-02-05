@@ -32,7 +32,7 @@
     "abstract-leveldown": "~2.6.1",
     "bindings": "~1.2.1",
     "fast-future": "~1.0.2",
-    "nan": "~2.4.0",
+    "nan": "~2.5.1",
     "prebuild-install": "^2.1.0"
   },
   "devDependencies": {
