@@ -1,4 +1,4 @@
-/* Copyright (c) 2012-2016 LevelDOWN contributors
+/* Copyright (c) 2012-2017 LevelDOWN contributors
  * See list at <https://github.com/level/leveldown#contributing>
  * MIT License <https://github.com/level/leveldown/blob/master/LICENSE.md>
  */
