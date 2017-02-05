@@ -40,6 +40,7 @@ Tested & supported platforms
   * <a href="#leveldown_del"><code><b>leveldown#del()</b></code></a>
   * <a href="#leveldown_batch"><code><b>leveldown#batch()</b></code></a>
   * <a href="#leveldown_approximateSize"><code><b>leveldown#approximateSize()</b></code></a>
+  * <a href="#leveldown_compactRange"><code><b>leveldown#compactRange()</b></code></a>
   * <a href="#leveldown_getProperty"><code><b>leveldown#getProperty()</b></code></a>
   * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
   * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
@@ -165,6 +166,16 @@ The `callback` function will be called with no arguments if the operation is suc
 <a name="leveldown_approximateSize"></a>
 ### leveldown#approximateSize(start, end, callback)
 <code>approximateSize()</code> is an instance method on an existing database object. Used to get the approximate number of bytes of file system space used by the range `[start..end)`. The result may not include recently written data.
+
+The `start` and `end` parameters may be either `String` or Node.js `Buffer` objects representing keys in the LevelDB store.
+
+The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+
+--------------------------------------------------------
+<a name="leveldown_compactRange"></a>
+### leveldown#compactRange(start, end, callback)
+<code>compactRange()</code> is an instance method on an existing database object. Used to manually trigger a database compaction in the range `[start..end)`.
 
 The `start` and `end` parameters may be either `String` or Node.js `Buffer` objects representing keys in the LevelDB store.
 

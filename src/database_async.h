@@ -162,6 +162,28 @@ public:
     uint64_t size;
 };
 
+class CompactRangeWorker : public AsyncWorker {
+public:
+  CompactRangeWorker (
+      Database *database
+    , Nan::Callback *callback
+    , leveldb::Slice start
+    , leveldb::Slice end
+    , v8::Local<v8::Object> &startHandle
+    , v8::Local<v8::Object> &endHandle
+  );
+
+  virtual ~CompactRangeWorker ();
+  virtual void Execute ();
+  virtual void HandleOKCallback ();
+  virtual void WorkComplete ();
+
+  private:
+    leveldb::Slice rangeStart;
+    leveldb::Slice rangeEnd;
+};
+
+
 } // namespace leveldown
 
 #endif

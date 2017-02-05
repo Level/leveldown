@@ -267,4 +267,47 @@ void ApproximateSizeWorker::HandleOKCallback () {
   callback->Call(2, argv);
 }
 
+/** COMPACT RANGE WORKER **/
+
+CompactRangeWorker::CompactRangeWorker (
+    Database *database
+  , Nan::Callback *callback
+  , leveldb::Slice start
+  , leveldb::Slice end
+  , v8::Local<v8::Object> &startHandle
+  , v8::Local<v8::Object> &endHandle
+) : AsyncWorker(database, callback)
+{
+  Nan::HandleScope scope;
+
+  rangeStart = start;
+  rangeEnd = end;
+
+  SaveToPersistent("compactStart", startHandle);
+  SaveToPersistent("compactEnd", endHandle);
+};
+
+CompactRangeWorker::~CompactRangeWorker () {}
+
+void CompactRangeWorker::Execute () {
+  database->CompactRangeFromDatabase(&rangeStart, &rangeEnd);
+}
+
+void CompactRangeWorker::WorkComplete() {
+  Nan::HandleScope scope;
+
+  DisposeStringOrBufferFromSlice(GetFromPersistent("compactStart"), rangeStart);
+  DisposeStringOrBufferFromSlice(GetFromPersistent("compactEnd"), rangeEnd);
+  AsyncWorker::WorkComplete();
+}
+
+void CompactRangeWorker::HandleOKCallback () {
+  Nan::HandleScope scope;
+
+  v8::Local<v8::Value> argv[] = {
+      Nan::Null()
+  };
+  callback->Call(1, argv);
+}
+
 } // namespace leveldown
