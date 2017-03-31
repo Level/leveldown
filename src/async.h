@@ -22,14 +22,14 @@ public:
   ) : Nan::AsyncWorker(callback), database(database) { }
 
 protected:
-  void SetStatus(leveldb::Status status) {
+  void SetStatus(rocksdb::Status status) {
     this->status = status;
     if (!status.ok())
       SetErrorMessage(status.ToString().c_str());
   }
   Database* database;
 private:
-  leveldb::Status status;
+  rocksdb::Status status;
 };
 
 } // namespace leveldown

@@ -7,7 +7,7 @@
 
 #include <node.h>
 #include <node_buffer.h>
-#include <leveldb/slice.h>
+#include <rocksdb/slice.h>
 #include <nan.h>
 
 static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
@@ -23,7 +23,7 @@ static inline size_t StringOrBufferLength(v8::Local<v8::Value> obj) {
 // LD_STRING_OR_BUFFER_TO_SLICE
 static inline void DisposeStringOrBufferFromSlice(
         Nan::Persistent<v8::Object> &handle
-      , leveldb::Slice slice) {
+      , rocksdb::Slice slice) {
   Nan::HandleScope scope;
 
   if (!slice.empty()) {
@@ -37,7 +37,7 @@ static inline void DisposeStringOrBufferFromSlice(
 
 static inline void DisposeStringOrBufferFromSlice(
         v8::Local<v8::Value> handle
-      , leveldb::Slice slice) {
+      , rocksdb::Slice slice) {
 
   if (!slice.empty() && !node::Buffer::HasInstance(handle))
     delete[] slice.data();
@@ -64,7 +64,7 @@ static inline void DisposeStringOrBufferFromSlice(
       , NULL, v8::String::NO_NULL_TERMINATION                                  \
     );                                                                         \
   }                                                                            \
-  leveldb::Slice to(to ## Ch_, to ## Sz_);
+  rocksdb::Slice to(to ## Ch_, to ## Sz_);
 
 #define LD_STRING_OR_BUFFER_TO_COPY(to, from, name)                            \
   size_t to ## Sz_;                                                            \

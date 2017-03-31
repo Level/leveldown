@@ -9,7 +9,7 @@
 #include <vector>
 #include <node.h>
 
-#include <leveldb/cache.h>
+#include <rocksdb/cache.h>
 
 #include "async.h"
 
@@ -20,8 +20,8 @@ public:
   OpenWorker (
       Database *database
     , Nan::Callback *callback
-    , leveldb::Cache* blockCache
-    , const leveldb::FilterPolicy* filterPolicy
+    , rocksdb::Cache* blockCache
+    , const rocksdb::FilterPolicy* filterPolicy
     , bool createIfMissing
     , bool errorIfExists
     , bool compression
@@ -35,7 +35,7 @@ public:
   virtual void Execute ();
 
 private:
-  leveldb::Options* options;
+  rocksdb::Options* options;
 };
 
 class CloseWorker : public AsyncWorker {
@@ -55,7 +55,7 @@ public:
   IOWorker (
       Database *database
     , Nan::Callback *callback
-    , leveldb::Slice key
+    , rocksdb::Slice key
     , v8::Local<v8::Object> &keyHandle
   );
 
@@ -63,7 +63,7 @@ public:
   virtual void WorkComplete ();
 
 protected:
-  leveldb::Slice key;
+  rocksdb::Slice key;
 };
 
 class ReadWorker : public IOWorker {
@@ -71,7 +71,7 @@ public:
   ReadWorker (
       Database *database
     , Nan::Callback *callback
-    , leveldb::Slice key
+    , rocksdb::Slice key
     , bool asBuffer
     , bool fillCache
     , v8::Local<v8::Object> &keyHandle
@@ -83,7 +83,7 @@ public:
 
 private:
   bool asBuffer;
-  leveldb::ReadOptions* options;
+  rocksdb::ReadOptions* options;
   std::string value;
 };
 
@@ -92,7 +92,7 @@ public:
   DeleteWorker (
       Database *database
     , Nan::Callback *callback
-    , leveldb::Slice key
+    , rocksdb::Slice key
     , bool sync
     , v8::Local<v8::Object> &keyHandle
   );
@@ -101,7 +101,7 @@ public:
   virtual void Execute ();
 
 protected:
-  leveldb::WriteOptions* options;
+  rocksdb::WriteOptions* options;
 };
 
 class WriteWorker : public DeleteWorker {
@@ -109,8 +109,8 @@ public:
   WriteWorker (
       Database *database
     , Nan::Callback *callback
-    , leveldb::Slice key
-    , leveldb::Slice value
+    , rocksdb::Slice key
+    , rocksdb::Slice value
     , bool sync
     , v8::Local<v8::Object> &keyHandle
     , v8::Local<v8::Object> &valueHandle
@@ -121,7 +121,7 @@ public:
   virtual void WorkComplete ();
 
 private:
-  leveldb::Slice value;
+  rocksdb::Slice value;
 };
 
 class BatchWorker : public AsyncWorker {
@@ -129,7 +129,7 @@ public:
   BatchWorker (
       Database *database
     , Nan::Callback *callback
-    , leveldb::WriteBatch* batch
+    , rocksdb::WriteBatch* batch
     , bool sync
   );
 
@@ -137,8 +137,8 @@ public:
   virtual void Execute ();
 
 private:
-  leveldb::WriteOptions* options;
-  leveldb::WriteBatch* batch;
+  rocksdb::WriteOptions* options;
+  rocksdb::WriteBatch* batch;
 };
 
 class ApproximateSizeWorker : public AsyncWorker {
@@ -146,8 +146,8 @@ public:
   ApproximateSizeWorker (
       Database *database
     , Nan::Callback *callback
-    , leveldb::Slice start
-    , leveldb::Slice end
+    , rocksdb::Slice start
+    , rocksdb::Slice end
     , v8::Local<v8::Object> &startHandle
     , v8::Local<v8::Object> &endHandle
   );
@@ -158,7 +158,7 @@ public:
   virtual void WorkComplete ();
 
   private:
-    leveldb::Range range;
+    rocksdb::Range range;
     uint64_t size;
 };
 
@@ -167,8 +167,8 @@ public:
   CompactRangeWorker (
       Database *database
     , Nan::Callback *callback
-    , leveldb::Slice start
-    , leveldb::Slice end
+    , rocksdb::Slice start
+    , rocksdb::Slice end
     , v8::Local<v8::Object> &startHandle
     , v8::Local<v8::Object> &endHandle
   );
@@ -179,8 +179,8 @@ public:
   virtual void WorkComplete ();
 
   private:
-    leveldb::Slice rangeStart;
-    leveldb::Slice rangeEnd;
+    rocksdb::Slice rangeStart;
+    rocksdb::Slice rangeEnd;
 };
 
 

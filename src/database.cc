@@ -6,8 +6,8 @@
 #include <node.h>
 #include <node_buffer.h>
 
-#include <leveldb/db.h>
-#include <leveldb/write_batch.h>
+#include <rocksdb/db.h>
+#include <rocksdb/write_batch.h>
 
 #include "leveldown.h"
 #include "database.h"
@@ -37,69 +37,69 @@ Database::~Database () {
 
 /* Calls from worker threads, NO V8 HERE *****************************/
 
-leveldb::Status Database::OpenDatabase (
-        leveldb::Options* options
+rocksdb::Status Database::OpenDatabase (
+        rocksdb::Options* options
     ) {
-  return leveldb::DB::Open(*options, **location, &db);
+  return rocksdb::DB::Open(*options, **location, &db);
 }
 
-leveldb::Status Database::PutToDatabase (
-        leveldb::WriteOptions* options
-      , leveldb::Slice key
-      , leveldb::Slice value
+rocksdb::Status Database::PutToDatabase (
+        rocksdb::WriteOptions* options
+      , rocksdb::Slice key
+      , rocksdb::Slice value
     ) {
   return db->Put(*options, key, value);
 }
 
-leveldb::Status Database::GetFromDatabase (
-        leveldb::ReadOptions* options
-      , leveldb::Slice key
+rocksdb::Status Database::GetFromDatabase (
+        rocksdb::ReadOptions* options
+      , rocksdb::Slice key
       , std::string& value
     ) {
   return db->Get(*options, key, &value);
 }
 
-leveldb::Status Database::DeleteFromDatabase (
-        leveldb::WriteOptions* options
-      , leveldb::Slice key
+rocksdb::Status Database::DeleteFromDatabase (
+        rocksdb::WriteOptions* options
+      , rocksdb::Slice key
     ) {
   return db->Delete(*options, key);
 }
 
-leveldb::Status Database::WriteBatchToDatabase (
-        leveldb::WriteOptions* options
-      , leveldb::WriteBatch* batch
+rocksdb::Status Database::WriteBatchToDatabase (
+        rocksdb::WriteOptions* options
+      , rocksdb::WriteBatch* batch
     ) {
   return db->Write(*options, batch);
 }
 
-uint64_t Database::ApproximateSizeFromDatabase (const leveldb::Range* range) {
+uint64_t Database::ApproximateSizeFromDatabase (const rocksdb::Range* range) {
   uint64_t size;
   db->GetApproximateSizes(range, 1, &size);
   return size;
 }
 
-void Database::CompactRangeFromDatabase (const leveldb::Slice* start, 
-                                         const leveldb::Slice* end) {
+void Database::CompactRangeFromDatabase (const rocksdb::Slice* start,
+                                         const rocksdb::Slice* end) {
   db->CompactRange(start, end);
 }
 
 void Database::GetPropertyFromDatabase (
-      const leveldb::Slice& property
+      const rocksdb::Slice& property
     , std::string* value) {
 
   db->GetProperty(property, value);
 }
 
-leveldb::Iterator* Database::NewIterator (leveldb::ReadOptions* options) {
+rocksdb::Iterator* Database::NewIterator (rocksdb::ReadOptions* options) {
   return db->NewIterator(*options);
 }
 
-const leveldb::Snapshot* Database::NewSnapshot () {
+const rocksdb::Snapshot* Database::NewSnapshot () {
   return db->GetSnapshot();
 }
 
-void Database::ReleaseSnapshot (const leveldb::Snapshot* snapshot) {
+void Database::ReleaseSnapshot (const rocksdb::Snapshot* snapshot) {
   return db->ReleaseSnapshot(snapshot);
 }
 
@@ -200,8 +200,8 @@ NAN_METHOD(Database::Open) {
     , 16
   );
 
-  database->blockCache = leveldb::NewLRUCache(cacheSize);
-  database->filterPolicy = leveldb::NewBloomFilterPolicy(10);
+  database->blockCache = rocksdb::NewLRUCache(cacheSize).get();
+  database->filterPolicy = rocksdb::NewBloomFilterPolicy(10);
 
   OpenWorker* worker = new OpenWorker(
       database
@@ -363,7 +363,7 @@ NAN_METHOD(Database::Batch) {
 
   v8::Local<v8::Array> array = v8::Local<v8::Array>::Cast(info[0]);
 
-  leveldb::WriteBatch* batch = new leveldb::WriteBatch();
+  rocksdb::WriteBatch* batch = new rocksdb::WriteBatch();
   bool hasData = false;
 
   for (unsigned int i = 0; i < array->Length(); i++) {

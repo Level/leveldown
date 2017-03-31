@@ -12,9 +12,9 @@ namespace leveldown {
 static Nan::Persistent<v8::FunctionTemplate> batch_constructor;
 
 Batch::Batch (leveldown::Database* database, bool sync) : database(database) {
-  options = new leveldb::WriteOptions();
+  options = new rocksdb::WriteOptions();
   options->sync = sync;
-  batch = new leveldb::WriteBatch();
+  batch = new rocksdb::WriteBatch();
   hasData = false;
 }
 
@@ -23,7 +23,7 @@ Batch::~Batch () {
   delete batch;
 }
 
-leveldb::Status Batch::Write () {
+rocksdb::Status Batch::Write () {
   return database->WriteBatchToDatabase(options, batch);
 }
 

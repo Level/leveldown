@@ -31,7 +31,7 @@ public:
   Iterator (
       Database* database
     , uint32_t id
-    , leveldb::Slice* start
+    , rocksdb::Slice* start
     , std::string* end
     , bool reverse
     , bool keys
@@ -50,7 +50,7 @@ public:
   ~Iterator ();
 
   bool IteratorNext (std::vector<std::pair<std::string, std::string> >& result);
-  leveldb::Status IteratorStatus ();
+  rocksdb::Status IteratorStatus ();
   void IteratorEnd ();
   void Release ();
   void ReleaseTarget ();
@@ -58,10 +58,10 @@ public:
 private:
   Database* database;
   uint32_t id;
-  leveldb::Iterator* dbIterator;
-  leveldb::ReadOptions* options;
-  leveldb::Slice* start;
-  leveldb::Slice* target;
+  rocksdb::Iterator* dbIterator;
+  rocksdb::ReadOptions* options;
+  rocksdb::Slice* start;
+  rocksdb::Slice* target;
   std::string* end;
   bool seeking;
   bool landed;
@@ -86,7 +86,7 @@ public:
 private:
   bool Read (std::string& key, std::string& value);
   bool GetIterator ();
-  bool OutOfRange (leveldb::Slice* target);
+  bool OutOfRange (rocksdb::Slice* target);
 
   static NAN_METHOD(New);
   static NAN_METHOD(Seek);

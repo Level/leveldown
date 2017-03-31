@@ -4,7 +4,7 @@
 #include <vector>
 #include <node.h>
 
-#include <leveldb/write_batch.h>
+#include <rocksdb/write_batch.h>
 
 #include "database.h"
 
@@ -20,12 +20,12 @@ public:
 
   Batch  (leveldown::Database* database, bool sync);
   ~Batch ();
-  leveldb::Status Write ();
+  rocksdb::Status Write ();
 
 private:
   leveldown::Database* database;
-  leveldb::WriteOptions* options;
-  leveldb::WriteBatch* batch;
+  rocksdb::WriteOptions* options;
+  rocksdb::WriteBatch* batch;
   bool hasData; // keep track of whether we're writing data or not
 
   static NAN_METHOD(New);

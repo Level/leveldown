@@ -18,7 +18,7 @@ static Nan::Persistent<v8::FunctionTemplate> iterator_constructor;
 Iterator::Iterator (
     Database* database
   , uint32_t id
-  , leveldb::Slice* start
+  , rocksdb::Slice* start
   , std::string* end
   , bool reverse
   , bool keys
@@ -50,7 +50,7 @@ Iterator::Iterator (
 {
   Nan::HandleScope scope;
 
-  options    = new leveldb::ReadOptions();
+  options    = new rocksdb::ReadOptions();
   options->fill_cache = fillCache;
   // get a snapshot of the current state
   options->snapshot = database->NewSnapshot();
@@ -174,7 +174,7 @@ bool Iterator::Read (std::string& key, std::string& value) {
   return false;
 }
 
-bool Iterator::OutOfRange (leveldb::Slice* target) {
+bool Iterator::OutOfRange (rocksdb::Slice* target) {
   if (lt != NULL) {
     if (target->compare(*lt) >= 0)
       return true;
@@ -230,7 +230,7 @@ bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& 
   }
 }
 
-leveldb::Status Iterator::IteratorStatus () {
+rocksdb::Status Iterator::IteratorStatus () {
   return dbIterator->status();
 }
 
@@ -272,10 +272,10 @@ NAN_METHOD(Iterator::Seek) {
 
   v8::Local<v8::Value> targetBuffer = info[0].As<v8::Value>();
   LD_STRING_OR_BUFFER_TO_COPY(_target, targetBuffer, target);
-  iterator->target = new leveldb::Slice(_targetCh_, _targetSz_);
+  iterator->target = new rocksdb::Slice(_targetCh_, _targetSz_);
 
   iterator->GetIterator();
-  leveldb::Iterator* dbIterator = iterator->dbIterator;
+  rocksdb::Iterator* dbIterator = iterator->dbIterator;
 
   dbIterator->Seek(*iterator->target);
   iterator->seeking = true;
@@ -415,7 +415,7 @@ v8::Local<v8::Object> Iterator::NewInstance (
 NAN_METHOD(Iterator::New) {
   Database* database = Nan::ObjectWrap::Unwrap<Database>(info[0]->ToObject());
 
-  leveldb::Slice* start = NULL;
+  rocksdb::Slice* start = NULL;
   std::string* end = NULL;
   int limit = -1;
   // default highWaterMark from Readble-streams
@@ -453,7 +453,7 @@ NAN_METHOD(Iterator::New) {
       // ignore start if it has size 0 since a Slice can't have length 0
       if (StringOrBufferLength(startBuffer) > 0) {
         LD_STRING_OR_BUFFER_TO_COPY(_start, startBuffer, start)
-        start = new leveldb::Slice(_startCh_, _startSz_);
+        start = new rocksdb::Slice(_startCh_, _startSz_);
         startStr = _startCh_;
       }
     }
@@ -500,7 +500,7 @@ NAN_METHOD(Iterator::New) {
           }
           if (start != NULL)
             delete start;
-          start = new leveldb::Slice(lt->data(), lt->size());
+          start = new rocksdb::Slice(lt->data(), lt->size());
         }
       }
     }
@@ -523,7 +523,7 @@ NAN_METHOD(Iterator::New) {
           }
           if (start != NULL)
             delete start;
-          start = new leveldb::Slice(lte->data(), lte->size());
+          start = new rocksdb::Slice(lte->data(), lte->size());
         }
       }
     }
@@ -546,7 +546,7 @@ NAN_METHOD(Iterator::New) {
           }
           if (start != NULL)
             delete start;
-          start = new leveldb::Slice(gt->data(), gt->size());
+          start = new rocksdb::Slice(gt->data(), gt->size());
         }
       }
     }
@@ -569,7 +569,7 @@ NAN_METHOD(Iterator::New) {
           }
           if (start != NULL)
             delete start;
-          start = new leveldb::Slice(gte->data(), gte->size());
+          start = new rocksdb::Slice(gte->data(), gte->size());
         }
       }
     }

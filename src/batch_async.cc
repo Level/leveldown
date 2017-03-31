@@ -4,7 +4,7 @@
  */
 
 
-#include <leveldb/write_batch.h>
+#include <rocksdb/write_batch.h>
 #include "batch.h"
 #include "batch_async.h"
 

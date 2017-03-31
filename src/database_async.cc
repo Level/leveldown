@@ -6,8 +6,9 @@
 #include <node.h>
 #include <node_buffer.h>
 
-#include <leveldb/write_batch.h>
-#include <leveldb/filter_policy.h>
+#include <rocksdb/write_batch.h>
+#include <rocksdb/filter_policy.h>
+#include <rocksdb/utilities/leveldb_options.h>
 
 #include "database.h"
 #include "leveldown.h"
@@ -21,8 +22,8 @@ namespace leveldown {
 OpenWorker::OpenWorker (
     Database *database
   , Nan::Callback *callback
-  , leveldb::Cache* blockCache
-  , const leveldb::FilterPolicy* filterPolicy
+  , rocksdb::Cache* blockCache
+  , const rocksdb::FilterPolicy* filterPolicy
   , bool createIfMissing
   , bool errorIfExists
   , bool compression
@@ -32,18 +33,22 @@ OpenWorker::OpenWorker (
   , uint32_t blockRestartInterval
 ) : AsyncWorker(database, callback)
 {
-  options = new leveldb::Options();
-  options->block_cache            = blockCache;
-  options->filter_policy          = filterPolicy;
-  options->create_if_missing      = createIfMissing;
-  options->error_if_exists        = errorIfExists;
-  options->compression            = compression
-      ? leveldb::kSnappyCompression
-      : leveldb::kNoCompression;
-  options->write_buffer_size      = writeBufferSize;
-  options->block_size             = blockSize;
-  options->max_open_files         = maxOpenFiles;
-  options->block_restart_interval = blockRestartInterval;
+  rocksdb::LevelDBOptions levelOptions;
+
+  levelOptions.block_cache            = blockCache;
+  levelOptions.filter_policy          = filterPolicy;
+  levelOptions.create_if_missing      = createIfMissing;
+  levelOptions.error_if_exists        = errorIfExists;
+  levelOptions.compression            = compression
+      ? rocksdb::kSnappyCompression
+      : rocksdb::kNoCompression;
+  levelOptions.write_buffer_size      = writeBufferSize;
+  levelOptions.block_size             = blockSize;
+  levelOptions.max_open_files         = maxOpenFiles;
+  levelOptions.block_restart_interval = blockRestartInterval;
+
+  rocksdb::Options opts = ConvertOptions(levelOptions);
+  options = &opts;
 };
 
 OpenWorker::~OpenWorker () {
@@ -80,7 +85,7 @@ void CloseWorker::WorkComplete () {
 IOWorker::IOWorker (
     Database *database
   , Nan::Callback *callback
-  , leveldb::Slice key
+  , rocksdb::Slice key
   , v8::Local<v8::Object> &keyHandle
 ) : AsyncWorker(database, callback)
   , key(key)
@@ -104,7 +109,7 @@ void IOWorker::WorkComplete () {
 ReadWorker::ReadWorker (
     Database *database
   , Nan::Callback *callback
-  , leveldb::Slice key
+  , rocksdb::Slice key
   , bool asBuffer
   , bool fillCache
   , v8::Local<v8::Object> &keyHandle
@@ -113,7 +118,7 @@ ReadWorker::ReadWorker (
 {
   Nan::HandleScope scope;
 
-  options = new leveldb::ReadOptions();
+  options = new rocksdb::ReadOptions();
   options->fill_cache = fillCache;
   SaveToPersistent("key", keyHandle);
 };
@@ -150,14 +155,14 @@ void ReadWorker::HandleOKCallback () {
 DeleteWorker::DeleteWorker (
     Database *database
   , Nan::Callback *callback
-  , leveldb::Slice key
+  , rocksdb::Slice key
   , bool sync
   , v8::Local<v8::Object> &keyHandle
 ) : IOWorker(database, callback, key, keyHandle)
 {
   Nan::HandleScope scope;
 
-  options = new leveldb::WriteOptions();
+  options = new rocksdb::WriteOptions();
   options->sync = sync;
   SaveToPersistent("key", keyHandle);
 };
@@ -175,8 +180,8 @@ void DeleteWorker::Execute () {
 WriteWorker::WriteWorker (
     Database *database
   , Nan::Callback *callback
-  , leveldb::Slice key
-  , leveldb::Slice value
+  , rocksdb::Slice key
+  , rocksdb::Slice value
   , bool sync
   , v8::Local<v8::Object> &keyHandle
   , v8::Local<v8::Object> &valueHandle
@@ -206,12 +211,12 @@ void WriteWorker::WorkComplete () {
 BatchWorker::BatchWorker (
     Database *database
   , Nan::Callback *callback
-  , leveldb::WriteBatch* batch
+  , rocksdb::WriteBatch* batch
   , bool sync
 ) : AsyncWorker(database, callback)
   , batch(batch)
 {
-  options = new leveldb::WriteOptions();
+  options = new rocksdb::WriteOptions();
   options->sync = sync;
 };
 
@@ -229,8 +234,8 @@ void BatchWorker::Execute () {
 ApproximateSizeWorker::ApproximateSizeWorker (
     Database *database
   , Nan::Callback *callback
-  , leveldb::Slice start
-  , leveldb::Slice end
+  , rocksdb::Slice start
+  , rocksdb::Slice end
   , v8::Local<v8::Object> &startHandle
   , v8::Local<v8::Object> &endHandle
 ) : AsyncWorker(database, callback)
@@ -272,8 +277,8 @@ void ApproximateSizeWorker::HandleOKCallback () {
 CompactRangeWorker::CompactRangeWorker (
     Database *database
   , Nan::Callback *callback
-  , leveldb::Slice start
-  , leveldb::Slice end
+  , rocksdb::Slice start
+  , rocksdb::Slice end
   , v8::Local<v8::Object> &startHandle
   , v8::Local<v8::Object> &endHandle
 ) : AsyncWorker(database, callback)
