@@ -120,7 +120,10 @@ void Database::CloseDatabase () {
   delete db;
   db = NULL;
   if (blockCache) {
-    delete blockCache;
+    // According to
+    // https://github.com/facebook/rocksdb/wiki/basic-operations#cache
+    // it doesn't look like this needs to be deleted by hand anymore.
+    // delete blockCache;
     blockCache = NULL;
   }
   if (filterPolicy) {

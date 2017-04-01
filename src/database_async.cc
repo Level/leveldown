@@ -47,8 +47,28 @@ OpenWorker::OpenWorker (
   levelOptions.max_open_files         = maxOpenFiles;
   levelOptions.block_restart_interval = blockRestartInterval;
 
-  rocksdb::Options opts = ConvertOptions(levelOptions);
-  options = &opts;
+  // rocksdb::Options opts = ConvertOptions(levelOptions);
+  // options = &opts;
+
+
+
+  options = new rocksdb::Options();
+  options->create_if_missing = levelOptions.create_if_missing;
+  options->error_if_exists = levelOptions.error_if_exists;
+  options->paranoid_checks = levelOptions.paranoid_checks;
+  options->env = levelOptions.env;
+  options->info_log.reset(levelOptions.info_log);
+  options->write_buffer_size = levelOptions.write_buffer_size;
+  options->max_open_files = levelOptions.max_open_files;
+  options->compression = levelOptions.compression;
+
+  // rocksdb::BlockBasedTableOptions table_options;
+  // table_options.block_cache.reset(levelOptions.block_cache);
+  // table_options.block_size = levelOptions.block_size;
+  // table_options.block_restart_interval = levelOptions.block_restart_interval;
+  // table_options.filter_policy.reset(levelOptions.filter_policy);
+  // options->table_factory.reset(rocksdb::NewBlockBasedTableFactory(levelOptions));
+
 };
 
 OpenWorker::~OpenWorker () {
