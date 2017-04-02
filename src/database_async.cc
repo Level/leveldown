@@ -8,7 +8,16 @@
 
 #include <rocksdb/write_batch.h>
 #include <rocksdb/filter_policy.h>
+
 #include <rocksdb/utilities/leveldb_options.h>
+#include <rocksdb/cache.h>
+#include <rocksdb/comparator.h>
+#include <rocksdb/env.h>
+#include <rocksdb/options.h>
+#include <rocksdb/table.h>
+
+// #include <rocksdb/table.h>
+// #include <rocksdb/utilities/leveldb_options.h>
 
 #include "database.h"
 #include "leveldown.h"
@@ -22,7 +31,7 @@ namespace leveldown {
 OpenWorker::OpenWorker (
     Database *database
   , Nan::Callback *callback
-  , rocksdb::Cache* blockCache
+  , std::shared_ptr<rocksdb::Cache> blockCache
   , const rocksdb::FilterPolicy* filterPolicy
   , bool createIfMissing
   , bool errorIfExists
@@ -35,7 +44,10 @@ OpenWorker::OpenWorker (
 {
   rocksdb::LevelDBOptions levelOptions;
 
-  levelOptions.block_cache            = blockCache;
+  if (blockCache != NULL) {
+    levelOptions.block_cache = blockCache.get();
+  }
+
   levelOptions.filter_policy          = filterPolicy;
   levelOptions.create_if_missing      = createIfMissing;
   levelOptions.error_if_exists        = errorIfExists;
@@ -52,6 +64,8 @@ OpenWorker::OpenWorker (
 
 
 
+  options = new rocksdb::Options(rocksdb::ConvertOptions(levelOptions));
+/*
   options = new rocksdb::Options();
   options->create_if_missing = levelOptions.create_if_missing;
   options->error_if_exists = levelOptions.error_if_exists;
@@ -62,17 +76,17 @@ OpenWorker::OpenWorker (
   options->max_open_files = levelOptions.max_open_files;
   options->compression = levelOptions.compression;
 
-  // rocksdb::BlockBasedTableOptions table_options;
-  // table_options.block_cache.reset(levelOptions.block_cache);
-  // table_options.block_size = levelOptions.block_size;
-  // table_options.block_restart_interval = levelOptions.block_restart_interval;
-  // table_options.filter_policy.reset(levelOptions.filter_policy);
-  // options->table_factory.reset(rocksdb::NewBlockBasedTableFactory(levelOptions));
-
+  rocksdb::BlockBasedTableOptions table_options;
+  table_options.block_cache.reset(blockCache.get());
+  table_options.block_size = levelOptions.block_size;
+  table_options.block_restart_interval = levelOptions.block_restart_interval;
+  table_options.filter_policy.reset(levelOptions.filter_policy);
+  options->table_factory.reset(rocksdb::NewBlockBasedTableFactory(table_options));
+*/
 };
 
 OpenWorker::~OpenWorker () {
-  delete options;
+  // delete options;
 }
 
 void OpenWorker::Execute () {

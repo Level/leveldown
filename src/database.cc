@@ -203,7 +203,8 @@ NAN_METHOD(Database::Open) {
     , 16
   );
 
-  database->blockCache = rocksdb::NewLRUCache(cacheSize).get();
+  database->blockCache = cacheSize ? rocksdb::NewLRUCache(cacheSize) :
+                                     NULL;
   database->filterPolicy = rocksdb::NewBloomFilterPolicy(10);
 
   OpenWorker* worker = new OpenWorker(

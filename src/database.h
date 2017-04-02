@@ -84,7 +84,7 @@ private:
   rocksdb::DB* db;
   uint32_t currentIteratorId;
   void(*pendingCloseWorker);
-  rocksdb::Cache* blockCache;
+  std::shared_ptr<rocksdb::Cache> blockCache;
   const rocksdb::FilterPolicy* filterPolicy;
 
   std::map< uint32_t, leveldown::Iterator * > iterators;

@@ -1,3 +1,5 @@
+/* Not sure if this is needed/supported with RocksDB. It looks like it might be
+   a small floated patch on leveldown.
 const test = require('tape')
     , path = require('path')
     , fs   = require('fs')
@@ -15,3 +17,4 @@ test('test port-libuv is being used', function (t) {
 
   t.end()
 })
+*/
