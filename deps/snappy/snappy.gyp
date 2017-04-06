@@ -6,6 +6,7 @@
           , ['OS=="solaris"', {'os_include': 'solaris'}]
           , ['OS=="win"',     {'os_include': 'win32'}]
           , ['OS=="freebsd"', {'os_include': 'freebsd'}]
+          , ['OS=="openbsd"', {'os_include': 'openbsd'}]
         ]
     }
   , 'target_name': 'snappy'
@@ -47,6 +48,12 @@
           , 'cflags!': [ '-fno-tree-vrp' ]
         }]
       , ['OS == "freebsd"', {
+            'cflags': [
+                '-Wno-sign-compare'
+              , '-Wno-unused-function'
+            ]
+        }]
+      , ['OS == "openbsd"', {
             'cflags': [
                 '-Wno-sign-compare'
               , '-Wno-unused-function'

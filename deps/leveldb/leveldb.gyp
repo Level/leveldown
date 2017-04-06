@@ -100,6 +100,21 @@
                 '-Wno-sign-compare'
             ]
         }]
+      , ['OS == "openbsd"', {
+            'defines': [
+                'OS_OPENBSD=1'
+              , '_REENTRANT=1'
+            ]
+          , 'libraries': [
+                '-lpthread'
+            ]
+          , 'ccflags': [
+                '-pthread'
+            ]
+          , 'cflags': [
+                '-Wno-sign-compare'
+            ]
+        }]
       , ['OS == "solaris"', {
             'defines': [
                 'OS_SOLARIS=1'
