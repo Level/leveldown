@@ -55,7 +55,6 @@
         }, { # OS != "win"
             'sources': [
                 'leveldb-<(ldbversion)/port/port_posix.cc'
-              , 'leveldb-<(ldbversion)/port/port_posix_sse.cc'
               , 'leveldb-<(ldbversion)/port/port_posix.h'
               , 'leveldb-<(ldbversion)/util/env_posix.cc'
             ]
@@ -174,6 +173,7 @@
       , 'leveldb-<(ldbversion)/include/leveldb/table_builder.h'
       , 'leveldb-<(ldbversion)/include/leveldb/write_batch.h'
       , 'leveldb-<(ldbversion)/port/port.h'
+      , 'leveldb-<(ldbversion)/port/port_posix_sse.cc'
       , 'leveldb-<(ldbversion)/table/block.cc'
       , 'leveldb-<(ldbversion)/table/block.h'
       , 'leveldb-<(ldbversion)/table/block_builder.cc'
