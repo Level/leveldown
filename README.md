@@ -89,6 +89,9 @@ The following options are for advanced performance tuning. Modify them only if y
 
 * `'blockRestartInterval'` *(number, default: `16`)*: The number of entries before restarting the "delta encoding" of keys within blocks. Each "restart" point stores the full key for the entry, between restarts, the common prefix of the keys for those entries is omitted. Restarts are similar to the concept of keyframes in video encoding and are used to minimise the amount of space required to store keys. This is particularly helpful when using deep namespacing / prefixing in your keys.
 
+* `'maxFileSize'` *(number, default: `2* 1024 * 1024` = 2MB)*: The maximum amount of bytes to write to a file before switching to a new one. From the LevelDB documentation:
+
+> ... if your filesystem is more efficient with larger files, you could consider increasing the value. The downside will be longer compactions and hence longer latency/performance hiccups. Another reason to increase this parameter might be when you are initially populating a large database.
 
 --------------------------------------------------------
 <a name="leveldown_close"></a>
