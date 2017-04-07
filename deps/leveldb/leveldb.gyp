@@ -1,7 +1,7 @@
 {'targets': [{
     'target_name': 'leveldb'
   , 'variables': {
-        'ldbversion': '1.19'
+        'ldbversion': '1.20'
     }
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
@@ -55,6 +55,7 @@
         }, { # OS != "win"
             'sources': [
                 'leveldb-<(ldbversion)/port/port_posix.cc'
+              , 'leveldb-<(ldbversion)/port/port_posix_sse.cc'
               , 'leveldb-<(ldbversion)/port/port_posix.h'
               , 'leveldb-<(ldbversion)/util/env_posix.cc'
             ]
