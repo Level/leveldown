@@ -1,7 +1,7 @@
 {'targets': [{
     'target_name': 'leveldb'
   , 'variables': {
-        'ldbversion': '1.19'
+        'ldbversion': '1.20'
     }
   , 'type': 'static_library'
 		# Overcomes an issue with the linker and thin .a files on SmartOS
@@ -173,6 +173,7 @@
       , 'leveldb-<(ldbversion)/include/leveldb/table_builder.h'
       , 'leveldb-<(ldbversion)/include/leveldb/write_batch.h'
       , 'leveldb-<(ldbversion)/port/port.h'
+      , 'leveldb-<(ldbversion)/port/port_posix_sse.cc'
       , 'leveldb-<(ldbversion)/table/block.cc'
       , 'leveldb-<(ldbversion)/table/block.h'
       , 'leveldb-<(ldbversion)/table/block_builder.cc'
