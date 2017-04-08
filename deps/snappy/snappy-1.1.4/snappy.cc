@@ -36,7 +36,6 @@
 #include <stdio.h>
 
 #include <algorithm>
-#include <limits>
 #include <string>
 #include <vector>
 
@@ -317,22 +316,29 @@ bool GetUncompressedLength(const char* start, size_t n, size_t* result) {
 
 namespace internal {
 uint16* WorkingMemory::GetHashTable(size_t input_size, int* table_size) {
-  if (input_size > kMaxHashTableSize) {
-    *table_size = kMaxHashTableSize;
-  } else if (input_size < 256) {
-    *table_size = 256;
+  // Use smaller hash table when input.size() is smaller, since we
+  // fill the table, incurring O(hash table size) overhead for
+  // compression, and if the input is short, we won't need that
+  // many hash table entries anyway.
+  assert(kMaxHashTableSize >= 256);
+  size_t htsize = 256;
+  while (htsize < kMaxHashTableSize && htsize < input_size) {
+    htsize <<= 1;
+  }
+
+  uint16* table;
+  if (htsize <= ARRAYSIZE(small_table_)) {
+    table = small_table_;
   } else {
-    // Since table size must be a power of 2, round up to the next power of 2.
-    *table_size = 1 << (std::numeric_limits<size_t>::digits -
-                        __builtin_clzll(input_size - 1));
+    if (large_table_ == NULL) {
+      large_table_ = new uint16[kMaxHashTableSize];
+    }
+    table = large_table_;
   }
-  if (*table_size <= ARRAYSIZE(small_table_)) {
-    memset(small_table_, 0, 2 * *table_size);
-    return small_table_;
-  }
-  if (!large_table_) large_table_ = new uint16[kMaxHashTableSize];
-  memset(large_table_, 0, 2 * *table_size);
-  return large_table_;
+
+  *table_size = htsize;
+  memset(table, 0, htsize * sizeof(*table));
+  return table;
 }
 }  // end namespace internal
 
