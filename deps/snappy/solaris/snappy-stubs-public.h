@@ -44,7 +44,7 @@
 #include <stddef.h>
 #endif
 
-#if 0
+#if 1
 #include <sys/uio.h>
 #endif
 
@@ -86,7 +86,7 @@ typedef std::string string;
   void operator=(const TypeName&)
 #endif
 
-#if !0
+#if !1
 // Windows does not have an iovec type, yet the concept is universally useful.
 // It is simple to define it ourselves, so we put it inside our own namespace.
 struct iovec {
