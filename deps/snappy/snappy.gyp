@@ -18,7 +18,8 @@
     ]
   , 'direct_dependent_settings': {
         'include_dirs': [
-            'snappy-1.1.4'
+        	'<(os_include)'
+          , 'snappy-1.1.4'
         ]
     }
   , 'defines': [
