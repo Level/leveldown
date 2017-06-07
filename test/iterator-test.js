@@ -159,7 +159,7 @@ make('close db with open iterator', function (db, t, done) {
     if(cnt++ === 0)
       t.error(err, 'no error from next()')
     else
-      t.ok(err, 'had error from next() after end()')
+      t.equal(err.message, 'iterator has ended')
     if(key !== undefined)
       ite.next(loop)
   })
