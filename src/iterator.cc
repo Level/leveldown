@@ -323,14 +323,15 @@ NAN_METHOD(Iterator::Seek) {
 NAN_METHOD(Iterator::Next) {
   Iterator* iterator = Nan::ObjectWrap::Unwrap<Iterator>(info.This());
 
-  if(iterator->ended)
-    return;
-
   if (!info[0]->IsFunction()) {
     return Nan::ThrowError("next() requires a callback argument");
   }
 
   v8::Local<v8::Function> callback = info[0].As<v8::Function>();
+
+  if (iterator->ended) {
+    LD_RETURN_CALLBACK_OR_ERROR(callback, "iterator has ended");
+  }
 
   NextWorker* worker = new NextWorker(
       iterator

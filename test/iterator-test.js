@@ -154,8 +154,12 @@ make('iterator seek before next has completed', function (db, t, done) {
 
 make('close db with open iterator', function (db, t, done) {
   var ite = db.iterator()
+  var cnt = 0
   ite.next(function loop(err, key, value) {
-    t.error(err, 'no error from next()')
+    if(cnt++ === 0)
+      t.error(err, 'no error from next()')
+    else
+      t.ok(err, 'had error from next() after end()')
     if(key !== undefined)
       ite.next(loop)
   })
