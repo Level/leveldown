@@ -214,13 +214,13 @@ bool Iterator::IteratorNext (std::vector<std::pair<std::string, std::string> >& 
 
     if (ok) {
       result.push_back(std::make_pair(key, value));
-      size = size + key.size() + value.size();
 
       if (!landed) {
         landed = true;
         return true;
       }
 
+      size = size + key.size() + value.size();
       if (size > highWaterMark)
         return true;
 
@@ -322,6 +322,9 @@ NAN_METHOD(Iterator::Seek) {
 
 NAN_METHOD(Iterator::Next) {
   Iterator* iterator = Nan::ObjectWrap::Unwrap<Iterator>(info.This());
+
+  if(iterator->ended)
+    return;
 
   if (!info[0]->IsFunction()) {
     return Nan::ThrowError("next() requires a callback argument");

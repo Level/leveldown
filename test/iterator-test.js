@@ -128,7 +128,7 @@ make('iterator optimized for seek', function (db, t, done) {
             t.error(err, 'no error from next()')
             t.equal(key.toString(), 'e', 'key matches')
             t.ok(ite.cache.length > 0, "has cached items")
-            done();
+            ite.end(done)
           })
         })
       })
@@ -139,8 +139,8 @@ make('iterator optimized for seek', function (db, t, done) {
 make('iterator seek before next has completed', function (db, t, done) {
   var ite = db.iterator()
   ite.next(function (err, key, value) {
-    t.error(err, 'no error from end()')
-    done()
+    t.error(err, 'no error from next()')
+    ite.end(done)
   })
   var error
   try {
@@ -150,6 +150,20 @@ make('iterator seek before next has completed', function (db, t, done) {
     error = e;
   }
   t.ok(error, 'had error from seek() before next() has completed')
+})
+
+make('close db with open iterator', function (db, t, done) {
+  var ite = db.iterator()
+  ite.next(function loop(err, key, value) {
+    t.error(err, 'no error from next()')
+    if(key !== undefined)
+      ite.next(loop)
+  })
+
+  db.close(function (err){
+    t.error(err, 'no error from close()')
+    done(false)
+  })
 })
 
 make('iterator seek after end', function (db, t, done) {
