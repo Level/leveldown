@@ -255,7 +255,7 @@ Safety
 
 Currently LevelDOWN does not track the state of the underlying LevelDB instance. This means that calling `open()` on an already open database may result in an error. Likewise, calling any other operation on a non-open database may result in an error.
 
-LevelUP currently tracks and manages state and will prevent out-of-state operations from being send to LevelDOWN. If you use LevelDOWN directly then you must track and manage state for yourself.
+LevelUP currently tracks and manages state and will prevent out-of-state operations from being sent to LevelDOWN. If you use LevelDOWN directly then you must track and manage state for yourself.
 
 <a name="support"></a>
 Getting support
