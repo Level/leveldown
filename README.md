@@ -1,6 +1,8 @@
 LevelDOWN
 =========
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/Level/leveldown.svg)](https://greenkeeper.io/)
+
 <img alt="LevelDB Logo" height="100" src="http://leveldb.org/img/logo.svg">
 
 **A Low-level Node.js LevelDB binding**
