@@ -61,5 +61,8 @@
     "prebuild": "prebuild --all --strip --verbose"
   },
   "license": "MIT",
-  "gypfile": true
+  "gypfile": true,
+  "engines": {
+    "node": ">=0.12.x"
+  }
 }

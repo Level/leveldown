@@ -5,6 +5,7 @@ LevelDOWN
 
 **A Low-level Node.js LevelDB binding**
 
+![Node version](https://img.shields.io/node/v/leveldown.svg)
 [![Build Status](https://secure.travis-ci.org/Level/leveldown.png)](http://travis-ci.org/Level/leveldown)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/Level/leveldown.svg)](https://ci.appveyor.com/project/Level/leveldown)
 [![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown) [![Greenkeeper badge](https://badges.greenkeeper.io/Level/leveldown.svg)](https://greenkeeper.io/)
