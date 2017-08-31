@@ -5,6 +5,7 @@ LevelDOWN
 
 **A Low-level Node.js LevelDB binding**
 
+![Node version](https://img.shields.io/node/v/leveldown.svg)
 [![Build Status](https://secure.travis-ci.org/Level/leveldown.png)](http://travis-ci.org/Level/leveldown)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/Level/leveldown.svg)](https://ci.appveyor.com/project/Level/leveldown)
 [![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown) [![Greenkeeper badge](https://badges.greenkeeper.io/Level/leveldown.svg)](https://greenkeeper.io/)
@@ -18,16 +19,20 @@ It is **strongly recommended** that you use LevelUP in preference to LevelDOWN u
 See the section on <a href="#safety">safety</a> below for details of known unsafe operations with LevelDOWN.
 
 <a name="platforms"></a>
-Tested & supported platforms
+Supported platforms
 ----------------------------
 
-  * **Linux** (including ARM platforms such as Raspberry Pi *and Kindle!*)
-  * **Mac OS**
-  * **Solaris** (SmartOS & Nodejitsu)
-  * **FreeBSD**
-  * **Windows**
-    * Node 0.10 and above only, see [issue #5](https://github.com/level/levelup/issues/5) for more info
-    * See installation instructions for *node-gyp* dependencies [here](https://github.com/TooTallNate/node-gyp#installation), you'll need these (free) components from Microsoft to compile and run any native Node add-on in Windows.
+We aim to support *at least* Active LTS and Current Node.js releases. LevelDOWN ships with prebuilt binaries for [many platforms](https://github.com/Level/leveldown/releases) and is known to work on:
+
+* **Linux** (including ARM platforms such as Raspberry Pi *and Kindle!*)
+* **Mac OS**
+* **Solaris** (SmartOS & Nodejitsu)
+* **FreeBSD**
+* **Windows**
+
+When installing LevelDOWN, `prebuild-install` will install prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't. In that case you'll need a [valid `node-gyp` installation](https://github.com/nodejs/node-gyp#installation).
+
+If you don't want to use the prebuilt binary for the platform you are installing on, specify the `--build-from-source` flag when you install. If you are working on LevelDOWN itself and want to re-compile the C++ code it's enough to do `npm install`.
 
 <a name="api"></a>
 ## API
@@ -321,16 +326,6 @@ See the [contribution guide](https://github.com/Level/community/blob/master/CONT
 ### Windows
 
 A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using LevelUP on Windows, you should give him your thanks!
-
-
-Prebuilt binaries
------------------
-
-LevelDOWN uses `prebuild` and `prebuild-install` for handling prebuilt binaries. See [this list](https://github.com/Level/leveldown/releases) of supported prebuilt platform binaries. When installing LevelDOWN `prebuild-install` will install prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't.
-
-If you are working on LevelDOWN and want to re-compile the C++ code it's enough to do `npm install`.
-
-If you don't want to use the `prebuild` for the platform you are installing on, specify the `--build-from-source` flag when you install.
 
 <a name="license"></a>
 License &amp; copyright
