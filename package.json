@@ -29,6 +29,7 @@
     "level"
   ],
   "main": "leveldown.js",
+  "typings": "leveldown.d.ts",
   "dependencies": {
     "abstract-leveldown": "~2.7.0",
     "bindings": "~1.3.0",
