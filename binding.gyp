@@ -18,7 +18,11 @@
         , ['OS == "linux"', {
               'cflags': [
               ]
-            , 'cflags!': [ '-fno-tree-vrp' ]
+            , 'cflags!': [ '-fno-tree-vrp']
+          }]
+        , ['target_arch == "arm"', {
+              'cflags': [ '-mfloat-abi=hard'
+              ]
           }]
         ]
       , "dependencies": [

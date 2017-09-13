@@ -142,6 +142,11 @@
                 ]
             }
         }]
+      , ['target_arch == "arm"', {
+            'cflags': [
+	        '-mfloat-abi=hard'
+	    ]
+        }]
     ]
   , 'sources': [
         'leveldb-<(ldbversion)/db/builder.cc'

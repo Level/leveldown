@@ -73,6 +73,11 @@
                 ]
             }
         }]
+      , ['target_arch == "arm"', {
+            'cflags': [
+	      '-mfloat-abi=hard'
+	    ]
+        }]
     ]
   , 'sources': [
         'snappy-1.1.4/snappy-internal.h'
