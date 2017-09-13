@@ -17,7 +17,8 @@
     "Pedro Teixeira <pedro.teixeira@gmail.com> (https://github.com/pgte)",
     "James Halliday <mail@substack.net> (https://github.com/substack)",
     "Gordon Hall <gordonh@member.fsf.org> (https://github.com/bookchin)",
-    "Yichao 'Peak' Ji <peakji@gmail.com> (https://github.com/peakji)"
+    "Yichao 'Peak' Ji <peakji@gmail.com> (https://github.com/peakji)",
+    "Meirion Hughes <crakinshot@yahoo.com> (https://github.com/meirionhughes)"
   ],
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
     "level"
   ],
   "main": "leveldown.js",
+  "typings": "leveldown.d.ts",
   "dependencies": {
     "abstract-leveldown": "~2.7.0",
     "bindings": "~1.3.0",
