@@ -73,7 +73,7 @@
                 ]
             }
         }]
-      , ['target_arch == "arm"', {
+      , ['target_arch == "arm" and GENERATOR_FLAVOR != "android"', {
             'cflags': [
 	      '-mfloat-abi=hard'
 	    ]

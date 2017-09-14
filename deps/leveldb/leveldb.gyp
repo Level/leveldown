@@ -74,7 +74,7 @@
               , '-Wno-unused-but-set-variable'
             ]
         }]
-      , ['OS == "linux"', {
+      , ['OS == "linux" and GENERATOR_FLAVOR != "android"', {
             'defines': [
                 'OS_LINUX=1'
             ]
@@ -83,6 +83,12 @@
             ]
           , 'ccflags': [
                 '-pthread'
+            ]
+        }]
+      , ['OS == "linux" and GENERATOR_FLAVOR == "android"', {
+            'defines': [
+                'OS_ANDROID=1'
+              , '_REENTRANT=1'
             ]
         }]
       , ['OS == "freebsd"', {
@@ -142,7 +148,7 @@
                 ]
             }
         }]
-      , ['target_arch == "arm"', {
+      , ['target_arch == "arm" and GENERATOR_FLAVOR != "android"', {
             'cflags': [
 	        '-mfloat-abi=hard'
 	    ]

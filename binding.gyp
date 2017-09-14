@@ -20,9 +20,12 @@
               ]
             , 'cflags!': [ '-fno-tree-vrp']
           }]
-        , ['target_arch == "arm"', {
-              'cflags': [ '-mfloat-abi=hard'
-              ]
+        , ['OS == "linux" and GENERATOR_FLAVOR == "android"', {
+              'cflags': [ '-std=c++0x' ]
+            , 'ldflags!': [ '-pie' , '-fPIE' ]
+          }]
+        , ['target_arch == "arm" and GENERATOR_FLAVOR != "android"', {
+              'cflags': [ '-mfloat-abi=hard' ]
           }]
         ]
       , "dependencies": [
