@@ -1,79 +1,74 @@
-import * as Abstract from 'abstract-leveldown';
+import { AbstractLevelDOWN, AbstractIteratorOptions, AbstractIterator } from 'abstract-leveldown';
 
-declare namespace leveldown {
-  export interface LevelDown<TKey, TValue>
-    extends Abstract.LevelDOWN<
-    TKey,
-    TValue,
-    LevelDownOptions,
-    LevelDownPutOptions,
-    LevelDownGetOptions,
-    LevelDownDeleteOptions,
-    LevelDownIteratorOptions<TKey, TValue>,
-    LevelDownBatchOptions> {
-    approximateSize(start: TKey, end: TKey, cb: (err?: any) => void): void;
-    compactRange(start: TKey, end: TKey, cb: (err?: any) => void): void;
-    getProperty(property: string): string;
-    iterator(options?: LevelDownIteratorOptions<TKey, TValue>): LevelDownIterator<TKey>
-    destroy(location: string, cb: (err?: any) => void): void;
-    repair(location: string, cb: (err?: any) => void): void;
-  }
+type BaseType = string | Buffer
 
-  export interface LevelDownOptions {
-    createIfMissing?: boolean;
-    errorIfExists?: boolean;
-    compression?: boolean;
-    cacheSize?: number;
-    writeBufferSize?: number;
-    blockSize?: number;
-    maxOpenFiles?: number;
-    blockRestartInterval?: number;
-    maxFileSize?: number;
-  }
+export interface LevelDown
+  extends LevelDownConstructor, AbstractLevelDOWN<
+  BaseType, BaseType,
+  LevelDownOptions,
+  LevelDownPutOptions,
+  LevelDownGetOptions,
+  LevelDownDeleteOptions,
+  LevelDownIteratorOptions,
+  LevelDownBatchOptions> {
 
-  export interface LevelDownPutOptions {
-    sync?: boolean
-  }
+  approximateSize(start: BaseType, end: BaseType, cb: (err: any, size: number) => void): void;
+  compactRange(start: BaseType, end: BaseType, cb: (err?: any) => void): void;
+  getProperty(property: string): string;
+  destroy(location: string, cb: (err?: any) => void): void;
+  repair(location: string, cb: (err?: any) => void): void;
 
-  export interface LevelDownGetOptions {
-    fillCache?: boolean;
-    asBuffer?: boolean;
-  }
-
-  export interface LevelDownDeleteOptions {
-    sync?: boolean;
-  }
-
-  export interface LevelDownIteratorOptions<K, V> {
-    gt?: K;
-    gte?: K;
-    lt?: K;
-    lte?: K;
-    reverse?: boolean;
-    keys?: boolean;
-    values?: boolean;
-    limit?: number;
-    fillCache?: boolean;
-    keyAsBuffer?: boolean;
-    valueAsBuffer?: boolean;
-  }
-
-  export interface LevelDownBatchOptions {
-    sync?: boolean;
-  }
-
-  export interface LevelDownIterator<TKey> extends Abstract.Iterator {
-    seek(key: TKey);
-    binding: any;
-    cache: any;
-    finished: any;
-    fastFuture: any;
-  }
+  iterator(options?: LevelDownIteratorOptions & AbstractIteratorOptions<BaseType>): LevelDownIterator
 }
-declare function leveldown<
-  TKey=any,
-  TValue=any
-  >(location: string)
-  : leveldown.LevelDown<TKey, TValue>;
 
-export = leveldown;
+interface LevelDownConstructor {
+  new (location: string): LevelDown
+  (location: string): LevelDown
+}
+
+export interface LevelDownOptions {
+  createIfMissing?: boolean;
+  errorIfExists?: boolean;
+  compression?: boolean;
+  cacheSize?: number;
+  writeBufferSize?: number;
+  blockSize?: number;
+  maxOpenFiles?: number;
+  blockRestartInterval?: number;
+  maxFileSize?: number;
+}
+
+export interface LevelDownPutOptions {
+  sync?: boolean
+}
+
+export interface LevelDownGetOptions {
+  fillCache?: boolean;
+  asBuffer?: boolean;
+}
+
+export interface LevelDownDeleteOptions {
+  sync?: boolean;
+}
+
+export interface LevelDownIteratorOptions {
+  fillCache?: boolean;
+
+  keyAsBuffer?: boolean;
+  valueAsBuffer?: boolean;
+}
+
+export interface LevelDownBatchOptions {
+  sync?: boolean;
+}
+
+export interface LevelDownIterator extends AbstractIterator<BaseType, BaseType> {
+  seek(key: BaseType);
+  binding: any;
+  cache: any;
+  finished: any;
+  fastFuture: any;
+}
+
+declare const LevelDown: LevelDownConstructor
+export default LevelDown;
