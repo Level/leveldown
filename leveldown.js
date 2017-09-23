@@ -104,4 +104,4 @@ LevelDOWN.repair = function (location, callback) {
 }
 
 
-module.exports = LevelDOWN
+module.exports = LevelDOWN.default = LevelDOWN
