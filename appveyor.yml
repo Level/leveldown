@@ -1,0 +1,32 @@
+version: "{build}"
+build: off
+skip_tags: true
+shallow_clone: false
+
+environment:
+  matrix:
+    - nodejs_version: "8"
+      git_tag: "v1.5.0"
+    - nodejs_version: "8"
+      git_tag: "v1.5.1"
+    - nodejs_version: "8"
+      git_tag: "v1.5.2"
+    - nodejs_version: "8"
+      git_tag: "v1.5.3"
+
+platform:
+  - x86
+  - x64
+
+install:
+  - ps: Install-Product node $env:nodejs_version $env:platform
+  - ps: if ($env:nodejs_version -eq "5") { npm i npm@latest -g }
+  - set PATH=%APPDATA%\npm;%APPVEYOR_BUILD_FOLDER%\node_modules\.bin;%PATH%
+  - git fetch --unshallow --tags
+  - git checkout %git_tag%
+  - npm i
+  - ps: if (!(Test-Path .\node_modules\.bin\prebuild-ci.cmd)) { npm i prebuild-ci }
+
+test_script:
+  - npm test
+  - ps: if ($(node -p "require('./package.json').scripts.test.indexOf('prebuild-ci')") -eq "-1") { prebuild-ci }
