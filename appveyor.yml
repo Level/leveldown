@@ -25,7 +25,7 @@ install:
   - git fetch --tags
   - git checkout %git_tag%
   - npm i
-  - ps: if (!(Test-Path .\node_modules\.bin\prebuild-ci.cmd)) { npm i prebuild-ci }
+  - npm i prebuild@latest prebuild-ci@latest
 
 test_script:
   - npm test
