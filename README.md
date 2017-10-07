@@ -42,7 +42,7 @@ We aim to support *at least* Active LTS and Current Node.js releases. `leveldown
 * **FreeBSD**
 * **Windows**
 
-When installing `leveldown`, `prebuild-install` will install prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't. In that case you'll need a [valid `node-gyp` installation](https://github.com/nodejs/node-gyp#installation).
+When installing `leveldown`, [`prebuild-install`](https://github.com/prebuild/prebuild-install) will install prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't. In that case you'll need a [valid `node-gyp` installation](https://github.com/nodejs/node-gyp#installation).
 
 If you don't want to use the prebuilt binary for the platform you are installing on, specify the `--build-from-source` flag when you install. If you are working on `leveldown` itself and want to re-compile the C++ code it's enough to do `npm install`.
 
