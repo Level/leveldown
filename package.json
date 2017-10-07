@@ -1,6 +1,6 @@
 {
   "name": "leveldown",
-  "description": "A node.js LevelDB binding, primary backend for levelup",
+  "description": "A low-level Node.js LevelDB binding",
   "version": "2.0.0",
   "contributors": [
     "Rod Vagg <r@va.gg> (https://github.com/rvagg)",

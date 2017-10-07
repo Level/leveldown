@@ -1,7 +1,7 @@
 leveldown
 =========
 
-> A low level node.js LevelDB binding
+> A low-level Node.js LevelDB binding
 
 [![level badge][level-badge]](https://github.com/level/awesome)
 [![npm](https://img.shields.io/npm/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
