@@ -1,4 +1,4 @@
-LevelDOWN
+leveldown
 =========
 
 > A low level node.js LevelDB binding
@@ -24,17 +24,17 @@ LevelDOWN
 Introduction
 ----------------------------
 
-LevelDOWN was extracted from [LevelUP](https://github.com/level/levelup) and now serves as a stand-alone binding for LevelDB.
+This module was originally part of [`levelup`](https://github.com/level/levelup) but was later extracted and now serves as a stand-alone binding for LevelDB.
 
-It is **strongly recommended** that you use LevelUP in preference to LevelDOWN unless you have measurable performance reasons to do so. LevelUP is optimised for usability and safety. Although we are working to improve the safety of the LevelDOWN interface it is still easy to crash your Node process if you don't do things in just the right way.
+It is **strongly recommended** that you use `levelup` in preference to `leveldown` unless you have measurable performance reasons to do so. `levelup` is optimised for usability and safety. Although we are working to improve the safety of the `leveldown` interface it is still easy to crash your Node process if you don't do things in just the right way.
 
-See the section on <a href="#safety">safety</a> below for details of known unsafe operations with LevelDOWN.
+See the section on <a href="#safety">safety</a> below for details of known unsafe operations with `leveldown`.
 
 <a name="platforms"></a>
 Supported platforms
 ----------------------------
 
-We aim to support *at least* Active LTS and Current Node.js releases. LevelDOWN ships with prebuilt binaries for [many platforms](https://github.com/Level/leveldown/releases) and is known to work on:
+We aim to support *at least* Active LTS and Current Node.js releases. `leveldown` ships with prebuilt binaries for [many platforms](https://github.com/Level/leveldown/releases) and is known to work on:
 
 * **Linux** (including ARM platforms such as Raspberry Pi *and Kindle!*)
 * **Mac OS**
@@ -42,9 +42,9 @@ We aim to support *at least* Active LTS and Current Node.js releases. LevelDOWN 
 * **FreeBSD**
 * **Windows**
 
-When installing LevelDOWN, `prebuild-install` will install prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't. In that case you'll need a [valid `node-gyp` installation](https://github.com/nodejs/node-gyp#installation).
+When installing `leveldown`, `prebuild-install` will install prebuilt binaries from GitHub if they exist and fallback to a compile step if they don't. In that case you'll need a [valid `node-gyp` installation](https://github.com/nodejs/node-gyp#installation).
 
-If you don't want to use the prebuilt binary for the platform you are installing on, specify the `--build-from-source` flag when you install. If you are working on LevelDOWN itself and want to re-compile the C++ code it's enough to do `npm install`.
+If you don't want to use the prebuilt binary for the platform you are installing on, specify the `--build-from-source` flag when you install. If you are working on `leveldown` itself and want to re-compile the C++ code it's enough to do `npm install`.
 
 <a name="api"></a>
 ## API
@@ -70,7 +70,7 @@ If you don't want to use the prebuilt binary for the platform you are installing
 --------------------------------------------------------
 <a name="ctor"></a>
 ### leveldown(location)
-<code>leveldown()</code> returns a new **LevelDOWN** instance. `location` is a String pointing to the LevelDB location to be opened.
+<code>leveldown()</code> returns a new `leveldown` instance. `location` is a String pointing to the LevelDB location to be opened.
 
 
 --------------------------------------------------------
@@ -123,7 +123,7 @@ The following options are for advanced performance tuning. Modify them only if y
 
 The `key` and `value` objects may either be `String`s or Node.js `Buffer` objects. Other object types are converted to JavaScript `String`s with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values of `null`, `undefined`, `''`, `[]` and `new Buffer(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `new Buffer(0)` depending on the type requested.
 
-A richer set of data-types are catered for in LevelUP.
+A richer set of data-types are catered for in `levelup`.
 
 #### `options`
 
@@ -137,7 +137,7 @@ The `callback` function will be called with no arguments if the operation is suc
 ### leveldown#get(key[, options], callback)
 <code>get()</code> is an instance method on an existing database object, used to fetch individual entries from the LevelDB store.
 
-The `key` object may either be a `String` or a Node.js `Buffer` object and cannot be `undefined` or `null`. Other object types are converted to JavaScript `String`s with the `toString()` method and the resulting `String` *may not* be a zero-length. A richer set of data-types are catered for in LevelUP.
+The `key` object may either be a `String` or a Node.js `Buffer` object and cannot be `undefined` or `null`. Other object types are converted to JavaScript `String`s with the `toString()` method and the resulting `String` *may not* be a zero-length. A richer set of data-types are catered for in `levelup`.
 
 Values fetched via `get()` that are stored as zero-length character arrays (`null`, `undefined`, `''`, `[]`, `new Buffer(0)`) will return as empty-`String` (`''`) or `new Buffer(0)` when fetched with `asBuffer: true` (see below).
 
@@ -157,7 +157,7 @@ The `callback` function will be called with a single `error` if the operation fa
 ### leveldown#del(key[, options], callback)
 <code>del()</code> is an instance method on an existing database object, used to delete entries from the LevelDB store.
 
-The `key` object may either be a `String` or a Node.js `Buffer` object and cannot be `undefined` or `null`. Other object types are converted to JavaScript `String`s with the `toString()` method and the resulting `String` *may not* be a zero-length. A richer set of data-types are catered for in LevelUP.
+The `key` object may either be a `String` or a Node.js `Buffer` object and cannot be `undefined` or `null`. Other object types are converted to JavaScript `String`s with the `toString()` method and the resulting `String` *may not* be a zero-length. A richer set of data-types are catered for in `levelup`.
 
 #### `options`
 
@@ -173,7 +173,7 @@ The `callback` function will be called with no arguments if the operation is suc
 
 Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the *type* is `'put'` that have a `'value'` of `undefined`, `null`, `[]`, `''` or `new Buffer(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `new Buffer(0)` depending on how they are requested.
 
-See [LevelUP](https://github.com/level/levelup#batch) for full documentation on how this works in practice.
+See [`levelup`](https://github.com/level/levelup#batch) for full documentation on how this works in practice.
 
 #### `options`
 
@@ -292,7 +292,7 @@ The callback will be called when the destroy operation is complete, with a possi
 
 > If a DB cannot be opened, you may attempt to call this method to resurrect as much of the contents of the database as possible. Some data may be lost, so be careful when calling this function on a database that contains important information.
 
-You will find information on the *repair* operation in the *LOG* file inside the store directory. 
+You will find information on the *repair* operation in the *LOG* file inside the store directory.
 
 A `repair()` can also be used to perform a compaction of the LevelDB log into table files.
 
@@ -305,15 +305,15 @@ Safety
 
 ### Database state
 
-Currently LevelDOWN does not track the state of the underlying LevelDB instance. This means that calling `open()` on an already open database may result in an error. Likewise, calling any other operation on a non-open database may result in an error.
+Currently `leveldown` does not track the state of the underlying LevelDB instance. This means that calling `open()` on an already open database may result in an error. Likewise, calling any other operation on a non-open database may result in an error.
 
-LevelUP currently tracks and manages state and will prevent out-of-state operations from being send to LevelDOWN. If you use LevelDOWN directly then you must track and manage state for yourself.
+`levelup` currently tracks and manages state and will prevent out-of-state operations from being send to `leveldown`. If you use `leveldown` directly then you must track and manage state for yourself.
 
 <a name="snapshots"></a>
 Snapshots
 ---------------
 
-LevelDOWN exposes a feature of LevelDB called [snapshots](http://leveldb.googlecode.com/git-history/f779e7a5d89f853fc5224f9eb8103ca2b8f2f555/doc/index.html). This means that when you do e.g. `createReadStream` and `createWriteStream` at the same time, any data modified by the write stream will not affect data emitted from the read stream. In other words, a LevelDB Snapshot captures the latest state at the time the snapshot was created, enabling the snapshot to iterate or read the data without seeing any subsequent writes. Any read not performed on a snapshot will implicitly use the latest state.
+`leveldown` exposes a feature of LevelDB called [snapshots](http://leveldb.googlecode.com/git-history/f779e7a5d89f853fc5224f9eb8103ca2b8f2f555/doc/index.html). This means that when you do e.g. `createReadStream` and `createWriteStream` at the same time, any data modified by the write stream will not affect data emitted from the read stream. In other words, a LevelDB Snapshot captures the latest state at the time the snapshot was created, enabling the snapshot to iterate or read the data without seeing any subsequent writes. Any read not performed on a snapshot will implicitly use the latest state.
 
 <a name="support"></a>
 Getting support
@@ -321,7 +321,7 @@ Getting support
 
 There are multiple ways you can find help in using LevelDB in Node.js:
 
- * **IRC:** you'll find an active group of LevelUP users in the **##leveldb** channel on Freenode, including most of the contributors to this project.
+ * **IRC:** you'll find an active group of `levelup` users in the **##leveldb** channel on Freenode, including most of the contributors to this project.
  * **Mailing list:** there is an active [Node.js LevelDB](https://groups.google.com/forum/#!forum/node-levelup) Google Group.
  * **GitHub:** you're welcome to open an issue here on this GitHub repository if you have a question.
 
@@ -329,7 +329,7 @@ There are multiple ways you can find help in using LevelDB in Node.js:
 Contributing
 ------------
 
-LevelDOWN is an **OPEN Open Source Project**. This means that:
+`leveldown` is an **OPEN Open Source Project**. This means that:
 
 > Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
@@ -337,16 +337,16 @@ See the [contribution guide](https://github.com/Level/community/blob/master/CONT
 
 ### Windows
 
-A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using LevelUP on Windows, you should give him your thanks!
+A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using `leveldown` on Windows, you should give him your thanks!
 
 <a name="license"></a>
 License &amp; copyright
 -------------------
 
-Copyright &copy; 2012-2017 **LevelDOWN** [contributors](https://github.com/level/community#contributors).
+Copyright &copy; 2012-2017 `leveldown` [contributors](https://github.com/level/community#contributors).
 
-**LevelDOWN** is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included `LICENSE.md` file for more details.
+`leveldown` is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included `LICENSE.md` file for more details.
 
-*LevelDOWN builds on the excellent work of the LevelDB and Snappy teams from Google and additional contributors. LevelDB and Snappy are both issued under the [New BSD Licence](http://opensource.org/licenses/BSD-3-Clause).*
+*`leveldown` builds on the excellent work of the LevelDB and Snappy teams from Google and additional contributors. LevelDB and Snappy are both issued under the [New BSD Licence](http://opensource.org/licenses/BSD-3-Clause).*
 
 [level-badge]: http://leveldb.org/img/badge.svg
