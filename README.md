@@ -11,6 +11,19 @@ LevelDOWN
 [![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown)
 [![npm](https://img.shields.io/npm/dm/leveldown.svg)](https://www.npmjs.com/package/leveldown)
 
+  * <a href="#intro">Introduction</a>
+  * <a href="#platforms">Supported platforms</a>
+  * <a href="#api">API</a>
+  * <a href="#safety">Safety</a>
+  * <a href="#snapshots">Snapshots</a>
+  * <a href="#support">Getting support</a>
+  * <a href="#contributing">Contributing</a>
+  * <a href="#license">Licence &amp; copyright</a>
+
+<a name="intro"></a>
+Introduction
+----------------------------
+
 LevelDOWN was extracted from [LevelUP](https://github.com/level/levelup) and now serves as a stand-alone binding for LevelDB.
 
 It is **strongly recommended** that you use LevelUP in preference to LevelDOWN unless you have measurable performance reasons to do so. LevelUP is optimised for usability and safety. Although we are working to improve the safety of the LevelDOWN interface it is still easy to crash your Node process if you don't do things in just the right way.
