@@ -7,8 +7,8 @@ LevelDOWN
 
 [![level badge][level-badge]](https://github.com/level/awesome)
 ![Node version](https://img.shields.io/node/v/leveldown.svg)
-[![Build Status](https://secure.travis-ci.org/Level/leveldown.png)](http://travis-ci.org/Level/leveldown)
-[![AppVeyor build status](https://img.shields.io/appveyor/ci/Level/leveldown.svg)](https://ci.appveyor.com/project/Level/leveldown)
+[![Travis](https://img.shields.io/travis/Level/leveldown.svg?label=travis)](http://travis-ci.org/Level/leveldown)
+[![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?label=appveyor)](https://ci.appveyor.com/project/Level/leveldown)
 [![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown)
 
 [![NPM](https://nodei.co/npm/leveldown.png?stars&downloads&downloadRank)](https://nodei.co/npm/leveldown/) [![NPM](https://nodei.co/npm-dl/leveldown.png?months=6&height=3)](https://nodei.co/npm/leveldown/)
