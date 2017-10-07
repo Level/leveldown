@@ -121,9 +121,9 @@ The following options are for advanced performance tuning. Modify them only if y
 ### leveldown#put(key, value[, options], callback)
 <code>put()</code> is an instance method on an existing database object, used to store new entries, or overwrite existing entries in the LevelDB store.
 
-The `key` and `value` objects may either be `String`s or Node.js `Buffer` objects. Other object types are converted to JavaScript `String`s with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values of `null`, `undefined`, `''`, `[]` and `new Buffer(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `new Buffer(0)` depending on the type requested.
+The `key` and `value` objects may either be strings or Buffers. Other object types are converted to strings with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values of `null`, `undefined`, `''`, `[]` and `new Buffer(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `new Buffer(0)` depending on the type requested.
 
-A richer set of data-types are catered for in `levelup`.
+A richer set of data-types is catered for in `levelup`.
 
 #### `options`
 
@@ -137,7 +137,7 @@ The `callback` function will be called with no arguments if the operation is suc
 ### leveldown#get(key[, options], callback)
 <code>get()</code> is an instance method on an existing database object, used to fetch individual entries from the LevelDB store.
 
-The `key` object may either be a `String` or a Node.js `Buffer` object and cannot be `undefined` or `null`. Other object types are converted to JavaScript `String`s with the `toString()` method and the resulting `String` *may not* be a zero-length. A richer set of data-types are catered for in `levelup`.
+The `key` object may either be a string or a Buffer and cannot be `undefined` or `null`. Other object types are converted to strings with the `toString()` method and the resulting string *may not* be a zero-length. A richer set of data-types is catered for in `levelup`.
 
 Values fetched via `get()` that are stored as zero-length character arrays (`null`, `undefined`, `''`, `[]`, `new Buffer(0)`) will return as empty-`String` (`''`) or `new Buffer(0)` when fetched with `asBuffer: true` (see below).
 
@@ -147,9 +147,9 @@ The optional `options` object may contain:
 
 * `fillCache` *(boolean, default: `true`)*: LevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`.
 
-* `asBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `asBuffer: true` and you'll avoid this conversion cost.
+* `asBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `{ asBuffer: true }` and you'll avoid this conversion cost.
 
-The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a `String` or `Buffer` depending on the `asBuffer` option.
+The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a string or Buffer depending on the `asBuffer` option.
 
 
 --------------------------------------------------------
@@ -157,7 +157,7 @@ The `callback` function will be called with a single `error` if the operation fa
 ### leveldown#del(key[, options], callback)
 <code>del()</code> is an instance method on an existing database object, used to delete entries from the LevelDB store.
 
-The `key` object may either be a `String` or a Node.js `Buffer` object and cannot be `undefined` or `null`. Other object types are converted to JavaScript `String`s with the `toString()` method and the resulting `String` *may not* be a zero-length. A richer set of data-types are catered for in `levelup`.
+The `key` object may either be a string or a Buffer and cannot be `undefined` or `null`. Other object types are converted to strings with the `toString()` method and the resulting string *may not* be a zero-length. A richer set of data-types is catered for in `levelup`.
 
 #### `options`
 
@@ -187,7 +187,7 @@ The `callback` function will be called with no arguments if the operation is suc
 ### leveldown#approximateSize(start, end, callback)
 <code>approximateSize()</code> is an instance method on an existing database object. Used to get the approximate number of bytes of file system space used by the range `[start..end)`. The result may not include recently written data.
 
-The `start` and `end` parameters may be either `String` or Node.js `Buffer` objects representing keys in the LevelDB store.
+The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store.
 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
@@ -197,7 +197,7 @@ The `callback` function will be called with no arguments if the operation is suc
 ### leveldown#compactRange(start, end, callback)
 <code>compactRange()</code> is an instance method on an existing database object. Used to manually trigger a database compaction in the range `[start..end)`.
 
-The `start` and `end` parameters may be either `String` or Node.js `Buffer` objects representing keys in the LevelDB store.
+The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store.
 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
@@ -241,9 +241,9 @@ The optional `options` object may contain:
 
 * `fillCache` *(boolean, default: `false`)*: whether LevelDB's LRU-cache should be filled with data read.
 
-* `keyAsBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `key` of each entry as a `String` or a Node.js `Buffer` object. Note that converting from a `Buffer` to a `String` incurs a cost so if you need a `String` (and the `value` can legitimately become a UTF8 string) then you should fetch it as one.
+* `keyAsBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `key` of each entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one.
 
-* `valueAsBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of each entry as a `String` or a Node.js `Buffer` object.
+* `valueAsBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of each entry as a string or a Buffer.
 
 
 --------------------------------------------------------
@@ -261,8 +261,8 @@ the `callback` function will be called with no arguments in any of the following
 Otherwise, the `callback` function will be called with the following 3 arguments:
 
 * `error` - any error that occurs while incrementing the iterator.
-* `key` - either a `String` or a Node.js `Buffer` object depending on the `keyAsBuffer` argument when the `iterator()` was called.
-* `value` - either a `String` or a Node.js `Buffer` object depending on the `valueAsBuffer` argument when the `iterator()` was called.
+* `key` - either a string or a Buffer depending on the `keyAsBuffer` argument when the `iterator()` was called.
+* `value` - either a string or a Buffer depending on the `valueAsBuffer` argument when the `iterator()` was called.
 
 
 --------------------------------------------------------
