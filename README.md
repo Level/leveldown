@@ -5,6 +5,7 @@ LevelDOWN
 
 **A Low-level Node.js LevelDB binding**
 
+[![level badge][level-badge]](https://github.com/level/awesome)
 ![Node version](https://img.shields.io/node/v/leveldown.svg)
 [![Build Status](https://secure.travis-ci.org/Level/leveldown.png)](http://travis-ci.org/Level/leveldown)
 [![AppVeyor build status](https://img.shields.io/appveyor/ci/Level/leveldown.svg)](https://ci.appveyor.com/project/Level/leveldown)
@@ -336,3 +337,5 @@ Copyright &copy; 2012-2017 **LevelDOWN** [contributors](https://github.com/level
 **LevelDOWN** is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included `LICENSE.md` file for more details.
 
 *LevelDOWN builds on the excellent work of the LevelDB and Snappy teams from Google and additional contributors. LevelDB and Snappy are both issued under the [New BSD Licence](http://opensource.org/licenses/BSD-3-Clause).*
+
+[level-badge]: http://leveldb.org/img/badge.svg
