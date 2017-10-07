@@ -6,12 +6,12 @@ LevelDOWN
 **A Low-level Node.js LevelDB binding**
 
 [![level badge][level-badge]](https://github.com/level/awesome)
+[![npm](https://img.shields.io/npm/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
 ![Node version](https://img.shields.io/node/v/leveldown.svg)
 [![Travis](https://img.shields.io/travis/Level/leveldown.svg?label=travis)](http://travis-ci.org/Level/leveldown)
 [![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?label=appveyor)](https://ci.appveyor.com/project/Level/leveldown)
 [![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown)
-
-[![NPM](https://nodei.co/npm/leveldown.png?stars&downloads&downloadRank)](https://nodei.co/npm/leveldown/) [![NPM](https://nodei.co/npm-dl/leveldown.png?months=6&height=3)](https://nodei.co/npm/leveldown/)
+[![npm](https://img.shields.io/npm/dm/leveldown.svg)](https://www.npmjs.com/package/leveldown)
 
 LevelDOWN was extracted from [LevelUP](https://github.com/level/levelup) and now serves as a stand-alone binding for LevelDB.
 
