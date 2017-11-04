@@ -145,7 +145,7 @@ The optional `options` object may contain:
 
 * `fillCache` *(boolean, default: `true`)*: LevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`.
 
-* `asBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `{ asBuffer: true }` and you'll avoid this conversion cost.
+* `asBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `{ asBuffer: false }` and you'll avoid this conversion cost.
 
 The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a string or Buffer depending on the `asBuffer` option.
 
