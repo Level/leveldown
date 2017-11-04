@@ -63,7 +63,7 @@ export interface LevelDownBatchOptions {
 }
 
 export interface LevelDownIterator extends AbstractIterator<BaseType, BaseType> {
-  seek(key: BaseType);
+  seek(key: BaseType): void;
   binding: any;
   cache: any;
   finished: any;
