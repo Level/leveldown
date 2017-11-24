@@ -4,7 +4,7 @@
         'ldbversion': '1.20'
     }
   , 'type': 'static_library'
-		# Overcomes an issue with the linker and thin .a files on SmartOS
+    # Overcomes an issue with the linker and thin .a files on SmartOS
   , 'standalone_static_library': 1
   , 'dependencies': [
         '../snappy/snappy.gyp:snappy'
@@ -142,10 +142,34 @@
                 ]
             }
         }]
+      , ['OS == "android"', {
+           'defines': [
+                'OS_ANDROID=1'
+              , '_REENTRANT=1'
+            ]
+          , 'libraries': [
+                '-lpthread'
+            ]
+          , 'ccflags': [
+                '-pthread',
+                '-fno-builtin-memcmp',
+                '-fexceptions'
+            ]
+          , 'cflags': [
+                '-fPIC'
+            ]
+          , 'cflags!': [
+                '-fno-exceptions'
+              , '-fPIE'
+              , '-mfloat-abi=hard'
+              , '-Wno-unused-but-set-variable'
+            ]
+          , 'cflags_cc!': [ '-fno-exceptions' ]
+        }]
       , ['target_arch == "arm"', {
             'cflags': [
-	        '-mfloat-abi=hard'
-	    ]
+          '-mfloat-abi=hard'
+      ]
         }]
     ]
   , 'sources': [
