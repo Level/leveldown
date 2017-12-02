@@ -6,11 +6,11 @@ test-data.db.tar
 deps/leveldb/leveldb-basho/
 deps/leveldb/leveldb-hyper/
 deps/leveldb/leveldb-rocksdb/
-deps/snappy/snappy-1.1.4/testdata/
+deps/snappy/snappy-*/testdata/
 leakydb
 bench/
 test/
-deps/leveldb/leveldb-1.20/doc/
+deps/leveldb/leveldb-*/doc/
 README
 INSTALL
 NEWS
