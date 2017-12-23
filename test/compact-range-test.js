@@ -35,3 +35,7 @@ test('test compactRange() frees disk space after key deletion', function (t) {
     });
   });
 });
+
+test('tearDown', function (t) {
+  db.close(testCommon.tearDown.bind(null, t));
+});
