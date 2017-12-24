@@ -1,5 +1,5 @@
 const test       = require('tape')
-    , leveldown  = require('../')
+    , leveldown  = require('..')
     , abstract   = require('abstract-leveldown/abstract/iterator-test')
     , make       = require('./make')
     , iota       = require('iota-array')

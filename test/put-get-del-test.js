@@ -1,5 +1,5 @@
 const test       = require('tape')
-    , leveldown  = require('../')
+    , leveldown  = require('..')
     , fs         = require('fs')
     , path       = require('path')
     , testBuffer = fs.readFileSync(path.join(__dirname, 'data/testdata.bin'))

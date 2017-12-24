@@ -1,7 +1,7 @@
 const test = require('tape')
 const testCommon = require('abstract-leveldown/testCommon')
 const cleanup = testCommon.cleanup
-const leveldown = require('../')
+const leveldown = require('..')
 
 function makeTest (name, testFn) {
   test(name, function (t) {
