@@ -53,6 +53,31 @@ LevelDOWN.prototype._batch = function (operations, options, callback) {
 }
 
 
+LevelDOWN.prototype.approximateSize = function (start, end, callback) {
+  if (start == null ||
+      end == null ||
+      typeof start === 'function' ||
+      typeof end === 'function') {
+    throw new Error('approximateSize() requires valid `start`, `end` and `callback` arguments')
+  }
+
+  if (typeof callback !== 'function') {
+    throw new Error('approximateSize() requires a callback argument')
+  }
+
+  start = this._serializeKey(start)
+  end = this._serializeKey(end)
+
+  if (typeof this._approximateSize === 'function') {
+    return this._approximateSize(start, end, callback)
+  }
+
+  process.nextTick(function () {
+    callback(null, 0)
+  })
+}
+
+
 LevelDOWN.prototype._approximateSize = function (start, end, callback) {
   this.binding.approximateSize(start, end, callback)
 }
