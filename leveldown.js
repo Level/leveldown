@@ -68,17 +68,6 @@ LevelDOWN.prototype.approximateSize = function (start, end, callback) {
   start = this._serializeKey(start)
   end = this._serializeKey(end)
 
-  if (typeof this._approximateSize === 'function') {
-    return this._approximateSize(start, end, callback)
-  }
-
-  process.nextTick(function () {
-    callback(null, 0)
-  })
-}
-
-
-LevelDOWN.prototype._approximateSize = function (start, end, callback) {
   this.binding.approximateSize(start, end, callback)
 }
 

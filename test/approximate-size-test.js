@@ -70,7 +70,7 @@ test('test custom _serialize*', function (t) {
   t.plan(4)
   var db = leveldown(testCommon.location())
   db._serializeKey = function (data) { return data }
-  db._approximateSize = function (start, end, callback) {
+  db.approximateSize = function (start, end, callback) {
     t.deepEqual(start, { foo: 'bar' })
     t.deepEqual(end, { beep: 'boop' })
     process.nextTick(callback)
