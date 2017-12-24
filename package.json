@@ -32,7 +32,7 @@
   "main": "leveldown.js",
   "typings": "leveldown.d.ts",
   "dependencies": {
-    "abstract-leveldown": "github:level/abstract-leveldown#close-dbs",
+    "abstract-leveldown": "github:level/abstract-leveldown#master",
     "bindings": "~1.3.0",
     "fast-future": "~1.0.2",
     "nan": "~2.8.0",
