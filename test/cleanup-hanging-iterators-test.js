@@ -1,5 +1,4 @@
 const test       = require('tape')
-    , testCommon = require('abstract-leveldown/testCommon')
     , leveldown  = require('../')
     , makeTest   = require('./make')
 

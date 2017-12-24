@@ -1,5 +1,4 @@
 const test       = require('tape')
-    , testCommon = require('abstract-leveldown/testCommon')
     , leveldown  = require('../')
     , abstract   = require('abstract-leveldown/abstract/iterator-test')
     , make       = require('./make')
@@ -7,7 +6,7 @@ const test       = require('tape')
     , lexi       = require('lexicographic-integer')
     , util       = require('util')
 
-abstract.all(leveldown, test, testCommon)
+abstract.all(leveldown, test)
 
 make('iterator throws if key is not a string or buffer', function (db, t, done) {
   var keys = [null, undefined, 1, true, false]

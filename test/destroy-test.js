@@ -3,7 +3,6 @@ const test         = require('tape')
     , path         = require('path')
     , mkfiletree   = require('mkfiletree')
     , readfiletree = require('readfiletree')
-    , testCommon   = require('abstract-leveldown/testCommon')
     , leveldown    = require('../')
     , makeTest     = require('./make')
 
