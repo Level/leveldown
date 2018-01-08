@@ -39,7 +39,7 @@
     "prebuild-install": "^2.1.0"
   },
   "devDependencies": {
-    "@types/node": "^8.0.31",
+    "@types/node": "^9.3.0",
     "async": "^2.0.1",
     "delayed": "~1.0.1",
     "du": "~0.1.0",
