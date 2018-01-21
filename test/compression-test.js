@@ -7,7 +7,7 @@ var async      = require('async')
   , du         = require('du')
   , delayed    = require('delayed')
   , common     = require('abstract-leveldown/testCommon')
-  , leveldown  = require('../')
+  , leveldown  = require('..')
   , test       = require('tape')
 
   , compressableData = new Buffer(Array.apply(null, Array(1024 * 100)).map(function () { return 'aaaaaaaaaa' }).join(''))

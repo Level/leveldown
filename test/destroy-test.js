@@ -3,8 +3,7 @@ const test         = require('tape')
     , path         = require('path')
     , mkfiletree   = require('mkfiletree')
     , readfiletree = require('readfiletree')
-    , testCommon   = require('abstract-leveldown/testCommon')
-    , leveldown    = require('../')
+    , leveldown    = require('..')
     , makeTest     = require('./make')
 
 test('test argument-less destroy() throws', function (t) {
