@@ -247,7 +247,7 @@
 
   * Upgrade from LevelDB@0.11.0 to LevelDB@0.14.0, includes change from .sst to .ldb file extension for SST files (@rvagg)
 
-## [0.8.2] - 2013-09-18
+## [0.8.3] - 2013-09-18
 
   * Upgrade to nan@0.4.0, better support for latest Node master & support for installing within directory structures containing spaces in directory names (@rvagg)
 
