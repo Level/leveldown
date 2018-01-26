@@ -1,6 +1,38 @@
-Note that we have filtered out commits related to new tags, updating changelog and we're also not listing any merge commits, i.e. we are only listing things that changed between versions.
+# Changelog
 
-### 1.5.0 September 27 2016
+## [Unreleased]
+
+## [2.1.1] - 2017-12-02
+
+## [2.1.0] - 2017-11-24
+
+## [2.0.2] - 2017-11-23
+
+## [2.0.1] - 2017-11-11
+
+## [2.0.0] - 2017-10-02
+
+## [1.9.0] - 2017-09-28
+
+## [1.8.0] - 2017-09-14
+
+## [1.7.2] - 2017-06-08
+
+## [1.7.1] - 2017-06-01
+
+## [1.7.0] - 2017-05-17
+
+## [1.7.0-0] - 2017-04-12
+
+## [1.6.0] - 2017-02-02
+
+## [1.5.3] - 2016-12-30
+
+## [1.5.2] - 2016-12-29
+
+## [1.5.1] - 2016-12-27
+
+## [1.5.0] - 2016-09-27
 
 * [[`a3fe375834`](https://github.com/level/leveldown/commit/a3fe375834)] - bump dependencies (Lars-Magnus Skog)
 * [[`c02a3ad9e7`](https://github.com/level/leveldown/commit/c02a3ad9e7)] - chmod 644 leveldown dep (Julian Gruber)
@@ -10,12 +42,12 @@ Note that we have filtered out commits related to new tags, updating changelog a
 * [[`a39c3ea3f3`](https://github.com/level/leveldown/commit/a39c3ea3f3)] - remove deleted file from leveldb.gyp (Julian Gruber)
 * [[`a8b9f009c4`](https://github.com/level/leveldown/commit/a8b9f009c4)] - import leveldb-1.19 and point bindings file to it (Julian Gruber)
 
-### 1.4.6 April 29 2016
+## [1.4.6] - 2016-04-29
 
 * [[`267586b02b`](https://github.com/level/leveldown/commit/267586b02b)] - bump nan to 2.3.0 to remove deprecated calls (Lars-Magnus Skog)
 * [[`1ef0452f81`](https://github.com/level/leveldown/commit/1ef0452f81)] - add node 6 to travis (Lars-Magnus Skog)
 
-### 1.4.5 April 18 2016
+## [1.4.5] - 2016-04-18
 
 * [[`df2b52217b`](https://github.com/level/leveldown/commit/df2b52217b)] - steal chjjs script for checking memory consumption (Lars-Magnus Skog)
 * [[`b86e72bc76`](https://github.com/level/leveldown/commit/b86e72bc76)] - delete calls. (Christopher Jeffrey)
@@ -33,7 +65,7 @@ Note that we have filtered out commits related to new tags, updating changelog a
 * [[`fa9fe64cd8`](https://github.com/level/leveldown/commit/fa9fe64cd8)] - chore(package): update prebuild to version 3.0.0 (greenkeeperio-bot)
 * [[`2ae07c3b2c`](https://github.com/level/leveldown/commit/2ae07c3b2c)] - repair error is different on windows (Lars-Magnus Skog)
 
-### 1.4.4 January 1 2016
+## [1.4.4] - 2016-01-25
 
 * [[`63d9dfc4f9`](https://github.com/level/leveldown/commit/63d9dfc4f9)] - Fixes #247 (Oguz Bastemur)
 * [[`6566032b2e`](https://github.com/level/leveldown/commit/6566032b2e)] - chore(package): update nan to version 2.2.0 (greenkeeperio-bot)
@@ -43,7 +75,9 @@ Note that we have filtered out commits related to new tags, updating changelog a
 * [[`9af352465b`](https://github.com/level/leveldown/commit/9af352465b)] - chore(package): update rimraf to version 2.5.0 (greenkeeperio-bot)
 * [[`c858adc32a`](https://github.com/level/leveldown/commit/c858adc32a)] - chore(package): update tape to version 4.3.0 (greenkeeperio-bot)
 
-### 1.4.3 December 14 2015
+## [0.10.6] - 2016-01-07
+
+## [1.4.3] - 2015-12-14
 
 * [[`3303be2f5d`](https://github.com/level/leveldown/commit/3303be2f5d)] - bump dependencies (Lars-Magnus Skog)
 * [[`fc46cdc81f`](https://github.com/level/leveldown/commit/fc46cdc81f)] - add dependency badge (Lars-Magnus Skog)
@@ -52,7 +86,7 @@ Note that we have filtered out commits related to new tags, updating changelog a
 * [[`173454a31e`](https://github.com/level/leveldown/commit/173454a31e)] - test on node 5 (Lars-Magnus Skog)
 * [[`369352d0a8`](https://github.com/level/leveldown/commit/369352d0a8)] - prebuild abi 47 (node 5.0) (Lars-Magnus Skog)
 
-### 1.4.2 October 21 2015
+## [1.4.2] - 2015-10-21
 
 * [[`8f81825384`](https://github.com/level/leveldown/commit/8f81825384)] - test on latest node versions (Lars-Magnus Skog)
 * [[`7d85c74057`](https://github.com/level/leveldown/commit/7d85c74057)] - require at start, not later (Tim Kuijsten)
@@ -63,7 +97,7 @@ Note that we have filtered out commits related to new tags, updating changelog a
 * [[`0f6a776639`](https://github.com/level/leveldown/commit/0f6a776639)] - update prebuild for --strip functionality (Lars-Magnus Skog)
 * [[`372c09c768`](https://github.com/level/leveldown/commit/372c09c768)] - add @kkoopa's travis fix (Mathias Buus)
 
-### 1.4.1 August 15 2015
+## [1.4.1] - 2015-08-15
 
 * [[`3d9d73ff64`](https://github.com/level/leveldown/commit/3d9d73ff64)] - add abi 45 to prebuild (Mathias Buus)
 * [[`2bc173b08d`](https://github.com/level/leveldown/commit/2bc173b08d)] - add iojs 3.0 to travis (Mathias Buus)
@@ -72,7 +106,7 @@ Note that we have filtered out commits related to new tags, updating changelog a
 * [[`b7272db9f1`](https://github.com/level/leveldown/commit/b7272db9f1)] - upgrade to NAN v2 (Rod Vagg)
 * [[`15e01d4c6d`](https://github.com/level/leveldown/commit/15e01d4c6d)] - update prebuild (LM)
 
-### 1.4.0 July 28 2015
+## [1.4.0] - 2015-07-28
 
 * [[`8b6c3cf37e`](https://github.com/level/leveldown/commit/8b6c3cf37e)] - add .prebuildrc, update travis and prebuild, add prebuild npm script (LM)
 * [[`c580c36271`](https://github.com/level/leveldown/commit/c580c36271)] - clean up (LM)
@@ -82,17 +116,19 @@ Note that we have filtered out commits related to new tags, updating changelog a
 * [[`269c77e5bc`](https://github.com/level/leveldown/commit/269c77e5bc)] - node-pre-gyp should build binaries on travis (LM)
 * [[`da1d679540`](https://github.com/level/leveldown/commit/da1d679540)] - Remove hash_test.cc source (Michael Nisi)
 
-### 1.3.0 June 16 2015
+## [1.3.1-0] - 2015-07-20
+
+## [1.3.0] - 2015-06-16
 
 * [[`9ed4d812bc`](https://github.com/level/leveldown/commit/9ed4d812bc)] - Added LEVELDB_PLATFORM_UV to LevelDB port.h to fix test. (Braydon Fuller)
 * [[`f9fa2c06b0`](https://github.com/level/leveldown/commit/f9fa2c06b0)] - Upgrade leveldb to 1.18.0 (Braydon Fuller)
 * [[`8a57fab2f8`](https://github.com/level/leveldown/commit/8a57fab2f8)] - build for for all different ABI versions (Lars-Magnus Skog)
 
-### 1.2.2 June 2 2015
+## [1.2.2] - 2015-06-02
 
 * [[`405a303c3b`](https://github.com/level/leveldown/commit/405a303c3b)] - ignore build-pre-gyp/ folder when publishing to npm (Lars-Magnus Skog)
 
-### 1.2.1 June 2 2015
+## [1.2.1] - 2015-06-01
 
 * [[`ddcc9ce303`](https://github.com/level/leveldown/commit/ddcc9ce303)] - Merge pull request #188 from ralphtheninja/prebuilt (Lars-Magnus Skog)
 * [[`25d5f6206a`](https://github.com/level/leveldown/commit/25d5f6206a)] - use remote_path with node-pre-gyp to dodge preparing package.json every time (Lars-Magnus Skog)
@@ -100,18 +136,18 @@ Note that we have filtered out commits related to new tags, updating changelog a
 * [[`ec81d77746`](https://github.com/level/leveldown/commit/ec81d77746)] - use node-gyp-install to make sure correct node-gyp headers are downloaded (Lars-Magnus Skog)
 * [[`245b54a4e6`](https://github.com/level/leveldown/commit/245b54a4e6)] - prepare v1.2.1 (Lars-Magnus Skog)
 
-### 1.2.0 June 1 2015
+## [1.2.0] - 2015-06-01
 
 * [[`a134de131d`](https://github.com/level/leveldown/commit/a134de131d)] - minor changes based on pr review (Mathias Buus)
 * [[`8ded32b8d3`](https://github.com/level/leveldown/commit/8ded32b8d3)] - added iterator.seek() (Mathias Buus)
 * [[`aa982df780`](https://github.com/level/leveldown/commit/aa982df780)] - change NOTICE to Prebuilt binaries section (Lars-Magnus Skog)
 * [[`79412de76f`](https://github.com/level/leveldown/commit/79412de76f)] - solved conflict and updated leveldown-prebuilt to leveldown (Lars-Magnus Skog)
 
-### 1.1.0 May 28 2015
+## [1.1.0] - 2015-05-28
 
 * [[`d5da7fa357`](https://github.com/level/leveldown/commit/d5da7fa357)] - upgrade abstract-leveldown, mainly for .status (Julian Gruber)
 
-### 1.0.7 May 27 2015
+## [1.0.7] - 2015-05-27
 
  * [[`61398a0056`](https://github.com/level/leveldown/commit/61398a0056)] - link to level/community (Lars-Magnus Skog)
  * [[`382a1a7fa3`](https://github.com/level/leveldown/commit/382a1a7fa3)] - add compression test suite (Julian Gruber)
@@ -125,21 +161,26 @@ Note that we have filtered out commits related to new tags, updating changelog a
  * [[`f70b6576e7`](https://github.com/level/leveldown/commit/f70b6576e7)] - update .travis.yml (nvm works on travis now) (Lars-Magnus Skog)
  * [[`007550e7f7`](https://github.com/level/leveldown/commit/007550e7f7)] - 1.0.6 (Lars-Magnus Skog)
 
-### 1.0.5/1.0.6 May 5 2015
+## [1.0.6] - 2015-05-05
+
+## [0.10.5] - 2015-05-05
+
+## [1.0.5] - 2015-05-05
 
 * [[`9064099fe7`](https://github.com/level/leveldown/commit/9064099fe7)] - pass db to abstractIterator so gc keeps it (Julian Gruber)
 
-### 1.0.4 May 5 2015
+## [1.0.4] - 2015-05-05
 
  * [[`b550c98291`](https://github.com/level/leveldown/commit/b550c98291)] - update nan for iojs 2.0.0 (Lars-Magnus Skog)
 
-### 1.0.3 May 2 2015
+## [1.0.3] - 2015-05-02
 
  * [[`82479b689f`](https://github.com/level/leveldown/commit/82479b689f)] - tap -> tape + faucet (Lars-Magnus Skog)
  * [[`ca9101542a`](https://github.com/level/leveldown/commit/ca9101542a)] - fix write-random.js, use leveldown instead of lmdb (Lars-Magnus Skog)
  * [[`03fbbfb99f`](https://github.com/level/leveldown/commit/03fbbfb99f)] - fix bench/db-bench.js (Lars-Magnus Skog)
 
-### 1.0.2 Apr 26 2015
+## [1.0.2] - 2015-04-26
+
   * [[`8470a63678`](https://github.com/level/leveldown/commit/8470a63678)] - s/rvagg\/node-/level\// (Lars-Magnus Skog)
   * [[`9cbf592bea`](https://github.com/level/leveldown/commit/9cbf592bea)] - add documentation about snapshots (Max Ogden)
   * [[`b57827cd29`](https://github.com/level/leveldown/commit/b57827cd29)] - use n instead of nvm for working iojs support (Lars-Magnus Skog)
@@ -147,11 +188,17 @@ Note that we have filtered out commits related to new tags, updating changelog a
   * [[`95ccdf0850`](https://github.com/level/leveldown/commit/95ccdf0850)] - update logo and copyright (Lars-Magnus Skog)
   * [[`09e89d7abb`](https://github.com/level/leveldown/commit/09e89d7abb)] - updated my email (ralphtheninja)
 
-### 1.0.1 Jan 16 2015
+## [0.10.4] - 2015-02-07
+
+## [0.10.3] - 2015-02-07
+
+## [1.0.1] - 2015-01-16
+
   * [[`6df3ecd6f5`](https://github.com/level/leveldown/commit/6df3ecd6f5)] - nan 1.5 for io.js support (Rod Vagg)
   * [[`5198231a88`](https://github.com/level/leveldown/commit/5198231a88)] - Fix LevelDB builds for modern gcc versions (Sharvil Nanavati)
 
-### 1.0.0 Aug 26 2014
+## [1.0.0] - 2014-08-26
+
   * NAN@1.3 for Node 0.11.13+ support (@rvagg)
   * Allow writing empty values: null, undefined, '', [] and Buffer(0). Entries come out as '' or Buffer(0) (@ggreer, @juliangruber, @rvagg)
   * Fix clang build (@thlorenz)
@@ -162,16 +209,16 @@ Note that we have filtered out commits related to new tags, updating changelog a
   * Remove compile option that borked EL5 compiles
   * Switch to plain MIT license
 
-### 0.10.2 @ Nov 30 2013
+## [0.10.2] - 2013-11-30
 
   * Apply fix by @rescrv for long-standing OSX corruption bug, https://groups.google.com/forum/#!topic/leveldb/GXhx8YvFiig (@rvagg / @rescrv)
 
-### 0.10.1 @ Nov 21 2013
+## [0.10.1] - 2013-11-21
 
   * NAN@0.6 for Node@0.11.6 support, v8::Local<T>::New(val) rewritten to
     NanNewLocal<T>(val) (@rvagg)
 
-### 0.10.0 @ Nov 18 2013
+## [0.10.0] - 2013-11-18
 
   * Fix array-batch memory leak, levelup/#171 (@rvagg)
   * Fix chained-batch write() segfaults, details in #73, (@rvagg and
@@ -188,99 +235,103 @@ Note that we have filtered out commits related to new tags, updating changelog a
   * Upgrade to AbstractLevelDOWN@0.11.x for testing (@rvagg)
   * Add new simple batch() leak tester (@rvagg)
 
-### 0.9.2 @ Nov 02 2013
+## [0.9.2] - 2013-11-02
 
   * Minor fixes to support Node 0.11.8 and new Linux gcc (warnings) (@rvagg)
 
-### 0.9.1 @ Oct 03 2013
+## [0.9.1] - 2013-10-03
 
   * Include port_uv.h for Windows compile, added test to suite to make sure this happens every time LevelDB is upgraded (@rvagg)
 
-### 0.9.0 @ Oct 01 2013
+## [0.9.0] - 2013-10-01
 
   * Upgrade from LevelDB@0.11.0 to LevelDB@0.14.0, includes change from .sst to .ldb file extension for SST files (@rvagg)
 
-### 0.8.3 @ Sept 18 2013
+## [0.8.2] - 2013-09-18
 
   * Upgrade to nan@0.4.0, better support for latest Node master & support for installing within directory structures containing spaces in directory names (@rvagg)
 
-### 0.8.2 @ Sept 2 2013
+## [0.8.2] - 2013-09-01
 
   * FreeBSD support (@rvagg, @kelexel)
 
-### 0.8.1 @ Sept 1 2013
+## [0.8.1] - 2013-09-01
 
   * Fixed some minor V8-level leaks (@rvagg)
 
-### 0.8.0 @ Aug 19 2013
+## [0.8.0] - 2013-08-26
 
   * Added `gt`, `lt`, `gte`, `lte` for iterators (@dominictarr)
   * Switch to NAN as an npm dependency (@rvagg)
 
-### 0.7.0 @ Aug 11 2013
+## [0.7.0] - 2013-08-11
 
   * Added @pgte to contributors list
   * (very) Minor perf improvements in C++ (@mscdex)
   * Use NAN <https://github.com/rvagg/nan> for Node 0.8->0.11 compatibility
 
-### 0.6.2 @ Jul 07 2013
+## [0.6.2] - 2013-07-07
 
   * Compatibility for Node 0.11.3, breaks compatibility with 0.11.2
 
-### 0.6.1 @ Jun 15 2013
+## [0.6.1] - 2013-06-15
 
   * Fix broken Windows compile, apply port-uv patch to LevelDB's port.h (@rvagg)
 
-### 0.6.0 @ Jun 14 2013
+## [0.6.0] - 2013-06-14
 
   * Upgrade to LevelDB 1.11.0, some important bugfixes: https://groups.google.com/forum/#!topic/leveldb/vS1JvmGlp4E
 
-### 0.5.0 @ May 18 2013
+## [0.2.4] - 2013-05-21
+
+## [0.5.0] - 2013-05-21
 
   * Bumped major version for db.getProperty() addition (should have been done in 0.4.4) (@rvagg)
   * Disallow batch() operations after a write() (@rvagg)
 
-### 0.4.4 @ May 18 2013
+## [0.4.4] - 2013-05-18
 
   * db.getProperty() implemented, see README for details (@rvagg)
   * More work on memory management, including late-creation of Persistent handles (@rvagg)
 
-### 0.4.3 @ May 18 2013
+## [0.4.3] - 2013-05-18
 
   * Better memory leak fix (@rvagg)
 
-### 0.2.2 @ May 17 2013
+## [0.2.3] - 2013-05-17
 
   * BACKPORT memory leak fixes (@rvagg)
 
-### 0.4.2 @ May 17 2013
+## [0.4.2] - 2013-05-17
 
   * Same memory leak fixes as 0.4.1, properly applied to batch() operations too (@rvagg)
 
-### 0.4.1 @ May 17 2013
+## [0.4.1] - 2013-05-17
 
   * Fix memory leak caused when passing String objects in as keys and values, conversion to Slice created new char[] but wasn't being disposed. Buffers are automatically disposed. (@rvagg, reported by @kylegetson levelup/#140)
 
-### 0.4.0 @ May 15 2013
+## [0.4.0] - 2013-05-15
 
   * Upgrade to LevelDB 1.10.0, fairly minor changes, mostly bugfixes see https://groups.google.com/forum/#!topic/leveldb/O2Zdbi9Lrao for more info (@rvagg)
 
-### 0.3.1 @ May 14 2013
+## [0.3.1] - 2013-05-14
 
   * Don't allow empty batch() operations through to LevelDB, on chained of array forms (@rvagg)
 
-### 0.3.0 (& 0.2.2) @ May 14 2013
+## [0.3.0] - 2013-05-14
 
   * Pull API tests up into AbstractLevelDOWN, require it to run the tests. AbstractLevelDOWN can now be used to test LevelDOWN-compliant APIs. (@maxogden)
   * Change Iterator methods to return errors on the callbacks rather than throw (@mcollina & @rvagg)
 
-0.2.1 @ Apr 8 2013
-==================
+## [0.2.2] - 2013-05-14
+
+## [0.2.1] - 2013-04-08
+
   * Start on correct value when reverse=true, also handle end-of-store case #27 (@kesla)
   * Ignore empty string/buffer start/end options on iterators (@kesla)
   * Macro cleanup, replace some with static inline functions (@rvagg)
 
-### 0.2.0 @ Mar 30 2013
+## [0.2.0] - 2013-03-30
 
   * Windows support--using a combination of libuv and Windows-specific code. See README for details about what's required (@rvagg)
   * leveldown.destroy(location, callback) to delete an existing LevelDB store, exposes LevelDB.DestroyDB() (@rvagg)
@@ -290,24 +341,24 @@ Note that we have filtered out commits related to new tags, updating changelog a
   * auto-cleanup iterators that are left open when you close a database; any iterators left open when you close a database instance will kill your process so we now keep track of iterators and auto-close them before a db.close completes.
   * Node 0.11 support (no compile warnings)
 
-### 0.1.4 @ Mar 11 2013
+## 0.1.4 @ Mar 11 2013
 
   * return error when batch ops contain null or undefined (@rvagg / @ralphtheninja / @dominictarr) (additional tests in LevelUP for this)
 
-0.1.3 @ Mar 9 2013
-==================
+## [0.1.3] - 2013-03-09
+
   * add 'standalone_static_library':1 in dependency gyp files to fix SmartOS build problems (@wolfeidau)
 
-### 0.1.2 @ Jan 25 2013
+## [0.1.2] - 2013-02-24
 
   * upgrade to LevelDB 1.9.0, fairly minor changes since 1.7.0 (@rvagg)
   * upgrade to Snappy 1.1.0, changes block size to improve compression ~3%, slight decrease in speed (@rvagg)
 
-### 0.1.1 @ Jan 25 2013
+## [0.1.1] - 2013-02-24
 
   * compile error on Mac OS (@kesla / @rvagg)
 
-### 0.1.0 @ Jan 24 2013
+## [0.1.0] - 2013-02-24
 
   * change API to export single function `levelup()` (@rvagg)
   * move `createIterator()` to `levelup#iterator()` (@rvagg)
@@ -318,11 +369,13 @@ Note that we have filtered out commits related to new tags, updating changelog a
   * race condition in Iterator end()/next() fix, merged from LevelUP (@ralphtheninja / @rvagg)
   * add complete, independent test suite (@rvagg)
 
-### 0.0.1 & 0.0.2 @ Jan 2013
+## [0.0.2] - 2013-01-20
 
   * finalise rename of internal components to LevelDOWN, removing LevelUP references (@rvagg)
   * complete documentation of current API (@rvagg)
 
-### 0.0.0 @ Jan 06 2013
+## [0.0.1] - 2013-01-20
+
+## 0.0.0 - 2013-01-06
 
   * extracted from LevelUP as stand-alone package (@rvagg)
