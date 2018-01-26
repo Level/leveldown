@@ -75,8 +75,6 @@
 * [[`9af352465b`](https://github.com/level/leveldown/commit/9af352465b)] - chore(package): update rimraf to version 2.5.0 (greenkeeperio-bot)
 * [[`c858adc32a`](https://github.com/level/leveldown/commit/c858adc32a)] - chore(package): update tape to version 4.3.0 (greenkeeperio-bot)
 
-## [0.10.6] - 2016-01-07
-
 ## [1.4.3] - 2015-12-14
 
 * [[`3303be2f5d`](https://github.com/level/leveldown/commit/3303be2f5d)] - bump dependencies (Lars-Magnus Skog)
@@ -163,8 +161,6 @@
 
 ## [1.0.6] - 2015-05-05
 
-## [0.10.5] - 2015-05-05
-
 ## [1.0.5] - 2015-05-05
 
 * [[`9064099fe7`](https://github.com/level/leveldown/commit/9064099fe7)] - pass db to abstractIterator so gc keeps it (Julian Gruber)
@@ -188,10 +184,6 @@
   * [[`95ccdf0850`](https://github.com/level/leveldown/commit/95ccdf0850)] - update logo and copyright (Lars-Magnus Skog)
   * [[`09e89d7abb`](https://github.com/level/leveldown/commit/09e89d7abb)] - updated my email (ralphtheninja)
 
-## [0.10.4] - 2015-02-07
-
-## [0.10.3] - 2015-02-07
-
 ## [1.0.1] - 2015-01-16
 
   * [[`6df3ecd6f5`](https://github.com/level/leveldown/commit/6df3ecd6f5)] - nan 1.5 for io.js support (Rod Vagg)
@@ -208,6 +200,14 @@
   * Minor memory leaks
   * Remove compile option that borked EL5 compiles
   * Switch to plain MIT license
+
+## [0.10.6] - 2016-01-07
+
+## [0.10.5] - 2015-05-05
+
+## [0.10.4] - 2015-02-07
+
+## [0.10.3] - 2015-02-07
 
 ## [0.10.2] - 2013-11-30
 
@@ -282,8 +282,6 @@
 
   * Upgrade to LevelDB 1.11.0, some important bugfixes: https://groups.google.com/forum/#!topic/leveldb/vS1JvmGlp4E
 
-## [0.2.4] - 2013-05-21
-
 ## [0.5.0] - 2013-05-21
 
   * Bumped major version for db.getProperty() addition (should have been done in 0.4.4) (@rvagg)
@@ -297,10 +295,6 @@
 ## [0.4.3] - 2013-05-18
 
   * Better memory leak fix (@rvagg)
-
-## [0.2.3] - 2013-05-17
-
-  * BACKPORT memory leak fixes (@rvagg)
 
 ## [0.4.2] - 2013-05-17
 
@@ -322,6 +316,12 @@
 
   * Pull API tests up into AbstractLevelDOWN, require it to run the tests. AbstractLevelDOWN can now be used to test LevelDOWN-compliant APIs. (@maxogden)
   * Change Iterator methods to return errors on the callbacks rather than throw (@mcollina & @rvagg)
+
+## [0.2.4] - 2013-05-21
+
+## [0.2.3] - 2013-05-17
+
+  * BACKPORT memory leak fixes (@rvagg)
 
 ## [0.2.2] - 2013-05-14
 
