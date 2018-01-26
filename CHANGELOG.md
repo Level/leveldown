@@ -341,7 +341,7 @@
   * auto-cleanup iterators that are left open when you close a database; any iterators left open when you close a database instance will kill your process so we now keep track of iterators and auto-close them before a db.close completes.
   * Node 0.11 support (no compile warnings)
 
-## 0.1.4 @ Mar 11 2013
+## [0.1.4] - 2013-03-11
 
   * return error when batch ops contain null or undefined (@rvagg / @ralphtheninja / @dominictarr) (additional tests in LevelUP for this)
 
