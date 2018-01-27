@@ -4,35 +4,115 @@
 
 ## [2.1.1] - 2017-12-02
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [2.1.0] - 2017-11-24
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 ## [2.0.2] - 2017-11-23
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [2.0.1] - 2017-11-11
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 ## [2.0.0] - 2017-10-02
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [1.9.0] - 2017-09-28
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 ## [1.8.0] - 2017-09-14
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [1.7.2] - 2017-06-08
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 ## [1.7.1] - 2017-06-01
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [1.7.0] - 2017-05-17
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 ## [1.7.0-0] - 2017-04-12
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [1.6.0] - 2017-02-02
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 ## [1.5.3] - 2016-12-30
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [1.5.2] - 2016-12-29
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 ## [1.5.1] - 2016-12-27
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [1.5.0] - 2016-09-27
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * [[`a3fe375834`](https://github.com/level/leveldown/commit/a3fe375834)] - bump dependencies (Lars-Magnus Skog)
 * [[`c02a3ad9e7`](https://github.com/level/leveldown/commit/c02a3ad9e7)] - chmod 644 leveldown dep (Julian Gruber)
@@ -44,10 +124,20 @@
 
 ## [1.4.6] - 2016-04-29
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 * [[`267586b02b`](https://github.com/level/leveldown/commit/267586b02b)] - bump nan to 2.3.0 to remove deprecated calls (Lars-Magnus Skog)
 * [[`1ef0452f81`](https://github.com/level/leveldown/commit/1ef0452f81)] - add node 6 to travis (Lars-Magnus Skog)
 
 ## [1.4.5] - 2016-04-18
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * [[`df2b52217b`](https://github.com/level/leveldown/commit/df2b52217b)] - steal chjjs script for checking memory consumption (Lars-Magnus Skog)
 * [[`b86e72bc76`](https://github.com/level/leveldown/commit/b86e72bc76)] - delete calls. (Christopher Jeffrey)
@@ -67,6 +157,11 @@
 
 ## [1.4.4] - 2016-01-25
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 * [[`63d9dfc4f9`](https://github.com/level/leveldown/commit/63d9dfc4f9)] - Fixes #247 (Oguz Bastemur)
 * [[`6566032b2e`](https://github.com/level/leveldown/commit/6566032b2e)] - chore(package): update nan to version 2.2.0 (greenkeeperio-bot)
 * [[`7535949bbf`](https://github.com/level/leveldown/commit/7535949bbf)] - use prebuild --install (Lars-Magnus Skog)
@@ -77,6 +172,11 @@
 
 ## [1.4.3] - 2015-12-14
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 * [[`3303be2f5d`](https://github.com/level/leveldown/commit/3303be2f5d)] - bump dependencies (Lars-Magnus Skog)
 * [[`fc46cdc81f`](https://github.com/level/leveldown/commit/fc46cdc81f)] - add dependency badge (Lars-Magnus Skog)
 * [[`f9d80f68c4`](https://github.com/level/leveldown/commit/f9d80f68c4)] - bump prebuild for --all functionality (Lars-Magnus Skog)
@@ -85,6 +185,11 @@
 * [[`369352d0a8`](https://github.com/level/leveldown/commit/369352d0a8)] - prebuild abi 47 (node 5.0) (Lars-Magnus Skog)
 
 ## [1.4.2] - 2015-10-21
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * [[`8f81825384`](https://github.com/level/leveldown/commit/8f81825384)] - test on latest node versions (Lars-Magnus Skog)
 * [[`7d85c74057`](https://github.com/level/leveldown/commit/7d85c74057)] - require at start, not later (Tim Kuijsten)
@@ -97,6 +202,11 @@
 
 ## [1.4.1] - 2015-08-15
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 * [[`3d9d73ff64`](https://github.com/level/leveldown/commit/3d9d73ff64)] - add abi 45 to prebuild (Mathias Buus)
 * [[`2bc173b08d`](https://github.com/level/leveldown/commit/2bc173b08d)] - add iojs 3.0 to travis (Mathias Buus)
 * [[`ff8a40b378`](https://github.com/level/leveldown/commit/ff8a40b378)] - Merge pull request #195 from Level/iojs-v3-nan-next (Mathias Buus)
@@ -105,6 +215,11 @@
 * [[`15e01d4c6d`](https://github.com/level/leveldown/commit/15e01d4c6d)] - update prebuild (LM)
 
 ## [1.4.0] - 2015-07-28
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * [[`8b6c3cf37e`](https://github.com/level/leveldown/commit/8b6c3cf37e)] - add .prebuildrc, update travis and prebuild, add prebuild npm script (LM)
 * [[`c580c36271`](https://github.com/level/leveldown/commit/c580c36271)] - clean up (LM)
@@ -116,7 +231,17 @@
 
 ## [1.3.1-0] - 2015-07-20
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [1.3.0] - 2015-06-16
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * [[`9ed4d812bc`](https://github.com/level/leveldown/commit/9ed4d812bc)] - Added LEVELDB_PLATFORM_UV to LevelDB port.h to fix test. (Braydon Fuller)
 * [[`f9fa2c06b0`](https://github.com/level/leveldown/commit/f9fa2c06b0)] - Upgrade leveldb to 1.18.0 (Braydon Fuller)
@@ -124,9 +249,19 @@
 
 ## [1.2.2] - 2015-06-02
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 * [[`405a303c3b`](https://github.com/level/leveldown/commit/405a303c3b)] - ignore build-pre-gyp/ folder when publishing to npm (Lars-Magnus Skog)
 
 ## [1.2.1] - 2015-06-01
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * [[`ddcc9ce303`](https://github.com/level/leveldown/commit/ddcc9ce303)] - Merge pull request #188 from ralphtheninja/prebuilt (Lars-Magnus Skog)
 * [[`25d5f6206a`](https://github.com/level/leveldown/commit/25d5f6206a)] - use remote_path with node-pre-gyp to dodge preparing package.json every time (Lars-Magnus Skog)
@@ -136,6 +271,11 @@
 
 ## [1.2.0] - 2015-06-01
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 * [[`a134de131d`](https://github.com/level/leveldown/commit/a134de131d)] - minor changes based on pr review (Mathias Buus)
 * [[`8ded32b8d3`](https://github.com/level/leveldown/commit/8ded32b8d3)] - added iterator.seek() (Mathias Buus)
 * [[`aa982df780`](https://github.com/level/leveldown/commit/aa982df780)] - change NOTICE to Prebuilt binaries section (Lars-Magnus Skog)
@@ -143,9 +283,19 @@
 
 ## [1.1.0] - 2015-05-28
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 * [[`d5da7fa357`](https://github.com/level/leveldown/commit/d5da7fa357)] - upgrade abstract-leveldown, mainly for .status (Julian Gruber)
 
 ## [1.0.7] - 2015-05-27
+
+### Added
+### Changed
+### Removed
+### Fixed
 
  * [[`61398a0056`](https://github.com/level/leveldown/commit/61398a0056)] - link to level/community (Lars-Magnus Skog)
  * [[`382a1a7fa3`](https://github.com/level/leveldown/commit/382a1a7fa3)] - add compression test suite (Julian Gruber)
@@ -161,23 +311,48 @@
 
 ## [1.0.6] - 2015-05-05
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 No changes in this release. Just a version bump.
 
 ## [1.0.5] - 2015-05-05
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * [[`9064099fe7`](https://github.com/level/leveldown/commit/9064099fe7)] - pass db to abstractIterator so gc keeps it (Julian Gruber)
 
 ## [1.0.4] - 2015-05-05
 
+### Added
+### Changed
+### Removed
+### Fixed
+
  * [[`b550c98291`](https://github.com/level/leveldown/commit/b550c98291)] - update nan for iojs 2.0.0 (Lars-Magnus Skog)
 
 ## [1.0.3] - 2015-05-02
+
+### Added
+### Changed
+### Removed
+### Fixed
 
  * [[`82479b689f`](https://github.com/level/leveldown/commit/82479b689f)] - tap -> tape + faucet (Lars-Magnus Skog)
  * [[`ca9101542a`](https://github.com/level/leveldown/commit/ca9101542a)] - fix write-random.js, use leveldown instead of lmdb (Lars-Magnus Skog)
  * [[`03fbbfb99f`](https://github.com/level/leveldown/commit/03fbbfb99f)] - fix bench/db-bench.js (Lars-Magnus Skog)
 
 ## [1.0.2] - 2015-04-26
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * [[`8470a63678`](https://github.com/level/leveldown/commit/8470a63678)] - s/rvagg\/node-/level\// (Lars-Magnus Skog)
   * [[`9cbf592bea`](https://github.com/level/leveldown/commit/9cbf592bea)] - add documentation about snapshots (Max Ogden)
@@ -188,10 +363,20 @@ No changes in this release. Just a version bump.
 
 ## [1.0.1] - 2015-01-16
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * [[`6df3ecd6f5`](https://github.com/level/leveldown/commit/6df3ecd6f5)] - nan 1.5 for io.js support (Rod Vagg)
   * [[`5198231a88`](https://github.com/level/leveldown/commit/5198231a88)] - Fix LevelDB builds for modern gcc versions (Sharvil Nanavati)
 
 ## [1.0.0] - 2014-08-26
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * NAN@1.3 for Node 0.11.13+ support (@rvagg)
   * Allow writing empty values: null, undefined, '', [] and Buffer(0). Entries come out as '' or Buffer(0) (@ggreer, @juliangruber, @rvagg)
@@ -205,25 +390,60 @@ No changes in this release. Just a version bump.
 
 ## [0.10.6] - 2016-01-07
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [0.10.5] - 2015-05-05
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [0.10.4] - 2015-02-07
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 No changes in this release. Just a version bump.
 
 ## [0.10.3] - 2015-02-07
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [0.10.2] - 2013-11-30
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Apply fix by @rescrv for long-standing OSX corruption bug, https://groups.google.com/forum/#!topic/leveldb/GXhx8YvFiig (@rvagg / @rescrv)
 
 ## [0.10.1] - 2013-11-21
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * NAN@0.6 for Node@0.11.6 support, v8::Local<T>::New(val) rewritten to NanNewLocal<T>(val) (@rvagg)
 
 **Historical Note** From this release and onward, tags in git start with the prefix `v`, i.e. this release corresponds to the tag `v0.10.1`.
 
 ## [0.10.0] - 2013-11-18
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Fix array-batch memory leak, levelup/#171 (@rvagg)
   * Fix chained-batch write() segfaults, details in #73, (@rvagg and
@@ -242,17 +462,37 @@ No changes in this release. Just a version bump.
 
 ## [0.9.2] - 2013-11-02
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * Minor fixes to support Node 0.11.8 and new Linux gcc (warnings) (@rvagg)
 
 ## [0.9.1] - 2013-10-03
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Include port_uv.h for Windows compile, added test to suite to make sure this happens every time LevelDB is upgraded (@rvagg)
 
 ## [0.9.0] - 2013-10-01
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * Upgrade from LevelDB@0.11.0 to LevelDB@0.14.0, includes change from .sst to .ldb file extension for SST files (@rvagg)
 
 ## [0.8.3] - 2013-09-18
+
+### Added
+### Changed
+### Removed
+### Fixed
 
 * Upgrade to nan@0.4.0, better support for latest Node master & support for installing within directory structures containing spaces in directory names (@rvagg)
 
@@ -260,18 +500,38 @@ No changes in this release. Just a version bump.
 
 ## [0.8.2] - 2013-09-01
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * FreeBSD support (@rvagg, @kelexel)
 
 ## [0.8.1] - 2013-09-01
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Fixed some minor V8-level leaks (@rvagg)
 
 ## [0.8.0] - 2013-08-26
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * Added `gt`, `lt`, `gte`, `lte` for iterators (@dominictarr)
   * Switch to NAN as an npm dependency (@rvagg)
 
 ## [0.7.0] - 2013-08-11
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Added @pgte to contributors list
   * (very) Minor perf improvements in C++ (@mscdex)
@@ -279,47 +539,102 @@ No changes in this release. Just a version bump.
 
 ## [0.6.2] - 2013-07-07
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * Compatibility for Node 0.11.3, breaks compatibility with 0.11.2
 
 ## [0.6.1] - 2013-06-15
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Fix broken Windows compile, apply port-uv patch to LevelDB's port.h (@rvagg)
 
 ## [0.6.0] - 2013-06-14
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * Upgrade to LevelDB 1.11.0, some important bugfixes: https://groups.google.com/forum/#!topic/leveldb/vS1JvmGlp4E
 
 ## [0.5.0] - 2013-05-21
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Bumped major version for db.getProperty() addition (should have been done in 0.4.4) (@rvagg)
   * Disallow batch() operations after a write() (@rvagg)
 
 ## [0.4.4] - 2013-05-18
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * db.getProperty() implemented, see README for details (@rvagg)
   * More work on memory management, including late-creation of Persistent handles (@rvagg)
 
 ## [0.4.3] - 2013-05-18
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * Better memory leak fix (@rvagg)
 
 ## [0.4.2] - 2013-05-17
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Same memory leak fixes as 0.4.1, properly applied to batch() operations too (@rvagg)
 
 ## [0.4.1] - 2013-05-17
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * Fix memory leak caused when passing String objects in as keys and values, conversion to Slice created new char[] but wasn't being disposed. Buffers are automatically disposed. (@rvagg, reported by @kylegetson levelup/#140)
 
 ## [0.4.0] - 2013-05-15
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Upgrade to LevelDB 1.10.0, fairly minor changes, mostly bugfixes see https://groups.google.com/forum/#!topic/leveldb/O2Zdbi9Lrao for more info (@rvagg)
 
 ## [0.3.1] - 2013-05-14
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * Don't allow empty batch() operations through to LevelDB, on chained of array forms (@rvagg)
 
 ## [0.3.0] - 2013-05-14
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Pull API tests up into AbstractLevelDOWN, require it to run the tests. AbstractLevelDOWN can now be used to test LevelDOWN-compliant APIs. (@maxogden)
   * Change Iterator methods to return errors on the callbacks rather than throw (@mcollina & @rvagg)
@@ -328,21 +643,46 @@ No changes in this release. Just a version bump.
 
 ## 0.2.4 - 2013-05-21
 
-Did not publish as a tag and `package.json` was never committed with this version number. Most likely due to a locally modified `package.json`.
+### Added
+### Changed
+### Removed
+### Fixed
+
+**Historical Note** Did not publish as a tag and `package.json` was never committed with this version number. Most likely due to a locally modified `package.json`.
 
 ## [0.2.3] - 2013-05-17
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * BACKPORT memory leak fixes (@rvagg)
 
 ## [0.2.2] - 2013-05-14
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## [0.2.1] - 2013-04-08
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Start on correct value when reverse=true, also handle end-of-store case #27 (@kesla)
   * Ignore empty string/buffer start/end options on iterators (@kesla)
   * Macro cleanup, replace some with static inline functions (@rvagg)
 
 ## [0.2.0] - 2013-03-30
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * Windows support--using a combination of libuv and Windows-specific code. See README for details about what's required (@rvagg)
   * leveldown.destroy(location, callback) to delete an existing LevelDB store, exposes LevelDB.DestroyDB() (@rvagg)
@@ -354,22 +694,47 @@ Did not publish as a tag and `package.json` was never committed with this versio
 
 ## [0.1.4] - 2013-03-11
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * return error when batch ops contain null or undefined (@rvagg / @ralphtheninja / @dominictarr) (additional tests in LevelUP for this)
 
 ## [0.1.3] - 2013-03-09
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * add 'standalone_static_library':1 in dependency gyp files to fix SmartOS build problems (@wolfeidau)
 
 ## [0.1.2] - 2013-02-24
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * upgrade to LevelDB 1.9.0, fairly minor changes since 1.7.0 (@rvagg)
   * upgrade to Snappy 1.1.0, changes block size to improve compression ~3%, slight decrease in speed (@rvagg)
 
 ## [0.1.1] - 2013-02-24
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * compile error on Mac OS (@kesla / @rvagg)
 
 ## [0.1.0] - 2013-02-24
+
+### Added
+### Changed
+### Removed
+### Fixed
 
   * change API to export single function `levelup()` (@rvagg)
   * move `createIterator()` to `levelup#iterator()` (@rvagg)
@@ -382,14 +747,24 @@ Did not publish as a tag and `package.json` was never committed with this versio
 
 ## [0.0.2] - 2013-01-20
 
+### Added
+### Changed
+### Removed
+### Fixed
+
   * finalise rename of internal components to LevelDOWN, removing LevelUP references (@rvagg)
   * complete documentation of current API (@rvagg)
 
 ## [0.0.1] - 2013-01-20
 
+### Added
+### Changed
+### Removed
+### Fixed
+
 ## 0.0.0 - 2013-01-06
 
-  * extracted from LevelUP as stand-alone package (@rvagg)
+First release. Extracted from `levelup` as a stand-alone package (@rvagg)
 
 [Unreleased]: https://github.com/level/leveldown/compare/v2.1.1...HEAD
 [2.1.1]: https://github.com/level/leveldown/compare/v2.1.0...v2.1.1
