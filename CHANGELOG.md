@@ -161,6 +161,8 @@
 
 ## [1.0.6] - 2015-05-05
 
+No changes in this release. Just a version bump.
+
 ## [1.0.5] - 2015-05-05
 
 * [[`9064099fe7`](https://github.com/level/leveldown/commit/9064099fe7)] - pass db to abstractIterator so gc keeps it (Julian Gruber)
@@ -207,6 +209,8 @@
 
 ## [0.10.4] - 2015-02-07
 
+No changes in this release. Just a version bump.
+
 ## [0.10.3] - 2015-02-07
 
 ## [0.10.2] - 2013-11-30
@@ -215,8 +219,9 @@
 
 ## [0.10.1] - 2013-11-21
 
-  * NAN@0.6 for Node@0.11.6 support, v8::Local<T>::New(val) rewritten to
-    NanNewLocal<T>(val) (@rvagg)
+* NAN@0.6 for Node@0.11.6 support, v8::Local<T>::New(val) rewritten to NanNewLocal<T>(val) (@rvagg)
+
+**Historical Note** From this release and onward, tags in git start with the prefix `v`, i.e. this release corresponds to the tag `v0.10.1`.
 
 ## [0.10.0] - 2013-11-18
 
@@ -249,7 +254,9 @@
 
 ## [0.8.3] - 2013-09-18
 
-  * Upgrade to nan@0.4.0, better support for latest Node master & support for installing within directory structures containing spaces in directory names (@rvagg)
+* Upgrade to nan@0.4.0, better support for latest Node master & support for installing within directory structures containing spaces in directory names (@rvagg)
+
+**Historical Note** The diff between this version and the previous shows `0.8.4` in the commit message, which is incorrect, since that version was never published.
 
 ## [0.8.2] - 2013-09-01
 
@@ -317,7 +324,11 @@
   * Pull API tests up into AbstractLevelDOWN, require it to run the tests. AbstractLevelDOWN can now be used to test LevelDOWN-compliant APIs. (@maxogden)
   * Change Iterator methods to return errors on the callbacks rather than throw (@mcollina & @rvagg)
 
-## [0.2.4] - 2013-05-21
+**Historical Note** In the early days minor versions were looked upon as major versions. Semver practices we use today was not adopted fully at this time. This is why the history might look a bit confusing.
+
+## 0.2.4 - 2013-05-21
+
+Did not publish as a tag and `package.json` was never committed with this version number. Most likely due to a locally modified `package.json`.
 
 ## [0.2.3] - 2013-05-17
 
