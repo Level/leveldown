@@ -176,7 +176,7 @@
 * `README` fixes (@ralphtheninja)
 
 ### Fixed
-* fix build build problems on windows https://github.com/Level/leveldown/issues/247 (@obastemur)
+* fix build problems on windows https://github.com/Level/leveldown/issues/247 (@obastemur)
 
 ## [1.4.3] - 2015-12-14
 
@@ -190,7 +190,7 @@
 * prebuild abi 47 (node 5.0) (@ralphtheninja)
 
 ### Fixed
-* fix build build problems on windows https://github.com/Level/leveldown/issues/196 (@obastemur)
+* fix build problems on windows https://github.com/Level/leveldown/issues/196 (@obastemur)
 
 ## [1.4.2] - 2015-10-21
 
@@ -213,7 +213,7 @@
 
 ### Changed
 * update `prebuild` (@ralphtheninja)
-* replace missing Handle<...> with Local<...> (@mafintosh)
+* replace missing `Handle<>` with `Local<>` (@mafintosh)
 * upgrade to `nan@2` (@rvagg)
 
 ## [1.4.0] - 2015-07-28
@@ -341,7 +341,7 @@
 * upgrade to `LevelDB@1.17.0` (@kesla)
 * allow writing empty values: null, undefined, '', [] and Buffer(0). Entries come out as '' or Buffer(0) (@ggreer, @juliangruber, @rvagg)
 * massive speed up of iterators by chunking reads (@kesla)
-* wrap in abstract-leveldown for consistent type-checking across *DOWNs (@kesla)
+* wrap in abstract-leveldown for consistent type-checking across \*DOWNs (@kesla)
 * switch to plain MIT license (@andrewrk)
 
 ### Removed
@@ -385,7 +385,7 @@
 ## [0.10.1] - 2013-11-21
 
 ### Changed
-* upgrade to `nan@0.6` for Node@0.11.6 support, v8::Local<T>::New(val) rewritten to NanNewLocal<T>(val) (@rvagg)
+* upgrade to `nan@0.6` for Node@0.11.6 support, `v8::Local<T>::New(val)` rewritten to `NanNewLocal<T>(val)` (@rvagg)
 
 **Historical Note** From this release and onward, tags in git start with the prefix `v`, i.e. this release corresponds to the tag `v0.10.1`.
 
@@ -505,7 +505,7 @@
 ## [0.4.1] - 2013-05-17
 
 ### Fixed
-* fix memory leak caused when passing String objects in as keys and values, conversion to Slice created new char[] but wasn't being disposed. Buffers are automatically disposed (reported by @kylegetson levelup/#140) (@rvagg)
+* fix memory leak caused when passing String objects in as keys and values, conversion to Slice created `new char[]` but wasn't being disposed. Buffers are automatically disposed (reported by @kylegetson levelup/#140) (@rvagg)
 
 ## [0.4.0] - 2013-05-15
 
