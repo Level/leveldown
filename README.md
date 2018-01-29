@@ -18,6 +18,8 @@ leveldown
   * <a href="#contributing">Contributing</a>
   * <a href="#license">Licence &amp; copyright</a>
 
+**If you are upgrading:** please see [UPGRADING.md](UPGRADING.md).
+
 <a name="intro"></a>
 Introduction
 ----------------------------
