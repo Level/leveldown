@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+## [3.0.0] - 2018-01-30
+
+### Changed
+* upgrade to `abstract-leveldown@4` (@ralphtheninja)
+* upgrade to `prebuild@7` (@ralphtheninja)
+* rewrite changelog (@ralphtheninja)
+
+### Fixed
+* make sure `destroy()` deletes `LevelDB`-only dir (@joyeecheung)
+
 ## [2.1.1] - 2017-12-02
 
 ### Fixed
@@ -634,7 +644,8 @@
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package (@rvagg)
 
-[Unreleased]: https://github.com/level/leveldown/compare/v2.1.1...HEAD
+[Unreleased]: https://github.com/level/leveldown/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/level/leveldown/compare/v2.1.1...v3.0.0
 [2.1.1]: https://github.com/level/leveldown/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/level/leveldown/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/level/leveldown/compare/v2.0.1...v2.0.2
