@@ -9,6 +9,9 @@
 * upgrade to `prebuild@7` (@ralphtheninja)
 * rewrite changelog (@ralphtheninja)
 
+### Removed
+* node 5 and 7 from travis (@ralphtheninja)
+
 ### Fixed
 * make sure `destroy()` deletes `LevelDB`-only dir (@joyeecheung)
 
