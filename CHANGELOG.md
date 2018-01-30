@@ -2,12 +2,12 @@
 
 ## [Unreleased]
 
-## [3.0.0] - 2018-01-29
+## [3.0.0] - 2018-01-30
 
 ### Changed
 * upgrade to `abstract-leveldown@4` (@ralphtheninja)
 * upgrade to `prebuild@7` (@ralphtheninja)
-* changelog rewrite (@ralphtheninja)
+* rewrite changelog (@ralphtheninja)
 
 ### Fixed
 * make sure `destroy()` deletes `LevelDB`-only dir (@joyeecheung)
