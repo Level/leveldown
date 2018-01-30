@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Removed
+* node 5 and 7 from appveyor (@ralphtheninja)
+
 ## [3.0.0] - 2018-01-30
 
 ### Changed
