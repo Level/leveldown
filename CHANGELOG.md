@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+* run `verify-travis-appveyor` as part of tests to ensure they are in sync (@ralphtheninja)
+
+### Changed
+* configure Greenkeeper to ignore updates to `@types/node` to reduce spam (@ralphtheninja)
+
 ### Removed
 * node 5 and 7 from appveyor (@ralphtheninja)
 
