@@ -4,12 +4,17 @@
 
 ### Added
 * run `verify-travis-appveyor` as part of tests to ensure they are in sync (@ralphtheninja)
+* test that `destroy()` doesn't inadvertently create the directory (@vweevers)
 
 ### Changed
 * configure Greenkeeper to ignore updates to `@types/node` to reduce spam (@ralphtheninja)
 
+### Fixed
+* handle all errors in destroy tests (@vweevers)
+
 ### Removed
 * node 5 and 7 from appveyor (@ralphtheninja)
+* remove `console.log()` from `approximate-size-test.js` (@vweevers)
 
 ## [3.0.0] - 2018-01-30
 
