@@ -68,15 +68,19 @@ test('test destroy non leveldb directory', function (t) {
       'foo': 'FOO'
     , 'bar': { 'one': 'ONE', 'two': 'TWO', 'three': 'THREE' }
   }
+
   mkfiletree.makeTemp('destroy-test', tree, function (err, dir) {
-    t.notOk(err, 'no error')
-    leveldown.destroy(dir, function () {
-      t.ok(arguments, 'no arguments')
+    t.ifError(err, 'no close error')
+
+    leveldown.destroy(dir, function (err) {
+      t.ifError(err, 'no destroy error')
+
       readfiletree(dir, function (err, actual) {
-        t.notOk(err, 'no error')
+        t.ifError(err, 'no read error')
         t.deepEqual(actual, tree, 'directory remains untouched')
+
         mkfiletree.cleanUp(function (err) {
-          t.notOk(err, 'no error')
+          t.ifError(err, 'no cleanup error')
           t.end()
         })
       })
@@ -86,9 +90,12 @@ test('test destroy non leveldb directory', function (t) {
 
 makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, done, location) {
   db.close(function (err) {
-    t.notOk(err, 'no error')
-    leveldown.destroy(location, function () {
+    t.ifError(err, 'no close error')
+
+    leveldown.destroy(location, function (err) {
+      t.ifError(err, 'no destroy error')
       t.notOk(fs.existsSync(location), 'directory completely removed')
+
       done(false)
     })
   })
@@ -96,11 +103,17 @@ makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, 
 
 makeTest('test destroy() cleans and removes only leveldb parts of a dir', function (db, t, done, location) {
   fs.writeFileSync(path.join(location, 'foo'), 'FOO')
+
   db.close(function (err) {
-    t.notOk(err, 'no error')
-    leveldown.destroy(location, function () {
+    t.ifError(err, 'no close error')
+
+    leveldown.destroy(location, function (err) {
+      t.ifError(err, 'no destroy error')
+
       readfiletree(location, function (err, tree) {
+        t.ifError(err, 'no read error')
         t.deepEqual(tree, { 'foo': 'FOO' }, 'non-leveldb files left intact')
+
         done(false)
       })
     })
