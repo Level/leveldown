@@ -1,8 +1,10 @@
 const test         = require('tape')
+    , testCommon   = require('abstract-leveldown/testCommon')
     , fs           = require('fs')
     , path         = require('path')
     , mkfiletree   = require('mkfiletree')
     , readfiletree = require('readfiletree')
+    , rimraf       = require('rimraf')
     , leveldown    = require('..')
     , makeTest     = require('./make')
 
@@ -24,10 +26,40 @@ test('test callback-less, 1-arg, destroy() throws', function (t) {
   t.end()
 })
 
-test('test destroy non-existant directory', function (t) {
-  leveldown.destroy('/1/2/3/4', function () {
-    t.equal(arguments.length, 0, 'no arguments returned on callback')
-    t.end()
+test('test destroy non-existent directory', function (t) {
+  t.plan(4)
+
+  var location = testCommon.location()
+  var parent = path.dirname(location)
+
+  // For symmetry with the opposite test below.
+  t.ok(fs.existsSync(parent), 'parent exists before')
+
+  // Cleanup to avoid conflicts with other tests
+  rimraf(location, { glob: false }, function (err) {
+    t.ifError(err, 'no rimraf error')
+
+    leveldown.destroy(location, function () {
+      t.is(arguments.length, 0, 'no arguments returned on callback')
+
+      // Assert that destroy() didn't inadvertently create the directory.
+      // Or if it did, that it was at least cleaned up afterwards.
+      t.notOk(fs.existsSync(location), 'directory does not exist after')
+    })
+  })
+})
+
+test('test destroy non-existent parent directory', function (t) {
+  t.plan(3)
+
+  var location = '/1/2/3/4'
+  var parent = path.dirname(location)
+
+  t.notOk(fs.existsSync(parent), 'parent does not exist before')
+
+  leveldown.destroy(location, function () {
+    t.is(arguments.length, 0, 'no arguments returned on callback')
+    t.notOk(fs.existsSync(location), 'directory does not exist after')
   })
 })
 
