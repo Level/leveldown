@@ -8,7 +8,6 @@ test('setUp common for approximate size', testCommon.setUp)
 
 test('setUp db', function (t) {
   db = leveldown(testCommon.location())
-  console.log('db', db)
   db.open(t.end.bind(t))
 })
 
