@@ -127,6 +127,20 @@
           , 'ccflags': [
                 '-pthread'
             ]
+        }]      
+      , ['OS == "ios"', {
+            'defines': [
+                'OS_IOS=1'
+            ]
+          , 'libraries': []
+          , 'ccflags': []
+          , 'xcode_settings': {
+                'WARNING_CFLAGS': [
+                    '-Wno-sign-compare'
+                  , '-Wno-unused-variable'
+                  , '-Wno-unused-function'
+                ]
+            }
         }]
       , ['OS == "mac"', {
             'defines': [
