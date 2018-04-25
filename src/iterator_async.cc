@@ -15,24 +15,22 @@ namespace leveldown {
 
 /** NEXT-MULTI WORKER **/
 
-NextWorker::NextWorker (
-    Iterator* iterator
-  , Nan::Callback *callback
-  , void (*localCallback)(Iterator*)
-) : AsyncWorker(NULL, callback)
-  , iterator(iterator)
-  , localCallback(localCallback)
-{};
+NextWorker::NextWorker(Iterator* iterator,
+                       Nan::Callback *callback,
+                       void (*localCallback)(Iterator*))
+  : AsyncWorker(NULL, callback, "leveldown:iterator.next"), iterator(iterator),
+    localCallback(localCallback)
+{}
 
-NextWorker::~NextWorker () {}
+NextWorker::~NextWorker() {}
 
-void NextWorker::Execute () {
+void NextWorker::Execute() {
   ok = iterator->IteratorNext(result);
   if (!ok)
     SetStatus(iterator->IteratorStatus());
 }
 
-void NextWorker::HandleOKCallback () {
+void NextWorker::HandleOKCallback() {
   Nan::HandleScope scope;
   size_t idx = 0;
 
@@ -79,20 +77,17 @@ void NextWorker::HandleOKCallback () {
 
 /** END WORKER **/
 
-EndWorker::EndWorker (
-    Iterator* iterator
-  , Nan::Callback *callback
-) : AsyncWorker(NULL, callback)
-  , iterator(iterator)
-{};
+EndWorker::EndWorker(Iterator* iterator, Nan::Callback *callback)
+  : AsyncWorker(NULL, callback, "leveldown:iterator.end"), iterator(iterator)
+{}
 
-EndWorker::~EndWorker () { }
+EndWorker::~EndWorker() {}
 
-void EndWorker::Execute () {
+void EndWorker::Execute() {
   iterator->IteratorEnd();
 }
 
-void EndWorker::HandleOKCallback () {
+void EndWorker::HandleOKCallback() {
   iterator->Release();
   callback->Call(0, NULL, async_resource);
 }

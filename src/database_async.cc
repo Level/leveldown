@@ -18,20 +18,19 @@ namespace leveldown {
 
 /** OPEN WORKER **/
 
-OpenWorker::OpenWorker (
-    Database *database
-  , Nan::Callback *callback
-  , leveldb::Cache* blockCache
-  , const leveldb::FilterPolicy* filterPolicy
-  , bool createIfMissing
-  , bool errorIfExists
-  , bool compression
-  , uint32_t writeBufferSize
-  , uint32_t blockSize
-  , uint32_t maxOpenFiles
-  , uint32_t blockRestartInterval
-  , uint32_t maxFileSize
-) : AsyncWorker(database, callback)
+OpenWorker::OpenWorker(Database *database,
+                       Nan::Callback *callback,
+                       leveldb::Cache* blockCache,
+                       const leveldb::FilterPolicy* filterPolicy,
+                       bool createIfMissing,
+                       bool errorIfExists,
+                       bool compression,
+                       uint32_t writeBufferSize,
+                       uint32_t blockSize,
+                       uint32_t maxOpenFiles,
+                       uint32_t blockRestartInterval,
+                       uint32_t maxFileSize)
+: AsyncWorker(database, callback, "leveldown:db.open")
 {
   options = new leveldb::Options();
   options->block_cache            = blockCache;
@@ -48,29 +47,27 @@ OpenWorker::OpenWorker (
   options->max_file_size          = maxFileSize;
 };
 
-OpenWorker::~OpenWorker () {
+OpenWorker::~OpenWorker() {
   delete options;
 }
 
-void OpenWorker::Execute () {
+void OpenWorker::Execute() {
   SetStatus(database->OpenDatabase(options));
 }
 
 /** CLOSE WORKER **/
 
-CloseWorker::CloseWorker (
-    Database *database
-  , Nan::Callback *callback
-) : AsyncWorker(database, callback)
+CloseWorker::CloseWorker(Database *database, Nan::Callback *callback)
+  : AsyncWorker(database, callback, "leveldown:db.close")
 {};
 
-CloseWorker::~CloseWorker () {}
+CloseWorker::~CloseWorker() {}
 
-void CloseWorker::Execute () {
+void CloseWorker::Execute() {
   database->CloseDatabase();
 }
 
-void CloseWorker::WorkComplete () {
+void CloseWorker::WorkComplete() {
   Nan::HandleScope scope;
   HandleOKCallback();
   delete callback;
@@ -79,22 +76,21 @@ void CloseWorker::WorkComplete () {
 
 /** IO WORKER (abstract) **/
 
-IOWorker::IOWorker (
-    Database *database
-  , Nan::Callback *callback
-  , leveldb::Slice key
-  , v8::Local<v8::Object> &keyHandle
-) : AsyncWorker(database, callback)
-  , key(key)
+IOWorker::IOWorker(Database *database,
+                   Nan::Callback *callback,
+                   const char *resource_name,
+                   leveldb::Slice key,
+                   v8::Local<v8::Object> &keyHandle)
+  : AsyncWorker(database, callback, resource_name), key(key)
 {
   Nan::HandleScope scope;
 
   SaveToPersistent("key", keyHandle);
 };
 
-IOWorker::~IOWorker () {}
+IOWorker::~IOWorker() {}
 
-void IOWorker::WorkComplete () {
+void IOWorker::WorkComplete() {
   Nan::HandleScope scope;
 
   DisposeStringOrBufferFromSlice(GetFromPersistent("key"), key);
@@ -103,15 +99,14 @@ void IOWorker::WorkComplete () {
 
 /** READ WORKER **/
 
-ReadWorker::ReadWorker (
-    Database *database
-  , Nan::Callback *callback
-  , leveldb::Slice key
-  , bool asBuffer
-  , bool fillCache
-  , v8::Local<v8::Object> &keyHandle
-) : IOWorker(database, callback, key, keyHandle)
-  , asBuffer(asBuffer)
+ReadWorker::ReadWorker(Database *database,
+                       Nan::Callback *callback,
+                       leveldb::Slice key,
+                       bool asBuffer,
+                       bool fillCache,
+                       v8::Local<v8::Object> &keyHandle)
+  : IOWorker(database, callback, "leveldown:db.get", key, keyHandle),
+    asBuffer(asBuffer)
 {
   Nan::HandleScope scope;
 
@@ -120,15 +115,15 @@ ReadWorker::ReadWorker (
   SaveToPersistent("key", keyHandle);
 };
 
-ReadWorker::~ReadWorker () {
+ReadWorker::~ReadWorker() {
   delete options;
 }
 
-void ReadWorker::Execute () {
+void ReadWorker::Execute() {
   SetStatus(database->GetFromDatabase(options, key, value));
 }
 
-void ReadWorker::HandleOKCallback () {
+void ReadWorker::HandleOKCallback() {
   Nan::HandleScope scope;
 
   v8::Local<v8::Value> returnValue;
@@ -149,13 +144,13 @@ void ReadWorker::HandleOKCallback () {
 
 /** DELETE WORKER **/
 
-DeleteWorker::DeleteWorker (
-    Database *database
-  , Nan::Callback *callback
-  , leveldb::Slice key
-  , bool sync
-  , v8::Local<v8::Object> &keyHandle
-) : IOWorker(database, callback, key, keyHandle)
+DeleteWorker::DeleteWorker(Database *database,
+                           Nan::Callback *callback,
+                           leveldb::Slice key,
+                           bool sync,
+                           v8::Local<v8::Object> &keyHandle,
+                           const char *resource_name)
+  : IOWorker(database, callback, resource_name, key, keyHandle)
 {
   Nan::HandleScope scope;
 
@@ -164,39 +159,38 @@ DeleteWorker::DeleteWorker (
   SaveToPersistent("key", keyHandle);
 };
 
-DeleteWorker::~DeleteWorker () {
+DeleteWorker::~DeleteWorker() {
   delete options;
 }
 
-void DeleteWorker::Execute () {
+void DeleteWorker::Execute() {
   SetStatus(database->DeleteFromDatabase(options, key));
 }
 
 /** WRITE WORKER **/
 
-WriteWorker::WriteWorker (
-    Database *database
-  , Nan::Callback *callback
-  , leveldb::Slice key
-  , leveldb::Slice value
-  , bool sync
-  , v8::Local<v8::Object> &keyHandle
-  , v8::Local<v8::Object> &valueHandle
-) : DeleteWorker(database, callback, key, sync, keyHandle)
-  , value(value)
+WriteWorker::WriteWorker(Database *database,
+                         Nan::Callback *callback,
+                         leveldb::Slice key,
+                         leveldb::Slice value,
+                         bool sync,
+                         v8::Local<v8::Object> &keyHandle,
+                         v8::Local<v8::Object> &valueHandle)
+  : DeleteWorker(database, callback, key, sync, keyHandle, "leveldown:db.put"),
+    value(value)
 {
   Nan::HandleScope scope;
 
   SaveToPersistent("value", valueHandle);
 };
 
-WriteWorker::~WriteWorker () { }
+WriteWorker::~WriteWorker() { }
 
-void WriteWorker::Execute () {
+void WriteWorker::Execute() {
   SetStatus(database->PutToDatabase(options, key, value));
 }
 
-void WriteWorker::WorkComplete () {
+void WriteWorker::WorkComplete() {
   Nan::HandleScope scope;
 
   DisposeStringOrBufferFromSlice(GetFromPersistent("value"), value);
@@ -205,38 +199,35 @@ void WriteWorker::WorkComplete () {
 
 /** BATCH WORKER **/
 
-BatchWorker::BatchWorker (
-    Database *database
-  , Nan::Callback *callback
-  , leveldb::WriteBatch* batch
-  , bool sync
-) : AsyncWorker(database, callback)
-  , batch(batch)
+BatchWorker::BatchWorker(Database *database,
+                         Nan::Callback *callback,
+                         leveldb::WriteBatch* batch,
+                         bool sync)
+  : AsyncWorker(database, callback, "leveldown:db.batch"), batch(batch)
 {
   options = new leveldb::WriteOptions();
   options->sync = sync;
 };
 
-BatchWorker::~BatchWorker () {
+BatchWorker::~BatchWorker() {
   delete batch;
   delete options;
 }
 
-void BatchWorker::Execute () {
+void BatchWorker::Execute() {
   SetStatus(database->WriteBatchToDatabase(options, batch));
 }
 
 /** APPROXIMATE SIZE WORKER **/
 
-ApproximateSizeWorker::ApproximateSizeWorker (
-    Database *database
-  , Nan::Callback *callback
-  , leveldb::Slice start
-  , leveldb::Slice end
-  , v8::Local<v8::Object> &startHandle
-  , v8::Local<v8::Object> &endHandle
-) : AsyncWorker(database, callback)
-  , range(start, end)
+ApproximateSizeWorker::ApproximateSizeWorker(Database *database,
+                                             Nan::Callback *callback,
+                                             leveldb::Slice start,
+                                             leveldb::Slice end,
+                                             v8::Local<v8::Object> &startHandle,
+                                             v8::Local<v8::Object> &endHandle)
+  : AsyncWorker(database, callback, "leveldown:db.approximateSize"),
+    range(start, end)
 {
   Nan::HandleScope scope;
 
@@ -244,9 +235,9 @@ ApproximateSizeWorker::ApproximateSizeWorker (
   SaveToPersistent("end", endHandle);
 };
 
-ApproximateSizeWorker::~ApproximateSizeWorker () {}
+ApproximateSizeWorker::~ApproximateSizeWorker() {}
 
-void ApproximateSizeWorker::Execute () {
+void ApproximateSizeWorker::Execute() {
   size = database->ApproximateSizeFromDatabase(&range);
 }
 
@@ -258,7 +249,7 @@ void ApproximateSizeWorker::WorkComplete() {
   AsyncWorker::WorkComplete();
 }
 
-void ApproximateSizeWorker::HandleOKCallback () {
+void ApproximateSizeWorker::HandleOKCallback() {
   Nan::HandleScope scope;
 
   v8::Local<v8::Value> returnValue = Nan::New<v8::Number>((double) size);
@@ -271,14 +262,13 @@ void ApproximateSizeWorker::HandleOKCallback () {
 
 /** COMPACT RANGE WORKER **/
 
-CompactRangeWorker::CompactRangeWorker (
-    Database *database
-  , Nan::Callback *callback
-  , leveldb::Slice start
-  , leveldb::Slice end
-  , v8::Local<v8::Object> &startHandle
-  , v8::Local<v8::Object> &endHandle
-) : AsyncWorker(database, callback)
+CompactRangeWorker::CompactRangeWorker(Database *database,
+                                       Nan::Callback *callback,
+                                       leveldb::Slice start,
+                                       leveldb::Slice end,
+                                       v8::Local<v8::Object> &startHandle,
+                                       v8::Local<v8::Object> &endHandle)
+  : AsyncWorker(database, callback, "leveldown:db.compactRange")
 {
   Nan::HandleScope scope;
 
@@ -289,9 +279,9 @@ CompactRangeWorker::CompactRangeWorker (
   SaveToPersistent("compactEnd", endHandle);
 };
 
-CompactRangeWorker::~CompactRangeWorker () {}
+CompactRangeWorker::~CompactRangeWorker() {}
 
-void CompactRangeWorker::Execute () {
+void CompactRangeWorker::Execute() {
   database->CompactRangeFromDatabase(&rangeStart, &rangeEnd);
 }
 
@@ -303,7 +293,7 @@ void CompactRangeWorker::WorkComplete() {
   AsyncWorker::WorkComplete();
 }
 
-void CompactRangeWorker::HandleOKCallback () {
+void CompactRangeWorker::HandleOKCallback() {
   Nan::HandleScope scope;
 
   v8::Local<v8::Value> argv[] = {

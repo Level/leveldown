@@ -12,16 +12,13 @@ namespace leveldown {
 
 /** NEXT WORKER **/
 
-BatchWriteWorker::BatchWriteWorker (
-    Batch* batch
-  , Nan::Callback *callback
-) : AsyncWorker(NULL, callback)
-  , batch(batch)
-{};
+BatchWriteWorker::BatchWriteWorker(Batch* batch, Nan::Callback *callback)
+  : AsyncWorker(NULL, callback, "leveldown:batch.write"), batch(batch)
+{}
 
-BatchWriteWorker::~BatchWriteWorker () {}
+BatchWriteWorker::~BatchWriteWorker() {}
 
-void BatchWriteWorker::Execute () {
+void BatchWriteWorker::Execute() {
   SetStatus(batch->Write());
 }
 
