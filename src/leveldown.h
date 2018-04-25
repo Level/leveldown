@@ -85,18 +85,6 @@ static inline void DisposeStringOrBufferFromSlice(
     );                                                                         \
   }
 
-// TODO remove this macro, only used once
-#define LD_RETURN_CALLBACK_OR_ERROR(resource, callback, msg)            \
-  if (!callback.IsEmpty() && callback->IsFunction()) {                  \
-    v8::Local<v8::Value> argv[] = {                                     \
-      Nan::Error(msg)                                                   \
-    };                                                                  \
-    LD_RUN_CALLBACK(resource, callback, 1, argv);                       \
-    info.GetReturnValue().SetUndefined();                               \
-    return;                                                             \
-  }                                                                     \
-  return Nan::ThrowError(msg);
-
 #define LD_RUN_CALLBACK(resource, callback, argc, argv)                 \
   Nan::AsyncResource ar(resource);                                      \
   ar.runInAsyncScope(Nan::GetCurrentContext()->Global(),                \
