@@ -74,7 +74,7 @@ void NextWorker::HandleOKCallback () {
     // when ok === false all data has been read, so it's then finished
     , Nan::New<v8::Boolean>(!ok)
   };
-  callback->Call(3, argv);
+  callback->Call(3, argv, async_resource);
 }
 
 /** END WORKER **/
@@ -94,7 +94,7 @@ void EndWorker::Execute () {
 
 void EndWorker::HandleOKCallback () {
   iterator->Release();
-  callback->Call(0, NULL);
+  callback->Call(0, NULL, async_resource);
 }
 
 } // namespace leveldown
