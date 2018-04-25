@@ -332,7 +332,7 @@ NAN_METHOD(Iterator::Next) {
   if (iterator->ended) {
     if (!callback.IsEmpty() && callback->IsFunction()) {
       v8::Local<v8::Value> argv[] = { Nan::Error("iterator has ended") };
-      LD_RUN_CALLBACK("leveldown:iterator-next", callback, 1, argv);
+      LD_RUN_CALLBACK("leveldown:iterator.next", callback, 1, argv);
       info.GetReturnValue().SetUndefined();
       return;
     }
