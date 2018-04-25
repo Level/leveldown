@@ -330,7 +330,8 @@ NAN_METHOD(Iterator::Next) {
   v8::Local<v8::Function> callback = info[0].As<v8::Function>();
 
   if (iterator->ended) {
-    LD_RETURN_CALLBACK_OR_ERROR(callback, "iterator has ended");
+    LD_RETURN_CALLBACK_OR_ERROR("leveldown:iterator-next",
+                                callback, "iterator has ended");
   }
 
   NextWorker* worker = new NextWorker(
