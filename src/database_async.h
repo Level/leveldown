@@ -41,7 +41,7 @@ class CloseWorker : public AsyncWorker {
 public:
   CloseWorker(Database *database, Nan::Callback *callback);
 
-  virtual ~CloseWorker();
+  virtual ~CloseWorker() {}
   virtual void Execute();
   virtual void WorkComplete();
 };
@@ -54,7 +54,7 @@ public:
            leveldb::Slice key,
            v8::Local<v8::Object> &keyHandle);
 
-  virtual ~IOWorker();
+  virtual ~IOWorker() {}
   virtual void WorkComplete();
 
 protected:
@@ -106,7 +106,7 @@ public:
               v8::Local<v8::Object> &keyHandle,
               v8::Local<v8::Object> &valueHandle);
 
-  virtual ~WriteWorker();
+  virtual ~WriteWorker() {}
   virtual void Execute();
   virtual void WorkComplete();
 
@@ -138,7 +138,7 @@ public:
                         v8::Local<v8::Object> &startHandle,
                         v8::Local<v8::Object> &endHandle);
 
-  virtual ~ApproximateSizeWorker();
+  virtual ~ApproximateSizeWorker() {}
   virtual void Execute();
   virtual void HandleOKCallback();
   virtual void WorkComplete();
@@ -157,7 +157,7 @@ public:
                      v8::Local<v8::Object> &startHandle,
                      v8::Local<v8::Object> &endHandle);
 
-  virtual ~CompactRangeWorker();
+  virtual ~CompactRangeWorker() {}
   virtual void Execute();
   virtual void HandleOKCallback();
   virtual void WorkComplete();

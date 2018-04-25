@@ -61,8 +61,6 @@ CloseWorker::CloseWorker(Database *database, Nan::Callback *callback)
   : AsyncWorker(database, callback, "leveldown:db.close")
 {};
 
-CloseWorker::~CloseWorker() {}
-
 void CloseWorker::Execute() {
   database->CloseDatabase();
 }
@@ -87,8 +85,6 @@ IOWorker::IOWorker(Database *database,
 
   SaveToPersistent("key", keyHandle);
 };
-
-IOWorker::~IOWorker() {}
 
 void IOWorker::WorkComplete() {
   Nan::HandleScope scope;
@@ -184,8 +180,6 @@ WriteWorker::WriteWorker(Database *database,
   SaveToPersistent("value", valueHandle);
 };
 
-WriteWorker::~WriteWorker() { }
-
 void WriteWorker::Execute() {
   SetStatus(database->PutToDatabase(options, key, value));
 }
@@ -235,8 +229,6 @@ ApproximateSizeWorker::ApproximateSizeWorker(Database *database,
   SaveToPersistent("end", endHandle);
 };
 
-ApproximateSizeWorker::~ApproximateSizeWorker() {}
-
 void ApproximateSizeWorker::Execute() {
   size = database->ApproximateSizeFromDatabase(&range);
 }
@@ -278,8 +270,6 @@ CompactRangeWorker::CompactRangeWorker(Database *database,
   SaveToPersistent("compactStart", startHandle);
   SaveToPersistent("compactEnd", endHandle);
 };
-
-CompactRangeWorker::~CompactRangeWorker() {}
 
 void CompactRangeWorker::Execute() {
   database->CompactRangeFromDatabase(&rangeStart, &rangeEnd);

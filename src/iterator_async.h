@@ -20,7 +20,7 @@ public:
              Nan::Callback *callback,
              void (*localCallback)(Iterator*));
 
-  virtual ~NextWorker();
+  virtual ~NextWorker() {}
   virtual void Execute();
   virtual void HandleOKCallback();
 
@@ -35,7 +35,7 @@ class EndWorker : public AsyncWorker {
 public:
   EndWorker(Iterator* iterator, Nan::Callback *callback);
 
-  virtual ~EndWorker();
+  virtual ~EndWorker() {}
   virtual void Execute();
   virtual void HandleOKCallback();
 

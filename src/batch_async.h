@@ -19,7 +19,7 @@ class BatchWriteWorker : public AsyncWorker {
 public:
   BatchWriteWorker(Batch* batch, Nan::Callback *callback);
 
-  virtual ~BatchWriteWorker();
+  virtual ~BatchWriteWorker() {}
   virtual void Execute();
 
 private:

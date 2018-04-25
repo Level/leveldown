@@ -22,8 +22,6 @@ NextWorker::NextWorker(Iterator* iterator,
     localCallback(localCallback)
 {}
 
-NextWorker::~NextWorker() {}
-
 void NextWorker::Execute() {
   ok = iterator->IteratorNext(result);
   if (!ok)
@@ -80,8 +78,6 @@ void NextWorker::HandleOKCallback() {
 EndWorker::EndWorker(Iterator* iterator, Nan::Callback *callback)
   : AsyncWorker(NULL, callback, "leveldown:iterator.end"), iterator(iterator)
 {}
-
-EndWorker::~EndWorker() {}
 
 void EndWorker::Execute() {
   iterator->IteratorEnd();
