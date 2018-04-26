@@ -10,7 +10,7 @@ var async      = require('async')
   , leveldown  = require('..')
   , test       = require('tape')
 
-  , compressableData = new Buffer(Array.apply(null, Array(1024 * 100)).map(function () { return 'aaaaaaaaaa' }).join(''))
+  , compressableData = Buffer.from(Array.apply(null, Array(1024 * 100)).map(function () { return 'aaaaaaaaaa' }).join(''))
   , multiples = 10
   , dataSize = compressableData.length * multiples
 

@@ -50,7 +50,7 @@ make('iterator is seekable', function (db, t, done) {
 
 make('iterator is seekable with buffer', function (db, t, done) {
   var ite = db.iterator()
-  ite.seek(Buffer('two'))
+  ite.seek(Buffer.from('two'))
   ite.next(function (err, key, value) {
     t.error(err, 'no error from next()')
     t.equal(key.toString(), 'two', 'key matches')

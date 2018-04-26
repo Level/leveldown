@@ -121,7 +121,7 @@ The following options are for advanced performance tuning. Modify them only if y
 ### leveldown#put(key, value[, options], callback)
 <code>put()</code> is an instance method on an existing database object, used to store new entries, or overwrite existing entries in the LevelDB store.
 
-The `key` and `value` objects may either be strings or Buffers. Other object types are converted to strings with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values of `null`, `undefined`, `''`, `[]` and `new Buffer(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `new Buffer(0)` depending on the type requested.
+The `key` and `value` objects may either be strings or Buffers. Other object types are converted to strings with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values of `null`, `undefined`, `''`, `[]` and `Buffer.alloc(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `Buffer.alloc(0)` depending on the type requested.
 
 A richer set of data-types is catered for in `levelup`.
 
@@ -139,7 +139,7 @@ The `callback` function will be called with no arguments if the operation is suc
 
 The `key` object may either be a string or a Buffer and cannot be `undefined` or `null`. Other object types are converted to strings with the `toString()` method and the resulting string *may not* be a zero-length. A richer set of data-types is catered for in `levelup`.
 
-Values fetched via `get()` that are stored as zero-length character arrays (`null`, `undefined`, `''`, `[]`, `new Buffer(0)`) will return as empty-`String` (`''`) or `new Buffer(0)` when fetched with `asBuffer: true` (see below).
+Values fetched via `get()` that are stored as zero-length character arrays (`null`, `undefined`, `''`, `[]`, `Buffer.alloc(0)`) will return as empty-`String` (`''`) or `Buffer.alloc(0)` when fetched with `asBuffer: true` (see below).
 
 #### `options`
 
@@ -171,7 +171,7 @@ The `callback` function will be called with no arguments if the operation is suc
 ### leveldown#batch(operations[, options], callback)
 <code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should be an `Array` containing a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation inside LevelDB.
 
-Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the *type* is `'put'` that have a `'value'` of `undefined`, `null`, `[]`, `''` or `new Buffer(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `new Buffer(0)` depending on how they are requested.
+Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the *type* is `'put'` that have a `'value'` of `undefined`, `null`, `[]`, `''` or `Buffer.alloc(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `Buffer.alloc(0)` depending on how they are requested.
 
 See [`levelup`](https://github.com/level/levelup#batch) for full documentation on how this works in practice.
 
