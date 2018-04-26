@@ -10,7 +10,7 @@ var leveldown = require('..')
 function run () {
   var key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
 
-  if (BUFFERS) key = new Buffer(key)
+  if (BUFFERS) key = Buffer.from(key)
 
   db.get(key, function (err, value) {
     getCount++

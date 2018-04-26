@@ -34,7 +34,7 @@ db.open({
 
   var batch = db.batch();
   Object.keys(records).forEach(function(key) {
-    var value = new Buffer(records[key], 'hex')
+    var value = Buffer.from(records[key], 'hex')
     batch.put(key, value)
   })
 
