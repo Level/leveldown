@@ -1,7 +1,7 @@
 {
   "name": "leveldown",
   "description": "A low-level Node.js LevelDB binding",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "contributors": [
     "Rod Vagg <r@va.gg> (https://github.com/rvagg)",
     "John Chesley <john@chesl.es> (https://github.com/chesles/)",
