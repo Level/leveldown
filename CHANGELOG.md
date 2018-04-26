@@ -592,7 +592,7 @@
 * Macro cleanup, replace some with static inline functions (@rvagg)
 
 ### Fixed
-* Fix start on correct value when `reverse=true`, also handle end-of-store case #27 (@kesla)
+* Fix iterator to start on correct value when `reverse=true`, also handle end-of-store case #27 (@kesla)
 
 ## [0.2.0] - 2013-03-30
 
@@ -643,12 +643,12 @@
 * Remove `use namespace` and add `namespace leveldown` everywhere (@rvagg)
 
 ### Fixed
-* Fix race condition in Iterator `end()`/`next()` fix, merged from `LevelUP` (@ralphtheninja / @rvagg)
+* Fix race condition in Iterator `end()`/`next()`, merged from `LevelUP` (@ralphtheninja / @rvagg)
 
 ## [0.0.2] - 2013-01-20
 
 ### Changed
-* Finalise rename of internal components to `LevelDOWN`, removing `LevelUP` references (@rvagg)
+* Finalize rename of internal components to `LevelDOWN`, removing `LevelUP` references (@rvagg)
 
 ## [0.0.1] - 2013-01-20
 
