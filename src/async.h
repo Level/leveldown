@@ -16,10 +16,10 @@ class Database;
 
 /* abstract */ class AsyncWorker : public Nan::AsyncWorker {
 public:
-  AsyncWorker (
-      leveldown::Database* database
-    , Nan::Callback *callback
-  ) : Nan::AsyncWorker(callback), database(database) { }
+  AsyncWorker(leveldown::Database* database,
+              Nan::Callback *callback,
+              const char *resource_name)
+    : Nan::AsyncWorker(callback, resource_name), database(database) {}
 
 protected:
   void SetStatus(leveldb::Status status) {

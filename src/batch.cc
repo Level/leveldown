@@ -139,7 +139,9 @@ NAN_METHOD(Batch::Write) {
     worker->SaveToPersistent("batch", _this);
     Nan::AsyncQueueWorker(worker);
   } else {
-    LD_RUN_CALLBACK(v8::Local<v8::Function>::Cast(info[0]), 0, NULL);
+    LD_RUN_CALLBACK("leveldown:batch.write",
+                    v8::Local<v8::Function>::Cast(info[0]),
+                    0, NULL);
   }
 }
 

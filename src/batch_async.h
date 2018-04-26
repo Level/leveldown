@@ -17,13 +17,10 @@ namespace leveldown {
 
 class BatchWriteWorker : public AsyncWorker {
 public:
-  BatchWriteWorker (
-      Batch* batch
-    , Nan::Callback *callback
-  );
+  BatchWriteWorker(Batch* batch, Nan::Callback *callback);
 
-  virtual ~BatchWriteWorker ();
-  virtual void Execute ();
+  virtual ~BatchWriteWorker() {}
+  virtual void Execute();
 
 private:
   Batch* batch;
