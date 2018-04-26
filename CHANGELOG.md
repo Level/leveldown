@@ -2,15 +2,22 @@
 
 ## [Unreleased]
 
+## [3.0.1] - 2018-04-26
+
 ### Added
 * Run `verify-travis-appveyor` as part of tests to ensure they are in sync (@ralphtheninja)
 * Test that `destroy()` doesn't inadvertently create the directory (@vweevers)
+* Add node 10 to Travis and AppVeyor (@ralphtheninja)
 
 ### Changed
 * Configure Greenkeeper to ignore updates to `@types/node` to reduce spam (@ralphtheninja)
+* Upgrade to `nan@2.10` (@ralphtheninja)
+* Use resource names in all `AsyncWorker` classes (@ralphtheninja)
 
 ### Fixed
 * Handle all errors in destroy tests (@vweevers)
+* Fix deprecation warnings related to `Buffer()` (@peakji)
+* Fix deprecation warnings related to `nan` (@ralphtheninja)
 
 ### Removed
 * Remove node 5 and 7 from AppVeyor (@ralphtheninja)
@@ -655,7 +662,8 @@
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package (@rvagg)
 
-[Unreleased]: https://github.com/level/leveldown/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/level/leveldown/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/level/leveldown/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/level/leveldown/compare/v2.1.1...v3.0.0
 [2.1.1]: https://github.com/level/leveldown/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/level/leveldown/compare/v2.0.2...v2.1.0
