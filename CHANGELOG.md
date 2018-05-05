@@ -447,8 +447,8 @@
 * Remove `Persistent` references for all `batch()` operations as `WriteBatch` takes an explicit copy of the data (@mcollina and @rvagg)
 
 ### Fixed
-* Fix array-batch memory leak, levelup/#171 (@rvagg)
-* Fix chained-batch `write()` segfaults, details in #73, (@rvagg and @mcollina)
+* Fix array-batch memory leak (@rvagg)
+* Fix chained-batch `write()` segfaults (@rvagg and @mcollina)
 
 ## [0.9.2] - 2013-11-02
 
