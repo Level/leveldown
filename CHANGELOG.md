@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+## [3.0.2] - 2018-05-05
+
+### Changed
+* Support compilation on iOS (@agentilela)
+* Support compilation on Android x86 (@luandro)
+* Upgrade to `prebuild-install@^4.0.0` (@ralphtheninja)
+
 ## [3.0.1] - 2018-04-26
 
 ### Added
@@ -662,7 +669,8 @@
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package (@rvagg)
 
-[Unreleased]: https://github.com/level/leveldown/compare/v3.0.1...HEAD
+[Unreleased]: https://github.com/level/leveldown/compare/v3.0.2...HEAD
+[3.0.2]: https://github.com/level/leveldown/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/level/leveldown/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/level/leveldown/compare/v2.1.1...v3.0.0
 [2.1.1]: https://github.com/level/leveldown/compare/v2.1.0...v2.1.1
