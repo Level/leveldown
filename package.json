@@ -55,12 +55,13 @@
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
     "slump": "~2.0.0",
+    "standard": "^11.0.1",
     "tape": "^4.5.1",
     "verify-travis-appveyor": "^3.0.0"
   },
   "scripts": {
     "install": "prebuild-install || node-gyp rebuild",
-    "test": "verify-travis-appveyor && (tape test/*-test.js | faucet) && prebuild-ci",
+    "test": "standard && verify-travis-appveyor && (tape test/*-test.js | faucet) && prebuild-ci",
     "rebuild": "prebuild --compile",
     "prebuild": "prebuild --all --strip --verbose"
   },
