@@ -1,10 +1,7 @@
-const test = require('tape')
-const leveldown = require('..')
 const makeTest = require('./make')
 
 makeTest('test ended iterator', function (db, t, done) {
   // standard iterator with an end() properly called, easy
-
   var it = db.iterator({ keyAsBuffer: false, valueAsBuffer: false })
   it.next(function (err, key, value) {
     t.notOk(err, 'no error from next()')

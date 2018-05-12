@@ -53,10 +53,8 @@ test('iterate over a large iterator with a large watermark', function (t) {
   var iterator = db.iterator({
     highWaterMark: 10000000
   })
-  var count = 0
   var read = function () {
     iterator.next(function () {
-      count++
       if (!arguments.length) {
         t.end()
       } else {

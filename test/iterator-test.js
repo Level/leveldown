@@ -283,7 +283,3 @@ function not (n) {
   if (typeof n === 'function') return function (k) { return !n(k) }
   return function (k) { return k !== n }
 }
-
-function even (n) {
-  return n % 2 === 0
-}

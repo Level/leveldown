@@ -3,8 +3,6 @@
 const leveldown = require('../')
 const fs = require('fs')
 const du = require('du')
-const rimraf = require('rimraf')
-
 const argv = require('optimist').argv
 
 const options = {
@@ -44,7 +42,6 @@ function start () {
   let totalBytes = 0
   const startTime = Date.now()
   let timesAccum = 0
-  let writeBuf = ''
   let elapsed
 
   function report () {
