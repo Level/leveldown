@@ -67,7 +67,7 @@
   "license": "MIT",
   "gypfile": true,
   "engines": {
-    "node": ">=4"
+    "node": ">=6"
   },
   "greenkeeper": {
     "ignore": [
