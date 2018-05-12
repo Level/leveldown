@@ -11,7 +11,7 @@ let db
 
 function print () {
   if (writeCount % 100 === 0) {
-    if (typeof gc !== 'undefined') gc()
+    if (typeof gc !== 'undefined') gc() // eslint-disable-line
 
     console.log(
       'writeCount =', writeCount, ', rss =',
