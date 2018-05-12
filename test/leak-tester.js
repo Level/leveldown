@@ -30,7 +30,7 @@ function run () {
   })
 
   if (getCount % 1000 === 0) {
-    if (typeof gc !== 'undefined') gc() // eslint-disable-line
+    if (typeof global.gc !== 'undefined') global.gc()
     console.log('getCount =', getCount, ', putCount = ', putCount, ', rss =',
       Math.round(process.memoryUsage().rss / rssBase * 100) + '%',
       Math.round(process.memoryUsage().rss / 1024 / 1024) + 'M',
