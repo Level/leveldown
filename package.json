@@ -56,7 +56,7 @@
     "rimraf": "^2.6.1",
     "slump": "~2.0.0",
     "tape": "^4.5.1",
-    "verify-travis-appveyor": "^2.0.0"
+    "verify-travis-appveyor": "^3.0.0"
   },
   "scripts": {
     "install": "prebuild-install || node-gyp rebuild",
