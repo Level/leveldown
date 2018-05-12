@@ -1,11 +1,11 @@
-const test = require('tape'),
-  path = require('path'),
-  fs = require('fs')
+const test = require('tape')
+const path = require('path')
+const fs = require('fs')
 
 test('test port-libuv is being used', function (t) {
   var version = fs.readFileSync(path.join(__dirname, '../deps/leveldb/leveldb.gyp'), 'utf8')
-      .match(/'ldbversion': '([^']+)'/)[1],
-    porth
+    .match(/'ldbversion': '([^']+)'/)[1]
+  var porth
 
   t.ok(version, 'matched current leveldb version')
 

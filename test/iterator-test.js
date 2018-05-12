@@ -1,10 +1,10 @@
-const test = require('tape'),
-  leveldown = require('..'),
-  abstract = require('abstract-leveldown/abstract/iterator-test'),
-  make = require('./make'),
-  iota = require('iota-array'),
-  lexi = require('lexicographic-integer'),
-  util = require('util')
+const test = require('tape')
+const leveldown = require('..')
+const abstract = require('abstract-leveldown/abstract/iterator-test')
+const make = require('./make')
+const iota = require('iota-array')
+const lexi = require('lexicographic-integer')
+const util = require('util')
 
 abstract.all(leveldown, test)
 
@@ -154,7 +154,11 @@ make('close db with open iterator', function (db, t, done) {
   var ite = db.iterator()
   var cnt = 0
   ite.next(function loop (err, key, value) {
-    if (cnt++ === 0) { t.error(err, 'no error from next()') } else { t.equal(err.message, 'iterator has ended') }
+    if (cnt++ === 0) {
+      t.error(err, 'no error from next()')
+    } else {
+      t.equal(err.message, 'iterator has ended')
+    }
     if (key !== undefined) { ite.next(loop) }
   })
 
@@ -252,7 +256,11 @@ make('iterator seek respects range', function (db, t, done) {
         var tpl = 'seek(%s) on %s yields %s'
         var msg = util.format(tpl, target, util.inspect(range), expected)
 
-        if (expected === undefined) { t.equal(value, undefined, msg) } else { t.equal(value.toString(), expected, msg) }
+        if (expected === undefined) {
+          t.equal(value, undefined, msg)
+        } else {
+          t.equal(value.toString(), expected, msg)
+        }
 
         ite.end(function (err) {
           t.error(err, 'no error from end()')

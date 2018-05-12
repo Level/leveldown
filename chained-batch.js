@@ -1,5 +1,5 @@
-const util = require('util'),
-  AbstractChainedBatch = require('abstract-leveldown').AbstractChainedBatch
+const util = require('util')
+const AbstractChainedBatch = require('abstract-leveldown').AbstractChainedBatch
 
 function ChainedBatch (db) {
   AbstractChainedBatch.call(this, db)

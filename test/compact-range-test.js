@@ -1,8 +1,8 @@
-const test = require('tape'),
-  testCommon = require('abstract-leveldown/testCommon'),
-  leveldown = require('..')
+const test = require('tape')
+const testCommon = require('abstract-leveldown/testCommon')
+const leveldown = require('..')
 
-var db
+let db
 
 test('setUp common', testCommon.setUp)
 
