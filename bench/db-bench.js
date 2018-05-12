@@ -3,18 +3,19 @@
 const leveldown = require('../')
 const fs = require('fs')
 const du = require('du')
+const path = require('path')
 const argv = require('optimist').argv
 
 const options = {
   benchmark: argv.benchmark,
   useExisting: argv.use_existing,
-  db: argv.db || __dirname + '/db',
+  db: argv.db || path.join(__dirname, 'db'),
   num: argv.num || 1000000,
   concurrency: argv.concurrency || 4,
   cacheSize: argv.cacheSize || 8,
   writeBufferSize: argv.writeBufferSize || 4,
   valueSize: argv.valueSize || 100,
-  timingOutput: argv.timingOutput || __dirname + '/timingOutput',
+  timingOutput: argv.timingOutput || path.join(__dirname, 'timingOutput'),
   throughputOutput: argv.throughputOutput
 }
 
