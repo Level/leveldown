@@ -1,7 +1,7 @@
 const test = require('tape')
 const testCommon = require('abstract-leveldown/testCommon')
 const leveldown = require('..')
-const child_process = require('child_process')
+const fork = require('child_process').fork
 
 let db
 
@@ -27,7 +27,7 @@ test('try to create an iterator with a blown stack', function (t) {
   // process makes it easier to trigger the bug condition. But making it too low
   // causes the child process to die for other reasons.
   var opts = { execArgv: [ '--stack-size=128' ] }
-  var child = child_process.fork(__dirname + '/stack-blower.js', [ 'run' ], opts)
+  var child = fork(__dirname + '/stack-blower.js', [ 'run' ], opts)
 
   t.plan(2)
 
