@@ -32,14 +32,14 @@ db.open({ errorIfExists: true, createIfMissing: true }, function (err) {
   let writeBuf = ''
 
   function write () {
-    if (totalWrites % 100000 == 0) console.log(inProgress, totalWrites)
+    if (totalWrites % 100000 === 0) console.log(inProgress, totalWrites)
 
-    if (totalWrites % 1000 == 0) {
+    if (totalWrites % 1000 === 0) {
       timesStream.write(writeBuf)
       writeBuf = ''
     }
 
-    if (totalWrites++ == entryCount) return report(Date.now() - startTime)
+    if (totalWrites++ === entryCount) return report(Date.now() - startTime)
     if (inProgress >= concurrency || totalWrites > entryCount) return
 
     var time = process.hrtime()

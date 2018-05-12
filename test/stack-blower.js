@@ -8,7 +8,7 @@
 const testCommon = require('abstract-leveldown/testCommon')
 const leveldown = require('..')
 
-if (process.argv[2] == 'run') {
+if (process.argv[2] === 'run') {
   testCommon.cleanup(function () {
     var db = leveldown(testCommon.location())
     var depth = 0
