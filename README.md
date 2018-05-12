@@ -8,6 +8,7 @@ leveldown
 [![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?label=appveyor)](https://ci.appveyor.com/project/Level/leveldown)
 [![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown)
 [![npm](https://img.shields.io/npm/dm/leveldown.svg)](https://www.npmjs.com/package/leveldown)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
   * <a href="#intro">Introduction</a>
   * <a href="#platforms">Supported platforms</a>
