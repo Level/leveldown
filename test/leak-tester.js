@@ -1,11 +1,11 @@
 const BUFFERS = false
 
-var leveldown = require('..')
-  , crypto    = require('crypto')
-  , putCount  = 0
-  , getCount  = 0
-  , rssBase
-  , db
+var leveldown = require('..'),
+  crypto = require('crypto'),
+  putCount = 0,
+  getCount = 0,
+  rssBase,
+  db
 
 function run () {
   var key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
@@ -29,19 +29,18 @@ function run () {
   })
 
   if (getCount % 1000 === 0) {
-    if (typeof gc != 'undefined')
-      gc()
+    if (typeof gc !== 'undefined') { gc() }
     console.log(
-        'getCount ='
+      'getCount ='
       , getCount
       , ', putCount = '
       , putCount
       , ', rss ='
       , Math.round(process.memoryUsage().rss / rssBase * 100) + '%'
       , Math.round(process.memoryUsage().rss / 1024 / 1024) + 'M'
-      , JSON.stringify([0,1,2,3,4,5,6].map(function (l) {
-          return db.getProperty('leveldb.num-files-at-level' + l)
-        }))
+      , JSON.stringify([0, 1, 2, 3, 4, 5, 6].map(function (l) {
+        return db.getProperty('leveldb.num-files-at-level' + l)
+      }))
     )
   }
 }

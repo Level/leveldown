@@ -1,14 +1,14 @@
-const test         = require('tape')
-    , fs           = require('fs')
-    , path         = require('path')
-    , mkfiletree   = require('mkfiletree')
-    , readfiletree = require('readfiletree')
-    , leveldown    = require('..')
-    , makeTest     = require('./make')
+const test = require('tape'),
+  fs = require('fs'),
+  path = require('path'),
+  mkfiletree = require('mkfiletree'),
+  readfiletree = require('readfiletree'),
+  leveldown = require('..'),
+  makeTest = require('./make')
 
 test('test argument-less repair() throws', function (t) {
   t.throws(
-      leveldown.repair
+    leveldown.repair
     , { name: 'Error', message: 'repair() requires `location` and `callback` arguments' }
     , 'no-arg repair() throws'
   )
@@ -17,7 +17,7 @@ test('test argument-less repair() throws', function (t) {
 
 test('test callback-less, 1-arg, repair() throws', function (t) {
   t.throws(
-      leveldown.repair.bind(null, 'foo')
+    leveldown.repair.bind(null, 'foo')
     , { name: 'Error', message: 'repair() requires `location` and `callback` arguments' }
     , 'callback-less, 1-arg repair() throws'
   )
@@ -26,10 +26,7 @@ test('test callback-less, 1-arg, repair() throws', function (t) {
 
 test('test repair non-existent directory returns error', function (t) {
   leveldown.repair('/1/2/3/4', function (err) {
-    if (process.platform !== 'win32')
-      t.ok(/no such file or directory/i.test(err), 'error on callback')
-    else
-      t.ok(/IO error/i.test(err), 'error on callback')
+    if (process.platform !== 'win32') { t.ok(/no such file or directory/i.test(err), 'error on callback') } else { t.ok(/IO error/i.test(err), 'error on callback') }
     t.end()
   })
 })

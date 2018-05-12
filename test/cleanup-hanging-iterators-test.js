@@ -1,6 +1,6 @@
-const test       = require('tape')
-    , leveldown  = require('..')
-    , makeTest   = require('./make')
+const test = require('tape'),
+  leveldown = require('..'),
+  makeTest = require('./make')
 
 makeTest('test ended iterator', function (db, t, done) {
   // standard iterator with an end() properly called, easy
@@ -40,10 +40,10 @@ makeTest('test multiple non-ended iterators', function (db, t, done) {
 makeTest('test ending iterators', function (db, t, done) {
   // at least one end() should be in progress when we try to close the db
   var it1 = db.iterator().next(function () {
-        it1.end(function () {})
-      })
-    , it2 = db.iterator().next(function () {
-        it2.end(function () {})
-        done()
-      })
+      it1.end(function () {})
+    }),
+    it2 = db.iterator().next(function () {
+      it2.end(function () {})
+      done()
+    })
 })

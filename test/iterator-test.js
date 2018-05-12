@@ -1,10 +1,10 @@
-const test       = require('tape')
-    , leveldown  = require('..')
-    , abstract   = require('abstract-leveldown/abstract/iterator-test')
-    , make       = require('./make')
-    , iota       = require('iota-array')
-    , lexi       = require('lexicographic-integer')
-    , util       = require('util')
+const test = require('tape'),
+  leveldown = require('..'),
+  abstract = require('abstract-leveldown/abstract/iterator-test'),
+  make = require('./make'),
+  iota = require('iota-array'),
+  lexi = require('lexicographic-integer'),
+  util = require('util')
 
 abstract.all(leveldown, test)
 
@@ -26,7 +26,7 @@ make('iterator throws if key is not a string or buffer', function (db, t, done) 
     ite.end(end)
   })
 
-  function end(err) {
+  function end (err) {
     t.error(err, 'no error from end()')
     if (!--pending) done()
   }
@@ -112,21 +112,21 @@ make('iterator optimized for seek', function (db, t, done) {
     ite.next(function (err, key, value) {
       t.error(err, 'no error from next()')
       t.equal(key.toString(), 'a', 'key matches')
-      t.equal(ite.cache.length, 0, "no cache")
+      t.equal(ite.cache.length, 0, 'no cache')
       ite.next(function (err, key, value) {
         t.error(err, 'no error from next()')
         t.equal(key.toString(), 'b', 'key matches')
-        t.ok(ite.cache.length > 0, "has cached items")
+        t.ok(ite.cache.length > 0, 'has cached items')
         ite.seek('d')
         t.notOk(ite.cache, 'cache is removed')
         ite.next(function (err, key, value) {
           t.error(err, 'no error from next()')
           t.equal(key.toString(), 'd', 'key matches')
-          t.equal(ite.cache.length, 0, "no cache")
+          t.equal(ite.cache.length, 0, 'no cache')
           ite.next(function (err, key, value) {
             t.error(err, 'no error from next()')
             t.equal(key.toString(), 'e', 'key matches')
-            t.ok(ite.cache.length > 0, "has cached items")
+            t.ok(ite.cache.length > 0, 'has cached items')
             ite.end(done)
           })
         })
@@ -143,10 +143,9 @@ make('iterator seek before next has completed', function (db, t, done) {
   })
   var error
   try {
-    ite.seek("two")
-  }
-  catch (e) {
-    error = e;
+    ite.seek('two')
+  } catch (e) {
+    error = e
   }
   t.ok(error, 'had error from seek() before next() has completed')
 })
@@ -154,16 +153,12 @@ make('iterator seek before next has completed', function (db, t, done) {
 make('close db with open iterator', function (db, t, done) {
   var ite = db.iterator()
   var cnt = 0
-  ite.next(function loop(err, key, value) {
-    if(cnt++ === 0)
-      t.error(err, 'no error from next()')
-    else
-      t.equal(err.message, 'iterator has ended')
-    if(key !== undefined)
-      ite.next(loop)
+  ite.next(function loop (err, key, value) {
+    if (cnt++ === 0) { t.error(err, 'no error from next()') } else { t.equal(err.message, 'iterator has ended') }
+    if (key !== undefined) { ite.next(loop) }
   })
 
-  db.close(function (err){
+  db.close(function (err) {
     t.error(err, 'no error from close()')
     done(false)
   })
@@ -173,13 +168,12 @@ make('iterator seek after end', function (db, t, done) {
   var ite = db.iterator()
   ite.next(function (err, key, value) {
     t.error(err, 'no error from next()')
-    ite.end(function (err){
+    ite.end(function (err) {
       t.error(err, 'no error from end()')
       var error
       try {
         ite.seek('two')
-      }
-      catch (e) {
+      } catch (e) {
         error = e
       }
       t.ok(error, 'had error from seek() after end()')
@@ -242,10 +236,10 @@ make('iterator seek respects range', function (db, t, done) {
     expect({ end: '5', reverse: true }, '5', '5')
     expect({ end: '5', reverse: true }, '6', '6')
 
-    expect({ gt: '7', lt:'8' }, '7', undefined)
-    expect({ gte: '7', lt:'8' }, '7', '7')
-    expect({ gte: '7', lt:'8' }, '8', undefined)
-    expect({ gt: '7', lte:'8' }, '8', '8')
+    expect({ gt: '7', lt: '8' }, '7', undefined)
+    expect({ gte: '7', lt: '8' }, '7', '7')
+    expect({ gte: '7', lt: '8' }, '8', undefined)
+    expect({ gt: '7', lte: '8' }, '8', '8')
 
     function expect (range, target, expected) {
       pending++
@@ -258,10 +252,7 @@ make('iterator seek respects range', function (db, t, done) {
         var tpl = 'seek(%s) on %s yields %s'
         var msg = util.format(tpl, target, util.inspect(range), expected)
 
-        if (expected === undefined)
-          t.equal(value, undefined, msg)
-        else
-          t.equal(value.toString(), expected, msg)
+        if (expected === undefined) { t.equal(value, undefined, msg) } else { t.equal(value.toString(), expected, msg) }
 
         ite.end(function (err) {
           t.error(err, 'no error from end()')

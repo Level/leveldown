@@ -26,28 +26,25 @@ db.open({
   cacheSize: 8 << 20,
   writeBufferSize: 4 << 20,
   maxOpenFiles: 8192
-}, function(err) {
-  if (err)
-    throw err
+}, function (err) {
+  if (err) { throw err }
 
   memory()
 
-  var batch = db.batch();
-  Object.keys(records).forEach(function(key) {
+  var batch = db.batch()
+  Object.keys(records).forEach(function (key) {
     var value = Buffer.from(records[key], 'hex')
     batch.put(key, value)
   })
 
-  batch.write(function(err) {
-    if (err)
-      throw err
+  batch.write(function (err) {
+    if (err) { throw err }
 
     // This will leak roughly 1mb per call.
-    setTimeout(function self() {
+    setTimeout(function self () {
       var i = 0
-      ;(function next(err) {
-        if (err)
-          throw err
+      ;(function next (err) {
+        if (err) { throw err }
         if (i++ >= 10000) {
           memory()
           return setTimeout(self, 1000)
@@ -58,20 +55,20 @@ db.open({
   })
 })
 
-function memory() {
+function memory () {
   var mem = process.memoryUsage()
   console.log('Memory: rss=%dmb, js-heap=%d/%dmb native-heap=%dmb',
-              mb(mem.rss),
-              mb(mem.heapUsed),
-              mb(mem.heapTotal),
-              mb(mem.rss - mem.heapTotal))
+    mb(mem.rss),
+    mb(mem.heapUsed),
+    mb(mem.heapTotal),
+    mb(mem.rss - mem.heapTotal))
 }
 
-function mb(size) {
+function mb (size) {
   return size / 1024 / 1024 | 0
 }
 
-function iterate(address, callback) {
+function iterate (address, callback) {
   var iter = db.iterator({
     gte: 'w/a/' + address,
     lte: 'w/a/' + address + '~',
@@ -81,18 +78,16 @@ function iterate(address, callback) {
     keyAsBuffer: false
   })
 
-  ;(function next() {
-    iter.next(function(err, key, value) {
+  ;(function next () {
+    iter.next(function (err, key, value) {
       if (err) {
-        return iter.end(function(e) {
-          if (e)
-            throw e
+        return iter.end(function (e) {
+          if (e) { throw e }
           callback(err)
         })
       }
 
-      if (key === undefined)
-        return iter.end(callback)
+      if (key === undefined) { return iter.end(callback) }
 
       next()
     })
