@@ -47,30 +47,30 @@ If you don't want to use the prebuilt binary for the platform you are installing
 <a name="api"></a>
 ## API
 
-  * <a href="#ctor"><code><b>leveldown()</b></code></a>
-  * <a href="#leveldown_open"><code><b>leveldown#open()</b></code></a>
-  * <a href="#leveldown_close"><code><b>leveldown#close()</b></code></a>
-  * <a href="#leveldown_put"><code><b>leveldown#put()</b></code></a>
-  * <a href="#leveldown_get"><code><b>leveldown#get()</b></code></a>
-  * <a href="#leveldown_del"><code><b>leveldown#del()</b></code></a>
-  * <a href="#leveldown_batch"><code><b>leveldown#batch()</b></code></a>
-  * <a href="#leveldown_approximateSize"><code><b>leveldown#approximateSize()</b></code></a>
-  * <a href="#leveldown_compactRange"><code><b>leveldown#compactRange()</b></code></a>
-  * <a href="#leveldown_getProperty"><code><b>leveldown#getProperty()</b></code></a>
-  * <a href="#leveldown_iterator"><code><b>leveldown#iterator()</b></code></a>
-  * <a href="#iterator_next"><code><b>iterator#next()</b></code></a>
-  * <a href="#iterator_seek"><code><b>iterator#seek()</b></code></a>
-  * <a href="#iterator_end"><code><b>iterator#end()</b></code></a>
-  * <a href="#leveldown_destroy"><code><b>leveldown.destroy()</b></code></a>
-  * <a href="#leveldown_repair"><code><b>leveldown.repair()</b></code></a>
+* [<code><b>leveldown()</b></code>](#ctor)
+* [<code>db.<b>open()</b></code>](#leveldown_open)
+* [<code>db.<b>close()</b></code>](#leveldown_close)
+* [<code>db.<b>put()</b></code>](#leveldown_put)
+* [<code>db.<b>get()</b></code>](#leveldown_get)
+* [<code>db.<b>del()</b></code>](#leveldown_del)
+* [<code>db.<b>batch()</b></code>](#leveldown_batch)
+* [<code>db.<b>approximateSize()</b></code>](#leveldown_approximateSize)
+* [<code>db.<b>compactRange()</b></code>](#leveldown_compactRange)
+* [<code>db.<b>getProperty()</b></code>](#leveldown_getProperty)
+* [<code>db.<b>iterator()</b></code>](#leveldown_iterator)
+* [<code>iterator.<b>next()</b></code>](#iterator_next)
+* [<code>iterator.<b>seek()</b></code>](#iterator_seek)
+* [<code>iterator.<b>end()</b></code>](#iterator_end)
+* [<code>leveldown.<b>destroy()</b></code>](#leveldown_destroy)
+* [<code>leveldown.<b>repair()</b></code>](#leveldown_repair)
 
 
 <a name="ctor"></a>
-### leveldown(location)
+### `db = leveldown(location)`
 <code>leveldown()</code> returns a new `leveldown` instance. `location` is a String pointing to the LevelDB location to be opened.
 
 <a name="leveldown_open"></a>
-### leveldown#open([options, ]callback)
+### `db.open([options, ]callback)`
 <code>open()</code> is an instance method on an existing database object.
 
 The `callback` function will be called with no arguments when the database has been successfully opened, or with a single `error` argument if the open operation failed for any reason.
@@ -106,11 +106,11 @@ The following options are for advanced performance tuning. Modify them only if y
 > ... if your filesystem is more efficient with larger files, you could consider increasing the value. The downside will be longer compactions and hence longer latency/performance hiccups. Another reason to increase this parameter might be when you are initially populating a large database.
 
 <a name="leveldown_close"></a>
-### leveldown#close(callback)
+### `db.close(callback)`
 <code>close()</code> is an instance method on an existing database object. The underlying LevelDB database will be closed and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 <a name="leveldown_put"></a>
-### leveldown#put(key, value[, options], callback)
+### `db.put(key, value[, options], callback)`
 <code>put()</code> is an instance method on an existing database object, used to store new entries, or overwrite existing entries in the LevelDB store.
 
 The `key` and `value` objects may either be strings or Buffers. Other object types are converted to strings with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values of `null`, `undefined`, `''`, `[]` and `Buffer.alloc(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `Buffer.alloc(0)` depending on the type requested.
@@ -124,7 +124,7 @@ The only property currently available on the `options` object is `sync` *(boolea
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 <a name="leveldown_get"></a>
-### leveldown#get(key[, options], callback)
+### `db.get(key[, options], callback)`
 <code>get()</code> is an instance method on an existing database object, used to fetch individual entries from the LevelDB store.
 
 The `key` object may either be a string or a Buffer and cannot be `undefined` or `null`. Other object types are converted to strings with the `toString()` method and the resulting string *may not* be a zero-length. A richer set of data-types is catered for in `levelup`.
@@ -142,7 +142,7 @@ The optional `options` object may contain:
 The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a string or Buffer depending on the `asBuffer` option.
 
 <a name="leveldown_del"></a>
-### leveldown#del(key[, options], callback)
+### `db.del(key[, options], callback)`
 <code>del()</code> is an instance method on an existing database object, used to delete entries from the LevelDB store.
 
 The `key` object may either be a string or a Buffer and cannot be `undefined` or `null`. Other object types are converted to strings with the `toString()` method and the resulting string *may not* be a zero-length. A richer set of data-types is catered for in `levelup`.
@@ -154,7 +154,7 @@ The only property currently available on the `options` object is `sync` *(boolea
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 <a name="leveldown_batch"></a>
-### leveldown#batch(operations[, options], callback)
+### `db.batch(operations[, options], callback)`
 <code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should be an `Array` containing a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation inside LevelDB.
 
 Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the *type* is `'put'` that have a `'value'` of `undefined`, `null`, `[]`, `''` or `Buffer.alloc(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `Buffer.alloc(0)` depending on how they are requested.
@@ -168,7 +168,7 @@ The only property currently available on the `options` object is `sync` *(boolea
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 <a name="leveldown_approximateSize"></a>
-### leveldown#approximateSize(start, end, callback)
+### `db.approximateSize(start, end, callback)`
 <code>approximateSize()</code> is an instance method on an existing database object. Used to get the approximate number of bytes of file system space used by the range `[start..end)`. The result may not include recently written data.
 
 The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store.
@@ -176,7 +176,7 @@ The `start` and `end` parameters may be strings or Buffers representing keys in 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 <a name="leveldown_compactRange"></a>
-### leveldown#compactRange(start, end, callback)
+### `db.compactRange(start, end, callback)`
 <code>compactRange()</code> is an instance method on an existing database object. Used to manually trigger a database compaction in the range `[start..end)`.
 
 The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store.
@@ -184,7 +184,7 @@ The `start` and `end` parameters may be strings or Buffers representing keys in 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 <a name="leveldown_getProperty"></a>
-### leveldown#getProperty(property)
+### `db.getProperty(property)`
 <code>getProperty</code> can be used to get internal details from LevelDB. When issued with a valid property string, a readable string will be returned (this method is synchronous).
 
 Currently, the only valid properties are:
@@ -196,7 +196,7 @@ Currently, the only valid properties are:
 * <b><code>'leveldb.sstables'</code></b>: returns a multi-line string describing all of the *sstables* that make up contents of the current database.
 
 <a name="leveldown_iterator"></a>
-### leveldown#iterator([options])
+### `iterator = db.iterator([options])`
 <code>iterator()</code> is an instance method on an existing database object. It returns a new **Iterator** instance.
 
 #### `options`
@@ -224,7 +224,7 @@ The optional `options` object may contain:
 * `valueAsBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of each entry as a string or a Buffer.
 
 <a name="iterator_next"></a>
-### iterator#next(callback)
+### `iterator.next(callback)`
 <code>next()</code> is an instance method on an existing iterator object, used to increment the underlying LevelDB iterator and return the entry at that location.
 
 the `callback` function will be called with no arguments in any of the following situations:
@@ -241,23 +241,23 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 * `value` - either a string or a Buffer depending on the `valueAsBuffer` argument when the `iterator()` was called.
 
 <a name="iterator_seek"></a>
-### iterator#seek(key)
+### `iterator.seek(key)`
 <code>seek()</code> is an instance method on an existing iterator object, used to seek the underlying LevelDB iterator to a given key.
 
 By calling <code>seek(key)</code>, subsequent calls to <code>next(cb)</code> will return key/values larger or smaller than `key`, based on your <code>reverse</code> setting in the iterator constructor.
 
 <a name="iterator_end"></a>
-### iterator#end(callback)
+### `iterator.end(callback)`
 <code>end()</code> is an instance method on an existing iterator object. The underlying LevelDB iterator will be deleted and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 <a name="leveldown_destroy"></a>
-### leveldown.destroy(location, callback)
+### `leveldown.destroy(location, callback)`
 <code>destroy()</code> is used to completely remove an existing LevelDB database directory. You can use this function in place of a full directory *rm* if you want to be sure to only remove LevelDB-related files. If the directory only contains LevelDB files, the directory itself will be removed as well. If there are additional, non-LevelDB files in the directory, those files, and the directory, will be left alone.
 
 The callback will be called when the destroy operation is complete, with a possible `error` argument.
 
 <a name="leveldown_repair"></a>
-### leveldown.repair(location, callback)
+### `leveldown.repair(location, callback)`
 <code>repair()</code> can be used to attempt a restoration of a damaged LevelDB store. From the LevelDB documentation:
 
 > If a DB cannot be opened, you may attempt to call this method to resurrect as much of the contents of the database as possible. Some data may be lost, so be careful when calling this function on a database that contains important information.
