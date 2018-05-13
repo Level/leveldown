@@ -16,7 +16,7 @@
   * <a href="#snapshots">Snapshots</a>
   * <a href="#support">Getting support</a>
   * <a href="#contributing">Contributing</a>
-  * <a href="#license">Licence &amp; copyright</a>
+  * <a href="#license">Licence</a>
 
 **If you are upgrading:** please see [UPGRADING.md](UPGRADING.md).
 
@@ -305,7 +305,7 @@ See the [contribution guide](https://github.com/Level/community/blob/master/CONT
 A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using `leveldown` on Windows, you should give him your thanks!
 
 <a name="license"></a>
-## License &amp; copyright
+## License
 
 Copyright &copy; 2012-2018 `leveldown` [contributors](https://github.com/level/community#contributors).
 
