@@ -9,18 +9,17 @@
 [![npm](https://img.shields.io/npm/dm/leveldown.svg)](https://www.npmjs.com/package/leveldown)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-  * <a href="#intro">Introduction</a>
-  * <a href="#platforms">Supported Platforms</a>
-  * <a href="#api">API</a>
-  * <a href="#safety">Safety</a>
-  * <a href="#snapshots">Snapshots</a>
-  * <a href="#support">Getting Support</a>
-  * <a href="#contributing">Contributing</a>
-  * <a href="#license">Licence</a>
+* [Introduction](#introduction)
+* [Supported Platforms](#supported-platforms)
+* [API](#api)
+* [Safety](#safety)
+* [Snapshots](#snapshots)
+* [Getting Support](#getting-support)
+* [Contributing](#contributing)
+* [License](#license)
 
 **If you are upgrading:** please see [UPGRADING.md](UPGRADING.md).
 
-<a name="intro"></a>
 ## Introduction
 
 This module was originally part of [`levelup`](https://github.com/level/levelup) but was later extracted and now serves as a stand-alone binding for LevelDB.
@@ -29,7 +28,6 @@ It is **strongly recommended** that you use `levelup` in preference to `leveldow
 
 See the section on <a href="#safety">safety</a> below for details of known unsafe operations with `leveldown`.
 
-<a name="platforms"></a>
 ## Supported Platforms
 
 We aim to support *at least* Active LTS and Current Node.js releases. `leveldown` ships with prebuilt binaries for [many platforms](https://github.com/Level/leveldown/releases) and is known to work on:
@@ -44,7 +42,6 @@ When installing `leveldown`, [`prebuild-install`](https://github.com/prebuild/pr
 
 If you don't want to use the prebuilt binary for the platform you are installing on, specify the `--build-from-source` flag when you install. If you are working on `leveldown` itself and want to re-compile the C++ code it's enough to do `npm install`.
 
-<a name="api"></a>
 ## API
 
 * [<code><b>leveldown()</b></code>](#ctor)
@@ -268,21 +265,18 @@ A `repair()` can also be used to perform a compaction of the LevelDB log into ta
 
 The callback will be called when the repair operation is complete, with a possible `error` argument.
 
-<a name="safety"></a>
 ## Safety
 
-### Database state
+### Database State
 
 Currently `leveldown` does not track the state of the underlying LevelDB instance. This means that calling `open()` on an already open database may result in an error. Likewise, calling any other operation on a non-open database may result in an error.
 
 `levelup` currently tracks and manages state and will prevent out-of-state operations from being send to `leveldown`. If you use `leveldown` directly then you must track and manage state for yourself.
 
-<a name="snapshots"></a>
 ## Snapshots
 
 `leveldown` exposes a feature of LevelDB called [snapshots](https://github.com/google/leveldb/blob/master/doc/index.md#snapshots). This means that when you do e.g. `createReadStream` and `createWriteStream` at the same time, any data modified by the write stream will not affect data emitted from the read stream. In other words, a LevelDB Snapshot captures the latest state at the time the snapshot was created, enabling the snapshot to iterate or read the data without seeing any subsequent writes. Any read not performed on a snapshot will implicitly use the latest state.
 
-<a name="support"></a>
 ## Getting Support
 
 There are multiple ways you can find help in using LevelDB in Node.js:
@@ -291,7 +285,6 @@ There are multiple ways you can find help in using LevelDB in Node.js:
  * **Mailing list:** there is an active [Node.js LevelDB](https://groups.google.com/forum/#!forum/node-levelup) Google Group.
  * **GitHub:** you're welcome to open an issue here on this GitHub repository if you have a question.
 
-<a name="contributing"></a>
 ## Contributing
 
 `leveldown` is an **OPEN Open Source Project**. This means that:
@@ -304,7 +297,6 @@ See the [contribution guide](https://github.com/Level/community/blob/master/CONT
 
 A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using `leveldown` on Windows, you should give him your thanks!
 
-<a name="license"></a>
 ## License
 
 Copyright &copy; 2012-2018 `leveldown` [contributors](https://github.com/level/community#contributors).
