@@ -48,7 +48,6 @@
     "lexicographic-integer": "~1.1.0",
     "mkfiletree": "~1.0.1",
     "monotonic-timestamp": "~0.0.8",
-    "node-uuid": "~1.4.3",
     "optimist": "~0.6.1",
     "prebuild": "^7.0.0",
     "prebuild-ci": "^2.0.0",
@@ -57,6 +56,7 @@
     "slump": "~2.0.0",
     "standard": "^11.0.1",
     "tape": "^4.5.1",
+    "uuid": "^3.2.1",
     "verify-travis-appveyor": "^3.0.0"
   },
   "scripts": {
