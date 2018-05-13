@@ -10,11 +10,11 @@
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
   * <a href="#intro">Introduction</a>
-  * <a href="#platforms">Supported platforms</a>
+  * <a href="#platforms">Supported Platforms</a>
   * <a href="#api">API</a>
   * <a href="#safety">Safety</a>
   * <a href="#snapshots">Snapshots</a>
-  * <a href="#support">Getting support</a>
+  * <a href="#support">Getting Support</a>
   * <a href="#contributing">Contributing</a>
   * <a href="#license">Licence</a>
 
@@ -30,7 +30,7 @@ It is **strongly recommended** that you use `levelup` in preference to `leveldow
 See the section on <a href="#safety">safety</a> below for details of known unsafe operations with `leveldown`.
 
 <a name="platforms"></a>
-## Supported platforms
+## Supported Platforms
 
 We aim to support *at least* Active LTS and Current Node.js releases. `leveldown` ships with prebuilt binaries for [many platforms](https://github.com/Level/leveldown/releases) and is known to work on:
 
@@ -283,7 +283,7 @@ Currently `leveldown` does not track the state of the underlying LevelDB instanc
 `leveldown` exposes a feature of LevelDB called [snapshots](https://github.com/google/leveldb/blob/master/doc/index.md#snapshots). This means that when you do e.g. `createReadStream` and `createWriteStream` at the same time, any data modified by the write stream will not affect data emitted from the read stream. In other words, a LevelDB Snapshot captures the latest state at the time the snapshot was created, enabling the snapshot to iterate or read the data without seeing any subsequent writes. Any read not performed on a snapshot will implicitly use the latest state.
 
 <a name="support"></a>
-## Getting support
+## Getting Support
 
 There are multiple ways you can find help in using LevelDB in Node.js:
 
