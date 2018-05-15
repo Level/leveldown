@@ -2,6 +2,10 @@
 
 This document describes breaking changes and how to upgrade. For a complete list of changes including minor and patch releases, please refer to the [changelog](CHANGELOG.md).
 
+## v3.0.1
+
+If you're using node v10 you'll need at least `leveldown@2.0.1` to successfully compile. In addition, if you want prebuilt binaries you'll need at least `leveldown@3.0.1`.
+
 ## v3
 
 #### `.batch(array)` enforces objects
