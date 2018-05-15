@@ -170,7 +170,7 @@ The `callback` function will be called with no arguments if the operation is suc
 
 The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store.
 
-The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the approximate size as a Number.
 
 <a name="leveldown_compactRange"></a>
 ### `db.compactRange(start, end, callback)`
