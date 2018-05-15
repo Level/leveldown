@@ -2,6 +2,10 @@
 
 This document describes breaking changes and how to upgrade. For a complete list of changes including minor and patch releases, please refer to the [changelog](CHANGELOG.md).
 
+## v3.0.1
+
+If you're running node v10 or above you need to upgrade to `leveldown@3.0.1` or above.
+
 ## v3
 
 #### `.batch(array)` enforces objects
