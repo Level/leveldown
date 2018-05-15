@@ -30,7 +30,6 @@
     "level"
   ],
   "main": "leveldown.js",
-  "typings": "leveldown.d.ts",
   "dependencies": {
     "abstract-leveldown": "~4.0.0",
     "bindings": "~1.3.0",
@@ -39,7 +38,6 @@
     "prebuild-install": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^8.0.31",
     "async": "^2.0.1",
     "delayed": "~1.0.1",
     "du": "~0.1.0",
@@ -69,10 +67,5 @@
   "gypfile": true,
   "engines": {
     "node": ">=6"
-  },
-  "greenkeeper": {
-    "ignore": [
-      "@types/node"
-    ]
   }
 }
