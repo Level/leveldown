@@ -4,7 +4,7 @@ This document describes breaking changes and how to upgrade. For a complete list
 
 ## v3.0.1
 
-If you're running node v10 or above you need to upgrade to `leveldown@2.0.1` or above. In addition, if you need prebuilt binaries you should upgrade to `leveldown@3.0.1` or above.
+If you're using node v10 you'll need at least `leveldown@2.0.1` to successfully compile. In addition, if you want prebuilt binaries you'll need at least `leveldown@3.0.1`.
 
 ## v3
 
