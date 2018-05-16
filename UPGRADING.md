@@ -4,7 +4,7 @@ This document describes breaking changes and how to upgrade. For a complete list
 
 ## v4
 
-Dropped support for node 4. No breaking changes.
+Dropped support for node 4. No other breaking changes.
 
 ## v3.0.1
 
