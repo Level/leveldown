@@ -2,6 +2,25 @@
 
 ## [Unreleased]
 
+## [4.0.0] - 2018-05-16
+
+### Added
+* Import and fix gc test from `levelup` (@vweevers)
+* Add `standard` (@ralphtheninja)
+* Add a note on upgrading to 2.0.1/3.0.1 (@ralphtheninja)
+
+### Changed
+* Upgrade to `verify-travis-appveyor@^3.0.0` (@ralphtheninja)
+* Change deprecated `node-uuid` to `uuid` (@ralphtheninja)
+* Update `README` format (@ralphtheninja)
+
+### Fixed
+* Fix docs for `approximateSize()` (@ralphtheninja)
+
+### Removed
+* Remove node 4 from Travis and AppVeyor (@ralphtheninja)
+* Remove TypeScript typings (@meirionhughes)
+
 ## [3.0.2] - 2018-05-05
 
 ### Changed
@@ -669,7 +688,8 @@
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package (@rvagg)
 
-[Unreleased]: https://github.com/level/leveldown/compare/v3.0.2...HEAD
+[Unreleased]: https://github.com/level/leveldown/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/level/leveldown/compare/v3.0.2...v4.0.0
 [3.0.2]: https://github.com/level/leveldown/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/level/leveldown/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/level/leveldown/compare/v2.1.1...v3.0.0
