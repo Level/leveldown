@@ -5,6 +5,7 @@
 ## [4.0.0] - 2018-05-16
 
 ### Added
+* Import and fix gc test from `levelup` (@vweevers)
 * Add `standard` (@ralphtheninja)
 * Add a note on upgrading to 2.0.1/3.0.1 (@ralphtheninja)
 
@@ -12,7 +13,6 @@
 * Upgrade to `verify-travis-appveyor@^3.0.0` (@ralphtheninja)
 * Change deprecated `node-uuid` to `uuid` (@ralphtheninja)
 * Update `README` format (@ralphtheninja)
-* Import and fix gc test from `levelup` (@vweevers)
 
 ### Fixed
 * Fix docs for `approximateSize()` (@ralphtheninja)
