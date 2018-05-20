@@ -15,7 +15,6 @@ platform:
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
-  - ps: if ($env:nodejs_version -eq "5") { npm i npm@latest -g }
   - set PATH=%APPDATA%\npm;%APPVEYOR_BUILD_FOLDER%\node_modules\.bin;%PATH%
   - npm i
 
