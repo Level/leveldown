@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [4.0.1] - 2018-05-22
+
+### Changed
+* Upgrade to `abstract-leveldown@~5.0.0` (@ralphtheninja)
+
+### Removed
+* Remove old AppVeyor hack (@ralphtheninja)
+
 ## [4.0.0] - 2018-05-16
 
 ### Added
@@ -688,7 +696,8 @@
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package (@rvagg)
 
-[Unreleased]: https://github.com/level/leveldown/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/level/leveldown/compare/v4.0.1...HEAD
+[4.0.1]: https://github.com/level/leveldown/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/level/leveldown/compare/v3.0.2...v4.0.0
 [3.0.2]: https://github.com/level/leveldown/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/level/leveldown/compare/v3.0.0...v3.0.1
