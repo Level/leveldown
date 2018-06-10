@@ -124,10 +124,6 @@
 * Simplify AppVeyor (@vweevers)
 * Install latest `npm` on AppVeyor for `node@5` (@vweevers)
 
-### Removed
-
-### Fixed
-
 ## [1.7.2] - 2017-06-08
 
 ### Changed
@@ -295,8 +291,6 @@
 
 ### Removed
 * No longer need `node-gyp` directly (@ralphtheninja)
-
-### Fixed
 
 ## [1.3.1-0] - 2015-07-20
 
