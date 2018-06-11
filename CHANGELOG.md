@@ -468,8 +468,8 @@
 * Remove `Persistent` references for all `batch()` operations as `WriteBatch` takes an explicit copy of the data (@mcollina and @rvagg)
 
 ### Fixed
-* Fix array-batch memory leak, levelup/#171 (@rvagg)
-* Fix chained-batch `write()` segfaults, details in #73, (@rvagg and @mcollina)
+* Fix array-batch memory leak (level/levelup/#171) (@rvagg)
+* Fix chained-batch `write()` segfaults (details in #73), (@rvagg and @mcollina)
 
 ## [0.9.2] - 2013-11-02
 
@@ -620,7 +620,7 @@
 * Macro cleanup, replace some with static inline functions (@rvagg)
 
 ### Fixed
-* Fix iterator to start on correct value when `reverse=true`, also handle end-of-store case #27 (@kesla)
+* Fix iterator to start on correct value when `reverse=true`, also handle end-of-store case (#27) (@kesla)
 
 ## [0.2.0] - 2013-03-30
 
