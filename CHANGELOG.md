@@ -289,7 +289,7 @@
 
 ### Fixed
 
--   Fix build problems on windows [Level#247](https://github.com/Level/leveldown/issues/247) ([**@obastemur**](https://github.com/obastemur))
+-   Fix build problems on windows ([#247](https://github.com/level/leveldown/issues/247)) ([**@obastemur**](https://github.com/obastemur))
 
 ## [1.4.3] - 2015-12-14
 
@@ -306,7 +306,7 @@
 
 ### Fixed
 
--   Fix build problems on windows [Level#196](https://github.com/Level/leveldown/issues/196) ([**@obastemur**](https://github.com/obastemur))
+-   Fix build problems on windows ([#196](https://github.com/level/leveldown/issues/196)) ([**@obastemur**](https://github.com/obastemur))
 
 ## [1.4.2] - 2015-10-21
 
