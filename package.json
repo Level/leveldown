@@ -50,6 +50,8 @@
     "prebuild": "^7.0.0",
     "prebuild-ci": "^2.0.0",
     "readfiletree": "~0.0.1",
+    "remark-cli": "^5.0.0",
+    "remark-github": "^7.0.3",
     "rimraf": "^2.6.1",
     "slump": "~2.0.0",
     "standard": "^11.0.1",
@@ -61,7 +63,13 @@
     "install": "prebuild-install || node-gyp rebuild",
     "test": "standard && verify-travis-appveyor && (tape test/*-test.js | faucet) && prebuild-ci",
     "rebuild": "prebuild --compile",
-    "prebuild": "prebuild --all --strip --verbose"
+    "prebuild": "prebuild --all --strip --verbose",
+    "changelog": "remark CHANGELOG.md -o"
+  },
+  "remarkConfig": {
+    "plugins": [
+      "remark-github"
+    ]
   },
   "license": "MIT",
   "gypfile": true,
