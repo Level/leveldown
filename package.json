@@ -31,7 +31,7 @@
   ],
   "main": "leveldown.js",
   "dependencies": {
-    "abstract-leveldown": "~5.0.0",
+    "abstract-leveldown": "github:Level/abstract-leveldown#isolate-snapshot-test",
     "bindings": "~1.3.0",
     "fast-future": "~1.0.2",
     "nan": "~2.10.0",
