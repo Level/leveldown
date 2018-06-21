@@ -106,11 +106,7 @@ test('test approximateSize()', function (t) {
           t.equal(typeof size, 'number')
           // account for snappy compression, original would be ~100000
           t.ok(size > 40000, 'size reports a reasonable amount (' + size + ')')
-
-          db.close(function (err) {
-            t.error(err)
-            t.end()
-          })
+          t.end()
         })
       })
     })
