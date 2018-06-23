@@ -1,8 +1,3 @@
-/* Copyright (c) 2012-2018 LevelDOWN contributors
- * See list at <https://github.com/level/leveldown#contributing>
- * MIT License <https://github.com/level/leveldown/blob/master/LICENSE.md>
- */
-
 #ifndef LD_COMMON_H
 #define LD_COMMON_H
 
