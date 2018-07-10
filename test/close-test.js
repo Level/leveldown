@@ -1,7 +1,7 @@
 const test = require('tape')
-const testCommon = require('abstract-leveldown/testCommon')
+const testCommon = require('abstract-leveldown/test/common')
 const leveldown = require('..')
-const abstract = require('abstract-leveldown/abstract/close-test')
+const abstract = require('abstract-leveldown/test/close-test')
 
 module.exports.setUp = function () {
   test('setUp', testCommon.setUp)

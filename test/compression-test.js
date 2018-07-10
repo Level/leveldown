@@ -6,7 +6,7 @@
 const async = require('async')
 const du = require('du')
 const delayed = require('delayed')
-const common = require('abstract-leveldown/testCommon')
+const common = require('abstract-leveldown/test/common')
 const leveldown = require('..')
 const test = require('tape')
 

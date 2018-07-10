@@ -1,6 +1,6 @@
 const test = require('tape')
 const leveldown = require('..')
-const testCommon = require('abstract-leveldown/testCommon')
+const testCommon = require('abstract-leveldown/test/common')
 
 var db
 
