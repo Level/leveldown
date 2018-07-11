@@ -1,5 +1,5 @@
 const test = require('tape')
-const leveldown = require('..')
+const testCommon = require('./common')
 const abstract = require('abstract-leveldown/test/leveldown-test')
 
-abstract.args(leveldown, test)
+abstract.args(testCommon.factory, test)

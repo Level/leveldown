@@ -1,12 +1,12 @@
 const test = require('tape')
-const leveldown = require('..')
+const testCommon = require('./common')
 const abstract = require('abstract-leveldown/test/iterator-test')
 const make = require('./make')
 const iota = require('iota-array')
 const lexi = require('lexicographic-integer')
 const util = require('util')
 
-abstract.all(leveldown, test)
+abstract.all(testCommon.factory, test)
 
 make('iterator throws if key is not a string or buffer', function (db, t, done) {
   var keys = [null, undefined, 1, true, false]

@@ -6,10 +6,9 @@
   * directly, we check for a command-line argument.
   */
 const testCommon = require('./common')
-const leveldown = require('..')
 
 if (process.argv[2] === 'run') {
-  var db = leveldown(testCommon.location())
+  var db = testCommon.factory()
   var depth = 0
 
   db.open(function () {

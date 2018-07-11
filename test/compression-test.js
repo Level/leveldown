@@ -44,7 +44,7 @@ test('Compression', function (t) {
   t.test('set up', testCommon.setUp)
 
   t.test('test data is compressed by default (db.put())', function (t) {
-    var db = leveldown(testCommon.location())
+    var db = testCommon.factory()
     db.open(function (err) {
       t.error(err)
       async.forEach(
@@ -58,7 +58,7 @@ test('Compression', function (t) {
   })
 
   t.test('test data is not compressed with compression=false on open() (db.put())', function (t) {
-    var db = leveldown(testCommon.location())
+    var db = testCommon.factory()
     db.open({ compression: false }, function (err) {
       t.error(err)
       async.forEach(
@@ -72,7 +72,7 @@ test('Compression', function (t) {
   })
 
   t.test('test data is compressed by default (db.batch())', function (t) {
-    var db = leveldown(testCommon.location())
+    var db = testCommon.factory()
     db.open(function (err) {
       t.error(err)
       db.batch(

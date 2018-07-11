@@ -1,11 +1,9 @@
 const test = require('tape')
 const testCommon = require('./common')
-const leveldown = require('..')
 
 function makeTest (name, testFn) {
   test(name, function (t) {
-    var location = testCommon.location()
-    var db = leveldown(location)
+    var db = testCommon.factory()
     var done = function (close) {
       if (close === false) {
         t.end()
@@ -24,7 +22,7 @@ function makeTest (name, testFn) {
         { type: 'put', key: 'three', value: '3' }
       ], function (err) {
         t.error(err, 'no error from batch()')
-        testFn(db, t, done, location)
+        testFn(db, t, done)
       })
     })
   })
