@@ -1,5 +1,5 @@
 const test = require('tape')
-const testCommon = require('abstract-leveldown/testCommon')
+const tempy = require('tempy')
 const fs = require('fs')
 const path = require('path')
 const mkfiletree = require('mkfiletree')
@@ -27,7 +27,7 @@ test('test callback-less, 1-arg, destroy() throws', function (t) {
 test('test destroy non-existent directory', function (t) {
   t.plan(4)
 
-  var location = testCommon.location()
+  var location = tempy.directory()
   var parent = path.dirname(location)
 
   // For symmetry with the opposite test below.
@@ -86,7 +86,8 @@ test('test destroy non leveldb directory', function (t) {
   })
 })
 
-makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, done, location) {
+makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, done) {
+  var location = db.location
   db.close(function (err) {
     t.ifError(err, 'no close error')
 
@@ -99,7 +100,8 @@ makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, 
   })
 })
 
-makeTest('test destroy() cleans and removes only leveldb parts of a dir', function (db, t, done, location) {
+makeTest('test destroy() cleans and removes only leveldb parts of a dir', function (db, t, done) {
+  var location = db.location
   fs.writeFileSync(path.join(location, 'foo'), 'FOO')
 
   db.close(function (err) {
