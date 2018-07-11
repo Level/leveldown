@@ -5,7 +5,7 @@
   * iterator-recursion-test.js. To prevent tap from trying to run this test
   * directly, we check for a command-line argument.
   */
-const testCommon = require('abstract-leveldown/test/common')
+const testCommon = require('./common')
 const leveldown = require('..')
 
 if (process.argv[2] === 'run') {

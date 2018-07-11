@@ -1,5 +1,5 @@
 const test = require('tape')
-const testCommon = require('abstract-leveldown/test/common')
+const testCommon = require('./common')
 const leveldown = require('..')
 
 function makeTest (name, testFn) {
