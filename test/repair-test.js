@@ -31,7 +31,8 @@ test('test repair non-existent directory returns error', function (t) {
 })
 
 // a proxy indicator that RepairDB is being called and doing its thing
-makeTest('test repair() compacts', function (db, t, done, location) {
+makeTest('test repair() compacts', function (db, t, done) {
+  var location = db.location
   db.close(function (err) {
     t.notOk(err, 'no error')
     var files = fs.readdirSync(location)

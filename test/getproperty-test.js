@@ -1,13 +1,12 @@
 const test = require('tape')
-const testCommon = require('abstract-leveldown/testCommon')
-const leveldown = require('..')
+const testCommon = require('./common')
 
 let db
 
 test('setUp common', testCommon.setUp)
 
 test('setUp db', function (t) {
-  db = leveldown(testCommon.location())
+  db = testCommon.factory()
   db.open(t.end.bind(t))
 })
 
