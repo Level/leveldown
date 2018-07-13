@@ -19,7 +19,7 @@ ChainedBatch.prototype._clear = function (key) {
 }
 
 ChainedBatch.prototype._write = function (options, callback) {
-  this.binding.write(options, callback)
+  this.binding.write(callback)
 }
 
 util.inherits(ChainedBatch, AbstractChainedBatch)
