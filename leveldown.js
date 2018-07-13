@@ -9,6 +9,10 @@ function LevelDOWN (location) {
     return new LevelDOWN(location)
   }
 
+  if (typeof location !== 'string') {
+    throw new Error('constructor requires a location string argument')
+  }
+
   AbstractLevelDOWN.call(this)
 
   this.location = location
