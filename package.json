@@ -25,6 +25,7 @@
     "delayed": "~1.0.1",
     "du": "~0.1.0",
     "iota-array": "~1.0.0",
+    "level-concat-iterator": "^2.0.0",
     "lexicographic-integer": "~1.1.0",
     "mkfiletree": "~1.0.1",
     "monotonic-timestamp": "~0.0.8",
@@ -39,6 +40,7 @@
     "slump": "~2.0.0",
     "standard": "^12.0.0",
     "tape": "^4.5.1",
+    "tempy": "^0.2.1",
     "uuid": "^3.2.1",
     "verify-travis-appveyor": "^3.0.0"
   },
