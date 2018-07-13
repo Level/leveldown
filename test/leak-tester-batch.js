@@ -1,7 +1,7 @@
 const BUFFERS = false
 const CHAINED = false
 
-const leveldown = require('..')
+const testCommon = require('./common')
 const crypto = require('crypto')
 const assert = require('assert')
 
@@ -72,10 +72,8 @@ var run = CHAINED
     print()
   }
 
-leveldown.destroy('./leakydb', function () {
-  db = leveldown('./leakydb')
-  db.open({ xcacheSize: 0, xmaxOpenFiles: 10 }, function () {
-    rssBase = process.memoryUsage().rss
-    run()
-  })
+db = testCommon.factory()
+db.open({ xcacheSize: 0, xmaxOpenFiles: 10 }, function () {
+  rssBase = process.memoryUsage().rss
+  run()
 })
