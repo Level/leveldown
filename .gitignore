@@ -15,3 +15,4 @@ leakydb
 npm-debug.log
 prebuilds/
 yarn.lock
+.nyc_output
