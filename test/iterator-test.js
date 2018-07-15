@@ -3,21 +3,21 @@ const iota = require('iota-array')
 const lexi = require('lexicographic-integer')
 const util = require('util')
 
-make('iterator throws if key is not a string or buffer', function (db, t, done) {
-  var keys = [null, undefined, 1, true, false]
-  var pending = keys.length
+make('iterator#seek throws if target is empty', function (db, t, done) {
+  var targets = [null, undefined, '', Buffer.alloc(0), []]
+  var pending = targets.length
 
-  keys.forEach(function (key) {
-    var error
+  targets.forEach(function (target) {
     var ite = db.iterator()
+    var error
 
     try {
-      ite.seek(key)
-    } catch (e) {
-      error = e
+      ite.seek(target)
+    } catch (err) {
+      error = err.message
     }
 
-    t.ok(error, 'had error from seek()')
+    t.is(error, 'cannot seek() to an empty target', 'got error')
     ite.end(end)
   })
 
@@ -86,8 +86,8 @@ make('reverse seek from invalid range', function (db, t, done) {
   ite.seek('zzz')
   ite.next(function (err, key, value) {
     t.error(err, 'no error')
-    t.same(key.toString(), 'two', 'end of iterator')
-    t.same(value.toString(), '2', 'end of iterator')
+    t.same(key.toString(), 'two')
+    t.same(value.toString(), '2')
     ite.end(done)
   })
 })
@@ -132,17 +132,20 @@ make('iterator optimized for seek', function (db, t, done) {
 
 make('iterator seek before next has completed', function (db, t, done) {
   var ite = db.iterator()
+  var error
+
   ite.next(function (err, key, value) {
     t.error(err, 'no error from next()')
     ite.end(done)
   })
-  var error
+
   try {
     ite.seek('two')
-  } catch (e) {
-    error = e
+  } catch (err) {
+    error = err.message
   }
-  t.ok(error, 'had error from seek() before next() has completed')
+
+  t.is(error, 'cannot call seek() before next() has completed', 'got error')
 })
 
 make('close db with open iterator', function (db, t, done) {
@@ -170,12 +173,14 @@ make('iterator seek after end', function (db, t, done) {
     ite.end(function (err) {
       t.error(err, 'no error from end()')
       var error
+
       try {
         ite.seek('two')
-      } catch (e) {
-        error = e
+      } catch (err) {
+        error = err.message
       }
-      t.ok(error, 'had error from seek() after end()')
+
+      t.is(error, 'cannot call seek() after end()', 'got error')
       done()
     })
   })
