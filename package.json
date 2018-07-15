@@ -21,13 +21,14 @@
   },
   "devDependencies": {
     "async": "^2.0.1",
+    "coveralls": "^3.0.2",
     "delayed": "~1.0.1",
     "du": "~0.1.0",
-    "faucet": "0.0.1",
     "iota-array": "~1.0.0",
     "lexicographic-integer": "~1.1.0",
     "mkfiletree": "~1.0.1",
     "monotonic-timestamp": "~0.0.8",
+    "nyc": "^12.0.2",
     "optimist": "~0.6.1",
     "prebuild": "^7.0.0",
     "prebuild-ci": "^2.0.0",
@@ -43,7 +44,8 @@
   },
   "scripts": {
     "install": "prebuild-install || node-gyp rebuild",
-    "test": "standard && verify-travis-appveyor && (tape test/*-test.js | faucet) && prebuild-ci",
+    "test": "standard && verify-travis-appveyor && nyc tape test/*-test.js && prebuild-ci",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "prebuild --compile",
     "prebuild": "prebuild --all --strip --verbose",
     "changelog": "remark CHANGELOG.md -o"
