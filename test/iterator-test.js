@@ -4,7 +4,7 @@ const lexi = require('lexicographic-integer')
 const util = require('util')
 
 make('iterator#seek throws if target is empty', function (db, t, done) {
-  var targets = [null, undefined, '', Buffer.alloc(0), []]
+  var targets = ['', Buffer.alloc(0), []]
   var pending = targets.length
 
   targets.forEach(function (target) {
