@@ -65,7 +65,7 @@ make('iterator is seekable with buffer', function (db, t, done) {
 })
 
 make('reverse seek in the middle', function (db, t, done) {
-  var ite = db.iterator({reverse: true, limit: 1})
+  var ite = db.iterator({ reverse: true, limit: 1 })
   ite.seek('three!')
   ite.next(function (err, key, value) {
     t.error(err, 'no error')
@@ -87,7 +87,7 @@ make('iterator invalid seek', function (db, t, done) {
 })
 
 make('reverse seek from invalid range', function (db, t, done) {
-  var ite = db.iterator({reverse: true})
+  var ite = db.iterator({ reverse: true })
   ite.seek('zzz')
   ite.next(function (err, key, value) {
     t.error(err, 'no error')
