@@ -13,18 +13,9 @@ function Iterator (db, options) {
 
 util.inherits(Iterator, AbstractIterator)
 
-Iterator.prototype.seek = function (target) {
-  if (this._ended) {
-    throw new Error('cannot call seek() after end()')
-  }
-  if (this._nexting) {
-    throw new Error('cannot call seek() before next() has completed')
-  }
-  if (typeof target !== 'string' && !Buffer.isBuffer(target)) {
-    throw new Error('seek() requires a string or buffer key')
-  }
+Iterator.prototype._seek = function (target) {
   if (target.length === 0) {
-    throw new Error('cannot seek() to an empty key')
+    throw new Error('cannot seek() to an empty target')
   }
 
   this.cache = null
