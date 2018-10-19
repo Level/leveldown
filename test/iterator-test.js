@@ -1,6 +1,4 @@
 const make = require('./make')
-// const iota = require('iota-array') // TODO: remove if unused
-// const lexi = require('lexicographic-integer') // TODO: remove if unused
 
 // This test isn't included in abstract-leveldown because
 // the empty-check is currently performed by leveldown.
