@@ -1,6 +1,6 @@
 const BUFFERS = false
 
-const leveldown = require('..')
+const testCommon = require('./common')
 const crypto = require('crypto')
 
 let putCount = 0
@@ -40,10 +40,8 @@ function run () {
   }
 }
 
-leveldown.destroy('./leakydb', function () {
-  db = leveldown('./leakydb')
-  db.open({ xcacheSize: 0, xmaxOpenFiles: 10 }, function () {
-    rssBase = process.memoryUsage().rss
-    run()
-  })
+db = testCommon.factory()
+db.open({ xcacheSize: 0, xmaxOpenFiles: 10 }, function () {
+  rssBase = process.memoryUsage().rss
+  run()
 })

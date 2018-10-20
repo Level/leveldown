@@ -111,7 +111,7 @@ The following options are for advanced performance tuning. Modify them only if y
 ### `db.put(key, value[, options], callback)`
 <code>put()</code> is an instance method on an existing database object, used to store new entries, or overwrite existing entries in the LevelDB store.
 
-The `key` and `value` objects may either be strings or Buffers. Other object types are converted to strings with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values of `null`, `undefined`, `''`, `[]` and `Buffer.alloc(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `Buffer.alloc(0)` depending on the type requested.
+The `key` and `value` objects may either be strings or Buffers. Other object types are converted to strings with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values may not be `null` or `undefined`. Values of `''`, `[]` and `Buffer.alloc(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `Buffer.alloc(0)` depending on the type requested.
 
 A richer set of data-types is catered for in `levelup`.
 

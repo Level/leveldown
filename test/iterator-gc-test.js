@@ -1,8 +1,8 @@
 'use strict'
 
 const test = require('tape')
-const testCommon = require('abstract-leveldown/testCommon')
-const leveldown = require('..')
+const collectEntries = require('level-concat-iterator')
+const testCommon = require('./common')
 const sourceData = []
 
 for (let i = 0; i < 1e3; i++) {
@@ -20,7 +20,7 @@ test('setUp', testCommon.setUp)
 test('db without ref does not get GCed while iterating', function (t) {
   t.plan(6)
 
-  let db = leveldown(testCommon.location())
+  let db = testCommon.factory()
 
   db.open(function (err) {
     t.ifError(err, 'no open error')
@@ -50,7 +50,7 @@ test('db without ref does not get GCed while iterating', function (t) {
 
   function iterate (it) {
     // No reference to db here, could be GCed. It shouldn't..
-    testCommon.collectEntries(it, function (err, entries) {
+    collectEntries(it, function (err, entries) {
       t.ifError(err, 'no iterator error')
       t.is(entries.length, sourceData.length, 'got data')
 

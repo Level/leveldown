@@ -5,26 +5,23 @@
   * iterator-recursion-test.js. To prevent tap from trying to run this test
   * directly, we check for a command-line argument.
   */
-const testCommon = require('abstract-leveldown/testCommon')
-const leveldown = require('..')
+const testCommon = require('./common')
 
 if (process.argv[2] === 'run') {
-  testCommon.cleanup(function () {
-    var db = leveldown(testCommon.location())
-    var depth = 0
+  var db = testCommon.factory()
+  var depth = 0
 
-    db.open(function () {
-      function recurse () {
-        db.iterator({ start: '0' })
-        depth++
-        recurse()
-      }
+  db.open(function () {
+    function recurse () {
+      db.iterator({ start: '0' })
+      depth++
+      recurse()
+    }
 
-      try {
-        recurse()
-      } catch (e) {
-        process.send('Catchable error at depth ' + depth)
-      }
-    })
+    try {
+      recurse()
+    } catch (e) {
+      process.send('Catchable error at depth ' + depth)
+    }
   })
 }

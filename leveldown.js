@@ -9,7 +9,13 @@ function LevelDOWN (location) {
     return new LevelDOWN(location)
   }
 
-  AbstractLevelDOWN.call(this, location)
+  if (typeof location !== 'string') {
+    throw new Error('constructor requires a location string argument')
+  }
+
+  AbstractLevelDOWN.call(this)
+
+  this.location = location
   this.binding = binding(location)
 }
 
@@ -21,6 +27,14 @@ LevelDOWN.prototype._open = function (options, callback) {
 
 LevelDOWN.prototype._close = function (callback) {
   this.binding.close(callback)
+}
+
+LevelDOWN.prototype._serializeKey = function (key) {
+  return Buffer.isBuffer(key) ? key : String(key)
+}
+
+LevelDOWN.prototype._serializeValue = function (value) {
+  return Buffer.isBuffer(value) ? value : String(value)
 }
 
 LevelDOWN.prototype._put = function (key, value, options, callback) {

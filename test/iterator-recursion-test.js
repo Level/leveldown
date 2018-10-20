@@ -1,6 +1,5 @@
 const test = require('tape')
-const testCommon = require('abstract-leveldown/testCommon')
-const leveldown = require('..')
+const testCommon = require('./common')
 const fork = require('child_process').fork
 const path = require('path')
 
@@ -43,7 +42,7 @@ test('try to create an iterator with a blown stack', function (t) {
 })
 
 test('setUp db', function (t) {
-  db = leveldown(testCommon.location())
+  db = testCommon.factory()
   db.open(function (err) {
     t.error(err)
     db.batch(sourceData, t.end.bind(t))
