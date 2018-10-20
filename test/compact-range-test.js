@@ -16,35 +16,25 @@ test('test compactRange() frees disk space after key deletion', function (t) {
   var val1 = Buffer.allocUnsafe(64).fill(1)
   var val2 = Buffer.allocUnsafe(64).fill(1)
 
-  // TODO: use batch()
-  db.put(key1, val1, function (err) {
-    t.ifError(err, 'no put1 error')
+  db.batch().put(key1, val1).put(key2, val2).write(function (err) {
+    t.ifError(err, 'no batch put error')
 
-    db.put(key2, val2, function (err) {
-      t.ifError(err, 'no put2 error')
+    db.compactRange(key1, key2, function (err) {
+      t.ifError(err, 'no compactRange1 error')
 
-      db.compactRange(key1, key2, function (err) {
-        t.ifError(err, 'no compactRange1 error')
+      db.approximateSize('0', 'z', function (err, sizeAfterPuts) {
+        t.error(err, 'no approximateSize1 error')
 
-        db.approximateSize('0', 'z', function (err, sizeAfterPuts) {
-          t.error(err, 'no approximateSize1 error')
+        db.batch().del(key1).del(key2).write(function (err) {
+          t.ifError(err, 'no batch del error')
 
-          // TODO: use batch()
-          db.del(key1, function (err) {
-            t.ifError(err, 'no del1 error')
+          db.compactRange(key1, key2, function (err) {
+            t.ifError(err, 'no compactRange2 error')
 
-            db.del(key2, function (err) {
-              t.ifError(err, 'no del2 error')
-
-              db.compactRange(key1, key2, function (err) {
-                t.ifError(err, 'no compactRange2 error')
-
-                db.approximateSize('0', 'z', function (err, sizeAfterCompact) {
-                  t.error(err, 'no approximateSize2 error')
-                  t.ok(sizeAfterCompact < sizeAfterPuts)
-                  t.end()
-                })
-              })
+            db.approximateSize('0', 'z', function (err, sizeAfterCompact) {
+              t.error(err, 'no approximateSize2 error')
+              t.ok(sizeAfterCompact < sizeAfterPuts)
+              t.end()
             })
           })
         })
