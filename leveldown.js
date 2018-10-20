@@ -76,6 +76,9 @@ LevelDOWN.prototype.approximateSize = function (start, end, callback) {
 }
 
 LevelDOWN.prototype.compactRange = function (start, end, callback) {
+  start = this._serializeKey(start)
+  end = this._serializeKey(end)
+
   this.binding.compactRange(start, end, callback)
 }
 

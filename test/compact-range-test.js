@@ -43,6 +43,22 @@ test('test compactRange() frees disk space after key deletion', function (t) {
   })
 })
 
+test('test compactRange() serializes start and end', function (t) {
+  t.plan(3)
+
+  var clone = Object.create(db)
+  var count = 0
+
+  clone._serializeKey = function (key) {
+    t.is(key, count++)
+    return db._serializeKey(key)
+  }
+
+  clone.compactRange(0, 1, function (err) {
+    t.ifError(err, 'no compactRange error')
+  })
+})
+
 test('tearDown', function (t) {
   db.close(testCommon.tearDown.bind(null, t))
 })
