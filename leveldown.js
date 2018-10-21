@@ -88,6 +88,11 @@ LevelDOWN.prototype.getProperty = function (property) {
 }
 
 LevelDOWN.prototype._iterator = function (options) {
+  if (this.status !== 'open') {
+    // Prevent segfault
+    throw new Error('cannot call iterator() before open()')
+  }
+
   return new Iterator(this, options)
 }
 
