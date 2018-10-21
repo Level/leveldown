@@ -35,7 +35,7 @@ test('test destroy non-existent directory', function (t) {
 
   // Cleanup to avoid conflicts with other tests
   rimraf(location, { glob: false }, function (err) {
-    t.ifError(err, 'no rimraf error')
+    t.ifError(err, 'no error from rimraf()')
 
     leveldown.destroy(location, function () {
       t.is(arguments.length, 0, 'no arguments returned on callback')
@@ -68,17 +68,17 @@ test('test destroy non leveldb directory', function (t) {
   }
 
   mkfiletree.makeTemp('destroy-test', tree, function (err, dir) {
-    t.ifError(err, 'no close error')
+    t.ifError(err, 'no error from makeTemp()')
 
     leveldown.destroy(dir, function (err) {
-      t.ifError(err, 'no destroy error')
+      t.ifError(err, 'no error from destroy()')
 
       readfiletree(dir, function (err, actual) {
-        t.ifError(err, 'no read error')
+        t.ifError(err, 'no error from readfiletree()')
         t.deepEqual(actual, tree, 'directory remains untouched')
 
         mkfiletree.cleanUp(function (err) {
-          t.ifError(err, 'no cleanup error')
+          t.ifError(err, 'no error from cleanup()')
           t.end()
         })
       })
@@ -89,13 +89,13 @@ test('test destroy non leveldb directory', function (t) {
 makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, done) {
   var location = db.location
   db.close(function (err) {
-    t.ifError(err, 'no close error')
+    t.ifError(err, 'no error from close()')
 
     leveldown.destroy(location, function (err) {
-      t.ifError(err, 'no destroy error')
+      t.ifError(err, 'no error from destroy()')
       t.notOk(fs.existsSync(location), 'directory completely removed')
 
-      done(false)
+      done(null, false)
     })
   })
 })
@@ -105,16 +105,16 @@ makeTest('test destroy() cleans and removes only leveldb parts of a dir', functi
   fs.writeFileSync(path.join(location, 'foo'), 'FOO')
 
   db.close(function (err) {
-    t.ifError(err, 'no close error')
+    t.ifError(err, 'no error from close()')
 
     leveldown.destroy(location, function (err) {
-      t.ifError(err, 'no destroy error')
+      t.ifError(err, 'no error from destroy()')
 
       readfiletree(location, function (err, tree) {
-        t.ifError(err, 'no read error')
+        t.ifError(err, 'no error from readfiletree()')
         t.deepEqual(tree, { 'foo': 'FOO' }, 'non-leveldb files left intact')
 
-        done(false)
+        done(null, false)
       })
     })
   })
