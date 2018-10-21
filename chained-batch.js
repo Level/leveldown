@@ -14,8 +14,8 @@ ChainedBatch.prototype._del = function (key) {
   this.binding.del(key)
 }
 
-ChainedBatch.prototype._clear = function (key) {
-  this.binding.clear(key)
+ChainedBatch.prototype._clear = function () {
+  this.binding.clear()
 }
 
 ChainedBatch.prototype._write = function (options, callback) {
