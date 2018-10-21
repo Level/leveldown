@@ -67,17 +67,22 @@ make('iterator optimized for seek', function (db, t, done) {
 make('close db with open iterator', function (db, t, done) {
   var ite = db.iterator()
   var cnt = 0
+  var hadError = false
+
   ite.next(function loop (err, key, value) {
     if (cnt++ === 0) {
       t.error(err, 'no error from next()')
     } else {
       t.equal(err.message, 'iterator has ended')
+      hadError = true
     }
     if (key !== undefined) { ite.next(loop) }
   })
 
   db.close(function (err) {
     t.error(err, 'no error from close()')
-    done(false)
+    t.ok(hadError)
+
+    done(null, false)
   })
 })

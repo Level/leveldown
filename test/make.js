@@ -4,11 +4,14 @@ const testCommon = require('./common')
 function makeTest (name, testFn) {
   test(name, function (t) {
     var db = testCommon.factory()
-    var done = function (close) {
+    var done = function (err, close) {
+      t.ifError(err, 'no error from done()')
+
       if (close === false) {
         t.end()
         return
       }
+
       db.close(function (err) {
         t.error(err, 'no error from close()')
         t.end()

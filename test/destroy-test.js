@@ -95,7 +95,7 @@ makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, 
       t.ifError(err, 'no destroy error')
       t.notOk(fs.existsSync(location), 'directory completely removed')
 
-      done(false)
+      done(null, false)
     })
   })
 })
@@ -114,7 +114,7 @@ makeTest('test destroy() cleans and removes only leveldb parts of a dir', functi
         t.ifError(err, 'no read error')
         t.deepEqual(tree, { 'foo': 'FOO' }, 'non-leveldb files left intact')
 
-        done(false)
+        done(null, false)
       })
     })
   })

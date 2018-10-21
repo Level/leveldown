@@ -42,7 +42,8 @@ makeTest('test repair() compacts', function (db, t, done) {
       files = fs.readdirSync(location)
       t.notOk(files.some(function (f) { return (/\.log$/).test(f) }), 'directory does not contain log file(s)')
       t.ok(files.some(function (f) { return (/\.ldb$/).test(f) }), 'directory contains ldb file(s)')
-      done(false)
+
+      done(null, false)
     })
   })
 })
