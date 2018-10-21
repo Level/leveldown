@@ -13,18 +13,18 @@ function makeTest (name, testFn) {
       }
 
       db.close(function (err) {
-        t.error(err, 'no error from close()')
+        t.ifError(err, 'no error from close()')
         t.end()
       })
     }
     db.open(function (err) {
-      t.error(err, 'no error from open()')
+      t.ifError(err, 'no error from open()')
       db.batch([
         { type: 'put', key: 'one', value: '1' },
         { type: 'put', key: 'two', value: '2' },
         { type: 'put', key: 'three', value: '3' }
       ], function (err) {
-        t.error(err, 'no error from batch()')
+        t.ifError(err, 'no error from batch()')
         testFn(db, t, done)
       })
     })

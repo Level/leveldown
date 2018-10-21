@@ -21,7 +21,7 @@ make('iterator#seek throws if target is empty', function (db, t, done) {
   })
 
   function end (err) {
-    t.error(err, 'no error from end()')
+    t.ifError(err, 'no error from end()')
     if (!--pending) done()
   }
 })
@@ -37,23 +37,23 @@ make('iterator optimized for seek', function (db, t, done) {
   batch.put('g', 1)
   batch.write(function (err) {
     var ite = db.iterator()
-    t.error(err, 'no error from batch')
+    t.ifError(err, 'no error from batch()')
     ite.next(function (err, key, value) {
-      t.error(err, 'no error from next()')
+      t.ifError(err, 'no error from next()')
       t.equal(key.toString(), 'a', 'key matches')
       t.equal(ite.cache.length, 0, 'no cache')
       ite.next(function (err, key, value) {
-        t.error(err, 'no error from next()')
+        t.ifError(err, 'no error from next()')
         t.equal(key.toString(), 'b', 'key matches')
         t.ok(ite.cache.length > 0, 'has cached items')
         ite.seek('d')
         t.notOk(ite.cache, 'cache is removed')
         ite.next(function (err, key, value) {
-          t.error(err, 'no error from next()')
+          t.ifError(err, 'no error from next()')
           t.equal(key.toString(), 'd', 'key matches')
           t.equal(ite.cache.length, 0, 'no cache')
           ite.next(function (err, key, value) {
-            t.error(err, 'no error from next()')
+            t.ifError(err, 'no error from next()')
             t.equal(key.toString(), 'e', 'key matches')
             t.ok(ite.cache.length > 0, 'has cached items')
             ite.end(done)
@@ -71,7 +71,7 @@ make('close db with open iterator', function (db, t, done) {
 
   ite.next(function loop (err, key, value) {
     if (cnt++ === 0) {
-      t.error(err, 'no error from next()')
+      t.ifError(err, 'no error from next()')
     } else {
       t.equal(err.message, 'iterator has ended')
       hadError = true
@@ -80,7 +80,7 @@ make('close db with open iterator', function (db, t, done) {
   })
 
   db.close(function (err) {
-    t.error(err, 'no error from close()')
+    t.ifError(err, 'no error from close()')
     t.ok(hadError)
 
     done(null, false)
