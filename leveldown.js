@@ -76,6 +76,18 @@ LevelDOWN.prototype.approximateSize = function (start, end, callback) {
 }
 
 LevelDOWN.prototype.compactRange = function (start, end, callback) {
+  // TODO: consider an options object instead.
+  if (typeof start === 'function') {
+    callback = start
+    start = ''
+    end = ''
+  } else if (typeof end === 'function') {
+    callback = end
+    end = ''
+  } else if (typeof callback !== 'function') {
+    throw new Error('compactRange() requires a callback argument')
+  }
+
   start = this._serializeKey(start)
   end = this._serializeKey(end)
 

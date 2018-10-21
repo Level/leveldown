@@ -267,7 +267,11 @@ CompactRangeWorker::CompactRangeWorker(Database *database,
 };
 
 void CompactRangeWorker::Execute() {
-  database->CompactRangeFromDatabase(&rangeStart, &rangeEnd);
+  // TODO: use null as "not defined" signal in JS-land too.
+  database->CompactRangeFromDatabase(
+    rangeStart.empty() ? NULL : &rangeStart,
+    rangeEnd.empty() ? NULL : &rangeEnd
+  );
 }
 
 void CompactRangeWorker::WorkComplete() {
