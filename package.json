@@ -43,8 +43,7 @@
     "verify-travis-appveyor": "^3.0.0"
   },
   "scripts": {
-    "install": "prebuild-install || git submodule update --init && node-gyp rebuild",
-    "postinstall": "echo TEST",
+    "install": "prebuild-install || node-gyp rebuild",
     "test": "standard && verify-travis-appveyor && nyc tape test/*-test.js && prebuild-ci",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "prebuild --compile",
