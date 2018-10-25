@@ -17,12 +17,12 @@
   , 'standalone_static_library': 1
   , 'include_dirs': [
         '<(os_include)'
-      , 'snappy-1.1.7'
+      , 'snappy'
     ]
   , 'direct_dependent_settings': {
         'include_dirs': [
           '<(os_include)'
-          , 'snappy-1.1.7'
+          , 'snappy'
         ]
     }
   , 'defines': [
@@ -94,12 +94,12 @@
         }]
     ]
   , 'sources': [
-        'snappy-1.1.7/snappy-internal.h'
-      , 'snappy-1.1.7/snappy-sinksource.cc'
-      , 'snappy-1.1.7/snappy-sinksource.h'
-      , 'snappy-1.1.7/snappy-stubs-internal.cc'
-      , 'snappy-1.1.7/snappy-stubs-internal.h'
-      , 'snappy-1.1.7/snappy.cc'
-      , 'snappy-1.1.7/snappy.h'
+        'snappy/snappy-internal.h'
+      , 'snappy/snappy-sinksource.cc'
+      , 'snappy/snappy-sinksource.h'
+      , 'snappy/snappy-stubs-internal.cc'
+      , 'snappy/snappy-stubs-internal.h'
+      , 'snappy/snappy.cc'
+      , 'snappy/snappy.h'
     ]
 }]}
