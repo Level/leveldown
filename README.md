@@ -302,7 +302,7 @@ This project uses Git Submodules. This means that you should clone it recursivel
 $ git clone --recurse-submodules https://github.com/Level/leveldown.git
 ```
 
-Alternatively, you can initalize submodules inside the cloned folder:
+Alternatively, you can initialize submodules inside the cloned folder:
 
 ```bash
 $ git submodule update --init --recursive
