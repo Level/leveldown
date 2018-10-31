@@ -294,6 +294,20 @@ There are multiple ways you can find help in using LevelDB in Node.js:
 
 See the [contribution guide](https://github.com/Level/community/blob/master/CONTRIBUTING.md) for more details.
 
+### Git Submodules
+
+This project uses Git Submodules. This means that you should clone it recursively if you're planning on working on it:
+
+```bash
+$ git clone --recurse-submodules https://github.com/Level/leveldown.git
+```
+
+Alternatively, you can initialize submodules inside the cloned folder:
+
+```bash
+$ git submodule update --init --recursive
+```
+
 ### Windows
 
 A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using `leveldown` on Windows, you should give him your thanks!
