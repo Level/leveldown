@@ -174,16 +174,10 @@ The `start` and `end` parameters may be strings or Buffers representing keys in 
 The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the approximate size as a Number.
 
 <a name="leveldown_compactRange"></a>
-### `db.compactRange([start][, end], callback)`
+### `db.compactRange(start, end, callback)`
 <code>compactRange()</code> is an instance method on an existing database object. Used to manually trigger a database compaction in the range `[start..end)`.
 
-The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store. If `start` is a zero-length string, a zero-length Buffer or omitted, it is treated as a key *before* all keys in the database. Likewise, if `end` meets those criteria, it is treated as a key *after* all keys in the database. Therefore the following call will compact the entire database:
-
-```js
-db.compactRange(callback)
-```
-
-Any other type of `start` or `end` will be converted to a string.
+The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store.
 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
