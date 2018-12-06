@@ -1,6 +1,6 @@
 const util = require('util')
 const AbstractLevelDOWN = require('abstract-leveldown').AbstractLevelDOWN
-const binding = require('bindings')('leveldown').leveldown
+const binding = require('node-gyp-build')(__dirname)
 const ChainedBatch = require('./chained-batch')
 const Iterator = require('./iterator')
 
@@ -16,13 +16,18 @@ function LevelDOWN (location) {
   AbstractLevelDOWN.call(this)
 
   this.location = location
-  this.binding = binding(location)
+  this.dbContext = binding.leveldown()
 }
 
 util.inherits(LevelDOWN, AbstractLevelDOWN)
 
 LevelDOWN.prototype._open = function (options, callback) {
-  this.binding.open(options, callback)
+  binding.open(
+    this.dbContext,
+    this.location,
+    options,
+    callback
+  )
 }
 
 LevelDOWN.prototype._close = function (callback) {

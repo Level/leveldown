@@ -46,6 +46,7 @@
   "scripts": {
     "install": "node-gyp-build",
     "test": "standard && verify-travis-appveyor && nyc tape test/*-test.js && prebuild-ci",
+    "test2": "node test",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "prebuild --compile",
     "prebuild": "prebuild --all --strip --verbose",
