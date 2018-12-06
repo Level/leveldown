@@ -16,7 +16,8 @@
     "abstract-leveldown": "~6.0.0",
     "bindings": "~1.3.0",
     "fast-future": "~1.0.2",
-    "nan": "~2.11.0",
+    "napi-macros": "^1.8.1",
+    "node-gyp-build": "^3.5.1",
     "prebuild-install": "^5.0.0"
   },
   "devDependencies": {
@@ -43,7 +44,7 @@
     "verify-travis-appveyor": "^3.0.0"
   },
   "scripts": {
-    "install": "prebuild-install || node-gyp rebuild",
+    "install": "node-gyp-build",
     "test": "standard && verify-travis-appveyor && nyc tape test/*-test.js && prebuild-ci",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "prebuild --compile",
