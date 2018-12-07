@@ -1,6 +1,6 @@
 const util = require('util')
 const AbstractLevelDOWN = require('abstract-leveldown').AbstractLevelDOWN
-const binding = require('node-gyp-build')(__dirname)
+const binding = require('./binding')
 const ChainedBatch = require('./chained-batch')
 const Iterator = require('./iterator')
 

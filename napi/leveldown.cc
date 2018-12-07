@@ -382,8 +382,57 @@ NAPI_METHOD(db_put) {
   NAPI_RETURN_UNDEFINED();
 }
 
+/**
+ * Creates an iterator.
+ */
+NAPI_METHOD(iterator) {
+  NAPI_ARGV(2);
+  NAPI_DB_CONTEXT();
+
+  // TODO assume options object is always passed in! it will
+  // make the code simpler
+
+  // TODO return an external for IteratorContext
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Seeks an iterator.
+ */
+NAPI_METHOD(iterator_seek) {
+  NAPI_ARGV(2);
+  // NAPI_ITERATOR_CONTEXT();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Moves an iterator to next element.
+ */
+NAPI_METHOD(iterator_next) {
+  NAPI_ARGV(2);
+  // NAPI_ITERATOR_CONTEXT();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Ends an iterator.
+ */
+NAPI_METHOD(iterator_end) {
+  NAPI_ARGV(2);
+  // NAPI_ITERATOR_CONTEXT();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
 NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db);
   NAPI_EXPORT_FUNCTION(db_open);
   NAPI_EXPORT_FUNCTION(db_put);
+
+  NAPI_EXPORT_FUNCTION(iterator);
+  NAPI_EXPORT_FUNCTION(iterator_seek);
+  NAPI_EXPORT_FUNCTION(iterator_next);
+  NAPI_EXPORT_FUNCTION(iterator_end);
 }
