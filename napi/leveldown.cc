@@ -18,6 +18,17 @@ struct Database {
     }
   }
 
+  leveldb::Status Open(const leveldb::Options& options,
+                       const char* location) {
+    return leveldb::DB::Open(options, location, &db_);
+  }
+
+  leveldb::Status Put(const leveldb::WriteOptions& options,
+                      leveldb::Slice key,
+                      leveldb::Slice value) {
+    return db_->Put(options, key, value);
+  }
+
   napi_env env_;
   leveldb::DB* db_;
   leveldb::Cache* blockCache_;
@@ -219,7 +230,7 @@ struct OpenWorker : public BaseWorker {
   }
 
   virtual void DoExecute() {
-    status_ = leveldb::DB::Open(options_, location_, &database_->db_);
+    status_ = database_->Open(options_, location_);
   }
 
   leveldb::Options options_;
@@ -352,7 +363,7 @@ struct PutWorker : public BaseWorker {
   }
 
   virtual void DoExecute() {
-    status_ = database_->db_->Put(options_, key_, value_);
+    status_ = database_->Put(options_, key_, value_);
   }
 
   leveldb::WriteOptions options_;
