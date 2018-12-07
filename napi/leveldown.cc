@@ -7,11 +7,11 @@
  * Owns the LevelDB storage together with cache and filter
  * policy.
  */
-struct DbContext {
-  DbContext (napi_env env)
+struct Database {
+  Database (napi_env env)
     : env_(env), db_(NULL), blockCache_(NULL), filterPolicy_(NULL) {}
 
-  ~DbContext () {
+  ~Database () {
     if (db_ != NULL) {
       delete db_;
       db_ = NULL;
@@ -25,24 +25,23 @@ struct DbContext {
 };
 
 /**
- * Runs when a DbContext is garbage collected.
+ * Runs when a Database is garbage collected.
  */
-static void FinalizeDbContext(napi_env env, void* data, void* hint) {
+static void FinalizeDatabase(napi_env env, void* data, void* hint) {
   if (data) {
-    delete (DbContext*)data;
+    delete (Database*)data;
   }
 }
 
 /**
  * Returns a context object for a database.
- * E.g. `var dbContext = leveldown()`
  */
 NAPI_METHOD(db) {
-  DbContext* dbContext = new DbContext(env);
+  Database* database = new Database(env);
 
   napi_value result;
-  NAPI_STATUS_THROWS(napi_create_external(env, dbContext,
-                                          FinalizeDbContext,
+  NAPI_STATUS_THROWS(napi_create_external(env, database,
+                                          FinalizeDatabase,
                                           NULL, &result));
   return result;
 }
@@ -102,10 +101,10 @@ static uint32_t Uint32Property(napi_env env,
  */
 struct BaseWorker {
   BaseWorker(napi_env env,
-             DbContext* dbContext,
+             Database* database,
              napi_value callback,
              const char* resourceName)
-    : env_(env), dbContext_(dbContext) {
+    : env_(env), database_(database) {
     napi_create_reference(env_, callback, 1, &callbackRef_);
     napi_value asyncResourceName;
     napi_create_string_utf8(env_, resourceName,
@@ -179,7 +178,7 @@ struct BaseWorker {
   napi_env env_;
   napi_ref callbackRef_;
   napi_async_work asyncWork_;
-  DbContext* dbContext_;
+  Database* database_;
   leveldb::Status status_;
 };
 
@@ -188,7 +187,7 @@ struct BaseWorker {
  */
 struct OpenWorker : public BaseWorker {
   OpenWorker(napi_env env,
-             DbContext* dbContext,
+             Database* database,
              napi_value callback,
              char* location,
              bool createIfMissing,
@@ -199,10 +198,10 @@ struct OpenWorker : public BaseWorker {
              uint32_t maxOpenFiles,
              uint32_t blockRestartInterval,
              uint32_t maxFileSize)
-    : BaseWorker(env, dbContext, callback, "leveldown::open"),
+    : BaseWorker(env, database, callback, "leveldown::open"),
       location_(location) {
-    options_.block_cache = dbContext->blockCache_;
-    options_.filter_policy = dbContext->filterPolicy_;
+    options_.block_cache = database->blockCache_;
+    options_.filter_policy = database->filterPolicy_;
     options_.create_if_missing = createIfMissing;
     options_.error_if_exists = errorIfExists;
     options_.compression = compression
@@ -220,7 +219,7 @@ struct OpenWorker : public BaseWorker {
   }
 
   virtual void DoExecute() {
-    status_ = leveldb::DB::Open(options_, location_, &dbContext_->db_);
+    status_ = leveldb::DB::Open(options_, location_, &database_->db_);
   }
 
   leveldb::Options options_;
@@ -250,12 +249,12 @@ NAPI_METHOD(db_open) {
   uint32_t maxFileSize = Uint32Property(env, options, "maxFileSize", 2 << 20);
 
   // TODO clean these up in close()
-  dbContext->blockCache_ = leveldb::NewLRUCache(cacheSize);
-  dbContext->filterPolicy_ = leveldb::NewBloomFilterPolicy(10);
+  database->blockCache_ = leveldb::NewLRUCache(cacheSize);
+  database->filterPolicy_ = leveldb::NewBloomFilterPolicy(10);
 
   napi_value callback = argv[3];
   OpenWorker* worker = new OpenWorker(env,
-                                      dbContext,
+                                      database,
                                       callback,
                                       location,
                                       createIfMissing,
@@ -337,12 +336,12 @@ static leveldb::Slice ToSlice(napi_env env, napi_value from) {
  */
 struct PutWorker : public BaseWorker {
   PutWorker(napi_env env,
-            DbContext* dbContext,
+            Database* database,
             napi_value callback,
             napi_value key,
             napi_value value,
             bool sync)
-    : BaseWorker(env, dbContext, callback, "leveldown::put"),
+    : BaseWorker(env, database, callback, "leveldown::put"),
       key_(ToSlice(env, key)), value_(ToSlice(env, value)) {
     options_.sync = sync;
   }
@@ -353,7 +352,7 @@ struct PutWorker : public BaseWorker {
   }
 
   virtual void DoExecute() {
-    status_ = dbContext_->db_->Put(options_, key_, value_);
+    status_ = database_->db_->Put(options_, key_, value_);
   }
 
   leveldb::WriteOptions options_;
@@ -373,7 +372,7 @@ NAPI_METHOD(db_put) {
   bool sync = BooleanProperty(env, argv[3], "sync", false);
   napi_value callback = argv[4];
   PutWorker* worker = new PutWorker(env,
-                                    dbContext,
+                                    database,
                                     callback,
                                     key,
                                     value,
