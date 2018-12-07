@@ -98,22 +98,109 @@ static uint32_t Uint32Property(napi_env env,
 }
 
 /**
+ * Base worker class.
+ */
+struct BaseWorker {
+  BaseWorker(napi_env env,
+             DbContext* dbContext,
+             napi_value callback,
+             const char* resourceName)
+    : env_(env), dbContext_(dbContext) {
+    napi_create_reference(env_, callback, 1, &callbackRef_);
+    napi_value asyncResourceName;
+    napi_create_string_utf8(env_, resourceName,
+                            NAPI_AUTO_LENGTH,
+                            &asyncResourceName);
+    napi_create_async_work(env_, callback,
+                           asyncResourceName,
+                           BaseWorker::Execute,
+                           BaseWorker::Complete,
+                           this,
+                           &asyncWork_);
+  }
+
+  virtual ~BaseWorker() {
+    napi_delete_reference(env_, callbackRef_);
+    napi_delete_async_work(env_, asyncWork_);
+  }
+
+  /**
+   * Calls virtual DoExecute().
+   */
+  static void Execute(napi_env env, void* data) {
+    BaseWorker* self = (BaseWorker*)data;
+    self->DoExecute();
+  }
+
+  /**
+   * MUST be overriden.
+   */
+  virtual void DoExecute() = 0;
+
+  /**
+   * Calls DoComplete() and kills the worker.
+   */
+  static void Complete(napi_env env, napi_status status, void* data) {
+    BaseWorker* self = (BaseWorker*)data;
+    self->DoComplete();
+    delete self;
+  }
+
+  /**
+   * Default handling when work is complete.
+   * - Calls back with NULL if no error
+   * - Calls back with error if status is an error
+   */
+  virtual void DoComplete() {
+    const int argc = 1;
+    napi_value argv[argc];
+
+    napi_value global;
+    napi_get_global(env_, &global);
+    napi_value callback;
+    napi_get_reference_value(env_, callbackRef_, &callback);
+
+    if (status_.ok()) {
+      napi_get_null(env_, &argv[0]);
+    } else {
+      const char* str = status_.ToString().c_str();
+      napi_value msg;
+      napi_create_string_utf8(env_, str, strlen(str), &msg);
+      napi_create_error(env_, NULL, msg, &argv[0]);
+    }
+
+    napi_call_function(env_, global, callback, argc, argv, NULL);
+  }
+
+  void Queue() {
+    napi_queue_async_work(env_, asyncWork_);
+  }
+
+  napi_env env_;
+  napi_ref callbackRef_;
+  napi_async_work asyncWork_;
+  DbContext* dbContext_;
+  leveldb::Status status_;
+};
+
+/**
  * Worker class for opening the database
  */
-struct OpenWorker {
+struct OpenWorker : public BaseWorker {
   OpenWorker(napi_env env,
-              DbContext* dbContext,
-              char* location,
-              bool createIfMissing,
-              bool errorIfExists,
-              bool compression,
-              uint32_t writeBufferSize,
-              uint32_t blockSize,
-              uint32_t maxOpenFiles,
-              uint32_t blockRestartInterval,
-              uint32_t maxFileSize,
-              napi_value callback)
-    : env_(env), dbContext_(dbContext), location_(location) {
+             DbContext* dbContext,
+             napi_value callback,
+             char* location,
+             bool createIfMissing,
+             bool errorIfExists,
+             bool compression,
+             uint32_t writeBufferSize,
+             uint32_t blockSize,
+             uint32_t maxOpenFiles,
+             uint32_t blockRestartInterval,
+             uint32_t maxFileSize)
+    : BaseWorker(env, dbContext, callback, "leveldown::open"),
+      location_(location) {
     options_.block_cache = dbContext->blockCache_;
     options_.filter_policy = dbContext->filterPolicy_;
     options_.create_if_missing = createIfMissing;
@@ -126,77 +213,15 @@ struct OpenWorker {
     options_.max_open_files = maxOpenFiles;
     options_.block_restart_interval = blockRestartInterval;
     options_.max_file_size = maxFileSize;
-
-    // Create reference to callback with ref count set to one.
-    // TODO move to base class constructor
-    napi_create_reference(env_, callback, 1, &callbackRef_);
-    napi_value asyncResourceName;
-    napi_create_string_utf8(env_, "leveldown::open",
-                            NAPI_AUTO_LENGTH,
-                            &asyncResourceName);
-    napi_create_async_work(env_, callback,
-                           asyncResourceName,
-                           OpenWorker::Execute,
-                           OpenWorker::Complete,
-                           this,
-                           &asyncWork_);
   }
 
-  ~OpenWorker() {
+  virtual ~OpenWorker() {
     free(location_);
-    // TODO move to base class destructor
-    napi_delete_reference(env_, callbackRef_);
-    napi_delete_async_work(env_, asyncWork_);
   }
 
-  // TODO move to base class
-  void Queue() {
-    napi_queue_async_work(env_, asyncWork_);
+  virtual void DoExecute() {
+    status_ = leveldb::DB::Open(options_, location_, &dbContext_->db_);
   }
-
-  static void Execute(napi_env env, void* data) {
-    OpenWorker* self = (OpenWorker*)data;
-    DbContext* dbContext = self->dbContext_;
-    self->status_ = leveldb::DB::Open(self->options_,
-                                      self->location_,
-                                      &dbContext->db_);
-  }
-
-  static void Complete(napi_env env, napi_status status, void* data) {
-    OpenWorker* self = (OpenWorker*)data;
-
-    // TODO most of the things below can be moved to a
-    // base class, all operations either calling back with
-    // NULL or an error have identical logic.
-
-    const int argc = 1;
-    napi_value argv[argc];
-
-    napi_value global;
-    napi_get_global(env, &global);
-    napi_value callback;
-    napi_get_reference_value(env, self->callbackRef_, &callback);
-
-    if (self->status_.ok()) {
-      napi_get_null(env, &argv[0]);
-    } else {
-      const char* str = self->status_.ToString().c_str();
-      napi_value msg;
-      napi_create_string_utf8(env, str, strlen(str), &msg);
-      napi_create_error(env, NULL, msg, &argv[0]);
-    }
-
-    napi_call_function(env, global, callback, argc, argv, NULL);
-
-    delete self;
-  }
-
-  // TODO move to base class
-  napi_env env_;
-  napi_ref callbackRef_;
-  napi_async_work asyncWork_;
-  DbContext* dbContext_;
-  leveldb::Status status_;
 
   leveldb::Options options_;
   char* location_;
@@ -231,6 +256,7 @@ NAPI_METHOD(open) {
   napi_value callback = argv[3];
   OpenWorker* worker = new OpenWorker(env,
                                       dbContext,
+                                      callback,
                                       location,
                                       createIfMissing,
                                       errorIfExists,
@@ -239,8 +265,7 @@ NAPI_METHOD(open) {
                                       blockSize,
                                       maxOpenFiles,
                                       blockRestartInterval,
-                                      maxFileSize,
-                                      callback);
+                                      maxFileSize);
   worker->Queue();
   NAPI_RETURN_UNDEFINED();
 }
@@ -310,89 +335,26 @@ static leveldb::Slice ToSlice(napi_env env, napi_value from) {
 /**
  * Worker class for putting key/value to the database
  */
-struct PutWorker {
+struct PutWorker : public BaseWorker {
   PutWorker(napi_env env,
             DbContext* dbContext,
+            napi_value callback,
             napi_value key,
             napi_value value,
-            bool sync,
-            napi_value callback)
-    : env_(env), dbContext_(dbContext),
-      key_(ToSlice(env, key)),
-      value_(ToSlice(env, value)) {
+            bool sync)
+    : BaseWorker(env, dbContext, callback, "leveldown::put"),
+      key_(ToSlice(env, key)), value_(ToSlice(env, value)) {
     options_.sync = sync;
-    // Create reference to callback with ref count set to one.
-    // TODO move to base class constructor
-    napi_create_reference(env_, callback, 1, &callbackRef_);
-    napi_value asyncResourceName;
-    napi_create_string_utf8(env_, "leveldown::put",
-                            NAPI_AUTO_LENGTH,
-                            &asyncResourceName);
-    napi_create_async_work(env_, callback,
-                           asyncResourceName,
-                           PutWorker::Execute,
-                           PutWorker::Complete,
-                           this,
-                           &asyncWork_);
   }
 
   ~PutWorker() {
-    // TODO move to base class destructor
-    napi_delete_reference(env_, callbackRef_);
-    napi_delete_async_work(env_, asyncWork_);
-
     // TODO clean up key_ and value_ if they aren't empty?
     // See DisposeStringOrBufferFromSlice()
   }
 
-  // TODO move to base class
-  void Queue() {
-    napi_queue_async_work(env_, asyncWork_);
+  virtual void DoExecute() {
+    status_ = dbContext_->db_->Put(options_, key_, value_);
   }
-
-  static void Execute(napi_env env, void* data) {
-    PutWorker* self = (PutWorker*)data;
-    DbContext* dbContext = self->dbContext_;
-    self->status_ = dbContext->db_->Put(self->options_,
-                                        self->key_,
-                                        self->value_);
-  }
-
-  static void Complete(napi_env env, napi_status status, void* data) {
-    PutWorker* self = (PutWorker*)data;
-
-    // TODO most of the things below can be moved to a
-    // base class, all operations either calling back with
-    // NULL or an error have identical logic.
-
-    const int argc = 1;
-    napi_value argv[argc];
-
-    napi_value global;
-    napi_get_global(env, &global);
-    napi_value callback;
-    napi_get_reference_value(env, self->callbackRef_, &callback);
-
-    if (self->status_.ok()) {
-      napi_get_null(env, &argv[0]);
-    } else {
-      const char* str = self->status_.ToString().c_str();
-      napi_value msg;
-      napi_create_string_utf8(env, str, strlen(str), &msg);
-      napi_create_error(env, NULL, msg, &argv[0]);
-    }
-
-    napi_call_function(env, global, callback, argc, argv, NULL);
-
-    delete self;
-  }
-
-  // TODO move to base class
-  napi_env env_;
-  napi_ref callbackRef_;
-  napi_async_work asyncWork_;
-  DbContext* dbContext_;
-  leveldb::Status status_;
 
   leveldb::WriteOptions options_;
   leveldb::Slice key_;
@@ -412,10 +374,10 @@ NAPI_METHOD(put) {
   napi_value callback = argv[4];
   PutWorker* worker = new PutWorker(env,
                                     dbContext,
+                                    callback,
                                     key,
                                     value,
-                                    sync,
-                                    callback);
+                                    sync);
   worker->Queue();
   NAPI_RETURN_UNDEFINED();
 }
