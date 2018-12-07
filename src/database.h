@@ -78,12 +78,14 @@ private:
   Nan::Utf8String* location;
   leveldb::DB* db;
   uint32_t currentIteratorId;
+  // What is this for?
   void(*pendingCloseWorker);
   leveldb::Cache* blockCache;
   const leveldb::FilterPolicy* filterPolicy;
 
   std::map< uint32_t, leveldown::Iterator * > iterators;
 
+  // What are these for?
   static void WriteDoing(uv_work_t *req);
   static void WriteAfter(uv_work_t *req);
 
