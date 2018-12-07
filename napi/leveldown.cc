@@ -357,46 +357,31 @@ static bool IsBuffer(napi_env env, napi_value value) {
 }
 
 /**
+ * Macro to copy memory from a buffer or string.
+ */
+#define LD_STRING_OR_BUFFER_TO_COPY(env, from, to)                      \
+  char* to##Ch_ = 0;                                                    \
+  size_t to##Sz_ = 0;                                                   \
+  if (IsString(env, from)) {                                            \
+    napi_get_value_string_utf8(env, from, NULL, 0, &to##Sz_);           \
+    to##Ch_ = new char[to##Sz_ + 1];                                    \
+    napi_get_value_string_utf8(env, from, to##Ch_, to##Sz_ + 1, &to##Sz_); \
+    to##Ch_[to##Sz_] = '\0';                                            \
+    printf("LD_STRING_OR_BUFFER_TO_COPY STRING length: %d content: %s\n", to##Sz_, to##Ch_); \
+  } else if (IsBuffer(env, from)) {                                     \
+    char* buf = 0;                                                      \
+    napi_get_buffer_info(env, from, (void **)&buf, &to##Sz_);           \
+    to##Ch_ = new char[to##Sz_];                                        \
+    memcpy(to##Ch_, buf, to##Sz_);                                      \
+    printf("LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %d content: %s\n", to##Sz_, to##Ch_); \
+  }
+
+/**
  * Convert a napi_value to a leveldb::Slice.
  */
 static leveldb::Slice ToSlice(napi_env env, napi_value from) {
-  // size_t to ## Sz_;
-  // char* to ## Ch_;
-  // if (from->IsNull() || from->IsUndefined()) {
-  //   to ## Sz_ = 0;
-  //   to ## Ch_ = 0;
-  // } else if (!from->ToObject().IsEmpty()
-  //     && node::Buffer::HasInstance(from->ToObject())) {
-  //   to ## Sz_ = node::Buffer::Length(from->ToObject());
-  //   to ## Ch_ = node::Buffer::Data(from->ToObject());
-  // } else {
-  //   v8::Local<v8::String> to ## Str = from->ToString();
-  //   to ## Sz_ = to ## Str->Utf8Length();
-  //   to ## Ch_ = new char[to ## Sz_];
-  //   to ## Str->WriteUtf8(to ## Ch_, -1, NULL, v8::String::NO_NULL_TERMINATION);
-  // }
-  // leveldb::Slice to(to ## Ch_, to ## Sz_);
-  size_t toLength = 0;
-  char* toChar = 0;
-
-  if (IsString(env, from)) {
-    printf("FROM is a string\n");
-    size_t size = 0;
-    napi_get_value_string_utf8(env, from, NULL, 0, &size);
-    if (size > 0) {
-      // TODO use new here
-      toChar = (char*)malloc((size + 1) * sizeof(char));
-      napi_get_value_string_utf8(env, from, toChar, size + 1, &toLength);
-      toChar[toLength] = '\0';
-    }
-  } else if (IsBuffer(env, from)) {
-    printf("FROM is a buffer\n");
-    // TODO what to do with buffers? we could either always
-    // copy them, or use an out parameter to store the fact
-    // that we did allocate and only clean in that case
-  }
-
-  return leveldb::Slice(toChar, toLength);
+  LD_STRING_OR_BUFFER_TO_COPY(env, from, to);
+  return leveldb::Slice(toCh_, toSz_);
 }
 
 /**
@@ -552,26 +537,6 @@ static void FinalizeIterator(napi_env env, void* data, void* hint) {
     delete (Iterator*)data;
   }
 }
-
-/**
- * Macro to copy memory from a buffer or string.
- */
-#define LD_STRING_OR_BUFFER_TO_COPY(env, from, to)                      \
-  char* to##Ch_ = 0;                                                    \
-  size_t to##Sz_ = 0;                                                   \
-  if (IsBuffer(env, from)) {                                            \
-    char* buf = 0;                                                      \
-    napi_get_buffer_info(env, from, (void **)&buf, &to##Sz_);           \
-    to##Ch_ = new char[to##Sz_];                                        \
-    memcpy(to##Ch_, buf, to##Sz_);                                      \
-    printf("LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %d content: %s\n", to##Sz_, to##Ch_); \
-  } else if (IsString(env, from)) {                                     \
-    napi_get_value_string_utf8(env, from, NULL, 0, &to##Sz_);           \
-    to##Ch_ = new char[to##Sz_ + 1];                                    \
-    napi_get_value_string_utf8(env, from, to##Ch_, to##Sz_ + 1, &to##Sz_); \
-    to##Ch_[to##Sz_] = '\0';                                            \
-    printf("LD_STRING_OR_BUFFER_TO_COPY STRING length: %d content: %s\n", to##Sz_, to##Ch_); \
-  }
 
 /**
  * Returns length of string or buffer
