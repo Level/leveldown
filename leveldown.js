@@ -43,7 +43,13 @@ LevelDOWN.prototype._serializeValue = function (value) {
 }
 
 LevelDOWN.prototype._put = function (key, value, options, callback) {
-  this.binding.put(key, value, options, callback)
+  binding.put(
+    this.dbContext,
+    key,
+    value,
+    options,
+    callback
+  )
 }
 
 LevelDOWN.prototype._get = function (key, options, callback) {

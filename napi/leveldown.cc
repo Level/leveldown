@@ -56,8 +56,7 @@ NAPI_METHOD(leveldown) {
 static bool BooleanProperty(napi_env env,
                             napi_value obj,
                             const char* key,
-                            bool DEFAULT)
-{
+                            bool DEFAULT) {
   bool exists = false;
   napi_value _key;
   napi_create_string_utf8(env, key, strlen(key), &_key);
@@ -81,8 +80,7 @@ static bool BooleanProperty(napi_env env,
 static uint32_t Uint32Property(napi_env env,
                                napi_value obj,
                                const char* key,
-                               uint32_t DEFAULT)
-{
+                               uint32_t DEFAULT) {
   bool exists = false;
   napi_value _key;
   napi_create_string_utf8(env, key, strlen(key), &_key);
@@ -247,7 +245,183 @@ NAPI_METHOD(open) {
   NAPI_RETURN_UNDEFINED();
 }
 
+/**
+ * Returns true if 'value' is a buffer otherwise false.
+ */
+static bool isBuffer(napi_env env, napi_value value) {
+  bool isBuffer;
+  napi_is_buffer(env, value, &isBuffer);
+  return isBuffer;
+}
+
+/**
+ * Convert a napi_value to a leveldb::Slice.
+ */
+static leveldb::Slice ToSlice(napi_env env, napi_value from) {
+  // size_t to ## Sz_;
+  // char* to ## Ch_;
+  // if (from->IsNull() || from->IsUndefined()) {
+  //   to ## Sz_ = 0;
+  //   to ## Ch_ = 0;
+  // } else if (!from->ToObject().IsEmpty()
+  //     && node::Buffer::HasInstance(from->ToObject())) {
+  //   to ## Sz_ = node::Buffer::Length(from->ToObject());
+  //   to ## Ch_ = node::Buffer::Data(from->ToObject());
+  // } else {
+  //   v8::Local<v8::String> to ## Str = from->ToString();
+  //   to ## Sz_ = to ## Str->Utf8Length();
+  //   to ## Ch_ = new char[to ## Sz_];
+  //   to ## Str->WriteUtf8(to ## Ch_, -1, NULL, v8::String::NO_NULL_TERMINATION);
+  // }
+  // leveldb::Slice to(to ## Ch_, to ## Sz_);
+  size_t toLength = 0;
+  char* toChar = 0;
+
+  napi_valuetype type;
+  napi_typeof(env, from, &type);
+
+  if (type == napi_null) {
+    printf("FROM is null\n");
+  } else if (type == napi_undefined) {
+    printf("FROM is undefined\n");
+  }
+
+  if (type != napi_null && type != napi_undefined) {
+    if (type == napi_string) {
+      printf("FROM is a string\n");
+      size_t size = 0;
+      napi_get_value_string_utf8(env, from, NULL, 0, &size);
+      if (size > 0) {
+        toChar = (char*)malloc((size + 1) * sizeof(char));
+        napi_get_value_string_utf8(env, from, toChar, size + 1, &toLength);
+        toChar[toLength] = '\0';
+      }
+    } else if (isBuffer(env, from)) {
+      printf("FROM is a buffer\n");
+      // TODO what to do with buffers? we could either always
+      // copy them, or use an out parameter to store the fact
+      // that we did allocate and only clean in that case
+    }
+  }
+
+  return leveldb::Slice(toChar, toLength);
+}
+
+/**
+ * Worker class for putting key/value to the database
+ */
+struct PutWorker {
+  PutWorker(napi_env env,
+            DbContext* dbContext,
+            napi_value key,
+            napi_value value,
+            bool sync,
+            napi_value callback)
+    : env_(env), dbContext_(dbContext),
+      key_(ToSlice(env, key)),
+      value_(ToSlice(env, value)) {
+    options_.sync = sync;
+    // Create reference to callback with ref count set to one.
+    // TODO move to base class constructor
+    napi_create_reference(env_, callback, 1, &callbackRef_);
+    napi_value asyncResourceName;
+    napi_create_string_utf8(env_, "leveldown::put",
+                            NAPI_AUTO_LENGTH,
+                            &asyncResourceName);
+    napi_create_async_work(env_, callback,
+                           asyncResourceName,
+                           PutWorker::Execute,
+                           PutWorker::Complete,
+                           this,
+                           &asyncWork_);
+  }
+
+  ~PutWorker() {
+    // TODO move to base class destructor
+    napi_delete_reference(env_, callbackRef_);
+    napi_delete_async_work(env_, asyncWork_);
+
+    // TODO clean up key_ and value_ if they aren't empty?
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  // TODO move to base class
+  void Queue() {
+    napi_queue_async_work(env_, asyncWork_);
+  }
+
+  static void Execute(napi_env env, void* data) {
+    PutWorker* self = (PutWorker*)data;
+    DbContext* dbContext = self->dbContext_;
+    self->status_ = dbContext->db_->Put(self->options_,
+                                        self->key_,
+                                        self->value_);
+  }
+
+  static void Complete(napi_env env, napi_status status, void* data) {
+    PutWorker* self = (PutWorker*)data;
+
+    // TODO most of the things below can be moved to a
+    // base class, all operations either calling back with
+    // NULL or an error have identical logic.
+
+    const int argc = 1;
+    napi_value argv[argc];
+
+    napi_value global;
+    napi_get_global(env, &global);
+    napi_value callback;
+    napi_get_reference_value(env, self->callbackRef_, &callback);
+
+    if (self->status_.ok()) {
+      napi_get_null(env, &argv[0]);
+    } else {
+      const char* str = self->status_.ToString().c_str();
+      napi_value msg;
+      napi_create_string_utf8(env, str, strlen(str), &msg);
+      napi_create_error(env, NULL, msg, &argv[0]);
+    }
+
+    napi_call_function(env, global, callback, argc, argv, NULL);
+
+    delete self;
+  }
+
+  // TODO move to base class
+  napi_env env_;
+  napi_ref callbackRef_;
+  napi_async_work asyncWork_;
+  DbContext* dbContext_;
+  leveldb::Status status_;
+
+  leveldb::WriteOptions options_;
+  leveldb::Slice key_;
+  leveldb::Slice value_;
+};
+
+/**
+ * Puts a key and a value to the database.
+ */
+NAPI_METHOD(put) {
+  NAPI_ARGV(5);
+  NAPI_DB_CONTEXT();
+
+  napi_value key = argv[1];
+  napi_value value = argv[2];
+  bool sync = BooleanProperty(env, argv[3], "sync", false);
+  napi_value callback = argv[4];
+  PutWorker* worker = new PutWorker(env,
+                                    dbContext,
+                                    key,
+                                    value,
+                                    sync,
+                                    callback);
+  worker->Queue();
+  NAPI_RETURN_UNDEFINED();
+}
+
 NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(leveldown);
   NAPI_EXPORT_FUNCTION(open);
+  NAPI_EXPORT_FUNCTION(put);
 }
