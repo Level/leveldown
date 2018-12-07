@@ -16,14 +16,14 @@ function LevelDOWN (location) {
   AbstractLevelDOWN.call(this)
 
   this.location = location
-  this.dbContext = binding.leveldown()
+  this.context = binding.db()
 }
 
 util.inherits(LevelDOWN, AbstractLevelDOWN)
 
 LevelDOWN.prototype._open = function (options, callback) {
-  binding.open(
-    this.dbContext,
+  binding.db_open(
+    this.context,
     this.location,
     options,
     callback
@@ -43,8 +43,8 @@ LevelDOWN.prototype._serializeValue = function (value) {
 }
 
 LevelDOWN.prototype._put = function (key, value, options, callback) {
-  binding.put(
-    this.dbContext,
+  binding.db_put(
+    this.context,
     key,
     value,
     options,

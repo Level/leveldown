@@ -37,7 +37,7 @@ static void FinalizeDbContext(napi_env env, void* data, void* hint) {
  * Returns a context object for a database.
  * E.g. `var dbContext = leveldown()`
  */
-NAPI_METHOD(leveldown) {
+NAPI_METHOD(db) {
   DbContext* dbContext = new DbContext(env);
 
   napi_value result;
@@ -230,7 +230,7 @@ struct OpenWorker : public BaseWorker {
 /**
  * Opens a database.
  */
-NAPI_METHOD(open) {
+NAPI_METHOD(db_open) {
   NAPI_ARGV(4);
   NAPI_DB_CONTEXT();
   NAPI_ARGV_UTF8_MALLOC(location, 1);
@@ -364,7 +364,7 @@ struct PutWorker : public BaseWorker {
 /**
  * Puts a key and a value to the database.
  */
-NAPI_METHOD(put) {
+NAPI_METHOD(db_put) {
   NAPI_ARGV(5);
   NAPI_DB_CONTEXT();
 
@@ -383,7 +383,7 @@ NAPI_METHOD(put) {
 }
 
 NAPI_INIT() {
-  NAPI_EXPORT_FUNCTION(leveldown);
-  NAPI_EXPORT_FUNCTION(open);
-  NAPI_EXPORT_FUNCTION(put);
+  NAPI_EXPORT_FUNCTION(db);
+  NAPI_EXPORT_FUNCTION(db_open);
+  NAPI_EXPORT_FUNCTION(db_put);
 }
