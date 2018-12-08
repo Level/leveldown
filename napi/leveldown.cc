@@ -141,6 +141,19 @@ struct Database {
     return leveldb::DB::Open(options, location, &db_);
   }
 
+  void CloseDatabase () {
+    delete db_;
+    db_ = NULL;
+    if (blockCache_) {
+      delete blockCache_;
+      blockCache_ = NULL;
+    }
+    if (filterPolicy_) {
+      delete filterPolicy_;
+      filterPolicy_ = NULL;
+    }
+  }
+
   leveldb::Status Put (const leveldb::WriteOptions& options,
                        leveldb::Slice key,
                        leveldb::Slice value) {
@@ -302,7 +315,7 @@ static int Int32Property (napi_env env,
 }
 
 /**
- * Worker class for opening the database
+ * Worker class for opening a database
  */
 struct OpenWorker : public BaseWorker {
   OpenWorker (napi_env env,
@@ -317,7 +330,7 @@ struct OpenWorker : public BaseWorker {
               uint32_t maxOpenFiles,
               uint32_t blockRestartInterval,
               uint32_t maxFileSize)
-    : BaseWorker(env, database, callback, "leveldown::open"),
+    : BaseWorker(env, database, callback, "leveldown.db.open"),
       location_(location) {
     options_.block_cache = database->blockCache_;
     options_.filter_policy = database->filterPolicy_;
@@ -346,7 +359,7 @@ struct OpenWorker : public BaseWorker {
 };
 
 /**
- * Opens a database.
+ * Open a database.
  */
 NAPI_METHOD(db_open) {
   NAPI_ARGV(4);
@@ -387,6 +400,36 @@ NAPI_METHOD(db_open) {
                                       blockRestartInterval,
                                       maxFileSize);
   worker->Queue();
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for closing a database
+ */
+struct CloseWorker : public BaseWorker {
+  CloseWorker (napi_env env,
+               Database* database,
+               napi_value callback)
+    : BaseWorker(env, database, callback, "leveldown.db.close") {}
+
+  virtual ~CloseWorker () {}
+
+  virtual void DoExecute () {
+    database_->CloseDatabase();
+  }
+};
+
+/**
+ * Close a database.
+ */
+NAPI_METHOD(db_close) {
+  NAPI_ARGV(2);
+  NAPI_DB_CONTEXT();
+
+  napi_value callback = argv[1];
+  CloseWorker* worker = new CloseWorker(env, database, callback);
+  worker->Queue();
+
   NAPI_RETURN_UNDEFINED();
 }
 
@@ -446,7 +489,7 @@ struct PutWorker : public BaseWorker {
              napi_value key,
              napi_value value,
              bool sync)
-    : BaseWorker(env, database, callback, "leveldown::put"),
+    : BaseWorker(env, database, callback, "leveldown.db.put"),
       key_(ToSlice(env, key)), value_(ToSlice(env, value)) {
     options_.sync = sync;
   }
@@ -945,7 +988,7 @@ struct EndWorker : public BaseWorker {
              Iterator* iterator,
              napi_value callback)
     : BaseWorker(env, iterator->database_, callback,
-                 "leveldown::iterator.end"),
+                 "leveldown.iterator.end"),
       iterator_(iterator) {}
 
   virtual ~EndWorker () {}
@@ -1005,7 +1048,7 @@ struct NextWorker : public BaseWorker {
               napi_value callback,
               void (*localCallback)(Iterator*))
     : BaseWorker(env, iterator->database_, callback,
-                 "leveldown::iterator.next"),
+                 "leveldown.iterator.next"),
       iterator_(iterator),
       localCallback_(localCallback) {}
 
@@ -1103,6 +1146,7 @@ NAPI_METHOD(iterator_next) {
 NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db);
   NAPI_EXPORT_FUNCTION(db_open);
+  NAPI_EXPORT_FUNCTION(db_close);
   NAPI_EXPORT_FUNCTION(db_put);
 
   NAPI_EXPORT_FUNCTION(iterator);

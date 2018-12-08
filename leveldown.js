@@ -31,7 +31,7 @@ LevelDOWN.prototype._open = function (options, callback) {
 }
 
 LevelDOWN.prototype._close = function (callback) {
-  this.binding.close(callback)
+  binding.db_close(this.context, callback)
 }
 
 LevelDOWN.prototype._serializeKey = function (key) {
