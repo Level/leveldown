@@ -498,7 +498,47 @@ NAPI_METHOD(db_close) {
 
   napi_value callback = argv[1];
   CloseWorker* worker = new CloseWorker(env, database, callback);
-  worker->Queue();
+
+  if (database->iterators_.empty()) {
+    worker->Queue();
+    NAPI_RETURN_UNDEFINED();
+  }
+
+  // TODO fix me!
+
+  /*
+  // yikes, we still have iterators open! naughty naughty.
+  // we have to queue up a CloseWorker and manually close each of them.
+  // the CloseWorker will be invoked once they are all cleaned up
+  database->pendingCloseWorker = worker;
+
+  for (
+       std::map< uint32_t, leveldown::Iterator * >::iterator it
+         = database->iterators.begin()
+         ; it != database->iterators.end()
+         ; ++it) {
+
+    // for each iterator still open, first check if it's already in
+    // the process of ending (ended==true means an async End() is
+    // in progress), if not, then we call End() with an empty callback
+    // function and wait for it to hit ReleaseIterator() where our
+    // CloseWorker will be invoked
+
+    leveldown::Iterator *iterator = it->second;
+
+    if (!iterator->ended) {
+      v8::Local<v8::Function> end =
+        v8::Local<v8::Function>::Cast(iterator->handle()->Get(
+                  Nan::New<v8::String>("end").ToLocalChecked()));
+      v8::Local<v8::Value> argv[] = {
+        Nan::New<v8::FunctionTemplate>(EmptyMethod)->GetFunction() // empty callback
+      };
+      Nan::AsyncResource ar("leveldown:iterator.end");
+      ar.runInAsyncScope(iterator->handle(), end, 1, argv);
+    }
+  }
+
+  */
 
   NAPI_RETURN_UNDEFINED();
 }
