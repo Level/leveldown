@@ -24,7 +24,7 @@ test('test callback-less, 1-arg, destroy() throws', function (t) {
   t.end()
 })
 
-test.only('test destroy non-existent directory', function (t) {
+test('test destroy non-existent directory', function (t) {
   t.plan(4)
 
   var location = tempy.directory()
