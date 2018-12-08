@@ -386,6 +386,10 @@ struct Database {
     db_->CompactRange(start, end);
   }
 
+  void GetProperty (const leveldb::Slice& property, std::string* value) {
+    db_->GetProperty(property, value);
+  }
+
   const leveldb::Snapshot* NewSnapshot () {
     return db_->GetSnapshot();
   }
@@ -1161,6 +1165,25 @@ NAPI_METHOD(db_compact_range) {
 }
 
 /**
+ * Get a property from a database.
+ */
+NAPI_METHOD(db_get_property) {
+  NAPI_ARGV(2);
+  NAPI_DB_CONTEXT();
+
+  leveldb::Slice property = ToSlice(env, argv[1]);
+
+  std::string value;
+  database->GetProperty(property, &value);
+
+  napi_value result;
+  napi_create_string_utf8(env, value.data(), value.size(), &result);
+
+  // TODO clean up property slice
+  return result;
+}
+
+/**
  * Worker class for destroying a database.
  */
 struct DestroyWorker : public BaseWorker {
@@ -1900,6 +1923,7 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_del);
   NAPI_EXPORT_FUNCTION(db_approximate_size);
   NAPI_EXPORT_FUNCTION(db_compact_range);
+  NAPI_EXPORT_FUNCTION(db_get_property);
 
   NAPI_EXPORT_FUNCTION(destroy_db);
   NAPI_EXPORT_FUNCTION(repair_db);

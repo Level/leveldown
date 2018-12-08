@@ -98,7 +98,7 @@ LevelDOWN.prototype.getProperty = function (property) {
     throw new Error('getProperty() requires a valid `property` argument')
   }
 
-  return this.binding.getProperty(property)
+  return binding.db_get_property(this.context, property)
 }
 
 LevelDOWN.prototype._iterator = function (options) {
