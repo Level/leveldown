@@ -963,6 +963,38 @@ struct Iterator {
     return false;
   }
 
+  bool OutOfRange (leveldb::Slice* target) {
+    if (lt_ != NULL) {
+      if (target->compare(*lt_) >= 0)
+        return true;
+    } else if (lte_ != NULL) {
+      if (target->compare(*lte_) > 0)
+        return true;
+    } else if (start_ != NULL && reverse_) {
+      if (target->compare(*start_) > 0)
+        return true;
+    }
+
+    if (end_ != NULL) {
+      int d = target->compare(*end_);
+      if (reverse_ ? d < 0 : d > 0)
+        return true;
+    }
+
+    if (gt_ != NULL) {
+      if (target->compare(*gt_) <= 0)
+        return true;
+    } else if (gte_ != NULL) {
+      if (target->compare(*gte_) < 0)
+        return true;
+    } else if (start_ != NULL && !reverse_) {
+      if (target->compare(*start_) < 0)
+        return true;
+    }
+
+    return false;
+  }
+
   bool IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
     size_t size = 0;
     while (true) {
@@ -1194,6 +1226,52 @@ NAPI_METHOD(iterator_init) {
 NAPI_METHOD(iterator_seek) {
   NAPI_ARGV(2);
   NAPI_ITERATOR_CONTEXT();
+
+  iterator->ReleaseTarget();
+  iterator->target_ = new leveldb::Slice(ToSlice(env, argv[1]));
+  iterator->GetIterator();
+
+  leveldb::Iterator* dbIterator = iterator->dbIterator_;
+  dbIterator->Seek(*iterator->target_);
+
+  iterator->seeking_ = true;
+  iterator->landed_ = false;
+
+  if (iterator->OutOfRange(iterator->target_)) {
+    if (iterator->reverse_) {
+      dbIterator->SeekToFirst();
+      dbIterator->Prev();
+    } else {
+      dbIterator->SeekToLast();
+      dbIterator->Next();
+    }
+  }
+  else {
+    if (dbIterator->Valid()) {
+      int cmp = dbIterator->key().compare(*iterator->target_);
+      if (cmp > 0 && iterator->reverse_) {
+        dbIterator->Prev();
+      } else if (cmp < 0 && !iterator->reverse_) {
+        dbIterator->Next();
+      }
+    } else {
+      if (iterator->reverse_) {
+        dbIterator->SeekToLast();
+      } else {
+        dbIterator->SeekToFirst();
+      }
+      if (dbIterator->Valid()) {
+        int cmp = dbIterator->key().compare(*iterator->target_);
+        if (cmp > 0 && iterator->reverse_) {
+          dbIterator->SeekToFirst();
+          dbIterator->Prev();
+        } else if (cmp < 0 && !iterator->reverse_) {
+          dbIterator->SeekToLast();
+          dbIterator->Next();
+        }
+      }
+    }
+  }
 
   NAPI_RETURN_UNDEFINED();
 }
