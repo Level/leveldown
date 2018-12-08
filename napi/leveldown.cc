@@ -21,17 +21,16 @@ struct BaseWorker {
               napi_value callback,
               const char* resourceName)
     : env_(env), database_(database), errMsg_(NULL) {
-    napi_create_reference(env_, callback, 1, &callbackRef_);
+    NAPI_STATUS_THROWS(napi_create_reference(env_, callback, 1, &callbackRef_));
     napi_value asyncResourceName;
-    napi_create_string_utf8(env_, resourceName,
-                            NAPI_AUTO_LENGTH,
-                            &asyncResourceName);
-    napi_create_async_work(env_, callback,
-                           asyncResourceName,
-                           BaseWorker::Execute,
-                           BaseWorker::Complete,
-                           this,
-                           &asyncWork_);
+    NAPI_STATUS_THROWS(napi_create_string_utf8(env_, resourceName,
+                                               NAPI_AUTO_LENGTH,
+                                               &asyncResourceName));
+    NAPI_STATUS_THROWS(napi_create_async_work(env_, callback,
+                                              asyncResourceName,
+                                              BaseWorker::Execute,
+                                              BaseWorker::Complete,
+                                              this, &asyncWork_));
   }
 
   virtual ~BaseWorker () {
@@ -181,6 +180,12 @@ struct Database {
                        leveldb::Slice key,
                        leveldb::Slice value) {
     return db_->Put(options, key, value);
+  }
+
+  leveldb::Status Get (const leveldb::ReadOptions& options,
+                       leveldb::Slice key,
+                       std::string& value) {
+    return db_->Get(options, key, &value);
   }
 
   const leveldb::Snapshot* NewSnapshot () {
@@ -532,7 +537,7 @@ struct PutWorker : public BaseWorker {
 };
 
 /**
- * Puts a key and a value to the database.
+ * Puts a key and a value to a database.
  */
 NAPI_METHOD(db_put) {
   NAPI_ARGV(5);
@@ -542,6 +547,7 @@ NAPI_METHOD(db_put) {
   napi_value value = argv[2];
   bool sync = BooleanProperty(env, argv[3], "sync", false);
   napi_value callback = argv[4];
+
   PutWorker* worker = new PutWorker(env,
                                     database,
                                     callback,
@@ -549,6 +555,82 @@ NAPI_METHOD(db_put) {
                                     value,
                                     sync);
   worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for getting values from a database
+ */
+struct GetWorker : public BaseWorker {
+  GetWorker (napi_env env,
+             Database* database,
+             napi_value callback,
+             napi_value key,
+             bool asBuffer,
+             bool fillCache)
+    : BaseWorker(env, database, callback, "leveldown.db.get"),
+      key_(ToSlice(env, key)),
+      asBuffer_(asBuffer) {
+    options_.fill_cache = fillCache;
+  }
+
+  virtual ~GetWorker () {
+    // TODO clean up key_ if not empty?
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  virtual void DoExecute () {
+    SetStatus(database_->Get(options_, key_, value_));
+  }
+
+  virtual void HandleOKCallback() {
+    const int argc = 2;
+    napi_value argv[argc];
+    napi_get_null(env_, &argv[0]);
+
+    if (asBuffer_) {
+      napi_create_buffer_copy(env_, value_.size(), value_.data(), NULL, &argv[1]);
+    } else {
+      napi_create_string_utf8(env_, value_.data(), value_.size(), &argv[1]);
+    }
+
+    // TODO move to base class
+    napi_value global;
+    napi_get_global(env_, &global);
+    napi_value callback;
+    napi_get_reference_value(env_, callbackRef_, &callback);
+
+    napi_call_function(env_, global, callback, argc, argv, NULL);
+  }
+
+  leveldb::ReadOptions options_;
+  leveldb::Slice key_;
+  std::string value_;
+  bool asBuffer_;
+};
+
+/**
+ * Gets a value from a database.
+ */
+NAPI_METHOD(db_get) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  napi_value key = argv[1];
+  napi_value options = argv[2];
+  bool asBuffer = BooleanProperty(env, options, "asBuffer", true);
+  bool fillCache = BooleanProperty(env, options, "fillCache", true);
+  napi_value callback = argv[3];
+
+  GetWorker* worker = new GetWorker(env,
+                                    database,
+                                    callback,
+                                    key,
+                                    asBuffer,
+                                    fillCache);
+  worker->Queue();
+
   NAPI_RETURN_UNDEFINED();
 }
 
@@ -1171,6 +1253,7 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_open);
   NAPI_EXPORT_FUNCTION(db_close);
   NAPI_EXPORT_FUNCTION(db_put);
+  NAPI_EXPORT_FUNCTION(db_get);
 
   NAPI_EXPORT_FUNCTION(iterator);
   NAPI_EXPORT_FUNCTION(iterator_seek);

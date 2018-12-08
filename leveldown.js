@@ -53,7 +53,7 @@ LevelDOWN.prototype._put = function (key, value, options, callback) {
 }
 
 LevelDOWN.prototype._get = function (key, options, callback) {
-  this.binding.get(key, options, callback)
+  binding.db_get(this.context, key, options, callback)
 }
 
 LevelDOWN.prototype._del = function (key, options, callback) {
