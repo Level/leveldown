@@ -1004,7 +1004,7 @@ NAPI_METHOD(db_get) {
 }
 
 /**
- * Worker class for getting a value from a database.
+ * Worker class for deleting a value from a database.
  */
 struct DelWorker : public BaseWorker {
   DelWorker (napi_env env,
@@ -1012,7 +1012,7 @@ struct DelWorker : public BaseWorker {
              napi_value callback,
              napi_value key,
              bool sync)
-    : BaseWorker(env, database, callback, "leveldown.db.get"),
+    : BaseWorker(env, database, callback, "leveldown.db.del"),
       key_(ToSlice(env, key)) {
     options_.sync = sync;
   }
@@ -1031,7 +1031,7 @@ struct DelWorker : public BaseWorker {
 };
 
 /**
- * Gets a value from a database.
+ * Delete a value from a database.
  */
 NAPI_METHOD(db_del) {
   NAPI_ARGV(4);
@@ -1052,7 +1052,7 @@ NAPI_METHOD(db_del) {
 }
 
 /**
- * Worker class for getting a value from a database.
+ * Worker class for calculating the size of a range.
  */
 struct ApproximateSizeWorker : public BaseWorker {
   ApproximateSizeWorker (napi_env env,
@@ -1115,7 +1115,7 @@ NAPI_METHOD(db_approximate_size) {
 }
 
 /**
- * Worker class for getting a value from a database.
+ * Worker class for compacting a range in a database.
  */
 struct CompactRangeWorker : public BaseWorker {
   CompactRangeWorker (napi_env env,
@@ -1140,7 +1140,7 @@ struct CompactRangeWorker : public BaseWorker {
 };
 
 /**
- * Compacts a range.
+ * Compacts a range in a database.
  */
 NAPI_METHOD(db_compact_range) {
   NAPI_ARGV(4);
@@ -1156,6 +1156,44 @@ NAPI_METHOD(db_compact_range) {
                                                        start,
                                                        end);
   worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for compacting a range in a database.
+ */
+struct DestroyWorker : public BaseWorker {
+  DestroyWorker (napi_env env,
+                 const std::string* location,
+                 napi_value callback)
+    // TODO turns out we don't even need database in BaseWorker()
+    : BaseWorker(env, NULL, callback, "leveldown.destroy_db"),
+      location_(location) {}
+
+  virtual ~DestroyWorker () {}
+
+  virtual void DoExecute () {
+    leveldb::Options options;
+    SetStatus(leveldb::DestroyDB(location_, options));
+  }
+
+  std::string location_;
+};
+
+/**
+ * Destroys a database.
+ */
+NAPI_METHOD(destroy_db) {
+  NAPI_ARGV(2);
+  // TODO replace with new
+  NAPI_ARGV_UTF8_MALLOC(location, 0);
+  napi_value callback = argv[1];
+
+  DestroyWorker* worker = new DestroyWorker(env, location, callback);
+  worker->Queue();
+
+  free(location);
 
   NAPI_RETURN_UNDEFINED();
 }
@@ -1396,8 +1434,7 @@ struct EndWorker : public BaseWorker {
   EndWorker (napi_env env,
              Iterator* iterator,
              napi_value callback)
-    : BaseWorker(env, iterator->database_, callback,
-                 "leveldown.iterator.end"),
+    : BaseWorker(env, iterator->database_, callback, "leveldown.iterator.end"),
       iterator_(iterator) {}
 
   virtual ~EndWorker () {}
@@ -1818,9 +1855,6 @@ NAPI_METHOD(batch_write) {
  * All exported functions.
  */
 NAPI_INIT() {
-  /**
-   * Database related functions.
-   */
   NAPI_EXPORT_FUNCTION(db_init);
   NAPI_EXPORT_FUNCTION(db_open);
   NAPI_EXPORT_FUNCTION(db_close);
@@ -1829,18 +1863,13 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_del);
   NAPI_EXPORT_FUNCTION(db_approximate_size);
   NAPI_EXPORT_FUNCTION(db_compact_range);
+  NAPI_EXPORT_FUNCTION(destroy_db);
 
-  /**
-   * Iterator related functions.
-   */
   NAPI_EXPORT_FUNCTION(iterator_init);
   NAPI_EXPORT_FUNCTION(iterator_seek);
   NAPI_EXPORT_FUNCTION(iterator_end);
   NAPI_EXPORT_FUNCTION(iterator_next);
 
-  /**
-   * Batch related functions.
-   */
   NAPI_EXPORT_FUNCTION(batch_do);
   NAPI_EXPORT_FUNCTION(batch_init);
   NAPI_EXPORT_FUNCTION(batch_put);

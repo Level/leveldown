@@ -24,7 +24,7 @@ test('test callback-less, 1-arg, destroy() throws', function (t) {
   t.end()
 })
 
-test('test destroy non-existent directory', function (t) {
+test.only('test destroy non-existent directory', function (t) {
   t.plan(4)
 
   var location = tempy.directory()
@@ -37,8 +37,8 @@ test('test destroy non-existent directory', function (t) {
   rimraf(location, { glob: false }, function (err) {
     t.ifError(err, 'no error from rimraf()')
 
-    leveldown.destroy(location, function () {
-      t.is(arguments.length, 0, 'no arguments returned on callback')
+    leveldown.destroy(location, function (err) {
+      t.error(err, 'no error')
 
       // Assert that destroy() didn't inadvertently create the directory.
       // Or if it did, that it was at least cleaned up afterwards.

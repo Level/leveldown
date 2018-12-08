@@ -121,7 +121,7 @@ LevelDOWN.destroy = function (location, callback) {
     throw new Error('destroy() requires a callback function argument')
   }
 
-  binding.destroy(location, callback)
+  binding.destroy_db(location, callback)
 }
 
 LevelDOWN.repair = function (location, callback) {
