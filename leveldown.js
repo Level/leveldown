@@ -57,7 +57,7 @@ LevelDOWN.prototype._get = function (key, options, callback) {
 }
 
 LevelDOWN.prototype._del = function (key, options, callback) {
-  this.binding.del(key, options, callback)
+  binding.db_del(this.context, key, options, callback)
 }
 
 LevelDOWN.prototype._chainedBatch = function () {

@@ -188,6 +188,11 @@ struct Database {
     return db_->Get(options, key, &value);
   }
 
+  leveldb::Status Del (const leveldb::WriteOptions& options,
+                       leveldb::Slice key) {
+    return db_->Delete(options, key);
+  }
+
   const leveldb::Snapshot* NewSnapshot () {
     return db_->GetSnapshot();
   }
@@ -560,7 +565,7 @@ NAPI_METHOD(db_put) {
 }
 
 /**
- * Worker class for getting values from a database
+ * Worker class for getting a value from a database.
  */
 struct GetWorker : public BaseWorker {
   GetWorker (napi_env env,
@@ -629,6 +634,54 @@ NAPI_METHOD(db_get) {
                                     key,
                                     asBuffer,
                                     fillCache);
+  worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for getting a value from a database.
+ */
+struct DelWorker : public BaseWorker {
+  DelWorker (napi_env env,
+             Database* database,
+             napi_value callback,
+             napi_value key,
+             bool sync)
+    : BaseWorker(env, database, callback, "leveldown.db.get"),
+      key_(ToSlice(env, key)) {
+    options_.sync = sync;
+  }
+
+  virtual ~DelWorker () {
+    // TODO clean up key_ if not empty?
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  virtual void DoExecute () {
+    SetStatus(database_->Del(options_, key_));
+  }
+
+  leveldb::WriteOptions options_;
+  leveldb::Slice key_;
+};
+
+/**
+ * Gets a value from a database.
+ */
+NAPI_METHOD(db_del) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  napi_value key = argv[1];
+  bool sync = BooleanProperty(env, argv[2], "sync", false);
+  napi_value callback = argv[3];
+
+  DelWorker* worker = new DelWorker(env,
+                                    database,
+                                    callback,
+                                    key,
+                                    sync);
   worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
@@ -1254,6 +1307,7 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_close);
   NAPI_EXPORT_FUNCTION(db_put);
   NAPI_EXPORT_FUNCTION(db_get);
+  NAPI_EXPORT_FUNCTION(db_del);
 
   NAPI_EXPORT_FUNCTION(iterator);
   NAPI_EXPORT_FUNCTION(iterator_seek);
