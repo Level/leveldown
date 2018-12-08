@@ -15,6 +15,7 @@
 struct Database;
 struct Iterator;
 struct EndWorker;
+static void iterator_end_do (napi_env env, Iterator* iterator, napi_value cb);
 
 /**
  * Macros.
@@ -424,415 +425,6 @@ static void FinalizeDatabase (napi_env env, void* data, void* hint) {
 }
 
 /**
- * Returns a context object for a database.
- */
-NAPI_METHOD(db_init) {
-  Database* database = new Database(env);
-
-  napi_value result;
-  NAPI_STATUS_THROWS(napi_create_external(env, database,
-                                          FinalizeDatabase,
-                                          NULL, &result));
-  return result;
-}
-
-/**
- * Worker class for opening a database.
- */
-struct OpenWorker : public BaseWorker {
-  OpenWorker (napi_env env,
-              Database* database,
-              napi_value callback,
-              char* location,
-              bool createIfMissing,
-              bool errorIfExists,
-              bool compression,
-              uint32_t writeBufferSize,
-              uint32_t blockSize,
-              uint32_t maxOpenFiles,
-              uint32_t blockRestartInterval,
-              uint32_t maxFileSize)
-    : BaseWorker(env, database, callback, "leveldown.db.open"),
-      location_(location) {
-    options_.block_cache = database->blockCache_;
-    options_.filter_policy = database->filterPolicy_;
-    options_.create_if_missing = createIfMissing;
-    options_.error_if_exists = errorIfExists;
-    options_.compression = compression
-      ? leveldb::kSnappyCompression
-      : leveldb::kNoCompression;
-    options_.write_buffer_size = writeBufferSize;
-    options_.block_size = blockSize;
-    options_.max_open_files = maxOpenFiles;
-    options_.block_restart_interval = blockRestartInterval;
-    options_.max_file_size = maxFileSize;
-  }
-
-  virtual ~OpenWorker () {
-    free(location_);
-  }
-
-  virtual void DoExecute () {
-    SetStatus(database_->Open(options_, location_));
-  }
-
-  leveldb::Options options_;
-  char* location_;
-};
-
-/**
- * Open a database.
- */
-NAPI_METHOD(db_open) {
-  NAPI_ARGV(4);
-  NAPI_DB_CONTEXT();
-  // TODO create a NAPI_ARGV_UTF8_NEW() macro that uses new instead of malloc
-  // so we have similar allocation/deallocation mechanisms everywhere
-  NAPI_ARGV_UTF8_MALLOC(location, 1);
-
-  // Options object and properties.
-  napi_value options = argv[2];
-  bool createIfMissing = BooleanProperty(env, options, "createIfMissing", true);
-  bool errorIfExists = BooleanProperty(env, options, "errorIfExists", false);
-  bool compression = BooleanProperty(env, options, "compression", true);
-
-  uint32_t cacheSize = Uint32Property(env, options, "cacheSize", 8 << 20);
-  uint32_t writeBufferSize = Uint32Property(env, options , "writeBufferSize" , 4 << 20);
-  uint32_t blockSize = Uint32Property(env, options, "blockSize", 4096);
-  uint32_t maxOpenFiles = Uint32Property(env, options, "maxOpenFiles", 1000);
-  uint32_t blockRestartInterval = Uint32Property(env, options,
-                                                 "blockRestartInterval", 16);
-  uint32_t maxFileSize = Uint32Property(env, options, "maxFileSize", 2 << 20);
-
-  database->blockCache_ = leveldb::NewLRUCache(cacheSize);
-  database->filterPolicy_ = leveldb::NewBloomFilterPolicy(10);
-
-  napi_value callback = argv[3];
-  OpenWorker* worker = new OpenWorker(env,
-                                      database,
-                                      callback,
-                                      location,
-                                      createIfMissing,
-                                      errorIfExists,
-                                      compression,
-                                      writeBufferSize,
-                                      blockSize,
-                                      maxOpenFiles,
-                                      blockRestartInterval,
-                                      maxFileSize);
-  worker->Queue();
-  NAPI_RETURN_UNDEFINED();
-}
-
-/**
- * Worker class for closing a database
- */
-struct CloseWorker : public BaseWorker {
-  CloseWorker (napi_env env,
-               Database* database,
-               napi_value callback)
-    : BaseWorker(env, database, callback, "leveldown.db.close") {}
-
-  virtual ~CloseWorker () {}
-
-  virtual void DoExecute () {
-    database_->CloseDatabase();
-  }
-};
-
-/**
- * Close a database.
- */
-NAPI_METHOD(db_close) {
-  NAPI_ARGV(2);
-  NAPI_DB_CONTEXT();
-
-  napi_value callback = argv[1];
-  CloseWorker* worker = new CloseWorker(env, database, callback);
-
-  if (database->iterators_.empty()) {
-    worker->Queue();
-    NAPI_RETURN_UNDEFINED();
-  }
-
-  // TODO fix me!
-
-  /*
-  // yikes, we still have iterators open! naughty naughty.
-  // we have to queue up a CloseWorker and manually close each of them.
-  // the CloseWorker will be invoked once they are all cleaned up
-  database->pendingCloseWorker = worker;
-
-  for (
-       std::map< uint32_t, leveldown::Iterator * >::iterator it
-         = database->iterators.begin()
-         ; it != database->iterators.end()
-         ; ++it) {
-
-    // for each iterator still open, first check if it's already in
-    // the process of ending (ended==true means an async End() is
-    // in progress), if not, then we call End() with an empty callback
-    // function and wait for it to hit ReleaseIterator() where our
-    // CloseWorker will be invoked
-
-    leveldown::Iterator *iterator = it->second;
-
-    if (!iterator->ended) {
-      v8::Local<v8::Function> end =
-        v8::Local<v8::Function>::Cast(iterator->handle()->Get(
-                  Nan::New<v8::String>("end").ToLocalChecked()));
-      v8::Local<v8::Value> argv[] = {
-        Nan::New<v8::FunctionTemplate>(EmptyMethod)->GetFunction() // empty callback
-      };
-      Nan::AsyncResource ar("leveldown:iterator.end");
-      ar.runInAsyncScope(iterator->handle(), end, 1, argv);
-    }
-  }
-
-  */
-
-  NAPI_RETURN_UNDEFINED();
-}
-
-/**
- * Worker class for putting key/value to the database
- */
-struct PutWorker : public BaseWorker {
-  PutWorker (napi_env env,
-             Database* database,
-             napi_value callback,
-             napi_value key,
-             napi_value value,
-             bool sync)
-    : BaseWorker(env, database, callback, "leveldown.db.put"),
-      key_(ToSlice(env, key)), value_(ToSlice(env, value)) {
-    options_.sync = sync;
-  }
-
-  virtual ~PutWorker () {
-    // TODO clean up key_ and value_ if they aren't empty?
-    // See DisposeStringOrBufferFromSlice()
-  }
-
-  virtual void DoExecute () {
-    SetStatus(database_->Put(options_, key_, value_));
-  }
-
-  leveldb::WriteOptions options_;
-  leveldb::Slice key_;
-  leveldb::Slice value_;
-};
-
-/**
- * Puts a key and a value to a database.
- */
-NAPI_METHOD(db_put) {
-  NAPI_ARGV(5);
-  NAPI_DB_CONTEXT();
-
-  napi_value key = argv[1];
-  napi_value value = argv[2];
-  bool sync = BooleanProperty(env, argv[3], "sync", false);
-  napi_value callback = argv[4];
-
-  PutWorker* worker = new PutWorker(env,
-                                    database,
-                                    callback,
-                                    key,
-                                    value,
-                                    sync);
-  worker->Queue();
-
-  NAPI_RETURN_UNDEFINED();
-}
-
-/**
- * Worker class for getting a value from a database.
- */
-struct GetWorker : public BaseWorker {
-  GetWorker (napi_env env,
-             Database* database,
-             napi_value callback,
-             napi_value key,
-             bool asBuffer,
-             bool fillCache)
-    : BaseWorker(env, database, callback, "leveldown.db.get"),
-      key_(ToSlice(env, key)),
-      asBuffer_(asBuffer) {
-    options_.fill_cache = fillCache;
-  }
-
-  virtual ~GetWorker () {
-    // TODO clean up key_ if not empty?
-    // See DisposeStringOrBufferFromSlice()
-  }
-
-  virtual void DoExecute () {
-    SetStatus(database_->Get(options_, key_, value_));
-  }
-
-  virtual void HandleOKCallback() {
-    const int argc = 2;
-    napi_value argv[argc];
-    napi_get_null(env_, &argv[0]);
-
-    if (asBuffer_) {
-      napi_create_buffer_copy(env_, value_.size(), value_.data(), NULL, &argv[1]);
-    } else {
-      napi_create_string_utf8(env_, value_.data(), value_.size(), &argv[1]);
-    }
-
-    // TODO move to base class
-    napi_value global;
-    napi_get_global(env_, &global);
-    napi_value callback;
-    napi_get_reference_value(env_, callbackRef_, &callback);
-
-    napi_call_function(env_, global, callback, argc, argv, NULL);
-  }
-
-  leveldb::ReadOptions options_;
-  leveldb::Slice key_;
-  std::string value_;
-  bool asBuffer_;
-};
-
-/**
- * Gets a value from a database.
- */
-NAPI_METHOD(db_get) {
-  NAPI_ARGV(4);
-  NAPI_DB_CONTEXT();
-
-  napi_value key = argv[1];
-  napi_value options = argv[2];
-  bool asBuffer = BooleanProperty(env, options, "asBuffer", true);
-  bool fillCache = BooleanProperty(env, options, "fillCache", true);
-  napi_value callback = argv[3];
-
-  GetWorker* worker = new GetWorker(env,
-                                    database,
-                                    callback,
-                                    key,
-                                    asBuffer,
-                                    fillCache);
-  worker->Queue();
-
-  NAPI_RETURN_UNDEFINED();
-}
-
-/**
- * Worker class for getting a value from a database.
- */
-struct DelWorker : public BaseWorker {
-  DelWorker (napi_env env,
-             Database* database,
-             napi_value callback,
-             napi_value key,
-             bool sync)
-    : BaseWorker(env, database, callback, "leveldown.db.get"),
-      key_(ToSlice(env, key)) {
-    options_.sync = sync;
-  }
-
-  virtual ~DelWorker () {
-    // TODO clean up key_ if not empty?
-    // See DisposeStringOrBufferFromSlice()
-  }
-
-  virtual void DoExecute () {
-    SetStatus(database_->Del(options_, key_));
-  }
-
-  leveldb::WriteOptions options_;
-  leveldb::Slice key_;
-};
-
-/**
- * Gets a value from a database.
- */
-NAPI_METHOD(db_del) {
-  NAPI_ARGV(4);
-  NAPI_DB_CONTEXT();
-
-  napi_value key = argv[1];
-  bool sync = BooleanProperty(env, argv[2], "sync", false);
-  napi_value callback = argv[3];
-
-  DelWorker* worker = new DelWorker(env,
-                                    database,
-                                    callback,
-                                    key,
-                                    sync);
-  worker->Queue();
-
-  NAPI_RETURN_UNDEFINED();
-}
-
-/**
- * Worker class for getting a value from a database.
- */
-struct ApproximateSizeWorker : public BaseWorker {
-  ApproximateSizeWorker (napi_env env,
-                         Database* database,
-                         napi_value callback,
-                         leveldb::Slice start,
-                         leveldb::Slice end)
-    : BaseWorker(env, database, callback, "leveldown.db.approximate_size"),
-      start_(start), end_(end) {}
-
-  virtual ~ApproximateSizeWorker () {
-    // TODO clean up start_ and end_ slices
-    // See DisposeStringOrBufferFromSlice()
-  }
-
-  virtual void DoExecute () {
-    leveldb::Range range(start_, end_);
-    size_ = database_->ApproximateSize(&range);
-  }
-
-  virtual void HandleOKCallback() {
-    const int argc = 2;
-    napi_value argv[argc];
-    napi_get_null(env_, &argv[0]);
-    napi_create_uint32(env_, (uint32_t)size_, &argv[1]);
-
-    // TODO move to base class
-    napi_value global;
-    napi_get_global(env_, &global);
-    napi_value callback;
-    napi_get_reference_value(env_, callbackRef_, &callback);
-
-    napi_call_function(env_, global, callback, argc, argv, NULL);
-  }
-
-  leveldb::Slice start_;
-  leveldb::Slice end_;
-  uint64_t size_;
-};
-
-/**
- * Calculates the approximate size of a range in a database.
- */
-NAPI_METHOD(db_approximate_size) {
-  NAPI_ARGV(4);
-  NAPI_DB_CONTEXT();
-
-  leveldb::Slice start = ToSlice(env, argv[1]);
-  leveldb::Slice end = ToSlice(env, argv[2]);
-  napi_value callback = argv[3];
-
-  ApproximateSizeWorker* worker  = new ApproximateSizeWorker(env,
-                                                             database,
-                                                             callback,
-                                                             start,
-                                                             end);
-  worker->Queue();
-
-  NAPI_RETURN_UNDEFINED();
-}
-
-/**
  * Owns a leveldb iterator.
  */
 struct Iterator {
@@ -1117,6 +709,399 @@ struct Iterator {
 };
 
 /**
+ * Returns a context object for a database.
+ */
+NAPI_METHOD(db_init) {
+  Database* database = new Database(env);
+
+  napi_value result;
+  NAPI_STATUS_THROWS(napi_create_external(env, database,
+                                          FinalizeDatabase,
+                                          NULL, &result));
+  return result;
+}
+
+/**
+ * Worker class for opening a database.
+ */
+struct OpenWorker : public BaseWorker {
+  OpenWorker (napi_env env,
+              Database* database,
+              napi_value callback,
+              char* location,
+              bool createIfMissing,
+              bool errorIfExists,
+              bool compression,
+              uint32_t writeBufferSize,
+              uint32_t blockSize,
+              uint32_t maxOpenFiles,
+              uint32_t blockRestartInterval,
+              uint32_t maxFileSize)
+    : BaseWorker(env, database, callback, "leveldown.db.open"),
+      location_(location) {
+    options_.block_cache = database->blockCache_;
+    options_.filter_policy = database->filterPolicy_;
+    options_.create_if_missing = createIfMissing;
+    options_.error_if_exists = errorIfExists;
+    options_.compression = compression
+      ? leveldb::kSnappyCompression
+      : leveldb::kNoCompression;
+    options_.write_buffer_size = writeBufferSize;
+    options_.block_size = blockSize;
+    options_.max_open_files = maxOpenFiles;
+    options_.block_restart_interval = blockRestartInterval;
+    options_.max_file_size = maxFileSize;
+  }
+
+  virtual ~OpenWorker () {
+    free(location_);
+  }
+
+  virtual void DoExecute () {
+    SetStatus(database_->Open(options_, location_));
+  }
+
+  leveldb::Options options_;
+  char* location_;
+};
+
+/**
+ * Open a database.
+ */
+NAPI_METHOD(db_open) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+  // TODO create a NAPI_ARGV_UTF8_NEW() macro that uses new instead of malloc
+  // so we have similar allocation/deallocation mechanisms everywhere
+  NAPI_ARGV_UTF8_MALLOC(location, 1);
+
+  // Options object and properties.
+  napi_value options = argv[2];
+  bool createIfMissing = BooleanProperty(env, options, "createIfMissing", true);
+  bool errorIfExists = BooleanProperty(env, options, "errorIfExists", false);
+  bool compression = BooleanProperty(env, options, "compression", true);
+
+  uint32_t cacheSize = Uint32Property(env, options, "cacheSize", 8 << 20);
+  uint32_t writeBufferSize = Uint32Property(env, options , "writeBufferSize" , 4 << 20);
+  uint32_t blockSize = Uint32Property(env, options, "blockSize", 4096);
+  uint32_t maxOpenFiles = Uint32Property(env, options, "maxOpenFiles", 1000);
+  uint32_t blockRestartInterval = Uint32Property(env, options,
+                                                 "blockRestartInterval", 16);
+  uint32_t maxFileSize = Uint32Property(env, options, "maxFileSize", 2 << 20);
+
+  database->blockCache_ = leveldb::NewLRUCache(cacheSize);
+  database->filterPolicy_ = leveldb::NewBloomFilterPolicy(10);
+
+  napi_value callback = argv[3];
+  OpenWorker* worker = new OpenWorker(env,
+                                      database,
+                                      callback,
+                                      location,
+                                      createIfMissing,
+                                      errorIfExists,
+                                      compression,
+                                      writeBufferSize,
+                                      blockSize,
+                                      maxOpenFiles,
+                                      blockRestartInterval,
+                                      maxFileSize);
+  worker->Queue();
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for closing a database
+ */
+struct CloseWorker : public BaseWorker {
+  CloseWorker (napi_env env,
+               Database* database,
+               napi_value callback)
+    : BaseWorker(env, database, callback, "leveldown.db.close") {}
+
+  virtual ~CloseWorker () {}
+
+  virtual void DoExecute () {
+    database_->CloseDatabase();
+  }
+};
+
+napi_value noop_callback (napi_env env, napi_callback_info info) {
+  return 0;
+}
+
+/**
+ * Close a database.
+ */
+NAPI_METHOD(db_close) {
+  NAPI_ARGV(2);
+  NAPI_DB_CONTEXT();
+
+  napi_value callback = argv[1];
+  CloseWorker* worker = new CloseWorker(env, database, callback);
+
+  if (database->iterators_.empty()) {
+    worker->Queue();
+    NAPI_RETURN_UNDEFINED();
+  }
+
+  database->pendingCloseWorker_ = worker;
+
+  napi_value noop;
+  napi_create_function(env, NULL, 0, noop_callback, NULL, &noop);
+
+  std::map< uint32_t, Iterator * >::iterator it;
+  for (it = database->iterators_.begin();
+       it != database->iterators_.end(); ++it) {
+
+    Iterator *iterator = it->second;
+    if (!iterator->ended_) {
+      // Call same logic as iterator_end() but provide a noop callback.
+      iterator_end_do(env, iterator, noop);
+    }
+  }
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for putting key/value to the database
+ */
+struct PutWorker : public BaseWorker {
+  PutWorker (napi_env env,
+             Database* database,
+             napi_value callback,
+             napi_value key,
+             napi_value value,
+             bool sync)
+    : BaseWorker(env, database, callback, "leveldown.db.put"),
+      key_(ToSlice(env, key)), value_(ToSlice(env, value)) {
+    options_.sync = sync;
+  }
+
+  virtual ~PutWorker () {
+    // TODO clean up key_ and value_ if they aren't empty?
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  virtual void DoExecute () {
+    SetStatus(database_->Put(options_, key_, value_));
+  }
+
+  leveldb::WriteOptions options_;
+  leveldb::Slice key_;
+  leveldb::Slice value_;
+};
+
+/**
+ * Puts a key and a value to a database.
+ */
+NAPI_METHOD(db_put) {
+  NAPI_ARGV(5);
+  NAPI_DB_CONTEXT();
+
+  napi_value key = argv[1];
+  napi_value value = argv[2];
+  bool sync = BooleanProperty(env, argv[3], "sync", false);
+  napi_value callback = argv[4];
+
+  PutWorker* worker = new PutWorker(env,
+                                    database,
+                                    callback,
+                                    key,
+                                    value,
+                                    sync);
+  worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for getting a value from a database.
+ */
+struct GetWorker : public BaseWorker {
+  GetWorker (napi_env env,
+             Database* database,
+             napi_value callback,
+             napi_value key,
+             bool asBuffer,
+             bool fillCache)
+    : BaseWorker(env, database, callback, "leveldown.db.get"),
+      key_(ToSlice(env, key)),
+      asBuffer_(asBuffer) {
+    options_.fill_cache = fillCache;
+  }
+
+  virtual ~GetWorker () {
+    // TODO clean up key_ if not empty?
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  virtual void DoExecute () {
+    SetStatus(database_->Get(options_, key_, value_));
+  }
+
+  virtual void HandleOKCallback() {
+    const int argc = 2;
+    napi_value argv[argc];
+    napi_get_null(env_, &argv[0]);
+
+    if (asBuffer_) {
+      napi_create_buffer_copy(env_, value_.size(), value_.data(), NULL, &argv[1]);
+    } else {
+      napi_create_string_utf8(env_, value_.data(), value_.size(), &argv[1]);
+    }
+
+    // TODO move to base class
+    napi_value global;
+    napi_get_global(env_, &global);
+    napi_value callback;
+    napi_get_reference_value(env_, callbackRef_, &callback);
+
+    napi_call_function(env_, global, callback, argc, argv, NULL);
+  }
+
+  leveldb::ReadOptions options_;
+  leveldb::Slice key_;
+  std::string value_;
+  bool asBuffer_;
+};
+
+/**
+ * Gets a value from a database.
+ */
+NAPI_METHOD(db_get) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  napi_value key = argv[1];
+  napi_value options = argv[2];
+  bool asBuffer = BooleanProperty(env, options, "asBuffer", true);
+  bool fillCache = BooleanProperty(env, options, "fillCache", true);
+  napi_value callback = argv[3];
+
+  GetWorker* worker = new GetWorker(env,
+                                    database,
+                                    callback,
+                                    key,
+                                    asBuffer,
+                                    fillCache);
+  worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for getting a value from a database.
+ */
+struct DelWorker : public BaseWorker {
+  DelWorker (napi_env env,
+             Database* database,
+             napi_value callback,
+             napi_value key,
+             bool sync)
+    : BaseWorker(env, database, callback, "leveldown.db.get"),
+      key_(ToSlice(env, key)) {
+    options_.sync = sync;
+  }
+
+  virtual ~DelWorker () {
+    // TODO clean up key_ if not empty?
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  virtual void DoExecute () {
+    SetStatus(database_->Del(options_, key_));
+  }
+
+  leveldb::WriteOptions options_;
+  leveldb::Slice key_;
+};
+
+/**
+ * Gets a value from a database.
+ */
+NAPI_METHOD(db_del) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  napi_value key = argv[1];
+  bool sync = BooleanProperty(env, argv[2], "sync", false);
+  napi_value callback = argv[3];
+
+  DelWorker* worker = new DelWorker(env,
+                                    database,
+                                    callback,
+                                    key,
+                                    sync);
+  worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for getting a value from a database.
+ */
+struct ApproximateSizeWorker : public BaseWorker {
+  ApproximateSizeWorker (napi_env env,
+                         Database* database,
+                         napi_value callback,
+                         leveldb::Slice start,
+                         leveldb::Slice end)
+    : BaseWorker(env, database, callback, "leveldown.db.approximate_size"),
+      start_(start), end_(end) {}
+
+  virtual ~ApproximateSizeWorker () {
+    // TODO clean up start_ and end_ slices
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  virtual void DoExecute () {
+    leveldb::Range range(start_, end_);
+    size_ = database_->ApproximateSize(&range);
+  }
+
+  virtual void HandleOKCallback() {
+    const int argc = 2;
+    napi_value argv[argc];
+    napi_get_null(env_, &argv[0]);
+    napi_create_uint32(env_, (uint32_t)size_, &argv[1]);
+
+    // TODO move to base class
+    napi_value global;
+    napi_get_global(env_, &global);
+    napi_value callback;
+    napi_get_reference_value(env_, callbackRef_, &callback);
+
+    napi_call_function(env_, global, callback, argc, argv, NULL);
+  }
+
+  leveldb::Slice start_;
+  leveldb::Slice end_;
+  uint64_t size_;
+};
+
+/**
+ * Calculates the approximate size of a range in a database.
+ */
+NAPI_METHOD(db_approximate_size) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  leveldb::Slice start = ToSlice(env, argv[1]);
+  leveldb::Slice end = ToSlice(env, argv[2]);
+  napi_value callback = argv[3];
+
+  ApproximateSizeWorker* worker  = new ApproximateSizeWorker(env,
+                                                             database,
+                                                             callback,
+                                                             start,
+                                                             end);
+  worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
  * Runs when an Iterator is garbage collected.
  */
 static void FinalizeIterator (napi_env env, void* data, void* hint) {
@@ -1371,16 +1356,12 @@ struct EndWorker : public BaseWorker {
 };
 
 /**
- * Ends an iterator.
+ * Called by NAPI_METHOD(iterator_end) and also when closing
+ * open iterators during NAPI_METHOD(db_close).
  */
-NAPI_METHOD(iterator_end) {
-  NAPI_ARGV(2);
-  NAPI_ITERATOR_CONTEXT();
-
-  napi_value callback = argv[1];
-
+static void iterator_end_do (napi_env env, Iterator* iterator, napi_value cb) {
   if (!iterator->ended_) {
-    EndWorker* worker = new EndWorker(env, iterator, callback);
+    EndWorker* worker = new EndWorker(env, iterator, cb);
     iterator->ended_ = true;
 
     if (iterator->nexting_) {
@@ -1390,6 +1371,16 @@ NAPI_METHOD(iterator_end) {
       worker->Queue();
     }
   }
+}
+
+/**
+ * Ends an iterator.
+ */
+NAPI_METHOD(iterator_end) {
+  NAPI_ARGV(2);
+  NAPI_ITERATOR_CONTEXT();
+
+  iterator_end_do(env, iterator, argv[1]);
 
   NAPI_RETURN_UNDEFINED();
 }
