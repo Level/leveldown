@@ -3,11 +3,119 @@
 #include <leveldb/cache.h>
 #include <leveldb/filter_policy.h>
 #include <map>
+#include <vector>
 
 /**
  * Forward declarations.
  */
+struct Database;
 struct Iterator;
+struct EndWorker;
+
+/**
+ * Base worker class.
+ */
+struct BaseWorker {
+  BaseWorker (napi_env env,
+              Database* database,
+              napi_value callback,
+              const char* resourceName)
+    : env_(env), database_(database) {
+    napi_create_reference(env_, callback, 1, &callbackRef_);
+    napi_value asyncResourceName;
+    napi_create_string_utf8(env_, resourceName,
+                            NAPI_AUTO_LENGTH,
+                            &asyncResourceName);
+    napi_create_async_work(env_, callback,
+                           asyncResourceName,
+                           BaseWorker::Execute,
+                           BaseWorker::Complete,
+                           this,
+                           &asyncWork_);
+  }
+
+  virtual ~BaseWorker () {
+    napi_delete_reference(env_, callbackRef_);
+    napi_delete_async_work(env_, asyncWork_);
+  }
+
+  /**
+   * Calls virtual DoExecute().
+   */
+  static void Execute (napi_env env, void* data) {
+    BaseWorker* self = (BaseWorker*)data;
+    self->DoExecute();
+  }
+
+  /**
+   * MUST be overriden.
+   */
+  virtual void DoExecute () = 0;
+
+  /**
+   * Calls DoComplete() and kills the worker.
+   */
+  static void Complete (napi_env env, napi_status status, void* data) {
+    BaseWorker* self = (BaseWorker*)data;
+    self->DoComplete();
+    delete self;
+  }
+
+  /**
+   * Checks status and calls appropriate handler.
+   * - Calls virtual HandleOKCallback() if status is ok
+   * - Calls back with error if status is an error
+   */
+  void DoComplete () {
+    if (status_.ok()) {
+      return HandleOKCallback();
+    }
+
+    // TODO the global, callback, and calling the function code
+    // could be refactored with HandleOKCallback()
+
+    napi_value global;
+    napi_get_global(env_, &global);
+    napi_value callback;
+    napi_get_reference_value(env_, callbackRef_, &callback);
+
+    const char* str = status_.ToString().c_str();
+    napi_value msg;
+    napi_create_string_utf8(env_, str, strlen(str), &msg);
+
+    const int argc = 1;
+    napi_value argv[argc];
+    napi_create_error(env_, NULL, msg, &argv[0]);
+
+    napi_call_function(env_, global, callback, argc, argv, NULL);
+  }
+
+  /**
+   * Default behavior is to call back with NULL.
+   */
+  virtual void HandleOKCallback () {
+    napi_value global;
+    napi_get_global(env_, &global);
+    napi_value callback;
+    napi_get_reference_value(env_, callbackRef_, &callback);
+
+    const int argc = 1;
+    napi_value argv[argc];
+    napi_get_null(env_, &argv[0]);
+
+    napi_call_function(env_, global, callback, argc, argv, NULL);
+  }
+
+  void Queue () {
+    napi_queue_async_work(env_, asyncWork_);
+  }
+
+  napi_env env_;
+  napi_ref callbackRef_;
+  napi_async_work asyncWork_;
+  Database* database_;
+  leveldb::Status status_;
+};
 
 /**
  * Owns the LevelDB storage together with cache and filter policy.
@@ -18,7 +126,8 @@ struct Database {
       db_(NULL),
       blockCache_(NULL),
       filterPolicy_(NULL),
-      currentIteratorId_(0) {}
+      currentIteratorId_(0),
+      pendingCloseWorker_(NULL) {}
 
   ~Database () {
     if (db_ != NULL) {
@@ -27,19 +136,41 @@ struct Database {
     }
   }
 
-  leveldb::Status Open(const leveldb::Options& options,
-                       const char* location) {
+  leveldb::Status Open (const leveldb::Options& options,
+                        const char* location) {
     return leveldb::DB::Open(options, location, &db_);
   }
 
-  leveldb::Status Put(const leveldb::WriteOptions& options,
-                      leveldb::Slice key,
-                      leveldb::Slice value) {
+  leveldb::Status Put (const leveldb::WriteOptions& options,
+                       leveldb::Slice key,
+                       leveldb::Slice value) {
     return db_->Put(options, key, value);
   }
 
-  const leveldb::Snapshot* NewSnapshot() {
+  const leveldb::Snapshot* NewSnapshot () {
     return db_->GetSnapshot();
+  }
+
+  leveldb::Iterator* NewIterator (leveldb::ReadOptions* options) {
+    return db_->NewIterator(*options);
+  }
+
+  void ReleaseSnapshot (const leveldb::Snapshot* snapshot) {
+    return db_->ReleaseSnapshot(snapshot);
+  }
+
+  void ReleaseIterator (uint32_t id) {
+    // called each time an Iterator is End()ed, in the main thread
+    // we have to remove our reference to it and if it's the last
+    // iterator we have to invoke a pending CloseWorker if there
+    // is one if there is a pending CloseWorker it means that
+    // we're waiting for iterators to end before we can close them
+    iterators_.erase(id);
+    if (iterators_.empty() && pendingCloseWorker_ != NULL) {
+      // TODO Test this!
+      pendingCloseWorker_->Queue();
+      pendingCloseWorker_ = NULL;
+    }
   }
 
   napi_env env_;
@@ -50,13 +181,18 @@ struct Database {
   // time in the constructor?
   const leveldb::FilterPolicy* filterPolicy_;
   uint32_t currentIteratorId_;
+  // TODO this worker should have a proper type, now
+  // it's some form of function pointer bastard, it should
+  // just be a CloseWorker object
+  //void (*pendingCloseWorker_);
+  BaseWorker *pendingCloseWorker_;
   std::map< uint32_t, Iterator * > iterators_;
 };
 
 /**
  * Runs when a Database is garbage collected.
  */
-static void FinalizeDatabase(napi_env env, void* data, void* hint) {
+static void FinalizeDatabase (napi_env env, void* data, void* hint) {
   if (data) {
     delete (Database*)data;
   }
@@ -80,7 +216,9 @@ NAPI_METHOD(db) {
 /**
  * Returns true if 'obj' has a property 'key'
  */
-static bool HasProperty(napi_env env, napi_value obj, const char* key) {
+static bool HasProperty (napi_env env,
+                         napi_value obj,
+                         const char* key) {
   bool has = false;
   napi_value _key;
   napi_create_string_utf8(env, key, strlen(key), &_key);
@@ -91,9 +229,9 @@ static bool HasProperty(napi_env env, napi_value obj, const char* key) {
 /**
  * Returns a property in napi_value form
  */
-static napi_value GetProperty(napi_env env,
-                              napi_value obj,
-                              const char* key) {
+static napi_value GetProperty (napi_env env,
+                               napi_value obj,
+                               const char* key) {
   napi_value _key;
   napi_create_string_utf8(env, key, strlen(key), &_key);
 
@@ -107,10 +245,10 @@ static napi_value GetProperty(napi_env env,
  * Returns a boolean property 'key' from 'obj'.
  * Returns 'DEFAULT' if the property doesn't exist.
  */
-static bool BooleanProperty(napi_env env,
-                            napi_value obj,
-                            const char* key,
-                            bool DEFAULT) {
+static bool BooleanProperty (napi_env env,
+                             napi_value obj,
+                             const char* key,
+                             bool DEFAULT) {
   if (HasProperty(env, obj, key)) {
     napi_value value = GetProperty(env, obj, key);
     bool result;
@@ -125,10 +263,10 @@ static bool BooleanProperty(napi_env env,
  * Returns a uint32 property 'key' from 'obj'
  * Returns 'DEFAULT' if the property doesn't exist.
  */
-static uint32_t Uint32Property(napi_env env,
-                               napi_value obj,
-                               const char* key,
-                               uint32_t DEFAULT) {
+static uint32_t Uint32Property (napi_env env,
+                                napi_value obj,
+                                const char* key,
+                                uint32_t DEFAULT) {
   if (HasProperty(env, obj, key)) {
     napi_value value = GetProperty(env, obj, key);
     uint32_t result;
@@ -143,10 +281,10 @@ static uint32_t Uint32Property(napi_env env,
  * Returns a uint32 property 'key' from 'obj'
  * Returns 'DEFAULT' if the property doesn't exist.
  */
-static int Int32Property(napi_env env,
-                         napi_value obj,
-                         const char* key,
-                         int DEFAULT) {
+static int Int32Property (napi_env env,
+                          napi_value obj,
+                          const char* key,
+                          int DEFAULT) {
   bool exists = false;
   napi_value _key;
   napi_create_string_utf8(env, key, strlen(key), &_key);
@@ -164,107 +302,21 @@ static int Int32Property(napi_env env,
 }
 
 /**
- * Base worker class.
- */
-struct BaseWorker {
-  BaseWorker(napi_env env,
-             Database* database,
-             napi_value callback,
-             const char* resourceName)
-    : env_(env), database_(database) {
-    napi_create_reference(env_, callback, 1, &callbackRef_);
-    napi_value asyncResourceName;
-    napi_create_string_utf8(env_, resourceName,
-                            NAPI_AUTO_LENGTH,
-                            &asyncResourceName);
-    napi_create_async_work(env_, callback,
-                           asyncResourceName,
-                           BaseWorker::Execute,
-                           BaseWorker::Complete,
-                           this,
-                           &asyncWork_);
-  }
-
-  virtual ~BaseWorker() {
-    napi_delete_reference(env_, callbackRef_);
-    napi_delete_async_work(env_, asyncWork_);
-  }
-
-  /**
-   * Calls virtual DoExecute().
-   */
-  static void Execute(napi_env env, void* data) {
-    BaseWorker* self = (BaseWorker*)data;
-    self->DoExecute();
-  }
-
-  /**
-   * MUST be overriden.
-   */
-  virtual void DoExecute() = 0;
-
-  /**
-   * Calls DoComplete() and kills the worker.
-   */
-  static void Complete(napi_env env, napi_status status, void* data) {
-    BaseWorker* self = (BaseWorker*)data;
-    self->DoComplete();
-    delete self;
-  }
-
-  /**
-   * Default handling when work is complete.
-   * - Calls back with NULL if no error
-   * - Calls back with error if status is an error
-   */
-  virtual void DoComplete() {
-    const int argc = 1;
-    napi_value argv[argc];
-
-    napi_value global;
-    napi_get_global(env_, &global);
-    napi_value callback;
-    napi_get_reference_value(env_, callbackRef_, &callback);
-
-    if (status_.ok()) {
-      napi_get_null(env_, &argv[0]);
-    } else {
-      const char* str = status_.ToString().c_str();
-      napi_value msg;
-      napi_create_string_utf8(env_, str, strlen(str), &msg);
-      napi_create_error(env_, NULL, msg, &argv[0]);
-    }
-
-    napi_call_function(env_, global, callback, argc, argv, NULL);
-  }
-
-  void Queue() {
-    napi_queue_async_work(env_, asyncWork_);
-  }
-
-  napi_env env_;
-  napi_ref callbackRef_;
-  napi_async_work asyncWork_;
-  Database* database_;
-  leveldb::Status status_;
-};
-
-/**
  * Worker class for opening the database
  */
 struct OpenWorker : public BaseWorker {
-  OpenWorker(napi_env env,
-             Database* database,
-             napi_value callback,
-             char* location,
-             bool createIfMissing,
-             bool errorIfExists,
-             bool compression,
-             uint32_t writeBufferSize,
-             uint32_t blockSize,
-             uint32_t maxOpenFiles,
-             uint32_t blockRestartInterval,
-             uint32_t maxFileSize)
+  OpenWorker (napi_env env,
+              Database* database,
+              napi_value callback,
+              char* location,
+              bool createIfMissing,
+              bool errorIfExists,
+              bool compression,
+              uint32_t writeBufferSize,
+              uint32_t blockSize,
+              uint32_t maxOpenFiles,
+              uint32_t blockRestartInterval,
+              uint32_t maxFileSize)
     : BaseWorker(env, database, callback, "leveldown::open"),
       location_(location) {
     options_.block_cache = database->blockCache_;
@@ -281,11 +333,11 @@ struct OpenWorker : public BaseWorker {
     options_.max_file_size = maxFileSize;
   }
 
-  virtual ~OpenWorker() {
+  virtual ~OpenWorker () {
     free(location_);
   }
 
-  virtual void DoExecute() {
+  virtual void DoExecute () {
     status_ = database_->Open(options_, location_);
   }
 
@@ -341,7 +393,7 @@ NAPI_METHOD(db_open) {
 /**
  * Returns true if 'value' is a string otherwise false.
  */
-static bool IsString(napi_env env, napi_value value) {
+static bool IsString (napi_env env, napi_value value) {
   napi_valuetype type;
   napi_typeof(env, value, &type);
   return type == napi_string;
@@ -350,7 +402,7 @@ static bool IsString(napi_env env, napi_value value) {
 /**
  * Returns true if 'value' is a buffer otherwise false.
  */
-static bool IsBuffer(napi_env env, napi_value value) {
+static bool IsBuffer (napi_env env, napi_value value) {
   bool isBuffer;
   napi_is_buffer(env, value, &isBuffer);
   return isBuffer;
@@ -367,19 +419,19 @@ static bool IsBuffer(napi_env env, napi_value value) {
     to##Ch_ = new char[to##Sz_ + 1];                                    \
     napi_get_value_string_utf8(env, from, to##Ch_, to##Sz_ + 1, &to##Sz_); \
     to##Ch_[to##Sz_] = '\0';                                            \
-    printf("LD_STRING_OR_BUFFER_TO_COPY STRING length: %d content: %s\n", to##Sz_, to##Ch_); \
+    printf("LD_STRING_OR_BUFFER_TO_COPY STRING length: %zu content: %s\n", to##Sz_, to##Ch_); \
   } else if (IsBuffer(env, from)) {                                     \
     char* buf = 0;                                                      \
     napi_get_buffer_info(env, from, (void **)&buf, &to##Sz_);           \
     to##Ch_ = new char[to##Sz_];                                        \
     memcpy(to##Ch_, buf, to##Sz_);                                      \
-    printf("LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %d content: %s\n", to##Sz_, to##Ch_); \
+    printf("LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %zu content: %s\n", to##Sz_, to##Ch_); \
   }
 
 /**
  * Convert a napi_value to a leveldb::Slice.
  */
-static leveldb::Slice ToSlice(napi_env env, napi_value from) {
+static leveldb::Slice ToSlice (napi_env env, napi_value from) {
   LD_STRING_OR_BUFFER_TO_COPY(env, from, to);
   return leveldb::Slice(toCh_, toSz_);
 }
@@ -388,23 +440,23 @@ static leveldb::Slice ToSlice(napi_env env, napi_value from) {
  * Worker class for putting key/value to the database
  */
 struct PutWorker : public BaseWorker {
-  PutWorker(napi_env env,
-            Database* database,
-            napi_value callback,
-            napi_value key,
-            napi_value value,
-            bool sync)
+  PutWorker (napi_env env,
+             Database* database,
+             napi_value callback,
+             napi_value key,
+             napi_value value,
+             bool sync)
     : BaseWorker(env, database, callback, "leveldown::put"),
       key_(ToSlice(env, key)), value_(ToSlice(env, value)) {
     options_.sync = sync;
   }
 
-  ~PutWorker() {
+  virtual ~PutWorker () {
     // TODO clean up key_ and value_ if they aren't empty?
     // See DisposeStringOrBufferFromSlice()
   }
 
-  virtual void DoExecute() {
+  virtual void DoExecute () {
     status_ = database_->Put(options_, key_, value_);
   }
 
@@ -438,22 +490,22 @@ NAPI_METHOD(db_put) {
  * Owns a leveldb iterator.
  */
 struct Iterator {
-  Iterator(Database* database,
-           uint32_t id,
-           leveldb::Slice* start,
-           std::string* end,
-           bool reverse,
-           bool keys,
-           bool values,
-           int limit,
-           std::string* lt,
-           std::string* lte,
-           std::string* gt,
-           std::string* gte,
-           bool fillCache,
-           bool keyAsBuffer,
-           bool valueAsBuffer,
-           uint32_t highWaterMark)
+  Iterator (Database* database,
+            uint32_t id,
+            leveldb::Slice* start,
+            std::string* end,
+            bool reverse,
+            bool keys,
+            bool values,
+            int limit,
+            std::string* lt,
+            std::string* lte,
+            std::string* gt,
+            std::string* gte,
+            bool fillCache,
+            bool keyAsBuffer,
+            bool valueAsBuffer,
+            uint32_t highWaterMark)
     : database_(database),
       id_(id),
       start_(start),
@@ -475,26 +527,189 @@ struct Iterator {
       seeking_(false),
       landed_(false),
       nexting_(false),
-      ended_(false) {
-    // TODO need something different for endWorker_
-    // endWorker_ = NULL;
-    // options    = new leveldb::ReadOptions();
-    options_.fill_cache = fillCache;
-    options_.snapshot = database->NewSnapshot();
+      ended_(false),
+      endWorker_(NULL) {
+    options_ = new leveldb::ReadOptions();
+    options_->fill_cache = fillCache;
+    options_->snapshot = database->NewSnapshot();
   }
 
-  ~Iterator() {
-
+  ~Iterator () {
+    ReleaseTarget();
+    if (start_ != NULL) {
+      // Special case for `start` option: it won't be
+      // freed up by any of the delete calls below.
+      if (!((lt_ != NULL && reverse_)
+            || (lte_ != NULL && reverse_)
+            || (gt_ != NULL && !reverse_)
+            || (gte_ != NULL && !reverse_))) {
+        delete [] start_->data();
+      }
+      delete start_;
+    }
+    if (end_ != NULL) {
+      delete end_;
+    }
+    if (lt_ != NULL) {
+      delete lt_;
+    }
+    if (gt_ != NULL) {
+      delete gt_;
+    }
+    if (lte_ != NULL) {
+      delete lte_;
+    }
+    if (gte_ != NULL) {
+      delete gte_;
+    }
   }
 
-  // TODO pull in all methods from src/iterator.cc and go
-  // through EACH of them and make sure that they are used
-  // and WHERE they are used
+  void ReleaseTarget () {
+    if (target_ != NULL) {
+      if (!target_->empty()) {
+        delete [] target_->data();
+      }
+      delete target_;
+      target_ = NULL;
+    }
+  }
 
-  // TODO can we get rid of pointers below? Generally it shouldn't
-  // be needed since this is a class and can handle the memory
-  // automatically (with member constructors/destructors)
-  // Keeping it the same for now.
+  void Release () {
+    database_->ReleaseIterator(id_);
+  }
+
+  leveldb::Status IteratorStatus () {
+    return dbIterator_->status();
+  }
+
+  void IteratorEnd () {
+    delete dbIterator_;
+    dbIterator_ = NULL;
+    database_->ReleaseSnapshot(options_->snapshot);
+  }
+
+  bool GetIterator () {
+    if (dbIterator_ == NULL) {
+      dbIterator_ = database_->NewIterator(options_);
+
+      if (start_ != NULL) {
+        dbIterator_->Seek(*start_);
+
+        if (reverse_) {
+          if (!dbIterator_->Valid()) {
+            // if it's past the last key, step back
+            dbIterator_->SeekToLast();
+          } else {
+            std::string keyStr = dbIterator_->key().ToString();
+
+            if (lt_ != NULL) {
+              // TODO make a compount if statement
+              if (lt_->compare(keyStr) <= 0) {
+                dbIterator_->Prev();
+              }
+            } else if (lte_ != NULL) {
+              // TODO make a compount if statement
+              if (lte_->compare(keyStr) < 0) {
+                dbIterator_->Prev();
+              }
+            } else if (start_ != NULL) {
+              // TODO make a compount if statement
+              if (start_->compare(keyStr)) {
+                dbIterator_->Prev();
+              }
+            }
+          }
+
+          if (dbIterator_->Valid() && lt_ != NULL) {
+            if (lt_->compare(dbIterator_->key().ToString()) <= 0) {
+              dbIterator_->Prev();
+            }
+          }
+        } else {
+          // TODO this could be an else if
+          if (dbIterator_->Valid() && gt_ != NULL
+              && gt_->compare(dbIterator_->key().ToString()) == 0) {
+            dbIterator_->Next();
+          }
+        }
+      } else if (reverse_) {
+        dbIterator_->SeekToLast();
+      } else {
+        dbIterator_->SeekToFirst();
+      }
+
+      return true;
+    }
+
+    return false;
+  }
+
+  bool Read (std::string& key, std::string& value) {
+    // if it's not the first call, move to next item.
+    if (!GetIterator() && !seeking_) {
+      if (reverse_) {
+        dbIterator_->Prev();
+      }
+      else {
+        dbIterator_->Next();
+      }
+    }
+
+    seeking_ = false;
+
+    // now check if this is the end or not, if not then return the key & value
+    if (dbIterator_->Valid()) {
+      std::string keyStr = dbIterator_->key().ToString();
+      const int isEnd = end_ == NULL ? 1 : end_->compare(keyStr);
+
+      if ((limit_ < 0 || ++count_ <= limit_)
+          && (end_ == NULL
+              || (reverse_ && (isEnd <= 0))
+              || (!reverse_ && (isEnd >= 0)))
+          && ( lt_  != NULL ? (lt_->compare(keyStr) > 0)
+               : lte_ != NULL ? (lte_->compare(keyStr) >= 0)
+               : true )
+          && ( gt_  != NULL ? (gt_->compare(keyStr) < 0)
+               : gte_ != NULL ? (gte_->compare(keyStr) <= 0)
+               : true )
+          ) {
+        if (keys_) {
+          key.assign(dbIterator_->key().data(), dbIterator_->key().size());
+        }
+        if (values_) {
+          value.assign(dbIterator_->value().data(), dbIterator_->value().size());
+        }
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
+    size_t size = 0;
+    while (true) {
+      std::string key, value;
+      bool ok = Read(key, value);
+
+      if (ok) {
+        result.push_back(std::make_pair(key, value));
+
+        if (!landed_) {
+          landed_ = true;
+          return true;
+        }
+
+        size = size + key.size() + value.size();
+        if (size > highWaterMark_) {
+          return true;
+        }
+
+      } else {
+        return false;
+      }
+    }
+  }
 
   Database* database_;
   uint32_t id_;
@@ -519,15 +734,14 @@ struct Iterator {
   bool nexting_;
   bool ended_;
 
-  leveldb::ReadOptions options_;
-  // TODO what is this used for and how can we do it otherwise?
-  // AsyncWorker* endWorker_;
+  leveldb::ReadOptions* options_;
+  EndWorker* endWorker_;
 };
 
 /**
  * Runs when an Iterator is garbage collected.
  */
-static void FinalizeIterator(napi_env env, void* data, void* hint) {
+static void FinalizeIterator (napi_env env, void* data, void* hint) {
   if (data) {
     // TODO this might be incorrect, at the moment mimicing the behavior
     // of Database. We might need to review the life cycle of Iterator
@@ -541,7 +755,7 @@ static void FinalizeIterator(napi_env env, void* data, void* hint) {
 /**
  * Returns length of string or buffer
  */
-static size_t StringOrBufferLength(napi_env env, napi_value value) {
+static size_t StringOrBufferLength (napi_env env, napi_value value) {
   size_t size = 0;
 
   if (IsString(env, value)) {
@@ -718,27 +932,170 @@ NAPI_METHOD(iterator) {
  */
 NAPI_METHOD(iterator_seek) {
   NAPI_ARGV(2);
-  // NAPI_ITERATOR_CONTEXT();
+  NAPI_ITERATOR_CONTEXT();
 
   NAPI_RETURN_UNDEFINED();
 }
 
 /**
- * Moves an iterator to next element.
+ * Worker class for ending an iterator
  */
-NAPI_METHOD(iterator_next) {
-  NAPI_ARGV(2);
-  // NAPI_ITERATOR_CONTEXT();
+struct EndWorker : public BaseWorker {
+  EndWorker (napi_env env,
+             Iterator* iterator,
+             napi_value callback)
+    : BaseWorker(env, iterator->database_, callback,
+                 "leveldown::iterator.end"),
+      iterator_(iterator) {}
 
-  NAPI_RETURN_UNDEFINED();
-}
+  virtual ~EndWorker () {}
+
+  virtual void DoExecute () {
+    iterator_->IteratorEnd();
+  }
+
+  virtual void HandleOKCallback () {
+    iterator_->Release();
+    BaseWorker::HandleOKCallback();
+  }
+
+  Iterator* iterator_;
+};
 
 /**
  * Ends an iterator.
  */
 NAPI_METHOD(iterator_end) {
   NAPI_ARGV(2);
-  // NAPI_ITERATOR_CONTEXT();
+  NAPI_ITERATOR_CONTEXT();
+
+  // TODO assuming callback is always provided
+  napi_value callback = argv[1];
+
+  if (!iterator->ended_) {
+    EndWorker* worker = new EndWorker(env, iterator, callback);
+    iterator->ended_ = true;
+
+    if (iterator->nexting_) {
+      // waiting for a next() to return, queue the end
+      iterator->endWorker_ = worker;
+    } else {
+      worker->Queue();
+    }
+  }
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+void CheckEndCallback (Iterator* iterator) {
+  iterator->ReleaseTarget();
+  iterator->nexting_ = false;
+  if (iterator->endWorker_ != NULL) {
+    iterator->endWorker_->Queue();
+    iterator->endWorker_ = NULL;
+  }
+}
+
+/**
+ * Worker class for nexting an iterator
+ */
+struct NextWorker : public BaseWorker {
+  NextWorker (napi_env env,
+              Iterator* iterator,
+              napi_value callback,
+              void (*localCallback)(Iterator*))
+    : BaseWorker(env, iterator->database_, callback,
+                 "leveldown::iterator.next"),
+      iterator_(iterator),
+      localCallback_(localCallback) {}
+
+  virtual ~NextWorker () {}
+
+  virtual void DoExecute () {
+    ok_ = iterator_->IteratorNext(result_);
+    if (!ok_) {
+      status_ = iterator_->IteratorStatus();
+    }
+  }
+
+  virtual void HandleOKCallback () {
+    size_t arraySize = result_.size() * 2;
+    napi_value jsArray;
+    napi_create_array_with_length(env_, arraySize, &jsArray);
+
+    for (size_t idx = 0; idx < result_.size(); ++idx) {
+      std::pair<std::string, std::string> row = result_[idx];
+      std::string key = row.first;
+      std::string value = row.second;
+
+      napi_value returnKey;
+      if (iterator_->keyAsBuffer_) {
+        napi_create_buffer_copy(env_, key.size(), key.data(), NULL, &returnKey);
+      } else {
+        napi_create_string_utf8(env_, key.data(), key.size(), &returnKey);
+      }
+
+      napi_value returnValue;
+      if (iterator_->valueAsBuffer_) {
+        napi_create_buffer_copy(env_, value.size(), value.data(), NULL, &returnValue);
+      } else {
+        napi_create_string_utf8(env_, value.data(), value.size(), &returnValue);
+      }
+
+      // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
+      napi_set_element(env_, jsArray, static_cast<int>(arraySize - idx * 2 - 1), returnKey);
+      napi_set_element(env_, jsArray, static_cast<int>(arraySize - idx * 2 - 2), returnValue);
+    }
+
+    // clean up & handle the next/end state
+    localCallback_(iterator_);
+
+    const int argc = 3;
+    napi_value argv[argc];
+
+    napi_get_null(env_, &argv[0]);
+    argv[1] = jsArray;
+    napi_get_boolean(env_, !ok_, &argv[2]);
+
+    // TODO move to base class
+    napi_value global;
+    napi_get_global(env_, &global);
+    napi_value callback;
+    napi_get_reference_value(env_, callbackRef_, &callback);
+
+    napi_call_function(env_, global, callback, argc, argv, NULL);
+  }
+
+  Iterator* iterator_;
+  // TODO(cosmetic) create a typedef for this function pointer
+  void (*localCallback_)(Iterator*);
+  std::vector<std::pair<std::string, std::string> > result_;
+  bool ok_;
+};
+
+/**
+ * Moves an iterator to next element.
+ */
+NAPI_METHOD(iterator_next) {
+  NAPI_ARGV(2);
+  NAPI_ITERATOR_CONTEXT();
+
+  // TODO assuming callback is always provided
+  napi_value callback = argv[1];
+
+  if (iterator->ended_) {
+    // TODO call back with error "iterator has ended"
+    //v8::Local<v8::Value> argv[] = { Nan::Error("iterator has ended") };
+    //LD_RUN_CALLBACK("leveldown:iterator.next", callback, 1, argv);
+    NAPI_RETURN_UNDEFINED();
+  }
+
+  NextWorker* worker = new NextWorker(env,
+                                      iterator,
+                                      callback,
+                                      CheckEndCallback);
+  iterator->nexting_ = true;
+  worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
 }
@@ -750,6 +1107,6 @@ NAPI_INIT() {
 
   NAPI_EXPORT_FUNCTION(iterator);
   NAPI_EXPORT_FUNCTION(iterator_seek);
-  NAPI_EXPORT_FUNCTION(iterator_next);
   NAPI_EXPORT_FUNCTION(iterator_end);
+  NAPI_EXPORT_FUNCTION(iterator_next);
 }
