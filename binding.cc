@@ -1161,11 +1161,11 @@ NAPI_METHOD(db_compact_range) {
 }
 
 /**
- * Worker class for compacting a range in a database.
+ * Worker class for destroying a database.
  */
 struct DestroyWorker : public BaseWorker {
   DestroyWorker (napi_env env,
-                 const std::string* location,
+                 const std::string& location,
                  napi_value callback)
     // TODO turns out we don't even need database in BaseWorker()
     : BaseWorker(env, NULL, callback, "leveldown.destroy_db"),
@@ -1191,6 +1191,43 @@ NAPI_METHOD(destroy_db) {
   napi_value callback = argv[1];
 
   DestroyWorker* worker = new DestroyWorker(env, location, callback);
+  worker->Queue();
+
+  free(location);
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for repairing a database.
+ */
+struct RepairWorker : public BaseWorker {
+  RepairWorker (napi_env env,
+                const std::string& location,
+                napi_value callback)
+    : BaseWorker(env, NULL, callback, "leveldown.repair_db"),
+      location_(location) {}
+
+  virtual ~RepairWorker () {}
+
+  virtual void DoExecute () {
+    leveldb::Options options;
+    SetStatus(leveldb::RepairDB(location_, options));
+  }
+
+  std::string location_;
+};
+
+/**
+ * Repairs a database.
+ */
+NAPI_METHOD(repair_db) {
+  NAPI_ARGV(2);
+  // TODO replace with new
+  NAPI_ARGV_UTF8_MALLOC(location, 0);
+  napi_value callback = argv[1];
+
+  RepairWorker* worker = new RepairWorker(env, location, callback);
   worker->Queue();
 
   free(location);
@@ -1863,7 +1900,9 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_del);
   NAPI_EXPORT_FUNCTION(db_approximate_size);
   NAPI_EXPORT_FUNCTION(db_compact_range);
+
   NAPI_EXPORT_FUNCTION(destroy_db);
+  NAPI_EXPORT_FUNCTION(repair_db);
 
   NAPI_EXPORT_FUNCTION(iterator_init);
   NAPI_EXPORT_FUNCTION(iterator_seek);

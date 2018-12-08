@@ -135,7 +135,7 @@ LevelDOWN.repair = function (location, callback) {
     throw new Error('repair() requires a callback function argument')
   }
 
-  binding.repair(location, callback)
+  binding.repair_db(location, callback)
 }
 
 module.exports = LevelDOWN.default = LevelDOWN
