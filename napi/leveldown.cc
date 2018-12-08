@@ -1,4 +1,5 @@
-#include "napi.h"
+#include <napi-macros.h>
+#include <node_api.h>
 #include <leveldb/db.h>
 #include <leveldb/cache.h>
 #include <leveldb/filter_policy.h>
@@ -13,7 +14,157 @@ struct Iterator;
 struct EndWorker;
 
 /**
- * Base worker class.
+ * Macros.
+ */
+
+#define NAPI_DB_CONTEXT() \
+  Database* database = NULL; \
+  NAPI_STATUS_THROWS(napi_get_value_external(env, argv[0], (void**)&database));
+
+#define NAPI_ITERATOR_CONTEXT() \
+  Iterator* iterator = NULL; \
+  NAPI_STATUS_THROWS(napi_get_value_external(env, argv[0], (void**)&iterator));
+
+#define NAPI_RETURN_UNDEFINED() \
+  return 0;
+
+#define LD_STRING_OR_BUFFER_TO_COPY(env, from, to)                      \
+  char* to##Ch_ = 0;                                                    \
+  size_t to##Sz_ = 0;                                                   \
+  if (IsString(env, from)) {                                            \
+    napi_get_value_string_utf8(env, from, NULL, 0, &to##Sz_);           \
+    to##Ch_ = new char[to##Sz_ + 1];                                    \
+    napi_get_value_string_utf8(env, from, to##Ch_, to##Sz_ + 1, &to##Sz_); \
+    to##Ch_[to##Sz_] = '\0';                                            \
+    printf("LD_STRING_OR_BUFFER_TO_COPY STRING length: %zu content: %s\n", to##Sz_, to##Ch_); \
+  } else if (IsBuffer(env, from)) {                                     \
+    char* buf = 0;                                                      \
+    napi_get_buffer_info(env, from, (void **)&buf, &to##Sz_);           \
+    to##Ch_ = new char[to##Sz_];                                        \
+    memcpy(to##Ch_, buf, to##Sz_);                                      \
+    printf("LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %zu content: %s\n", to##Sz_, to##Ch_); \
+  }
+
+/*********************************************************************
+ * Helpers.
+ ********************************************************************/
+
+/**
+ * Returns true if 'obj' has a property 'key'.
+ */
+static bool HasProperty (napi_env env, napi_value obj, const char* key) {
+  bool has = false;
+  napi_value _key;
+  napi_create_string_utf8(env, key, strlen(key), &_key);
+  napi_has_property(env, obj, _key, &has);
+  return has;
+}
+
+/**
+ * Returns a property in napi_value form.
+ */
+static napi_value GetProperty (napi_env env, napi_value obj, const char* key) {
+  napi_value _key;
+  napi_create_string_utf8(env, key, strlen(key), &_key);
+
+  napi_value value;
+  napi_get_property(env, obj, _key, &value);
+
+  return value;
+}
+
+/**
+ * Returns a boolean property 'key' from 'obj'.
+ * Returns 'DEFAULT' if the property doesn't exist.
+ */
+static bool BooleanProperty (napi_env env, napi_value obj, const char* key,
+                             bool DEFAULT) {
+  if (HasProperty(env, obj, key)) {
+    napi_value value = GetProperty(env, obj, key);
+    bool result;
+    napi_get_value_bool(env, value, &result);
+    return result;
+  }
+
+  return DEFAULT;
+}
+
+/**
+ * Returns a uint32 property 'key' from 'obj'.
+ * Returns 'DEFAULT' if the property doesn't exist.
+ */
+static uint32_t Uint32Property (napi_env env, napi_value obj, const char* key,
+                                uint32_t DEFAULT) {
+  if (HasProperty(env, obj, key)) {
+    napi_value value = GetProperty(env, obj, key);
+    uint32_t result;
+    napi_get_value_uint32(env, value, &result);
+    return result;
+  }
+
+  return DEFAULT;
+}
+
+/**
+ * Returns a uint32 property 'key' from 'obj'
+ * Returns 'DEFAULT' if the property doesn't exist.
+ */
+static int Int32Property (napi_env env, napi_value obj, const char* key,
+                          int DEFAULT) {
+  if (HasProperty(env, obj, key)) {
+    napi_value value = GetProperty(env, obj, key);
+    int result;
+    napi_get_value_int32(env, value, &result);
+    return result;
+  }
+
+  return DEFAULT;
+}
+
+/**
+ * Returns true if 'value' is a string.
+ */
+static bool IsString (napi_env env, napi_value value) {
+  napi_valuetype type;
+  napi_typeof(env, value, &type);
+  return type == napi_string;
+}
+
+/**
+ * Returns true if 'value' is a buffer.
+ */
+static bool IsBuffer (napi_env env, napi_value value) {
+  bool isBuffer;
+  napi_is_buffer(env, value, &isBuffer);
+  return isBuffer;
+}
+
+/**
+ * Convert a napi_value to a leveldb::Slice.
+ */
+static leveldb::Slice ToSlice (napi_env env, napi_value from) {
+  LD_STRING_OR_BUFFER_TO_COPY(env, from, to);
+  return leveldb::Slice(toCh_, toSz_);
+}
+
+/**
+ * Returns length of string or buffer
+ */
+static size_t StringOrBufferLength (napi_env env, napi_value value) {
+  size_t size = 0;
+
+  if (IsString(env, value)) {
+    napi_get_value_string_utf8(env, value, NULL, 0, &size);
+  } else if (IsBuffer(env, value)) {
+    char* buf;
+    napi_get_buffer_info(env, value, (void **)&buf, &size);
+  }
+
+  return size;
+}
+
+/**
+ * Base worker class. Handles the async work.
  */
 struct BaseWorker {
   BaseWorker (napi_env env,
@@ -39,17 +190,11 @@ struct BaseWorker {
     napi_delete_async_work(env_, asyncWork_);
   }
 
-  /**
-   * Calls virtual DoExecute().
-   */
   static void Execute (napi_env env, void* data) {
     BaseWorker* self = (BaseWorker*)data;
     self->DoExecute();
   }
 
-  /**
-   * Store status. Note that error message has to be copied.
-   */
   void SetStatus (leveldb::Status status) {
     status_ = status;
     if (!status.ok()) {
@@ -57,9 +202,6 @@ struct BaseWorker {
     }
   }
 
-  /**
-   * Copied error message.
-   */
   void SetErrorMessage(const char *msg) {
     delete [] errMsg_;
     size_t size = strlen(msg) + 1;
@@ -67,25 +209,14 @@ struct BaseWorker {
     memcpy(errMsg_, msg, size);
   }
 
-  /**
-   * MUST be overriden.
-   */
   virtual void DoExecute () = 0;
 
-  /**
-   * Calls DoComplete() and kills the worker.
-   */
   static void Complete (napi_env env, napi_status status, void* data) {
     BaseWorker* self = (BaseWorker*)data;
     self->DoComplete();
     delete self;
   }
 
-  /**
-   * Checks status and calls appropriate handler.
-   * - Calls virtual HandleOKCallback() if status is ok
-   * - Calls back with error if status is an error
-   */
   void DoComplete () {
     if (status_.ok()) {
       return HandleOKCallback();
@@ -109,9 +240,6 @@ struct BaseWorker {
     napi_call_function(env_, global, callback, argc, argv, NULL);
   }
 
-  /**
-   * Default behavior is to call back with NULL.
-   */
   virtual void HandleOKCallback () {
     napi_value global;
     napi_get_global(env_, &global);
@@ -140,7 +268,7 @@ private:
 };
 
 /**
- * Owns the LevelDB storage together with cache and filter policy.
+ * Owns the LevelDB storage, cache, filter policy and iterators.
  */
 struct Database {
   Database (napi_env env)
@@ -257,98 +385,8 @@ NAPI_METHOD(db) {
   return result;
 }
 
-// TODO BooleanProperty() and Uint32Property() can be refactored
-
 /**
- * Returns true if 'obj' has a property 'key'
- */
-static bool HasProperty (napi_env env,
-                         napi_value obj,
-                         const char* key) {
-  bool has = false;
-  napi_value _key;
-  napi_create_string_utf8(env, key, strlen(key), &_key);
-  napi_has_property(env, obj, _key, &has);
-  return has;
-}
-
-/**
- * Returns a property in napi_value form
- */
-static napi_value GetProperty (napi_env env,
-                               napi_value obj,
-                               const char* key) {
-  napi_value _key;
-  napi_create_string_utf8(env, key, strlen(key), &_key);
-
-  napi_value value;
-  napi_get_property(env, obj, _key, &value);
-
-  return value;
-}
-
-/**
- * Returns a boolean property 'key' from 'obj'.
- * Returns 'DEFAULT' if the property doesn't exist.
- */
-static bool BooleanProperty (napi_env env,
-                             napi_value obj,
-                             const char* key,
-                             bool DEFAULT) {
-  if (HasProperty(env, obj, key)) {
-    napi_value value = GetProperty(env, obj, key);
-    bool result;
-    napi_get_value_bool(env, value, &result);
-    return result;
-  }
-
-  return DEFAULT;
-}
-
-/**
- * Returns a uint32 property 'key' from 'obj'
- * Returns 'DEFAULT' if the property doesn't exist.
- */
-static uint32_t Uint32Property (napi_env env,
-                                napi_value obj,
-                                const char* key,
-                                uint32_t DEFAULT) {
-  if (HasProperty(env, obj, key)) {
-    napi_value value = GetProperty(env, obj, key);
-    uint32_t result;
-    napi_get_value_uint32(env, value, &result);
-    return result;
-  }
-
-  return DEFAULT;
-}
-
-/**
- * Returns a uint32 property 'key' from 'obj'
- * Returns 'DEFAULT' if the property doesn't exist.
- */
-static int Int32Property (napi_env env,
-                          napi_value obj,
-                          const char* key,
-                          int DEFAULT) {
-  bool exists = false;
-  napi_value _key;
-  napi_create_string_utf8(env, key, strlen(key), &_key);
-  napi_has_property(env, obj, _key, &exists);
-
-  if (exists) {
-    napi_value value;
-    napi_get_property(env, obj, _key, &value);
-    int result;
-    napi_get_value_int32(env, value, &result);
-    return result;
-  }
-
-  return DEFAULT;
-}
-
-/**
- * Worker class for opening a database
+ * Worker class for opening a database.
  */
 struct OpenWorker : public BaseWorker {
   OpenWorker (napi_env env,
@@ -415,7 +453,6 @@ NAPI_METHOD(db_open) {
                                                  "blockRestartInterval", 16);
   uint32_t maxFileSize = Uint32Property(env, options, "maxFileSize", 2 << 20);
 
-  // TODO clean these up in close()
   database->blockCache_ = leveldb::NewLRUCache(cacheSize);
   database->filterPolicy_ = leveldb::NewBloomFilterPolicy(10);
 
@@ -464,52 +501,6 @@ NAPI_METHOD(db_close) {
   worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
-}
-
-/**
- * Returns true if 'value' is a string otherwise false.
- */
-static bool IsString (napi_env env, napi_value value) {
-  napi_valuetype type;
-  napi_typeof(env, value, &type);
-  return type == napi_string;
-}
-
-/**
- * Returns true if 'value' is a buffer otherwise false.
- */
-static bool IsBuffer (napi_env env, napi_value value) {
-  bool isBuffer;
-  napi_is_buffer(env, value, &isBuffer);
-  return isBuffer;
-}
-
-/**
- * Macro to copy memory from a buffer or string.
- */
-#define LD_STRING_OR_BUFFER_TO_COPY(env, from, to)                      \
-  char* to##Ch_ = 0;                                                    \
-  size_t to##Sz_ = 0;                                                   \
-  if (IsString(env, from)) {                                            \
-    napi_get_value_string_utf8(env, from, NULL, 0, &to##Sz_);           \
-    to##Ch_ = new char[to##Sz_ + 1];                                    \
-    napi_get_value_string_utf8(env, from, to##Ch_, to##Sz_ + 1, &to##Sz_); \
-    to##Ch_[to##Sz_] = '\0';                                            \
-    printf("LD_STRING_OR_BUFFER_TO_COPY STRING length: %zu content: %s\n", to##Sz_, to##Ch_); \
-  } else if (IsBuffer(env, from)) {                                     \
-    char* buf = 0;                                                      \
-    napi_get_buffer_info(env, from, (void **)&buf, &to##Sz_);           \
-    to##Ch_ = new char[to##Sz_];                                        \
-    memcpy(to##Ch_, buf, to##Sz_);                                      \
-    printf("LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %zu content: %s\n", to##Sz_, to##Ch_); \
-  }
-
-/**
- * Convert a napi_value to a leveldb::Slice.
- */
-static leveldb::Slice ToSlice (napi_env env, napi_value from) {
-  LD_STRING_OR_BUFFER_TO_COPY(env, from, to);
-  return leveldb::Slice(toCh_, toSz_);
 }
 
 /**
@@ -954,23 +945,7 @@ static void FinalizeIterator (napi_env env, void* data, void* hint) {
 }
 
 /**
- * Returns length of string or buffer
- */
-static size_t StringOrBufferLength (napi_env env, napi_value value) {
-  size_t size = 0;
-
-  if (IsString(env, value)) {
-    napi_get_value_string_utf8(env, value, NULL, 0, &size);
-  } else if (IsBuffer(env, value)) {
-    char* buf;
-    napi_get_buffer_info(env, value, (void **)&buf, &size);
-  }
-
-  return size;
-}
-
-/**
- * Creates an iterator.
+ * Create an iterator.
  */
 NAPI_METHOD(iterator) {
   NAPI_ARGV(2);
@@ -1170,7 +1145,6 @@ NAPI_METHOD(iterator_end) {
   NAPI_ARGV(2);
   NAPI_ITERATOR_CONTEXT();
 
-  // TODO assuming callback is always provided
   napi_value callback = argv[1];
 
   if (!iterator->ended_) {
@@ -1188,6 +1162,10 @@ NAPI_METHOD(iterator_end) {
   NAPI_RETURN_UNDEFINED();
 }
 
+/**
+ * TODO Move this to Iterator. There isn't any reason
+ * for this function being a separate function pointer.
+ */
 void CheckEndCallback (Iterator* iterator) {
   iterator->ReleaseTarget();
   iterator->nexting_ = false;
@@ -1249,6 +1227,7 @@ struct NextWorker : public BaseWorker {
     }
 
     // clean up & handle the next/end state
+    // TODO this should just do iterator_->CheckEndCallback();
     localCallback_(iterator_);
 
     const int argc = 3;
@@ -1268,7 +1247,7 @@ struct NextWorker : public BaseWorker {
   }
 
   Iterator* iterator_;
-  // TODO(cosmetic) create a typedef for this function pointer
+  // TODO why do we need a function pointer for this?
   void (*localCallback_)(Iterator*);
   std::vector<std::pair<std::string, std::string> > result_;
   bool ok_;
@@ -1281,7 +1260,6 @@ NAPI_METHOD(iterator_next) {
   NAPI_ARGV(2);
   NAPI_ITERATOR_CONTEXT();
 
-  // TODO assuming callback is always provided
   napi_value callback = argv[1];
 
   if (iterator->ended_) {
@@ -1301,7 +1279,13 @@ NAPI_METHOD(iterator_next) {
   NAPI_RETURN_UNDEFINED();
 }
 
+/**
+ * All exported functions.
+ */
 NAPI_INIT() {
+  /**
+   * Database* related functions.
+   */
   NAPI_EXPORT_FUNCTION(db);
   NAPI_EXPORT_FUNCTION(db_open);
   NAPI_EXPORT_FUNCTION(db_close);
@@ -1309,6 +1293,9 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_get);
   NAPI_EXPORT_FUNCTION(db_del);
 
+  /**
+   * Iterator* related functions.
+   */
   NAPI_EXPORT_FUNCTION(iterator);
   NAPI_EXPORT_FUNCTION(iterator_seek);
   NAPI_EXPORT_FUNCTION(iterator_end);
