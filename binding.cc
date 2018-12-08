@@ -85,6 +85,17 @@ static bool IsObject (napi_env env, napi_value value) {
 }
 
 /**
+ * Create an error object.
+ */
+static napi_value CreateError (napi_env env, const char* str) {
+  napi_value msg;
+  napi_create_string_utf8(env, str, strlen(str), &msg);
+  napi_value error;
+  napi_create_error(env, NULL, msg, &error);
+  return error;
+}
+
+/**
  * Returns true if 'obj' has a property 'key'.
  */
 static bool HasProperty (napi_env env, napi_value obj, const char* key) {
@@ -271,12 +282,9 @@ struct BaseWorker {
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
 
-    napi_value msg;
-    napi_create_string_utf8(env_, errMsg_, strlen(errMsg_), &msg);
-
     const int argc = 1;
     napi_value argv[argc];
-    napi_create_error(env_, NULL, msg, &argv[0]);
+    argv[0] = CreateError(env_, errMsg_);
 
     napi_call_function(env_, global, callback, argc, argv, NULL);
   }
@@ -1486,9 +1494,15 @@ NAPI_METHOD(iterator_next) {
   napi_value callback = argv[1];
 
   if (iterator->ended_) {
-    // TODO call back with error "iterator has ended"
-    //v8::Local<v8::Value> argv[] = { Nan::Error("iterator has ended") };
-    //LD_RUN_CALLBACK("leveldown:iterator.next", callback, 1, argv);
+    // TODO refactor with other callback code
+    napi_value global;
+    napi_get_global(env, &global);
+
+    const int argc = 1;
+    napi_value argv[argc];
+    argv[0] = CreateError(env, "iterator has ended");
+    napi_call_function(env, global, callback, argc, argv, NULL);
+
     NAPI_RETURN_UNDEFINED();
   }
 
