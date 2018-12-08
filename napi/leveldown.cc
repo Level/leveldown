@@ -20,7 +20,7 @@ struct BaseWorker {
               Database* database,
               napi_value callback,
               const char* resourceName)
-    : env_(env), database_(database) {
+    : env_(env), database_(database), errMsg_(NULL) {
     napi_create_reference(env_, callback, 1, &callbackRef_);
     napi_value asyncResourceName;
     napi_create_string_utf8(env_, resourceName,
@@ -35,6 +35,7 @@ struct BaseWorker {
   }
 
   virtual ~BaseWorker () {
+    delete [] errMsg_;
     napi_delete_reference(env_, callbackRef_);
     napi_delete_async_work(env_, asyncWork_);
   }
@@ -45,6 +46,26 @@ struct BaseWorker {
   static void Execute (napi_env env, void* data) {
     BaseWorker* self = (BaseWorker*)data;
     self->DoExecute();
+  }
+
+  /**
+   * Store status. Note that error message has to be copied.
+   */
+  void SetStatus (leveldb::Status status) {
+    status_ = status;
+    if (!status.ok()) {
+      SetErrorMessage(status.ToString().c_str());
+    }
+  }
+
+  /**
+   * Copied error message.
+   */
+  void SetErrorMessage(const char *msg) {
+    delete [] errMsg_;
+    size_t size = strlen(msg) + 1;
+    errMsg_ = new char[size];
+    memcpy(errMsg_, msg, size);
   }
 
   /**
@@ -79,9 +100,8 @@ struct BaseWorker {
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
 
-    const char* str = status_.ToString().c_str();
     napi_value msg;
-    napi_create_string_utf8(env_, str, strlen(str), &msg);
+    napi_create_string_utf8(env_, errMsg_, strlen(errMsg_), &msg);
 
     const int argc = 1;
     napi_value argv[argc];
@@ -114,7 +134,10 @@ struct BaseWorker {
   napi_ref callbackRef_;
   napi_async_work asyncWork_;
   Database* database_;
+
+private:
   leveldb::Status status_;
+  char *errMsg_;
 };
 
 /**
@@ -351,7 +374,7 @@ struct OpenWorker : public BaseWorker {
   }
 
   virtual void DoExecute () {
-    status_ = database_->Open(options_, location_);
+    SetStatus(database_->Open(options_, location_));
   }
 
   leveldb::Options options_;
@@ -500,7 +523,7 @@ struct PutWorker : public BaseWorker {
   }
 
   virtual void DoExecute () {
-    status_ = database_->Put(options_, key_, value_);
+    SetStatus(database_->Put(options_, key_, value_));
   }
 
   leveldb::WriteOptions options_;
@@ -1057,7 +1080,7 @@ struct NextWorker : public BaseWorker {
   virtual void DoExecute () {
     ok_ = iterator_->IteratorNext(result_);
     if (!ok_) {
-      status_ = iterator_->IteratorStatus();
+      SetStatus(iterator_->IteratorStatus());
     }
   }
 
