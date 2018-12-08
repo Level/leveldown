@@ -1,8 +1,11 @@
 #include <napi-macros.h>
 #include <node_api.h>
+
 #include <leveldb/db.h>
+#include <leveldb/write_batch.h>
 #include <leveldb/cache.h>
 #include <leveldb/filter_policy.h>
+
 #include <map>
 #include <vector>
 
@@ -36,13 +39,13 @@ struct EndWorker;
     to##Ch_ = new char[to##Sz_ + 1];                                    \
     napi_get_value_string_utf8(env, from, to##Ch_, to##Sz_ + 1, &to##Sz_); \
     to##Ch_[to##Sz_] = '\0';                                            \
-    printf("LD_STRING_OR_BUFFER_TO_COPY STRING length: %zu content: %s\n", to##Sz_, to##Ch_); \
+    printf("-- LD_STRING_OR_BUFFER_TO_COPY STRING length: %zu content: %s\n", to##Sz_, to##Ch_); \
   } else if (IsBuffer(env, from)) {                                     \
     char* buf = 0;                                                      \
     napi_get_buffer_info(env, from, (void **)&buf, &to##Sz_);           \
     to##Ch_ = new char[to##Sz_];                                        \
     memcpy(to##Ch_, buf, to##Sz_);                                      \
-    printf("LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %zu content: %s\n", to##Sz_, to##Ch_); \
+    printf("-- LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %zu content: %s\n", to##Sz_, to##Ch_); \
   }
 
 /*********************************************************************
@@ -50,9 +53,37 @@ struct EndWorker;
  ********************************************************************/
 
 /**
+ * Returns true if 'value' is a string.
+ */
+static bool IsString (napi_env env, napi_value value) {
+  napi_valuetype type;
+  napi_typeof(env, value, &type);
+  return type == napi_string;
+}
+
+/**
+ * Returns true if 'value' is a buffer.
+ */
+static bool IsBuffer (napi_env env, napi_value value) {
+  bool isBuffer;
+  napi_is_buffer(env, value, &isBuffer);
+  return isBuffer;
+}
+
+/**
+ * Returns true if 'value' is an object.
+ */
+static bool IsObject (napi_env env, napi_value value) {
+  napi_valuetype type;
+  napi_typeof(env, value, &type);
+  return type == napi_object;
+}
+
+/**
  * Returns true if 'obj' has a property 'key'.
  */
 static bool HasProperty (napi_env env, napi_value obj, const char* key) {
+  // TODO switch to use napi_has_named_property() (no need to make a napi_value)
   bool has = false;
   napi_value _key;
   napi_create_string_utf8(env, key, strlen(key), &_key);
@@ -64,12 +95,11 @@ static bool HasProperty (napi_env env, napi_value obj, const char* key) {
  * Returns a property in napi_value form.
  */
 static napi_value GetProperty (napi_env env, napi_value obj, const char* key) {
+  // TODO switch to use napi_get_named_property() (no need to make a napi_value)
   napi_value _key;
   napi_create_string_utf8(env, key, strlen(key), &_key);
-
   napi_value value;
   napi_get_property(env, obj, _key, &value);
-
   return value;
 }
 
@@ -106,7 +136,7 @@ static uint32_t Uint32Property (napi_env env, napi_value obj, const char* key,
 }
 
 /**
- * Returns a uint32 property 'key' from 'obj'
+ * Returns a uint32 property 'key' from 'obj'.
  * Returns 'DEFAULT' if the property doesn't exist.
  */
 static int Int32Property (napi_env env, napi_value obj, const char* key,
@@ -122,21 +152,27 @@ static int Int32Property (napi_env env, napi_value obj, const char* key,
 }
 
 /**
- * Returns true if 'value' is a string.
+ * Returns a string property 'key' from 'obj'.
+ * Returns empty string if the property doesn't exist.
  */
-static bool IsString (napi_env env, napi_value value) {
-  napi_valuetype type;
-  napi_typeof(env, value, &type);
-  return type == napi_string;
-}
+static std::string StringProperty (napi_env env, napi_value obj, const char* key) {
+  if (HasProperty(env, obj, key)) {
+    napi_value value = GetProperty(env, obj, key);
+    if (IsString(env, value)) {
+      size_t size = 0;
+      napi_get_value_string_utf8(env, value, NULL, 0, &size);
 
-/**
- * Returns true if 'value' is a buffer.
- */
-static bool IsBuffer (napi_env env, napi_value value) {
-  bool isBuffer;
-  napi_is_buffer(env, value, &isBuffer);
-  return isBuffer;
+      char* buf = new char[size + 1];
+      napi_get_value_string_utf8(env, value, buf, size + 1, &size);
+      buf[size] = '\0';
+
+      std::string result = buf;
+      delete [] buf;
+      return result;
+    }
+  }
+
+  return "";
 }
 
 /**
@@ -319,6 +355,11 @@ struct Database {
   leveldb::Status Del (const leveldb::WriteOptions& options,
                        leveldb::Slice key) {
     return db_->Delete(options, key);
+  }
+
+  leveldb::Status WriteBatch (const leveldb::WriteOptions& options,
+                              leveldb::WriteBatch* batch) {
+    return db_->Write(options, batch);
   }
 
   const leveldb::Snapshot* NewSnapshot () {
@@ -1216,7 +1257,7 @@ void CheckEndCallback (Iterator* iterator) {
 }
 
 /**
- * Worker class for nexting an iterator
+ * Worker class for nexting an iterator.
  */
 struct NextWorker : public BaseWorker {
   NextWorker (napi_env env,
@@ -1320,11 +1361,107 @@ NAPI_METHOD(iterator_next) {
 }
 
 /**
+ * Worker class for batch write operation.
+ */
+struct BatchWorker : public BaseWorker {
+  BatchWorker (napi_env env,
+               Database* database,
+               napi_value callback,
+               leveldb::WriteBatch* batch,
+               bool sync)
+    : BaseWorker(env, database, callback, "leveldown.batch.do"),
+      batch_(batch) {
+    options_.sync = sync;
+  }
+
+  virtual ~BatchWorker () {
+    delete batch_;
+  }
+
+  virtual void DoExecute () {
+    SetStatus(database_->WriteBatch(options_, batch_));
+  }
+
+  leveldb::WriteOptions options_;
+  leveldb::WriteBatch* batch_;
+};
+
+/**
+ * Does a batch write operation on a database.
+ */
+NAPI_METHOD(batch_do) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  napi_value array = argv[1];
+  bool sync = BooleanProperty(env, argv[2], "sync", false);
+  napi_value callback = argv[3];
+
+  uint32_t length;
+  napi_get_array_length(env, array, &length);
+
+  leveldb::WriteBatch* batch = new leveldb::WriteBatch();
+  bool hasData = false;
+
+  for (uint32_t i = 0; i < length; i++) {
+    napi_value element;
+    napi_get_element(env, array, i, &element);
+
+    if (!IsObject(env, element)) continue;
+
+    std::string type = StringProperty(env, element, "type");
+    printf("-- Batch element type: %s\n", type.c_str());
+
+    if (type == "del") {
+      if (!HasProperty(env, element, "key")) continue;
+      leveldb::Slice key = ToSlice(env, GetProperty(env, element, "key"));
+
+      batch->Delete(key);
+      if (!hasData) hasData = true;
+
+      // TODO clean up
+      //DisposeStringOrBufferFromSlice(keyBuffer, key);
+    } else if (type == "put") {
+      if (!HasProperty(env, element, "key")) continue;
+      if (!HasProperty(env, element, "value")) continue;
+
+      leveldb::Slice key = ToSlice(env, GetProperty(env, element, "key"));
+      leveldb::Slice value = ToSlice(env, GetProperty(env, element, "value"));
+
+      batch->Put(key, value);
+      if (!hasData) hasData = true;
+
+      // TODO clean up
+      //DisposeStringOrBufferFromSlice(keyBuffer, key);
+      //DisposeStringOrBufferFromSlice(valueBuffer, value);
+    }
+  }
+
+  if (hasData) {
+    BatchWorker* worker = new BatchWorker(env, database, callback, batch, sync);
+    worker->Queue();
+  } else {
+    delete batch;
+    // TODO refactor with other callback code
+    napi_value global;
+    napi_get_global(env, &global);
+
+    const int argc = 1;
+    napi_value argv[argc];
+    napi_get_null(env, &argv[0]);
+
+    napi_call_function(env, global, callback, argc, argv, NULL);
+  }
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
  * All exported functions.
  */
 NAPI_INIT() {
   /**
-   * Database* related functions.
+   * Database related functions.
    */
   NAPI_EXPORT_FUNCTION(db);
   NAPI_EXPORT_FUNCTION(db_open);
@@ -1334,10 +1471,15 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_del);
 
   /**
-   * Iterator* related functions.
+   * Iterator related functions.
    */
   NAPI_EXPORT_FUNCTION(iterator);
   NAPI_EXPORT_FUNCTION(iterator_seek);
   NAPI_EXPORT_FUNCTION(iterator_end);
   NAPI_EXPORT_FUNCTION(iterator_next);
+
+  /**
+   * Batch related functions.
+   */
+  NAPI_EXPORT_FUNCTION(batch_do);
 }

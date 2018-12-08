@@ -65,7 +65,7 @@ LevelDOWN.prototype._chainedBatch = function () {
 }
 
 LevelDOWN.prototype._batch = function (operations, options, callback) {
-  return this.binding.batch(operations, options, callback)
+  binding.batch_do(this.context, operations, options, callback)
 }
 
 LevelDOWN.prototype.approximateSize = function (start, end, callback) {
