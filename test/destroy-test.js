@@ -55,8 +55,8 @@ test('test destroy non-existent parent directory', function (t) {
 
   t.notOk(fs.existsSync(parent), 'parent does not exist before')
 
-  leveldown.destroy(location, function () {
-    t.is(arguments.length, 0, 'no arguments returned on callback')
+  leveldown.destroy(location, function (err) {
+    t.error(err, 'no error')
     t.notOk(fs.existsSync(location), 'directory does not exist after')
   })
 })
