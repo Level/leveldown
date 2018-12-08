@@ -83,7 +83,7 @@ LevelDOWN.prototype.approximateSize = function (start, end, callback) {
   start = this._serializeKey(start)
   end = this._serializeKey(end)
 
-  this.binding.approximateSize(start, end, callback)
+  binding.db_approximate_size(this.context, start, end, callback)
 }
 
 LevelDOWN.prototype.compactRange = function (start, end, callback) {

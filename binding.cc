@@ -366,6 +366,12 @@ struct Database {
     return db_->Write(options, batch);
   }
 
+  uint64_t ApproximateSize (const leveldb::Range* range) {
+    uint64_t size = 0;
+    db_->GetApproximateSizes(range, 1, &size);
+    return size;
+  }
+
   const leveldb::Snapshot* NewSnapshot () {
     return db_->GetSnapshot();
   }
@@ -758,6 +764,69 @@ NAPI_METHOD(db_del) {
                                     callback,
                                     key,
                                     sync);
+  worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for getting a value from a database.
+ */
+struct ApproximateSizeWorker : public BaseWorker {
+  ApproximateSizeWorker (napi_env env,
+                         Database* database,
+                         napi_value callback,
+                         leveldb::Slice start,
+                         leveldb::Slice end)
+    : BaseWorker(env, database, callback, "leveldown.db.approximate_size"),
+      start_(start), end_(end) {}
+
+  virtual ~ApproximateSizeWorker () {
+    // TODO clean up start_ and end_ slices
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  virtual void DoExecute () {
+    leveldb::Range range(start_, end_);
+    size_ = database_->ApproximateSize(&range);
+  }
+
+  virtual void HandleOKCallback() {
+    const int argc = 2;
+    napi_value argv[argc];
+    napi_get_null(env_, &argv[0]);
+    napi_create_uint32(env_, (uint32_t)size_, &argv[1]);
+
+    // TODO move to base class
+    napi_value global;
+    napi_get_global(env_, &global);
+    napi_value callback;
+    napi_get_reference_value(env_, callbackRef_, &callback);
+
+    napi_call_function(env_, global, callback, argc, argv, NULL);
+  }
+
+  leveldb::Slice start_;
+  leveldb::Slice end_;
+  uint64_t size_;
+};
+
+/**
+ * Calculates the approximate size of a range in a database.
+ */
+NAPI_METHOD(db_approximate_size) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  leveldb::Slice start = ToSlice(env, argv[1]);
+  leveldb::Slice end = ToSlice(env, argv[2]);
+  napi_value callback = argv[3];
+
+  ApproximateSizeWorker* worker  = new ApproximateSizeWorker(env,
+                                                             database,
+                                                             callback,
+                                                             start,
+                                                             end);
   worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
@@ -1702,6 +1771,7 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_put);
   NAPI_EXPORT_FUNCTION(db_get);
   NAPI_EXPORT_FUNCTION(db_del);
+  NAPI_EXPORT_FUNCTION(db_approximate_size);
 
   /**
    * Iterator related functions.
