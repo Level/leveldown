@@ -381,6 +381,11 @@ struct Database {
     return size;
   }
 
+  void CompactRange (const leveldb::Slice* start,
+                     const leveldb::Slice* end) {
+    db_->CompactRange(start, end);
+  }
+
   const leveldb::Snapshot* NewSnapshot () {
     return db_->GetSnapshot();
   }
@@ -1110,6 +1115,52 @@ NAPI_METHOD(db_approximate_size) {
 }
 
 /**
+ * Worker class for getting a value from a database.
+ */
+struct CompactRangeWorker : public BaseWorker {
+  CompactRangeWorker (napi_env env,
+                      Database* database,
+                      napi_value callback,
+                      leveldb::Slice start,
+                      leveldb::Slice end)
+    : BaseWorker(env, database, callback, "leveldown.db.compact_range"),
+      start_(start), end_(end) {}
+
+  virtual ~CompactRangeWorker () {
+    // TODO clean up start_ and end_ slices
+    // See DisposeStringOrBufferFromSlice()
+  }
+
+  virtual void DoExecute () {
+    database_->CompactRange(&start_, &end_);
+  }
+
+  leveldb::Slice start_;
+  leveldb::Slice end_;
+};
+
+/**
+ * Compacts a range.
+ */
+NAPI_METHOD(db_compact_range) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  leveldb::Slice start = ToSlice(env, argv[1]);
+  leveldb::Slice end = ToSlice(env, argv[2]);
+  napi_value callback = argv[3];
+
+  CompactRangeWorker* worker  = new CompactRangeWorker(env,
+                                                       database,
+                                                       callback,
+                                                       start,
+                                                       end);
+  worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
  * Runs when an Iterator is garbage collected.
  */
 static void FinalizeIterator (napi_env env, void* data, void* hint) {
@@ -1777,6 +1828,7 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_get);
   NAPI_EXPORT_FUNCTION(db_del);
   NAPI_EXPORT_FUNCTION(db_approximate_size);
+  NAPI_EXPORT_FUNCTION(db_compact_range);
 
   /**
    * Iterator related functions.

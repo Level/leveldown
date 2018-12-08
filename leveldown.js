@@ -22,12 +22,7 @@ function LevelDOWN (location) {
 util.inherits(LevelDOWN, AbstractLevelDOWN)
 
 LevelDOWN.prototype._open = function (options, callback) {
-  binding.db_open(
-    this.context,
-    this.location,
-    options,
-    callback
-  )
+  binding.db_open(this.context, this.location, options, callback)
 }
 
 LevelDOWN.prototype._close = function (callback) {
@@ -43,13 +38,7 @@ LevelDOWN.prototype._serializeValue = function (value) {
 }
 
 LevelDOWN.prototype._put = function (key, value, options, callback) {
-  binding.db_put(
-    this.context,
-    key,
-    value,
-    options,
-    callback
-  )
+  binding.db_put(this.context, key, value, options, callback)
 }
 
 LevelDOWN.prototype._get = function (key, options, callback) {
@@ -101,7 +90,7 @@ LevelDOWN.prototype.compactRange = function (start, end, callback) {
   start = this._serializeKey(start)
   end = this._serializeKey(end)
 
-  this.binding.compactRange(start, end, callback)
+  binding.db_compact_range(this.context, start, end, callback)
 }
 
 LevelDOWN.prototype.getProperty = function (property) {
