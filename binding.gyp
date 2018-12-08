@@ -42,7 +42,7 @@
       "<!(node -e \"require('napi-macros')\")"
     ],
     "sources": [
-      "napi/leveldown.cc"
+      "binding.cc"
     ]
   }]
 }
