@@ -6,7 +6,7 @@ const binding = require('./binding')
 function Iterator (db, options) {
   AbstractIterator.call(this, db)
 
-  this.context = binding.iterator(db.context, options)
+  this.context = binding.iterator_init(db.context, options)
   this.cache = null
   this.finished = false
   this.fastFuture = fastFuture()

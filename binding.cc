@@ -28,6 +28,10 @@ struct EndWorker;
   Iterator* iterator = NULL; \
   NAPI_STATUS_THROWS(napi_get_value_external(env, argv[0], (void**)&iterator));
 
+#define NAPI_BATCH_CONTEXT() \
+  Batch* batch = NULL; \
+  NAPI_STATUS_THROWS(napi_get_value_external(env, argv[0], (void**)&batch));
+
 #define NAPI_RETURN_UNDEFINED() \
   return 0;
 
@@ -416,7 +420,7 @@ static void FinalizeDatabase (napi_env env, void* data, void* hint) {
 /**
  * Returns a context object for a database.
  */
-NAPI_METHOD(db) {
+NAPI_METHOD(db_init) {
   Database* database = new Database(env);
 
   napi_value result;
@@ -1028,7 +1032,7 @@ static void FinalizeIterator (napi_env env, void* data, void* hint) {
 /**
  * Create an iterator.
  */
-NAPI_METHOD(iterator) {
+NAPI_METHOD(iterator_init) {
   NAPI_ARGV(2);
   NAPI_DB_CONTEXT();
 
@@ -1419,7 +1423,7 @@ NAPI_METHOD(batch_do) {
       batch->Delete(key);
       if (!hasData) hasData = true;
 
-      // TODO clean up
+      // TODO clean up slices
       //DisposeStringOrBufferFromSlice(keyBuffer, key);
     } else if (type == "put") {
       if (!HasProperty(env, element, "key")) continue;
@@ -1431,7 +1435,7 @@ NAPI_METHOD(batch_do) {
       batch->Put(key, value);
       if (!hasData) hasData = true;
 
-      // TODO clean up
+      // TODO clean up slices
       //DisposeStringOrBufferFromSlice(keyBuffer, key);
       //DisposeStringOrBufferFromSlice(valueBuffer, value);
     }
@@ -1457,13 +1461,164 @@ NAPI_METHOD(batch_do) {
 }
 
 /**
+ * Owns a WriteBatch.
+ */
+struct Batch {
+  Batch (Database* database)
+    : database_(database),
+      batch_(new leveldb::WriteBatch()),
+      hasData_(false) {}
+
+  ~Batch () {
+    delete batch_;
+  }
+
+  void Put (leveldb::Slice key, leveldb::Slice value) {
+    batch_->Put(key, value);
+    hasData_ = true;
+  }
+
+  void Del (leveldb::Slice key) {
+    batch_->Delete(key);
+    hasData_ = true;
+  }
+
+  void Clear () {
+    batch_->Clear();
+    hasData_ = false;
+  }
+
+  leveldb::Status Write (bool sync) {
+    leveldb::WriteOptions options;
+    options.sync = sync;
+    return database_->WriteBatch(options, batch_);
+  }
+
+  Database* database_;
+  leveldb::WriteBatch* batch_;
+  bool hasData_;
+};
+
+/**
+ * Runs when a Batch is garbage collected.
+ */
+static void FinalizeBatch (napi_env env, void* data, void* hint) {
+  if (data) {
+    delete (Batch*)data;
+  }
+}
+
+/**
+ * Return a batch object.
+ */
+NAPI_METHOD(batch_init) {
+  NAPI_ARGV(1);
+  NAPI_DB_CONTEXT();
+
+  Batch* batch = new Batch(database);
+
+  napi_value result;
+  NAPI_STATUS_THROWS(napi_create_external(env, batch,
+                                          FinalizeBatch,
+                                          NULL, &result));
+  return result;
+}
+
+/**
+ * Adds a put instruction to a batch object.
+ */
+NAPI_METHOD(batch_put) {
+  NAPI_ARGV(3);
+  NAPI_BATCH_CONTEXT();
+
+  leveldb::Slice key = ToSlice(env, argv[1]);
+  leveldb::Slice value = ToSlice(env, argv[2]);
+
+  batch->Put(key, value);
+
+  // TODO clean up slices
+  //DisposeStringOrBufferFromSlice(keyBuffer, key);
+  //DisposeStringOrBufferFromSlice(valueBuffer, value);
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Adds a delete instruction to a batch object.
+ */
+NAPI_METHOD(batch_del) {
+  NAPI_ARGV(2);
+  NAPI_BATCH_CONTEXT();
+
+  leveldb::Slice key = ToSlice(env, argv[1]);
+
+  batch->Del(key);
+
+  // TODO clean up slice
+  //DisposeStringOrBufferFromSlice(keyBuffer, key);
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Clears a batch object.
+ */
+NAPI_METHOD(batch_clear) {
+  NAPI_ARGV(1);
+  NAPI_BATCH_CONTEXT();
+
+  batch->Clear();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
+ * Worker class for batch write operation.
+ */
+struct BatchWriteWorker : public BaseWorker {
+  BatchWriteWorker (napi_env env,
+                    Batch* batch,
+                    napi_value callback,
+                    bool sync)
+    : BaseWorker(env, batch->database_, callback, "leveldown.batch.write"),
+      batch_(batch),
+      sync_(sync) {}
+
+  virtual ~BatchWriteWorker () {}
+
+  virtual void DoExecute () {
+    SetStatus(batch_->Write(sync_));
+  }
+
+  Batch* batch_;
+  bool sync_;
+};
+
+/**
+ * Writes a batch object.
+ */
+NAPI_METHOD(batch_write) {
+  NAPI_ARGV(3);
+  NAPI_BATCH_CONTEXT();
+
+  napi_value options = argv[1];
+  bool sync = BooleanProperty(env, options, "sync", false);
+  napi_value callback = argv[2];
+
+  BatchWriteWorker* worker  = new BatchWriteWorker(env, batch, callback, sync);
+  worker->Queue();
+
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
  * All exported functions.
  */
 NAPI_INIT() {
   /**
    * Database related functions.
    */
-  NAPI_EXPORT_FUNCTION(db);
+  NAPI_EXPORT_FUNCTION(db_init);
   NAPI_EXPORT_FUNCTION(db_open);
   NAPI_EXPORT_FUNCTION(db_close);
   NAPI_EXPORT_FUNCTION(db_put);
@@ -1473,7 +1628,7 @@ NAPI_INIT() {
   /**
    * Iterator related functions.
    */
-  NAPI_EXPORT_FUNCTION(iterator);
+  NAPI_EXPORT_FUNCTION(iterator_init);
   NAPI_EXPORT_FUNCTION(iterator_seek);
   NAPI_EXPORT_FUNCTION(iterator_end);
   NAPI_EXPORT_FUNCTION(iterator_next);
@@ -1482,4 +1637,9 @@ NAPI_INIT() {
    * Batch related functions.
    */
   NAPI_EXPORT_FUNCTION(batch_do);
+  NAPI_EXPORT_FUNCTION(batch_init);
+  NAPI_EXPORT_FUNCTION(batch_put);
+  NAPI_EXPORT_FUNCTION(batch_del);
+  NAPI_EXPORT_FUNCTION(batch_clear);
+  NAPI_EXPORT_FUNCTION(batch_write);
 }

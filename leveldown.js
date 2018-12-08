@@ -16,7 +16,7 @@ function LevelDOWN (location) {
   AbstractLevelDOWN.call(this)
 
   this.location = location
-  this.context = binding.db()
+  this.context = binding.db_init()
 }
 
 util.inherits(LevelDOWN, AbstractLevelDOWN)
