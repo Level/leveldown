@@ -44,13 +44,11 @@ static void iterator_end_do (napi_env env, Iterator* iterator, napi_value cb);
     to##Ch_ = new char[to##Sz_ + 1];                                    \
     napi_get_value_string_utf8(env, from, to##Ch_, to##Sz_ + 1, &to##Sz_); \
     to##Ch_[to##Sz_] = '\0';                                            \
-    printf("-- LD_STRING_OR_BUFFER_TO_COPY STRING length: %zu content: %s\n", to##Sz_, to##Ch_); \
   } else if (IsBuffer(env, from)) {                                     \
     char* buf = 0;                                                      \
     napi_get_buffer_info(env, from, (void **)&buf, &to##Sz_);           \
     to##Ch_ = new char[to##Sz_];                                        \
     memcpy(to##Ch_, buf, to##Sz_);                                      \
-    printf("-- LD_STRING_OR_BUFFER_TO_COPY BUFFER length: %zu content: %s\n", to##Sz_, to##Ch_); \
   }
 
 /*********************************************************************
@@ -1714,7 +1712,6 @@ NAPI_METHOD(batch_do) {
     if (!IsObject(env, element)) continue;
 
     std::string type = StringProperty(env, element, "type");
-    printf("-- Batch element type: %s\n", type.c_str());
 
     if (type == "del") {
       if (!HasProperty(env, element, "key")) continue;
