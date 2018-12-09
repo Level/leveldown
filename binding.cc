@@ -544,22 +544,26 @@ struct Iterator {
         } else {
           std::string keyStr = dbIterator_->key().ToString();
 
-          if (lt_ != NULL && lt_->compare(keyStr) <= 0) {
-            dbIterator_->Prev();
-          } else if (lte_ != NULL && lte_->compare(keyStr) < 0) {
-            dbIterator_->Prev();
-          } else if (start_ != NULL && start_->compare(keyStr)) {
-            dbIterator_->Prev();
+          if (lt_ != NULL) {
+            if (lt_->compare(keyStr) <= 0)
+              dbIterator_->Prev();
+          } else if (lte_ != NULL) {
+            if (lte_->compare(keyStr) < 0)
+              dbIterator_->Prev();
+          } else if (start_ != NULL) {
+            if (start_->compare(keyStr))
+              dbIterator_->Prev();
           }
         }
 
-        if (dbIterator_->Valid() && lt_ != NULL
-            && lt_->compare(dbIterator_->key().ToString()) <= 0) {
-          dbIterator_->Prev();
+        if (dbIterator_->Valid() && lt_ != NULL) {
+          if (lt_->compare(dbIterator_->key().ToString()) <= 0)
+            dbIterator_->Prev();
         }
-      } else if (dbIterator_->Valid() && gt_ != NULL
-                 && gt_->compare(dbIterator_->key().ToString()) == 0) {
-        dbIterator_->Next();
+      } else {
+        if (dbIterator_->Valid() && gt_ != NULL
+            && gt_->compare(dbIterator_->key().ToString()) == 0)
+          dbIterator_->Next();
       }
     } else if (reverse_) {
       dbIterator_->SeekToLast();
