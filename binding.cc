@@ -97,11 +97,8 @@ static napi_value CreateError (napi_env env, const char* str) {
  * Returns true if 'obj' has a property 'key'.
  */
 static bool HasProperty (napi_env env, napi_value obj, const char* key) {
-  // TODO switch to use napi_has_named_property() (no need to make a napi_value)
   bool has = false;
-  napi_value _key;
-  napi_create_string_utf8(env, key, strlen(key), &_key);
-  napi_has_property(env, obj, _key, &has);
+  napi_has_named_property(env, obj, key, &has);
   return has;
 }
 
@@ -109,11 +106,8 @@ static bool HasProperty (napi_env env, napi_value obj, const char* key) {
  * Returns a property in napi_value form.
  */
 static napi_value GetProperty (napi_env env, napi_value obj, const char* key) {
-  // TODO switch to use napi_get_named_property() (no need to make a napi_value)
-  napi_value _key;
-  napi_create_string_utf8(env, key, strlen(key), &_key);
   napi_value value;
-  napi_get_property(env, obj, _key, &value);
+  napi_get_named_property(env, obj, key, &value);
   return value;
 }
 
@@ -401,14 +395,8 @@ struct Database {
   }
 
   void ReleaseIterator (uint32_t id) {
-    // called each time an Iterator is End()ed, in the main thread
-    // we have to remove our reference to it and if it's the last
-    // iterator we have to invoke a pending CloseWorker if there
-    // is one if there is a pending CloseWorker it means that
-    // we're waiting for iterators to end before we can close them
     iterators_.erase(id);
     if (iterators_.empty() && pendingCloseWorker_ != NULL) {
-      // TODO Test this!
       pendingCloseWorker_->Queue();
       pendingCloseWorker_ = NULL;
     }
@@ -422,10 +410,6 @@ struct Database {
   // time in the constructor?
   const leveldb::FilterPolicy* filterPolicy_;
   uint32_t currentIteratorId_;
-  // TODO this worker should have a proper type, now
-  // it's some form of function pointer bastard, it should
-  // just be a CloseWorker object
-  //void (*pendingCloseWorker_);
   BaseWorker *pendingCloseWorker_;
   std::map< uint32_t, Iterator * > iterators_;
 };
@@ -542,63 +526,46 @@ struct Iterator {
   }
 
   bool GetIterator () {
-    if (dbIterator_ == NULL) {
-      dbIterator_ = database_->NewIterator(options_);
+    if (dbIterator_ != NULL) return false;
 
-      if (start_ != NULL) {
-        dbIterator_->Seek(*start_);
+    dbIterator_ = database_->NewIterator(options_);
 
-        if (reverse_) {
-          if (!dbIterator_->Valid()) {
-            // if it's past the last key, step back
-            dbIterator_->SeekToLast();
-          } else {
-            std::string keyStr = dbIterator_->key().ToString();
+    if (start_ != NULL) {
+      dbIterator_->Seek(*start_);
 
-            if (lt_ != NULL) {
-              // TODO make a compount if statement
-              if (lt_->compare(keyStr) <= 0) {
-                dbIterator_->Prev();
-              }
-            } else if (lte_ != NULL) {
-              // TODO make a compount if statement
-              if (lte_->compare(keyStr) < 0) {
-                dbIterator_->Prev();
-              }
-            } else if (start_ != NULL) {
-              // TODO make a compount if statement
-              if (start_->compare(keyStr)) {
-                dbIterator_->Prev();
-              }
-            }
-          }
-
-          if (dbIterator_->Valid() && lt_ != NULL) {
-            if (lt_->compare(dbIterator_->key().ToString()) <= 0) {
-              dbIterator_->Prev();
-            }
-          }
+      if (reverse_) {
+        if (!dbIterator_->Valid()) {
+          dbIterator_->SeekToLast();
         } else {
-          // TODO this could be an else if
-          if (dbIterator_->Valid() && gt_ != NULL
-              && gt_->compare(dbIterator_->key().ToString()) == 0) {
-            dbIterator_->Next();
+          std::string keyStr = dbIterator_->key().ToString();
+
+          if (lt_ != NULL && lt_->compare(keyStr) <= 0) {
+            dbIterator_->Prev();
+          } else if (lte_ != NULL && lte_->compare(keyStr) < 0) {
+            dbIterator_->Prev();
+          } else if (start_ != NULL && start_->compare(keyStr)) {
+            dbIterator_->Prev();
           }
         }
-      } else if (reverse_) {
-        dbIterator_->SeekToLast();
-      } else {
-        dbIterator_->SeekToFirst();
-      }
 
-      return true;
+        if (dbIterator_->Valid() && lt_ != NULL
+            && lt_->compare(dbIterator_->key().ToString()) <= 0) {
+          dbIterator_->Prev();
+        }
+      } else if (dbIterator_->Valid() && gt_ != NULL
+                 && gt_->compare(dbIterator_->key().ToString()) == 0) {
+        dbIterator_->Next();
+      }
+    } else if (reverse_) {
+      dbIterator_->SeekToLast();
+    } else {
+      dbIterator_->SeekToFirst();
     }
 
-    return false;
+    return true;
   }
 
   bool Read (std::string& key, std::string& value) {
-    // if it's not the first call, move to next item.
     if (!GetIterator() && !seeking_) {
       if (reverse_) {
         dbIterator_->Prev();
@@ -610,7 +577,6 @@ struct Iterator {
 
     seeking_ = false;
 
-    // now check if this is the end or not, if not then return the key & value
     if (dbIterator_->Valid()) {
       std::string keyStr = dbIterator_->key().ToString();
       const int isEnd = end_ == NULL ? 1 : end_->compare(keyStr);
@@ -640,35 +606,20 @@ struct Iterator {
   }
 
   bool OutOfRange (leveldb::Slice* target) {
-    if (lt_ != NULL) {
-      if (target->compare(*lt_) >= 0)
-        return true;
-    } else if (lte_ != NULL) {
-      if (target->compare(*lte_) > 0)
-        return true;
-    } else if (start_ != NULL && reverse_) {
-      if (target->compare(*start_) > 0)
-        return true;
+    if ((lt_ != NULL && target->compare(*lt_) >= 0) ||
+        (lte_ != NULL && target->compare(*lte_) > 0) ||
+        (start_ != NULL && reverse_ && target->compare(*start_) > 0)) {
+      return true;
     }
 
     if (end_ != NULL) {
       int d = target->compare(*end_);
-      if (reverse_ ? d < 0 : d > 0)
-        return true;
+      if (reverse_ ? d < 0 : d > 0) return true;
     }
 
-    if (gt_ != NULL) {
-      if (target->compare(*gt_) <= 0)
-        return true;
-    } else if (gte_ != NULL) {
-      if (target->compare(*gte_) < 0)
-        return true;
-    } else if (start_ != NULL && !reverse_) {
-      if (target->compare(*start_) < 0)
-        return true;
-    }
-
-    return false;
+    return ((gt_ != NULL && target->compare(*gt_) <= 0) ||
+            (gte_ != NULL && target->compare(*gte_) < 0) ||
+            (start_ != NULL && !reverse_ && target->compare(*start_) < 0));
   }
 
   bool IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
@@ -686,9 +637,7 @@ struct Iterator {
         }
 
         size = size + key.size() + value.size();
-        if (size > highWaterMark_) {
-          return true;
-        }
+        if (size > highWaterMark_) return true;
 
       } else {
         return false;
@@ -790,7 +739,6 @@ NAPI_METHOD(db_open) {
   // so we have similar allocation/deallocation mechanisms everywhere
   NAPI_ARGV_UTF8_MALLOC(location, 1);
 
-  // Options object and properties.
   napi_value options = argv[2];
   bool createIfMissing = BooleanProperty(env, options, "createIfMissing", true);
   bool errorIfExists = BooleanProperty(env, options, "errorIfExists", false);
@@ -867,10 +815,8 @@ NAPI_METHOD(db_close) {
   std::map< uint32_t, Iterator * >::iterator it;
   for (it = database->iterators_.begin();
        it != database->iterators_.end(); ++it) {
-
     Iterator *iterator = it->second;
     if (!iterator->ended_) {
-      // Call same logic as iterator_end() but provide a noop callback.
       iterator_end_do(env, iterator, noop);
     }
   }
@@ -947,7 +893,7 @@ struct GetWorker : public BaseWorker {
   }
 
   virtual ~GetWorker () {
-    // TODO clean up key_ if not empty?
+    // TODO clean up key_ if not empty
     // See DisposeStringOrBufferFromSlice()
   }
 
@@ -971,7 +917,6 @@ struct GetWorker : public BaseWorker {
     napi_get_global(env_, &global);
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
-
     napi_call_function(env_, global, callback, argc, argv, NULL);
   }
 
@@ -1086,7 +1031,6 @@ struct ApproximateSizeWorker : public BaseWorker {
     napi_get_global(env_, &global);
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
-
     napi_call_function(env_, global, callback, argc, argv, NULL);
   }
 
@@ -1455,29 +1399,27 @@ NAPI_METHOD(iterator_seek) {
       dbIterator->Next();
     }
   }
-  else {
+  else if (dbIterator->Valid()) {
+    int cmp = dbIterator->key().compare(*iterator->target_);
+    if (cmp > 0 && iterator->reverse_) {
+      dbIterator->Prev();
+    } else if (cmp < 0 && !iterator->reverse_) {
+      dbIterator->Next();
+    }
+  } else {
+    if (iterator->reverse_) {
+      dbIterator->SeekToLast();
+    } else {
+      dbIterator->SeekToFirst();
+    }
     if (dbIterator->Valid()) {
       int cmp = dbIterator->key().compare(*iterator->target_);
       if (cmp > 0 && iterator->reverse_) {
+        dbIterator->SeekToFirst();
         dbIterator->Prev();
       } else if (cmp < 0 && !iterator->reverse_) {
-        dbIterator->Next();
-      }
-    } else {
-      if (iterator->reverse_) {
         dbIterator->SeekToLast();
-      } else {
-        dbIterator->SeekToFirst();
-      }
-      if (dbIterator->Valid()) {
-        int cmp = dbIterator->key().compare(*iterator->target_);
-        if (cmp > 0 && iterator->reverse_) {
-          dbIterator->SeekToFirst();
-          dbIterator->Prev();
-        } else if (cmp < 0 && !iterator->reverse_) {
-          dbIterator->SeekToLast();
-          dbIterator->Next();
-        }
+        dbIterator->Next();
       }
     }
   }
@@ -1519,7 +1461,6 @@ static void iterator_end_do (napi_env env, Iterator* iterator, napi_value cb) {
     iterator->ended_ = true;
 
     if (iterator->nexting_) {
-      // waiting for a next() to return, queue the end
       iterator->endWorker_ = worker;
     } else {
       worker->Queue();
