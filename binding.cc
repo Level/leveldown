@@ -1198,6 +1198,17 @@ static void FinalizeIterator (napi_env env, void* data, void* hint) {
   }
 }
 
+#define CHECK_PROPERTY(name, code)                                      \
+  if (HasProperty(env, options, #name)) {                               \
+    napi_value value = GetProperty(env, options, #name);                \
+    if (IsString(env, value) || IsBuffer(env, value)) {                 \
+      if (StringOrBufferLength(env, value) > 0) {                       \
+        LD_STRING_OR_BUFFER_TO_COPY(env, value, _##name);               \
+        code;                                                           \
+      }                                                                 \
+    }                                                                   \
+  }                                                                     \
+
 /**
  * Create an iterator.
  */
@@ -1220,116 +1231,80 @@ NAPI_METHOD(iterator_init) {
 
   leveldb::Slice* start = NULL;
   char *startStr = NULL;
-  if (HasProperty(env, options, "start")) {
-    napi_value value = GetProperty(env, options, "start");
-    if (IsString(env, value) || IsBuffer(env, value)) {
-      if (StringOrBufferLength(env, value) > 0) {
-        LD_STRING_OR_BUFFER_TO_COPY(env, value, _start);
-        start = new leveldb::Slice(_startCh_, _startSz_);
-        startStr = _startCh_;
-      }
-    }
-  }
+  CHECK_PROPERTY(start, {
+    start = new leveldb::Slice(_startCh_, _startSz_);
+    startStr = _startCh_;
+  });
 
   std::string* end = NULL;
-  if (HasProperty(env, options, "end")) {
-    napi_value value = GetProperty(env, options, "end");
-    if (IsString(env, value) || IsBuffer(env, value)) {
-      if (StringOrBufferLength(env, value) > 0) {
-        LD_STRING_OR_BUFFER_TO_COPY(env, value, _end);
-        end = new std::string(_endCh_, _endSz_);
-        delete [] _endCh_;
-      }
-    }
-  }
+  CHECK_PROPERTY(end, {
+    end = new std::string(_endCh_, _endSz_);
+    delete [] _endCh_;
+  });
 
   std::string* lt = NULL;
-  if (HasProperty(env, options, "lt")) {
-    napi_value value = GetProperty(env, options, "lt");
-    if (IsString(env, value) || IsBuffer(env, value)) {
-      if (StringOrBufferLength(env, value) > 0) {
-        LD_STRING_OR_BUFFER_TO_COPY(env, value, _lt);
-        lt = new std::string(_ltCh_, _ltSz_);
-        delete [] _ltCh_;
-        if (reverse) {
-          if (startStr != NULL) {
-            delete [] startStr;
-            startStr = NULL;
-          }
-          if (start != NULL) {
-            delete start;
-          }
-          start = new leveldb::Slice(lt->data(), lt->size());
-        }
+  CHECK_PROPERTY(lt, {
+    lt = new std::string(_ltCh_, _ltSz_);
+    delete [] _ltCh_;
+    if (reverse) {
+      if (startStr != NULL) {
+        delete [] startStr;
+        startStr = NULL;
       }
+      if (start != NULL) {
+        delete start;
+      }
+      start = new leveldb::Slice(lt->data(), lt->size());
     }
-  }
+  });
 
   std::string* lte = NULL;
-  if (HasProperty(env, options, "lte")) {
-    napi_value value = GetProperty(env, options, "lte");
-    if (IsString(env, value) || IsBuffer(env, value)) {
-      if (StringOrBufferLength(env, value) > 0) {
-        LD_STRING_OR_BUFFER_TO_COPY(env, value, _lte);
-        lte = new std::string(_lteCh_, _lteSz_);
-        delete [] _lteCh_;
-        if (reverse) {
-          if (startStr != NULL) {
-            delete [] startStr;
-            startStr = NULL;
-          }
-          if (start != NULL) {
-            delete start;
-          }
-          start = new leveldb::Slice(lte->data(), lte->size());
-        }
+  CHECK_PROPERTY(lte, {
+    lte = new std::string(_lteCh_, _lteSz_);
+    delete [] _lteCh_;
+    if (reverse) {
+      if (startStr != NULL) {
+        delete [] startStr;
+        startStr = NULL;
       }
+      if (start != NULL) {
+        delete start;
+      }
+      start = new leveldb::Slice(lte->data(), lte->size());
     }
-  }
+  });
 
   std::string* gt = NULL;
-  if (HasProperty(env, options, "gt")) {
-    napi_value value = GetProperty(env, options, "gt");
-    if (IsString(env, value) || IsBuffer(env, value)) {
-      if (StringOrBufferLength(env, value) > 0) {
-        LD_STRING_OR_BUFFER_TO_COPY(env, value, _gt);
-        gt = new std::string(_gtCh_, _gtSz_);
-        delete [] _gtCh_;
-        if (!reverse) {
-          if (startStr != NULL) {
-            delete [] startStr;
-            startStr = NULL;
-          }
-          if (start != NULL) {
-            delete start;
-          }
-          start = new leveldb::Slice(gt->data(), gt->size());
-        }
+  CHECK_PROPERTY(gt, {
+    gt = new std::string(_gtCh_, _gtSz_);
+    delete [] _gtCh_;
+    if (!reverse) {
+      if (startStr != NULL) {
+        delete [] startStr;
+        startStr = NULL;
       }
+      if (start != NULL) {
+        delete start;
+      }
+      start = new leveldb::Slice(gt->data(), gt->size());
     }
-  }
+  });
 
   std::string* gte = NULL;
-  if (HasProperty(env, options, "gte")) {
-    napi_value value = GetProperty(env, options, "gte");
-    if (IsString(env, value) || IsBuffer(env, value)) {
-      if (StringOrBufferLength(env, value) > 0) {
-        LD_STRING_OR_BUFFER_TO_COPY(env, value, _gte);
-        gte = new std::string(_gteCh_, _gteSz_);
-        delete [] _gteCh_;
-        if (!reverse) {
-          if (startStr != NULL) {
-            delete [] startStr;
-            startStr = NULL;
-          }
-          if (start != NULL) {
-            delete start;
-          }
-          start = new leveldb::Slice(gte->data(), gte->size());
-        }
+  CHECK_PROPERTY(gte, {
+    gte = new std::string(_gteCh_, _gteSz_);
+    delete [] _gteCh_;
+    if (!reverse) {
+      if (startStr != NULL) {
+        delete [] startStr;
+        startStr = NULL;
       }
+      if (start != NULL) {
+        delete start;
+      }
+      start = new leveldb::Slice(gte->data(), gte->size());
     }
-  }
+  });
 
   uint32_t id = database->currentIteratorId_++;
   Iterator* iterator = new Iterator(database,
