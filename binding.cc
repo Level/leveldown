@@ -222,6 +222,18 @@ static size_t StringOrBufferLength (napi_env env, napi_value value) {
 }
 
 /**
+ * Calls a function.
+ */
+static napi_status CallFunction (napi_env env,
+                                 napi_value callback,
+                                 const int argc,
+                                 napi_value* argv) {
+  napi_value global;
+  napi_get_global(env, &global);
+  return napi_call_function(env, global, callback, argc, argv, NULL);
+}
+
+/**
  * Base worker class. Handles the async work.
  */
 struct BaseWorker {
@@ -280,32 +292,18 @@ struct BaseWorker {
       return HandleOKCallback();
     }
 
-    // TODO the global, callback, and calling the function code
-    // could be refactored with HandleOKCallback()
-
-    napi_value global;
-    napi_get_global(env_, &global);
+    napi_value argv = CreateError(env_, errMsg_);
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
-
-    const int argc = 1;
-    napi_value argv[argc];
-    argv[0] = CreateError(env_, errMsg_);
-
-    napi_call_function(env_, global, callback, argc, argv, NULL);
+    CallFunction(env_, callback, 1, &argv);
   }
 
   virtual void HandleOKCallback () {
-    napi_value global;
-    napi_get_global(env_, &global);
+    napi_value argv;
+    napi_get_null(env_, &argv);
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
-
-    const int argc = 1;
-    napi_value argv[argc];
-    napi_get_null(env_, &argv[0]);
-
-    napi_call_function(env_, global, callback, argc, argv, NULL);
+    CallFunction(env_, callback, 1, &argv);
   }
 
   void Queue () {
@@ -905,8 +903,7 @@ struct GetWorker : public BaseWorker {
   }
 
   virtual void HandleOKCallback() {
-    const int argc = 2;
-    napi_value argv[argc];
+    napi_value argv[2];
     napi_get_null(env_, &argv[0]);
 
     if (asBuffer_) {
@@ -915,12 +912,9 @@ struct GetWorker : public BaseWorker {
       napi_create_string_utf8(env_, value_.data(), value_.size(), &argv[1]);
     }
 
-    // TODO move to base class
-    napi_value global;
-    napi_get_global(env_, &global);
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
-    napi_call_function(env_, global, callback, argc, argv, NULL);
+    CallFunction(env_, callback, 2, argv);
   }
 
   leveldb::ReadOptions options_;
@@ -1023,17 +1017,12 @@ struct ApproximateSizeWorker : public BaseWorker {
   }
 
   virtual void HandleOKCallback() {
-    const int argc = 2;
-    napi_value argv[argc];
+    napi_value argv[2];
     napi_get_null(env_, &argv[0]);
     napi_create_uint32(env_, (uint32_t)size_, &argv[1]);
-
-    // TODO move to base class
-    napi_value global;
-    napi_get_global(env_, &global);
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
-    napi_call_function(env_, global, callback, argc, argv, NULL);
+    CallFunction(env_, callback, 2, argv);
   }
 
   leveldb::Slice start_;
@@ -1543,20 +1532,13 @@ struct NextWorker : public BaseWorker {
     // TODO this should just do iterator_->CheckEndCallback();
     localCallback_(iterator_);
 
-    const int argc = 3;
-    napi_value argv[argc];
-
+    napi_value argv[3];
     napi_get_null(env_, &argv[0]);
     argv[1] = jsArray;
     napi_get_boolean(env_, !ok_, &argv[2]);
-
-    // TODO move to base class
-    napi_value global;
-    napi_get_global(env_, &global);
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
-
-    napi_call_function(env_, global, callback, argc, argv, NULL);
+    CallFunction(env_, callback, 3, argv);
   }
 
   Iterator* iterator_;
@@ -1576,14 +1558,8 @@ NAPI_METHOD(iterator_next) {
   napi_value callback = argv[1];
 
   if (iterator->ended_) {
-    // TODO refactor with other callback code
-    napi_value global;
-    napi_get_global(env, &global);
-
-    const int argc = 1;
-    napi_value argv[argc];
-    argv[0] = CreateError(env, "iterator has ended");
-    napi_call_function(env, global, callback, argc, argv, NULL);
+    napi_value argv = CreateError(env, "iterator has ended");
+    CallFunction(env, callback, 1, &argv);
 
     NAPI_RETURN_UNDEFINED();
   }
@@ -1677,15 +1653,9 @@ NAPI_METHOD(batch_do) {
     worker->Queue();
   } else {
     delete batch;
-    // TODO refactor with other callback code
-    napi_value global;
-    napi_get_global(env, &global);
-
-    const int argc = 1;
-    napi_value argv[argc];
-    napi_get_null(env, &argv[0]);
-
-    napi_call_function(env, global, callback, argc, argv, NULL);
+    napi_value argv;
+    napi_get_null(env, &argv);
+    CallFunction(env, callback, 1, &argv);
   }
 
   NAPI_RETURN_UNDEFINED();
