@@ -320,7 +320,7 @@ struct Database {
     : env_(env),
       db_(NULL),
       blockCache_(NULL),
-      filterPolicy_(NULL),
+      filterPolicy_(leveldb::NewBloomFilterPolicy(10)),
       currentIteratorId_(0),
       pendingCloseWorker_(NULL) {}
 
@@ -342,10 +342,6 @@ struct Database {
     if (blockCache_) {
       delete blockCache_;
       blockCache_ = NULL;
-    }
-    if (filterPolicy_) {
-      delete filterPolicy_;
-      filterPolicy_ = NULL;
     }
   }
 
@@ -409,9 +405,6 @@ struct Database {
   napi_env env_;
   leveldb::DB* db_;
   leveldb::Cache* blockCache_;
-  // TODO figure out if we can use filterPolicy_ across
-  // several Open()/Close(), i.e. can we create it _one_
-  // time in the constructor?
   const leveldb::FilterPolicy* filterPolicy_;
   uint32_t currentIteratorId_;
   BaseWorker *pendingCloseWorker_;
@@ -757,7 +750,6 @@ NAPI_METHOD(db_open) {
   uint32_t maxFileSize = Uint32Property(env, options, "maxFileSize", 2 << 20);
 
   database->blockCache_ = leveldb::NewLRUCache(cacheSize);
-  database->filterPolicy_ = leveldb::NewBloomFilterPolicy(10);
 
   napi_value callback = argv[3];
   OpenWorker* worker = new OpenWorker(env,
