@@ -183,6 +183,10 @@ static std::string StringProperty (napi_env env, napi_value obj, const char* key
   return "";
 }
 
+static void DisposeSliceBuffer (leveldb::Slice slice) {
+  if (!slice.empty()) delete [] slice.data();
+}
+
 /**
  * Convert a napi_value to a leveldb::Slice.
  */
@@ -840,8 +844,8 @@ struct PutWorker : public BaseWorker {
   }
 
   virtual ~PutWorker () {
-    // TODO clean up key_ and value_ if they aren't empty?
-    // See DisposeStringOrBufferFromSlice()
+    DisposeSliceBuffer(key_);
+    DisposeSliceBuffer(value_);
   }
 
   virtual void DoExecute () {
@@ -893,8 +897,7 @@ struct GetWorker : public BaseWorker {
   }
 
   virtual ~GetWorker () {
-    // TODO clean up key_ if not empty
-    // See DisposeStringOrBufferFromSlice()
+    DisposeSliceBuffer(key_);
   }
 
   virtual void DoExecute () {
@@ -965,8 +968,7 @@ struct DelWorker : public BaseWorker {
   }
 
   virtual ~DelWorker () {
-    // TODO clean up key_ if not empty?
-    // See DisposeStringOrBufferFromSlice()
+    DisposeSliceBuffer(key_);
   }
 
   virtual void DoExecute () {
@@ -1011,8 +1013,8 @@ struct ApproximateSizeWorker : public BaseWorker {
       start_(start), end_(end) {}
 
   virtual ~ApproximateSizeWorker () {
-    // TODO clean up start_ and end_ slices
-    // See DisposeStringOrBufferFromSlice()
+    DisposeSliceBuffer(start_);
+    DisposeSliceBuffer(end_);
   }
 
   virtual void DoExecute () {
@@ -1073,8 +1075,8 @@ struct CompactRangeWorker : public BaseWorker {
       start_(start), end_(end) {}
 
   virtual ~CompactRangeWorker () {
-    // TODO clean up start_ and end_ slices
-    // See DisposeStringOrBufferFromSlice()
+    DisposeSliceBuffer(start_);
+    DisposeSliceBuffer(end_);
   }
 
   virtual void DoExecute () {
@@ -1121,7 +1123,8 @@ NAPI_METHOD(db_get_property) {
   napi_value result;
   napi_create_string_utf8(env, value.data(), value.size(), &result);
 
-  // TODO clean up property slice
+  DisposeSliceBuffer(property);
+
   return result;
 }
 
@@ -1132,7 +1135,6 @@ struct DestroyWorker : public BaseWorker {
   DestroyWorker (napi_env env,
                  const std::string& location,
                  napi_value callback)
-    // TODO turns out we don't even need database in BaseWorker()
     : BaseWorker(env, NULL, callback, "leveldown.destroy_db"),
       location_(location) {}
 
@@ -1661,8 +1663,7 @@ NAPI_METHOD(batch_do) {
       batch->Delete(key);
       if (!hasData) hasData = true;
 
-      // TODO clean up slices
-      //DisposeStringOrBufferFromSlice(keyBuffer, key);
+      DisposeSliceBuffer(key);
     } else if (type == "put") {
       if (!HasProperty(env, element, "key")) continue;
       if (!HasProperty(env, element, "value")) continue;
@@ -1673,9 +1674,8 @@ NAPI_METHOD(batch_do) {
       batch->Put(key, value);
       if (!hasData) hasData = true;
 
-      // TODO clean up slices
-      //DisposeStringOrBufferFromSlice(keyBuffer, key);
-      //DisposeStringOrBufferFromSlice(valueBuffer, value);
+      DisposeSliceBuffer(key);
+      DisposeSliceBuffer(value);
     }
   }
 
@@ -1771,12 +1771,9 @@ NAPI_METHOD(batch_put) {
 
   leveldb::Slice key = ToSlice(env, argv[1]);
   leveldb::Slice value = ToSlice(env, argv[2]);
-
   batch->Put(key, value);
-
-  // TODO clean up slices
-  //DisposeStringOrBufferFromSlice(keyBuffer, key);
-  //DisposeStringOrBufferFromSlice(valueBuffer, value);
+  DisposeSliceBuffer(key);
+  DisposeSliceBuffer(value);
 
   NAPI_RETURN_UNDEFINED();
 }
@@ -1789,11 +1786,8 @@ NAPI_METHOD(batch_del) {
   NAPI_BATCH_CONTEXT();
 
   leveldb::Slice key = ToSlice(env, argv[1]);
-
   batch->Del(key);
-
-  // TODO clean up slice
-  //DisposeStringOrBufferFromSlice(keyBuffer, key);
+  DisposeSliceBuffer(key);
 
   NAPI_RETURN_UNDEFINED();
 }
