@@ -756,17 +756,10 @@ NAPI_METHOD(db_open) {
   database->blockCache_ = leveldb::NewLRUCache(cacheSize);
 
   napi_value callback = argv[3];
-  OpenWorker* worker = new OpenWorker(env,
-                                      database,
-                                      callback,
-                                      location,
-                                      createIfMissing,
-                                      errorIfExists,
-                                      compression,
-                                      writeBufferSize,
-                                      blockSize,
-                                      maxOpenFiles,
-                                      blockRestartInterval,
+  OpenWorker* worker = new OpenWorker(env, database, callback, location,
+                                      createIfMissing, errorIfExists,
+                                      compression, writeBufferSize, blockSize,
+                                      maxOpenFiles, blockRestartInterval,
                                       maxFileSize);
   worker->Queue();
   delete [] location;
@@ -867,12 +860,7 @@ NAPI_METHOD(db_put) {
   bool sync = BooleanProperty(env, argv[3], "sync", false);
   napi_value callback = argv[4];
 
-  PutWorker* worker = new PutWorker(env,
-                                    database,
-                                    callback,
-                                    key,
-                                    value,
-                                    sync);
+  PutWorker* worker = new PutWorker(env, database, callback, key, value, sync);
   worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
@@ -936,11 +924,7 @@ NAPI_METHOD(db_get) {
   bool fillCache = BooleanProperty(env, options, "fillCache", true);
   napi_value callback = argv[3];
 
-  GetWorker* worker = new GetWorker(env,
-                                    database,
-                                    callback,
-                                    key,
-                                    asBuffer,
+  GetWorker* worker = new GetWorker(env, database, callback, key, asBuffer,
                                     fillCache);
   worker->Queue();
 
@@ -984,11 +968,7 @@ NAPI_METHOD(db_del) {
   bool sync = BooleanProperty(env, argv[2], "sync", false);
   napi_value callback = argv[3];
 
-  DelWorker* worker = new DelWorker(env,
-                                    database,
-                                    callback,
-                                    key,
-                                    sync);
+  DelWorker* worker = new DelWorker(env, database, callback, key, sync);
   worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
@@ -1041,10 +1021,8 @@ NAPI_METHOD(db_approximate_size) {
   leveldb::Slice end = ToSlice(env, argv[2]);
   napi_value callback = argv[3];
 
-  ApproximateSizeWorker* worker  = new ApproximateSizeWorker(env,
-                                                             database,
-                                                             callback,
-                                                             start,
+  ApproximateSizeWorker* worker  = new ApproximateSizeWorker(env, database,
+                                                             callback, start,
                                                              end);
   worker->Queue();
 
@@ -1087,11 +1065,8 @@ NAPI_METHOD(db_compact_range) {
   leveldb::Slice end = ToSlice(env, argv[2]);
   napi_value callback = argv[3];
 
-  CompactRangeWorker* worker  = new CompactRangeWorker(env,
-                                                       database,
-                                                       callback,
-                                                       start,
-                                                       end);
+  CompactRangeWorker* worker  = new CompactRangeWorker(env, database, callback,
+                                                       start, end);
   worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
@@ -1307,22 +1282,9 @@ NAPI_METHOD(iterator_init) {
   });
 
   uint32_t id = database->currentIteratorId_++;
-  Iterator* iterator = new Iterator(database,
-                                    id,
-                                    start,
-                                    end,
-                                    reverse,
-                                    keys,
-                                    values,
-                                    limit,
-                                    lt,
-                                    lte,
-                                    gt,
-                                    gte,
-                                    fillCache,
-                                    keyAsBuffer,
-                                    valueAsBuffer,
-                                    highWaterMark);
+  Iterator* iterator = new Iterator(database, id, start, end, reverse, keys,
+                                    values, limit, lt, lte, gt, gte, fillCache,
+                                    keyAsBuffer, valueAsBuffer, highWaterMark);
   database->iterators_[id] = iterator;
 
   napi_value result;
@@ -1539,9 +1501,7 @@ NAPI_METHOD(iterator_next) {
     NAPI_RETURN_UNDEFINED();
   }
 
-  NextWorker* worker = new NextWorker(env,
-                                      iterator,
-                                      callback,
+  NextWorker* worker = new NextWorker(env, iterator, callback,
                                       CheckEndCallback);
   iterator->nexting_ = true;
   worker->Queue();
