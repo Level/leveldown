@@ -830,11 +830,11 @@ struct PutWorker : public BaseWorker {
   PutWorker (napi_env env,
              Database* database,
              napi_value callback,
-             napi_value key,
-             napi_value value,
+             leveldb::Slice key,
+             leveldb::Slice value,
              bool sync)
     : BaseWorker(env, database, callback, "leveldown.db.put"),
-      key_(ToSlice(env, key)), value_(ToSlice(env, value)) {
+      key_(key), value_(value) {
     options_.sync = sync;
   }
 
@@ -859,8 +859,8 @@ NAPI_METHOD(db_put) {
   NAPI_ARGV(5);
   NAPI_DB_CONTEXT();
 
-  napi_value key = argv[1];
-  napi_value value = argv[2];
+  leveldb::Slice key = ToSlice(env, argv[1]);
+  leveldb::Slice value = ToSlice(env, argv[2]);
   bool sync = BooleanProperty(env, argv[3], "sync", false);
   napi_value callback = argv[4];
 
@@ -877,11 +877,11 @@ struct GetWorker : public BaseWorker {
   GetWorker (napi_env env,
              Database* database,
              napi_value callback,
-             napi_value key,
+             leveldb::Slice key,
              bool asBuffer,
              bool fillCache)
     : BaseWorker(env, database, callback, "leveldown.db.get"),
-      key_(ToSlice(env, key)),
+      key_(key),
       asBuffer_(asBuffer) {
     options_.fill_cache = fillCache;
   }
@@ -922,7 +922,7 @@ NAPI_METHOD(db_get) {
   NAPI_ARGV(4);
   NAPI_DB_CONTEXT();
 
-  napi_value key = argv[1];
+  leveldb::Slice key = ToSlice(env, argv[1]);
   napi_value options = argv[2];
   bool asBuffer = BooleanProperty(env, options, "asBuffer", true);
   bool fillCache = BooleanProperty(env, options, "fillCache", true);
@@ -942,10 +942,10 @@ struct DelWorker : public BaseWorker {
   DelWorker (napi_env env,
              Database* database,
              napi_value callback,
-             napi_value key,
+             leveldb::Slice key,
              bool sync)
     : BaseWorker(env, database, callback, "leveldown.db.del"),
-      key_(ToSlice(env, key)) {
+      key_(key) {
     options_.sync = sync;
   }
 
@@ -968,7 +968,7 @@ NAPI_METHOD(db_del) {
   NAPI_ARGV(4);
   NAPI_DB_CONTEXT();
 
-  napi_value key = argv[1];
+  leveldb::Slice key = ToSlice(env, argv[1]);
   bool sync = BooleanProperty(env, argv[2], "sync", false);
   napi_value callback = argv[3];
 
@@ -1023,6 +1023,7 @@ NAPI_METHOD(db_approximate_size) {
 
   leveldb::Slice start = ToSlice(env, argv[1]);
   leveldb::Slice end = ToSlice(env, argv[2]);
+
   napi_value callback = argv[3];
 
   ApproximateSizeWorker* worker  = new ApproximateSizeWorker(env, database,
