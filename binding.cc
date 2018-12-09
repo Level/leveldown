@@ -36,6 +36,16 @@ static void iterator_end_do (napi_env env, Iterator* iterator, napi_value cb);
 #define NAPI_RETURN_UNDEFINED() \
   return 0;
 
+#define NAPI_UTF8_NEW(name, val)                \
+  size_t name##_size = 0;                                               \
+  NAPI_STATUS_THROWS(napi_get_value_string_utf8(env, val, NULL, 0, &name##_size)) \
+  char* name = new char[name##_size + 1];                               \
+  NAPI_STATUS_THROWS(napi_get_value_string_utf8(env, val, name, name##_size + 1, &name##_size)) \
+  name[name##_size] = '\0';
+
+#define NAPI_ARGV_UTF8_NEW(name, i) \
+  NAPI_UTF8_NEW(name, argv[i])
+
 #define LD_STRING_OR_BUFFER_TO_COPY(env, from, to)                      \
   char* to##Ch_ = 0;                                                    \
   size_t to##Sz_ = 0;                                                   \
@@ -689,7 +699,7 @@ struct OpenWorker : public BaseWorker {
   OpenWorker (napi_env env,
               Database* database,
               napi_value callback,
-              char* location,
+              const std::string& location,
               bool createIfMissing,
               bool errorIfExists,
               bool compression,
@@ -714,16 +724,14 @@ struct OpenWorker : public BaseWorker {
     options_.max_file_size = maxFileSize;
   }
 
-  virtual ~OpenWorker () {
-    free(location_);
-  }
+  virtual ~OpenWorker () {}
 
   virtual void DoExecute () {
-    SetStatus(database_->Open(options_, location_));
+    SetStatus(database_->Open(options_, location_.c_str()));
   }
 
   leveldb::Options options_;
-  char* location_;
+  std::string location_;
 };
 
 /**
@@ -732,9 +740,7 @@ struct OpenWorker : public BaseWorker {
 NAPI_METHOD(db_open) {
   NAPI_ARGV(4);
   NAPI_DB_CONTEXT();
-  // TODO create a NAPI_ARGV_UTF8_NEW() macro that uses new instead of malloc
-  // so we have similar allocation/deallocation mechanisms everywhere
-  NAPI_ARGV_UTF8_MALLOC(location, 1);
+  NAPI_ARGV_UTF8_NEW(location, 1);
 
   napi_value options = argv[2];
   bool createIfMissing = BooleanProperty(env, options, "createIfMissing", true);
@@ -765,6 +771,8 @@ NAPI_METHOD(db_open) {
                                       blockRestartInterval,
                                       maxFileSize);
   worker->Queue();
+  delete [] location;
+
   NAPI_RETURN_UNDEFINED();
 }
 
@@ -1145,14 +1153,13 @@ struct DestroyWorker : public BaseWorker {
  */
 NAPI_METHOD(destroy_db) {
   NAPI_ARGV(2);
-  // TODO replace with new
-  NAPI_ARGV_UTF8_MALLOC(location, 0);
+  NAPI_ARGV_UTF8_NEW(location, 0);
   napi_value callback = argv[1];
 
   DestroyWorker* worker = new DestroyWorker(env, location, callback);
   worker->Queue();
 
-  free(location);
+  delete [] location;
 
   NAPI_RETURN_UNDEFINED();
 }
@@ -1182,14 +1189,13 @@ struct RepairWorker : public BaseWorker {
  */
 NAPI_METHOD(repair_db) {
   NAPI_ARGV(2);
-  // TODO replace with new
-  NAPI_ARGV_UTF8_MALLOC(location, 0);
+  NAPI_ARGV_UTF8_NEW(location, 0);
   napi_value callback = argv[1];
 
   RepairWorker* worker = new RepairWorker(env, location, callback);
   worker->Queue();
 
-  free(location);
+  delete [] location;
 
   NAPI_RETURN_UNDEFINED();
 }
@@ -1199,11 +1205,6 @@ NAPI_METHOD(repair_db) {
  */
 static void FinalizeIterator (napi_env env, void* data, void* hint) {
   if (data) {
-    // TODO this might be incorrect, at the moment mimicing the behavior
-    // of Database. We might need to review the life cycle of Iterator
-    // and if it's garbage collected it might be enough to unhook itself
-    // from the Database (it has a pointer to it and could do this from
-    // its destructor).
     delete (Iterator*)data;
   }
 }
