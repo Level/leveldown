@@ -15,7 +15,7 @@ const options = {
   cacheSize: argv.cacheSize || 8,
   writeBufferSize: argv.writeBufferSize || 4,
   valueSize: argv.valueSize || 100,
-  timingOutput: argv.timingOutput || path.join(__dirname, 'timingOutput'),
+  timingOutput: argv.timingOutput || path.join(__dirname, 'db-bench.csv'),
   throughputOutput: argv.throughputOutput
 }
 
