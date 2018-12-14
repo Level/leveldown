@@ -15,7 +15,7 @@ const options = {
   cacheSize: argv.cacheSize || 8,
   writeBufferSize: argv.writeBufferSize || 4,
   valueSize: argv.valueSize || 100,
-  timingOutput: argv.timingOutput || path.join(__dirname, 'db-bench.csv')
+  out: argv.out || path.join(__dirname, 'db-bench.csv')
 }
 
 const randomString = require('slump').string
@@ -26,7 +26,7 @@ if (!options.useExisting) {
 }
 
 const db = leveldown(options.db)
-const timesStream = fs.createWriteStream(options.timingOutput, 'utf8')
+const timesStream = fs.createWriteStream(options.out, 'utf8')
 
 function make16CharPaddedKey () {
   const r = Math.floor(Math.random() * options.num)
