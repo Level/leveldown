@@ -86,13 +86,18 @@ function start () {
       timesAccum = 0
     }
 
-    var time = process.hrtime()
+    var key = make16CharPaddedKey()
+    var value = randomString({ length: options.valueSize })
+    var start = process.hrtime()
 
-    db.put(make16CharPaddedKey(), randomString({ length: options.valueSize }), function (err) {
+    db.put(key, value, function (err) {
       if (err) throw err
 
+      var duration = process.hrtime(start)
+      var nano = (duration[0] * 1e9) + duration[1]
+
       totalBytes += keyTmpl.length + options.valueSize
-      timesAccum += process.hrtime(time)[1]
+      timesAccum += nano
       inProgress--
       process.nextTick(write)
     })
