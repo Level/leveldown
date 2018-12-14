@@ -16,3 +16,6 @@ npm-debug.log
 prebuilds/
 yarn.lock
 .nyc_output
+bench/db/
+bench/*.png
+*.csv

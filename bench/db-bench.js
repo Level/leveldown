@@ -15,8 +15,7 @@ const options = {
   cacheSize: argv.cacheSize || 8,
   writeBufferSize: argv.writeBufferSize || 4,
   valueSize: argv.valueSize || 100,
-  timingOutput: argv.timingOutput || path.join(__dirname, 'timingOutput'),
-  throughputOutput: argv.throughputOutput
+  out: argv.out || path.join(__dirname, 'db-bench.csv')
 }
 
 const randomString = require('slump').string
@@ -27,7 +26,7 @@ if (!options.useExisting) {
 }
 
 const db = leveldown(options.db)
-const timesStream = fs.createWriteStream(options.timingOutput, 'utf8')
+const timesStream = fs.createWriteStream(options.out, 'utf8')
 
 function make16CharPaddedKey () {
   const r = Math.floor(Math.random() * options.num)
@@ -87,13 +86,18 @@ function start () {
       timesAccum = 0
     }
 
-    var time = process.hrtime()
+    var key = make16CharPaddedKey()
+    var value = randomString({ length: options.valueSize })
+    var start = process.hrtime()
 
-    db.put(make16CharPaddedKey(), randomString({ length: options.valueSize }), function (err) {
+    db.put(key, value, function (err) {
       if (err) throw err
 
+      var duration = process.hrtime(start)
+      var nano = (duration[0] * 1e9) + duration[1]
+
       totalBytes += keyTmpl.length + options.valueSize
-      timesAccum += process.hrtime(time)[1]
+      timesAccum += nano
       inProgress--
       process.nextTick(write)
     })
