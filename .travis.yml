@@ -23,7 +23,6 @@ before_deploy:
 deploy:
   provider: releases
   draft: false
-  prerelease: true
   api_key: "$PREBUILD_TOKEN"
   file: "$ARCHIVE_NAME"
   skip_cleanup: true
