@@ -1,11 +1,12 @@
 const util = require('util')
 const AbstractIterator = require('abstract-leveldown').AbstractIterator
 const fastFuture = require('fast-future')
+const binding = require('./binding')
 
 function Iterator (db, options) {
   AbstractIterator.call(this, db)
 
-  this.binding = db.binding.iterator(options)
+  this.context = binding.iterator_init(db.context, options)
   this.cache = null
   this.finished = false
   this.fastFuture = fastFuture()
@@ -19,7 +20,7 @@ Iterator.prototype._seek = function (target) {
   }
 
   this.cache = null
-  this.binding.seek(target)
+  binding.iterator_seek(this.context, target)
   this.finished = false
 }
 
@@ -40,7 +41,7 @@ Iterator.prototype._next = function (callback) {
       callback()
     })
   } else {
-    this.binding.next(function (err, array, finished) {
+    binding.iterator_next(this.context, function (err, array, finished) {
       if (err) return callback(err)
 
       that.cache = array
@@ -54,7 +55,7 @@ Iterator.prototype._next = function (callback) {
 
 Iterator.prototype._end = function (callback) {
   delete this.cache
-  this.binding.end(callback)
+  binding.iterator_end(this.context, callback)
 }
 
 module.exports = Iterator

@@ -37,8 +37,8 @@ test('test destroy non-existent directory', function (t) {
   rimraf(location, { glob: false }, function (err) {
     t.ifError(err, 'no error from rimraf()')
 
-    leveldown.destroy(location, function () {
-      t.is(arguments.length, 0, 'no arguments returned on callback')
+    leveldown.destroy(location, function (err) {
+      t.error(err, 'no error')
 
       // Assert that destroy() didn't inadvertently create the directory.
       // Or if it did, that it was at least cleaned up afterwards.
@@ -55,8 +55,8 @@ test('test destroy non-existent parent directory', function (t) {
 
   t.notOk(fs.existsSync(parent), 'parent does not exist before')
 
-  leveldown.destroy(location, function () {
-    t.is(arguments.length, 0, 'no arguments returned on callback')
+  leveldown.destroy(location, function (err) {
+    t.error(err, 'no error')
     t.notOk(fs.existsSync(location), 'directory does not exist after')
   })
 })
