@@ -24,8 +24,7 @@ deploy:
   provider: releases
   draft: false
   prerelease: true
-  api_key:
-    secure: "FIXME!"
+  api_key: "$PREBUILD_TOKEN"
   file: "$ARCHIVE_NAME"
   skip_cleanup: true
   on:
