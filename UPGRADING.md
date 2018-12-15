@@ -22,9 +22,9 @@ Previously, range options like `lt` were passed through as-is by `abstract-level
 
 ### The rules for range options have been relaxed
 
-Because `null`, `undefined`, zero-length strings and zero-length buffers are significant types in encodings like `bytewise` and `charwise`, they became valid as range options in `abstract-leveldown`. This means `db.iterator({ gt: undefined })` is _not_ the same as `db.iterator({})`.
+Because `null`, `undefined`, zero-length strings and zero-length buffers are significant types in encodings like `bytewise` and `charwise`, they became valid as range options in `abstract-leveldown`. This means `db.iterator({ gt: undefined })` is not the same as `db.iterator({})`.
 
-In the case of `leveldown`, _when used by itself_, the aforementioned change means that `db.iterator({ gt: undefined })` is now effectively the same as `db.iterator({ gt: 'undefined' })`, making it explicit that `leveldown` only supports strings and buffers.
+In the case of `leveldown`, when used by itself, the aforementioned change means that `db.iterator({ gt: undefined })` is now effectively the same as `db.iterator({ gt: 'undefined' })`, making it explicit that `leveldown` only supports strings and buffers.
 
 ### Seeking became part of official `abstract-leveldown` API
 
