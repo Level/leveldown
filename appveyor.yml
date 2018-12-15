@@ -37,7 +37,7 @@ deploy:
   - provider: GitHub
     artifact: /.*\.zip/
     auth_token:
-      secure: FIXME
+      secure: AjmYV2zeogfen7F6tXvR9PO1zynJVF/jhMCExQ9RMtqEHDMH8Frclym3GniZkEB0
     draft: false
     prerelease: true
     on:
