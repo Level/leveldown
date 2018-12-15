@@ -39,7 +39,6 @@ deploy:
     auth_token:
       secure: AjmYV2zeogfen7F6tXvR9PO1zynJVF/jhMCExQ9RMtqEHDMH8Frclym3GniZkEB0
     draft: false
-    prerelease: true
     on:
       appveyor_repo_tag: true
       nodejs_version: "Current"
