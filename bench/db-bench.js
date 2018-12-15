@@ -4,11 +4,10 @@ const leveldown = require('../')
 const fs = require('fs')
 const du = require('du')
 const path = require('path')
+const rimraf = require('rimraf')
 const argv = require('optimist').argv
 
 const options = {
-  benchmark: argv.benchmark,
-  useExisting: argv.use_existing,
   db: argv.db || path.join(__dirname, 'db'),
   num: argv.num || 1000000,
   concurrency: argv.concurrency || 4,
@@ -21,9 +20,7 @@ const options = {
 const randomString = require('slump').string
 const keyTmpl = '0000000000000000'
 
-if (!options.useExisting) {
-  leveldown.destroy(options.db, function () {})
-}
+rimraf.sync(options.db)
 
 const db = leveldown(options.db)
 const timesStream = fs.createWriteStream(options.out, 'utf8')
@@ -56,6 +53,7 @@ function start () {
       if (err) throw err
       console.log('Database size:', Math.floor(size / 1024 / 1024) + 'M')
     })
+    console.log('Wrote times to ', options.out)
   }
 
   function write () {
