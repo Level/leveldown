@@ -2,6 +2,51 @@
 
 ## [Unreleased]
 
+### Changed
+
+-   Rewrite as N-API addon (#540) (@ralphtheninja)
+-   Upgrade Snappy from `1.1.4` to `1.1.7` as a git submodule (#522, #535) (@filoozom)
+-   Upgrade `abstract-leveldown` from `~5.0.0` to `~6.0.0` (@ralphtheninja, @vweevers) (#511)
+-   Implement abstract `_serializeKey()` and `_serializeValue()` (#506) (@vweevers)
+-   Implement abstract `_seek()` instead of `seek()` (#506) (@vweevers)
+-   Invoke abstract tests from single function (#495) (@ralphtheninja)
+-   Use `suite.common()` in `test/common.js` (7b0f6d9) (@ralphtheninja)
+-   Handle `location` in `LevelDOWN` constructor, as `location` was removed from `abstract-leveldown` (#494) (@ralphtheninja)
+-   Pass a factory function to abstract tests (#494) (@ralphtheninja)
+-   Use `tempy` in tests, removing need for cleanup (#494) (@ralphtheninja)
+-   Use `level-concat-iterator` in tests (#494) (@ralphtheninja)
+-   Make callback of `makeTest` an error-first callback (#518) (@vweevers)
+-   Upgrade `standard` devDependency from `^11.0.1` to `^12.0.0` (#503) (@ralphtheninja)
+-   Upgrade `slump` devDependency from `~2.0.0` to `~3.0.0` (#504) (@vweevers)
+-   Normalize gyp files (indentation and double quotes) (#539) (@ralphtheninja)
+-   Tweak benchmarks (#545, #546) (@vweevers, @ralphtheninja)
+-   Tweak changelog (#483) (@ralphtheninja)
+-   Tweak copyright years for less maintenance (98cbb4f) (@ralphtheninja)
+
+### Added
+
+-   Add segfault tests (#514) (@vweevers)
+-   Add `nyc` and `coveralls` for code coverage (#497) (@ralphtheninja)
+-   Copy type checks of `approximateSize()` to `compactRange()` (#517) (@vweevers)
+-   README: value may not be `null` or `undefined` (#511) (@vweevers)
+
+### Removed
+
+-   Remove node 9 from Travis (0f5f554) (@ralphtheninja)
+-   Remove unused `.jshintrc` (1d122b0) (@ralphtheninja)
+-   Remove copyright headers from code (508027d) (@ralphtheninja)
+-   Remove contributors from `package.json` (8a29ecc) (@ralphtheninja)
+-   Remove `g++-4.8` apt package from Travis (#489) (@ralphtheninja)
+-   Remove unused `key` argument from `ChainedBatch#_clear` (#519) (@vweevers)
+-   Remove redundant `db.close()` from `test/approximate-size-test.js` (d04f233) (@ralphtheninja)
+-   Moved seek tests to `abstract-leveldown` (#508) (@vweevers)
+-   Remove unused `iota-array` and `lexicographic-integer` devDependencies (#508) (@vweevers)
+
+### Fixed
+
+-   Serialize `compactRange()` arguments (#517) (@vweevers)
+-   Prevent segfault when calling `iterator()` on non-open db (#514) (@vweevers)
+
 ## [4.0.1] - 2018-05-22
 
 ### Changed
