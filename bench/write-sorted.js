@@ -3,27 +3,38 @@ const timestamp = require('monotonic-timestamp')
 const crypto = require('crypto')
 const fs = require('fs')
 const du = require('du')
+const path = require('path')
+const rimraf = require('rimraf')
+const argv = require('optimist').argv
 
-const entryCount = 10000000
-const concurrency = 10
-const timesFile = './write_sorted_times.csv'
-const dbDir = './write_sorted.db'
+const options = {
+  db: argv.db || path.join(__dirname, 'db'),
+  num: argv.num || 10000000,
+  concurrency: argv.concurrency || 10,
+  cacheSize: argv.cacheSize || 8,
+  writeBufferSize: argv.writeBufferSize || 4,
+  valueSize: argv.valueSize || 100,
+  out: argv.out || path.join(__dirname, 'write-sorted.csv')
+}
+
 const data = crypto.randomBytes(256) // buffer
 
-const db = leveldown(dbDir)
-const timesStream = fs.createWriteStream(timesFile, 'utf8')
+rimraf.sync(options.db)
+
+const db = leveldown(options.db)
+const timesStream = fs.createWriteStream(options.out, 'utf8')
 
 function report (ms) {
-  console.log('Wrote', entryCount, 'in', Math.floor(ms / 1000) + 's')
+  console.log('Wrote', options.num, 'in', Math.floor(ms / 1000) + 's')
   timesStream.end()
-  du(dbDir, function (err, size) {
+  du(options.db, function (err, size) {
     if (err) throw err
     console.log('Database size:', Math.floor(size / 1024 / 1024) + 'M')
   })
-  console.log('Wrote times to ', timesFile)
+  console.log('Wrote times to ', options.out)
 }
 
-db.open({ errorIfExists: true, createIfMissing: true }, function (err) {
+db.open(function (err) {
   if (err) throw err
 
   let inProgress = 0
@@ -39,15 +50,18 @@ db.open({ errorIfExists: true, createIfMissing: true }, function (err) {
       writeBuf = ''
     }
 
-    if (totalWrites++ === entryCount) return report(Date.now() - startTime)
-    if (inProgress >= concurrency || totalWrites > entryCount) return
+    if (totalWrites++ === options.num) return report(Date.now() - startTime)
+    if (inProgress >= options.concurrency || totalWrites > options.num) return
 
-    var time = process.hrtime()
+    var start = process.hrtime()
     inProgress++
 
     db.put(timestamp(), data, function (err) {
       if (err) throw err
-      writeBuf += (Date.now() - startTime) + ',' + process.hrtime(time)[1] + '\n'
+      var duration = process.hrtime(start)
+      var nano = (duration[0] * 1e9) + duration[1]
+
+      writeBuf += (Date.now() - startTime) + ',' + nano + '\n'
       inProgress--
       process.nextTick(write)
     })
