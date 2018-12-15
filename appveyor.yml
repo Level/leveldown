@@ -14,8 +14,6 @@ platform:
   - x64
 
 install:
-  # Workaround for https://github.com/appveyor/ci/issues/2420
-  - SET PATH=%PATH%;C:\Program Files\Git\mingw64\libexec\git-core
   - SET PATH=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin;%PATH%
   - ps: Install-Product node $env:nodejs_version $env:platform
   - set PATH=%APPDATA%\npm;%APPVEYOR_BUILD_FOLDER%\node_modules\.bin;%PATH%
