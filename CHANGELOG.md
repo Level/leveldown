@@ -5,7 +5,7 @@
 ### Changed
 
 -   Rewrite as N-API addon ([#540](https://github.com/level/leveldown/issues/540), [#559](https://github.com/level/leveldown/issues/559)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
--   Use `prebuildify` instead of `prebuild` ([#549](https://github.com/level/leveldown/issues/549)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+-   Use `prebuildify` instead of `prebuild` ([#549](https://github.com/level/leveldown/issues/549), [#562](https://github.com/level/leveldown/issues/562)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Update minimum node version required ([#552](https://github.com/level/leveldown/issues/552)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Upgrade Snappy from `1.1.4` to `1.1.7` as a git submodule ([#522](https://github.com/level/leveldown/issues/522), [#535](https://github.com/level/leveldown/issues/535)) ([**@filoozom**](https://github.com/filoozom))
 -   Upgrade `abstract-leveldown` from `~5.0.0` to `~6.0.0` ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers)) ([#511](https://github.com/level/leveldown/issues/511))
@@ -24,17 +24,21 @@
 -   Tweak benchmarks ([#545](https://github.com/level/leveldown/issues/545), [#546](https://github.com/level/leveldown/issues/546)) ([**@vweevers**](https://github.com/vweevers), [**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Tweak changelog ([#483](https://github.com/level/leveldown/issues/483)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Tweak copyright years for less maintenance ([`98cbb4f`](https://github.com/level/leveldown/commit/98cbb4f)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+-   Document new platform support and prebuilt binaries ([#558](https://github.com/level/leveldown/issues/558), [#563](https://github.com/level/leveldown/issues/563)) ([**@vweevers**](https://github.com/vweevers))
 
 ### Added
 
 -   Add segfault tests ([#514](https://github.com/level/leveldown/issues/514)) ([**@vweevers**](https://github.com/vweevers))
 -   Add `nyc` and `coveralls` for code coverage ([#497](https://github.com/level/leveldown/issues/497)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Copy type checks of `approximateSize()` to `compactRange()` ([#517](https://github.com/level/leveldown/issues/517)) ([**@vweevers**](https://github.com/vweevers))
--   README: value may not be `null` or `undefined` ([#511](https://github.com/level/leveldown/issues/511)) ([**@vweevers**](https://github.com/vweevers))
+-   Document that value may not be `null` or `undefined` ([#511](https://github.com/level/leveldown/issues/511)) ([**@vweevers**](https://github.com/vweevers))
+-   Document `batch()` (array and chained form), `sync` option and `db` references ([#556](https://github.com/level/leveldown/issues/556)) ([**@vweevers**](https://github.com/vweevers))
+-   Add publish instructions and `download-prebuilds` npm script ([#564](https://github.com/level/leveldown/issues/564)) ([**@vweevers**](https://github.com/vweevers))
 
 ### Removed
 
--   Remove node 9 from Travis ([`0f5f554`](https://github.com/level/leveldown/commit/0f5f554)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+-   Remove node 6 and 9 from Travis ([`0f5f554`](https://github.com/level/leveldown/commit/0f5f554), [#562](https://github.com/level/leveldown/issues/562)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+-   Remove 32 bits from AppVeyor ([#560](https://github.com/level/leveldown/issues/560)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Remove unused `.jshintrc` ([`1d122b0`](https://github.com/level/leveldown/commit/1d122b0)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Remove copyright headers from code ([`508027d`](https://github.com/level/leveldown/commit/508027d)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Remove contributors from `package.json` ([`8a29ecc`](https://github.com/level/leveldown/commit/8a29ecc)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
