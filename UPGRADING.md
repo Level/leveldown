@@ -38,6 +38,10 @@ In addition to rejecting `null` and `undefined` as _keys_, `abstract-leveldown` 
 
 Though this was already the case, `abstract-leveldown` has replaced the behavior with an explicit `Array.isArray()` check and a new error message.
 
+### The `sync` option of `chainedBatch` has moved
+
+The `sync` option has moved to `chainedBatch.write(options)`. Previously, `sync` was half-documented and half-implemented.
+
 ## v4
 
 Dropped support for node 4. No other breaking changes.
