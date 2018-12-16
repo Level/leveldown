@@ -31,6 +31,7 @@
     "nyc": "^12.0.2",
     "optimist": "~0.6.1",
     "prebuildify": "^2.9.1",
+    "prebuildify-ci": "^1.0.4",
     "readfiletree": "~0.0.1",
     "remark-cli": "^5.0.0",
     "remark-github": "^7.0.3",
@@ -47,6 +48,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "node-gyp rebuild",
     "prebuild": "prebuildify --napi --strip",
+    "download-prebuilds": "prebuildify-ci download",
     "changelog": "remark CHANGELOG.md -o"
   },
   "remarkConfig": {
