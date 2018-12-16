@@ -51,14 +51,23 @@ If you don't want to use the prebuilt binary for the platform you are installing
 * [<code>db.<b>put()</b></code>](#leveldown_put)
 * [<code>db.<b>get()</b></code>](#leveldown_get)
 * [<code>db.<b>del()</b></code>](#leveldown_del)
-* [<code>db.<b>batch()</b></code>](#leveldown_batch)
+* [<code>db.<b>batch()</b></code> _(array form)_](#leveldown_batch)
+* [<code>db.<b>batch()</b></code> _(chained form)_](#leveldown_chainedbatch)
 * [<code>db.<b>approximateSize()</b></code>](#leveldown_approximateSize)
 * [<code>db.<b>compactRange()</b></code>](#leveldown_compactRange)
 * [<code>db.<b>getProperty()</b></code>](#leveldown_getProperty)
 * [<code>db.<b>iterator()</b></code>](#leveldown_iterator)
-* [<code>iterator.<b>next()</b></code>](#iterator_next)
-* [<code>iterator.<b>seek()</b></code>](#iterator_seek)
-* [<code>iterator.<b>end()</b></code>](#iterator_end)
+* [<code>chainedBatch</code>](#chainedbatch)
+  * [<code>chainedBatch.<b>put()</b></code>](#chainedbatch_put)
+  * [<code>chainedBatch.<b>del()</b></code>](#chainedbatch_del)
+  * [<code>chainedBatch.<b>clear()</b></code>](#chainedbatch_clear)
+  * [<code>chainedBatch.<b>write()</b></code>](#chainedbatch_write)
+  * [<code>chainedBatch.<b>db</b></code>](#chainedbatch_db)
+* [<code>iterator</b></code>](#iterator)
+  * [<code>iterator.<b>next()</b></code>](#iterator_next)
+  * [<code>iterator.<b>seek()</b></code>](#iterator_seek)
+  * [<code>iterator.<b>end()</b></code>](#iterator_end)
+  * [<code>iterator.<b>db</b></code>](#iterator_db)
 * [<code>leveldown.<b>destroy()</b></code>](#leveldown_destroy)
 * [<code>leveldown.<b>repair()</b></code>](#leveldown_repair)
 
@@ -152,18 +161,24 @@ The only property currently available on the `options` object is `sync` *(boolea
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 <a name="leveldown_batch"></a>
-### `db.batch(operations[, options], callback)`
-<code>batch()</code> is an instance method on an existing database object. Used for very fast bulk-write operations (both *put* and *delete*). The `operations` argument should be an `Array` containing a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation inside LevelDB.
+### `db.batch(operations[, options], callback)` _(array form)_
 
-Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the *type* is either `'put'` or `'del'`. In the case of `'del'` the `'value'` property is ignored. Any entries with a `'key'` of `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the *type* is `'put'` that have a `'value'` of `undefined`, `null`, `[]`, `''` or `Buffer.alloc(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `Buffer.alloc(0)` depending on how they are requested.
+Perform multiple _put_ and/or _del_ operations in bulk. The `operations` argument must be an `Array` containing a list of operations to be executed sequentially, although as a whole they are performed as an atomic operation.
 
-See [`levelup`](https://github.com/level/levelup#batch) for full documentation on how this works in practice.
+Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the `type` is either `'put'` or `'del'`. In the case of `'del'` the `value` property is ignored.
 
-#### `options`
+Any entries where the `key` or `value` (in the case of `'put'`) is `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the `type` is `'put'` that have a `value` of `[]`, `''` or `Buffer.alloc(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `Buffer.alloc(0)` depending on how they are requested. See [`levelup`](https://github.com/level/levelup#batch) for full documentation on how this works in practice.
 
-The only property currently available on the `options` object is `sync` *(boolean, default: `false`)*. See <a href="#leveldown_put">leveldown#put()</a> for details about this option.
+The optional `options` argument may contain:
 
-The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+- `sync` *(boolean, default: `false`)*. See [`db.put()`](#leveldown_put) for details about this option.
+
+The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason.
+
+<a name="leveldown_chainedbatch"></a>
+### `db.batch()` _(chained form)_
+
+Returns a [`chainedBatch`](#chainedbatch).
 
 <a name="leveldown_approximateSize"></a>
 ### `db.approximateSize(start, end, callback)`
@@ -221,8 +236,44 @@ The optional `options` object may contain:
 
 * `valueAsBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of each entry as a string or a Buffer.
 
+<a name="chainedbatch"></a>
+### `chainedBatch`
+
+<a name="chainedbatch_put"></a>
+#### `chainedBatch.put(key, value)`
+
+Queue a `put` operation on this batch. This may throw if `key` or `value` is invalid, following the same rules as the [array form of `db.batch()`](#leveldown_batch).
+
+<a name="chainedbatch_del"></a>
+#### `chainedBatch.del(key)`
+
+Queue a `del` operation on this batch. This may throw if `key` is invalid.
+
+<a name="chainedbatch_clear"></a>
+#### `chainedBatch.clear()`
+
+Clear all queued operations on this batch.
+
+<a name="chainedbatch_write"></a>
+#### `chainedBatch.write([options, ]callback)`
+
+Commit the queued operations for this batch. All operations will be written atomically, that is, they will either all succeed or fail with no partial commits.
+
+The optional `options` argument may contain:
+
+- `sync` *(boolean, default: `false`)*. See [`db.put()`](#leveldown_put) for details about this option.
+
+The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason. After `write` has been called, no further operations are allowed.
+
+<a name="chainedbatch_db"></a>
+#### `chainedBatch.db`
+
+A reference to the `db` that created this chained batch.
+
+### `iterator`
+
 <a name="iterator_next"></a>
-### `iterator.next(callback)`
+#### `iterator.next(callback)`
 <code>next()</code> is an instance method on an existing iterator object, used to increment the underlying LevelDB iterator and return the entry at that location.
 
 the `callback` function will be called with no arguments in any of the following situations:
@@ -239,14 +290,19 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 * `value` - either a string or a Buffer depending on the `valueAsBuffer` argument when the `iterator()` was called.
 
 <a name="iterator_seek"></a>
-### `iterator.seek(key)`
+#### `iterator.seek(key)`
 <code>seek()</code> is an instance method on an existing iterator object, used to seek the underlying LevelDB iterator to a given key.
 
 By calling <code>seek(key)</code>, subsequent calls to <code>next(cb)</code> will return key/values larger or smaller than `key`, based on your <code>reverse</code> setting in the iterator constructor.
 
 <a name="iterator_end"></a>
-### `iterator.end(callback)`
+#### `iterator.end(callback)`
 <code>end()</code> is an instance method on an existing iterator object. The underlying LevelDB iterator will be deleted and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+
+<a name="iterator_db"></a>
+#### `iterator.db`
+
+A reference to the `db` that created this iterator.
 
 <a name="leveldown_destroy"></a>
 ### `leveldown.destroy(location, callback)`

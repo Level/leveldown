@@ -20,12 +20,6 @@ ChainedBatch.prototype._clear = function () {
 }
 
 ChainedBatch.prototype._write = function (options, callback) {
-  // TODO (ensure docs covers the following)
-  // Note that we're passing in options here, which we didn't do before. We
-  // must do this so we can use the `sync` property, which we didn't handle before
-  // since we never passed in an object at time of creation (bug) (the previous c++
-  // used to assume we did this from the js side from the ChainedBatch()
-  // constructor).
   binding.batch_write(this.context, options, callback)
 }
 
