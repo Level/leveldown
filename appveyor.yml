@@ -3,7 +3,6 @@ skip_branch_with_pr: true
 
 environment:
   matrix:
-    - nodejs_version: "6"
     - nodejs_version: "8"
     - nodejs_version: "10"
     - nodejs_version: "Current"
@@ -40,4 +39,4 @@ deploy:
     draft: false
     on:
       appveyor_repo_tag: true
-      nodejs_version: "Current"
+      nodejs_version: "8"
