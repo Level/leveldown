@@ -30,7 +30,7 @@
     "node-gyp": "^3.8.0",
     "nyc": "^12.0.2",
     "optimist": "~0.6.1",
-    "prebuildify": "^2.9.1",
+    "prebuildify": "ralphtheninja/prebuildify",
     "prebuildify-ci": "^1.0.4",
     "readfiletree": "~0.0.1",
     "remark-cli": "^5.0.0",
@@ -47,7 +47,7 @@
     "test": "standard && nyc tape test/*-test.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "node-gyp rebuild",
-    "prebuild": "prebuildify --napi --strip",
+    "prebuild": "prebuildify -t 8.14.0 -t electron@3.0.0 --napi --strip",
     "download-prebuilds": "prebuildify-ci download",
     "changelog": "remark CHANGELOG.md -o"
   },

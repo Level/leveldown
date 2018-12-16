@@ -7,7 +7,6 @@ os:
   - linux
 
 node_js:
-  - 6
   - 8
   - 10
   - node
@@ -28,4 +27,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    node: 'node'
+    node: '8'
