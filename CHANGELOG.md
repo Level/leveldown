@@ -5,6 +5,8 @@
 ### Changed
 
 -   Rewrite as N-API addon ([#540](https://github.com/level/leveldown/issues/540)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+-   Use `prebuildify` instead of `prebuild` ([#549](https://github.com/level/leveldown/issues/549)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+-   Update minimum node version required ([#552](https://github.com/level/leveldown/issues/552)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 -   Upgrade Snappy from `1.1.4` to `1.1.7` as a git submodule ([#522](https://github.com/level/leveldown/issues/522), [#535](https://github.com/level/leveldown/issues/535)) ([**@filoozom**](https://github.com/filoozom))
 -   Upgrade `abstract-leveldown` from `~5.0.0` to `~6.0.0` ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers)) ([#511](https://github.com/level/leveldown/issues/511))
 -   Implement abstract `_serializeKey()` and `_serializeValue()` ([#506](https://github.com/level/leveldown/issues/506)) ([**@vweevers**](https://github.com/vweevers))
