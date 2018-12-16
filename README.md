@@ -176,7 +176,7 @@ The optional `options` argument may contain:
 The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason.
 
 <a name="leveldown_chainedbatch"></a>
-### `chainedBatch = db.batch()` _(chained form)_
+### `db.batch()` _(chained form)_
 
 Returns a new [`chainedBatch`](#chainedbatch) instance.
 
@@ -209,9 +209,9 @@ Currently, the only valid properties are:
 * <b><code>'leveldb.sstables'</code></b>: returns a multi-line string describing all of the *sstables* that make up contents of the current database.
 
 <a name="leveldown_iterator"></a>
-### `iterator = db.iterator([options])`
+### `db.iterator([options])`
 
-Returns a new [iterator](#iterator) instance. The optional `options` object may contain:
+Returns a new [`iterator`](#iterator) instance. The optional `options` object may contain:
 
 * `gt` (greater than), `gte` (greater than or equal) define the lower bound of the values to be fetched and will determine the starting point where `reverse` is *not* `true`. Only records where the key is greater than (or equal to) this option will be included in the range. When `reverse` is `true` the order will be reversed, but the records returned will be the same.
 
