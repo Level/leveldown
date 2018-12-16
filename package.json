@@ -48,7 +48,7 @@
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "node-gyp rebuild",
     "prebuild": "prebuildify --napi --strip",
-    "download-prebuilds": "rimraf prebuilds && prebuildify-ci download",
+    "download-prebuilds": "prebuildify-ci download",
     "changelog": "remark CHANGELOG.md -o"
   },
   "remarkConfig": {
