@@ -10,7 +10,7 @@ This is a rewrite to N-API - which is a huge milestone, achieved without an impa
 
 N-API is the latest interface for native addons in Node.js. Main benefit is that `leveldown` became independent of the V8 version, which means it will be compatible with future versions of Node.js. As long as the native code doesn't change, it doesn't need to be recompiled as new versions of Node.js are released. This helps greatly with both maintenance and when delivering code to consumers.
 
-Because N-API has an experimental status in node 6, support of node 6 has been dropped. The minimum node version for `leveldown` is now 8.0.0.
+Because N-API has an experimental status in node 6 and early 8.x releases, support of node 6 has been dropped and the minimum node version for `leveldown` is now 8.6.0.
 
 ### Prebuilt binaries are now shipped in npm package
 
