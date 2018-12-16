@@ -2,6 +2,46 @@
 
 This document describes breaking changes and how to upgrade. For a complete list of changes including minor and patch releases, please refer to the [changelog](CHANGELOG.md).
 
+## v5.0.0-rc1
+
+This is a rewrite to N-API - which is a huge milestone, achieved without an impact on write performance - and an upgrade to `abstract-leveldown` v6, which solves long-standing issues around serialization and type support.
+
+### N-API rewrite
+
+N-API is the latest interface for native addons in Node.js. Main benefit is that `leveldown` became independent of the V8 version, which means it will be compatible with future versions of Node.js. As long as the native code doesn't change, it doesn't need to be recompiled as new versions of Node.js are released. This helps greatly with both maintenance and when delivering code to consumers.
+
+Because N-API has an experimental status in node 6 and early 8.x releases, support of node 6 has been dropped and the minimum node version for `leveldown` is now 8.6.0.
+
+### Prebuilt binaries are now shipped in npm package
+
+Previously, they were downloaded from GitHub by an npm `postinstall` script.
+
+### Range options are now serialized
+
+Previously, range options like `lt` were passed through as-is by `abstract-leveldown`, unlike keys. For `leveldown` it means that range option types other than a string or Buffer will be stringified.
+
+### The rules for range options have been relaxed
+
+Because `null`, `undefined`, zero-length strings and zero-length buffers are significant types in encodings like `bytewise` and `charwise`, they became valid as range options in `abstract-leveldown`. This means `db.iterator({ gt: undefined })` is not the same as `db.iterator({})`.
+
+In the case of `leveldown`, when used by itself, the aforementioned change means that `db.iterator({ gt: undefined })` is now effectively the same as `db.iterator({ gt: 'undefined' })`, making it explicit that `leveldown` only supports strings and buffers.
+
+### Seeking became part of official `abstract-leveldown` API
+
+As a result of this, the `target` argument in `iterator.seek(target)` is now serialized. Meaning any type other than a string or Buffer will be stringified. Like before, if the result is a zero-length string or Buffer, an error will be thrown.
+
+### Nullish values are rejected
+
+In addition to rejecting `null` and `undefined` as _keys_, `abstract-leveldown` now also rejects these types as _values_, due to preexisting significance in streams and iterators.
+
+### Zero-length array keys are rejected
+
+Though this was already the case, `abstract-leveldown` has replaced the behavior with an explicit `Array.isArray()` check and a new error message.
+
+### The `sync` option of `chainedBatch` has moved
+
+The `sync` option has moved to `chainedBatch.write(options)`. Previously, `sync` was half-documented and half-implemented.
+
 ## v4
 
 Dropped support for node 4. No other breaking changes.
