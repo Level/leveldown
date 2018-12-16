@@ -363,6 +363,17 @@ Alternatively, you can initialize submodules inside the cloned folder:
 $ git submodule update --init --recursive
 ```
 
+### Publishing
+
+1. Increment the version: `npm version ..`
+2. Push to GitHub: `git push --follow-tags`
+3. Wait for Travis and AppVeyor builds to complete
+4. Download prebuilds into `./prebuilds`: `npm run download-prebuilds`
+5. Optionally verify loading a prebuild: `rimraf build && npm t`
+6. Optionally verify which files npm will include: `irish-pub`
+7. Add changelog to the GitHub release
+8. Finally: `npm publish`
+
 ### Windows
 
 A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using `leveldown` on Windows, you should give him your thanks!
