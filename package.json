@@ -54,9 +54,7 @@
     "prebuild:cross:linux-armv7": "prebuildify-cross --target linux-armv7",
     "prebuild:cross:linux-arm64": "prebuildify-cross --target linux-arm64",
     "prebuild:cross:linux-x64": "prebuildify-cross --target linux-x64",
-    "prebuild:cross:linux-x86": "prebuildify-cross --target linux-x86",
     "prebuild:cross:windows-x64": "prebuildify-cross --target windows-x64",
-    "prebuild:cross:windows-x86": "prebuildify-cross --target windows-x86",
     "download-prebuilds": "prebuildify-ci download",
     "hallmark": "hallmark --fix UPGRADING.md CHANGELOG.md"
   },
