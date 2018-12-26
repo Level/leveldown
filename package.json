@@ -33,7 +33,7 @@
     "optimist": "~0.6.1",
     "prebuildify": "github:ahdinosaur/prebuildify",
     "prebuildify-ci": "^1.0.4",
-    "prebuildify-cross": "^3.0.0",
+    "prebuildify-cross": "^3.1.0",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
     "slump": "~3.0.0",
