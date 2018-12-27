@@ -5,7 +5,7 @@
 ### Changed
 
 - Rewrite as N-API addon ([#540](https://github.com/level/leveldown/issues/540), [#559](https://github.com/level/leveldown/issues/559)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Use `prebuildify` instead of `prebuild` ([#549](https://github.com/level/leveldown/issues/549), [#562](https://github.com/level/leveldown/issues/562)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Use `prebuildify` instead of `prebuild` ([#549](https://github.com/level/leveldown/issues/549), [#562](https://github.com/level/leveldown/issues/562), [#571](https://github.com/level/leveldown/issues/571)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 - Update minimum node version required ([#552](https://github.com/level/leveldown/issues/552)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 - Upgrade Snappy from `1.1.4` to `1.1.7` as a git submodule ([#522](https://github.com/level/leveldown/issues/522), [#535](https://github.com/level/leveldown/issues/535)) ([**@filoozom**](https://github.com/filoozom))
 - Upgrade `abstract-leveldown` from `~5.0.0` to `~6.0.0` ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers)) ([#511](https://github.com/level/leveldown/issues/511))
@@ -48,6 +48,7 @@
 - Remove redundant `db.close()` from `test/approximate-size-test.js` ([`d04f233`](https://github.com/level/leveldown/commit/d04f233)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 - Moved seek tests to `abstract-leveldown` ([#508](https://github.com/level/leveldown/issues/508)) ([**@vweevers**](https://github.com/vweevers))
 - Remove unused `iota-array` and `lexicographic-integer` devDependencies ([#508](https://github.com/level/leveldown/issues/508)) ([**@vweevers**](https://github.com/vweevers))
+- Remove `xcacheSize` and `xmaxOpenFiles` from leak tests ([#569](https://github.com/level/leveldown/issues/569)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 
 ### Fixed
 
