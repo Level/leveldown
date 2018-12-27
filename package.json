@@ -1,7 +1,7 @@
 {
   "name": "leveldown",
   "description": "A low-level Node.js LevelDB binding",
-  "version": "5.0.0-0",
+  "version": "5.0.0-1",
   "repository": {
     "type": "git",
     "url": "https://github.com/level/leveldown.git"
