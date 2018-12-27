@@ -1,3 +1,5 @@
+# When adding entries here, remember to also update `.npmignore`.
+
 node_modules/
 build/
 build-pre-gyp/
