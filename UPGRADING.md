@@ -2,7 +2,9 @@
 
 This document describes breaking changes and how to upgrade. For a complete list of changes including minor and patch releases, please refer to the [changelog](CHANGELOG.md).
 
-## v5.0.0-rc1
+## v5.0.0
+
+_Currently available as prerelease: `npm i leveldown@next`._
 
 This is a rewrite to N-API - which is a huge milestone, achieved without an impact on write performance - and an upgrade to `abstract-leveldown` v6, which solves long-standing issues around serialization and type support.
 
