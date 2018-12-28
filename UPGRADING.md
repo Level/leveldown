@@ -2,7 +2,7 @@
 
 This document describes breaking changes and how to upgrade. For a complete list of changes including minor and patch releases, please refer to the [changelog](CHANGELOG.md).
 
-## v5.0.0
+## v5
 
 _Currently available as prerelease: `npm i leveldown@next`._
 
