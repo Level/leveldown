@@ -43,6 +43,12 @@
     "tempy": "^0.2.1",
     "uuid": "^3.2.1"
   },
+  "hallmark": {
+    "community": "level-community",
+    "ignore": [
+      "README.md"
+    ]
+  },
   "gypfile": true,
   "repository": {
     "type": "git",
