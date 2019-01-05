@@ -54,7 +54,7 @@
     "type": "git",
     "url": "https://github.com/Level/leveldown.git"
   },
-  "homepage": "https://github.com/level/leveldown",
+  "homepage": "https://github.com/Level/leveldown",
   "keywords": [
     "leveldb",
     "level"
