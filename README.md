@@ -343,11 +343,11 @@ There are multiple ways you can find help in using LevelDB in Node.js:
 
 ## Contributing
 
-`leveldown` is an **OPEN Open Source Project**. This means that:
+[`Level/leveldown`](https://github.com/Level/leveldown) is an **OPEN Open Source Project**. This means that:
 
 > Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
 
-See the [contribution guide](https://github.com/Level/community/blob/master/CONTRIBUTING.md) for more details.
+See the [Contribution Guide](https://github.com/Level/community/blob/master/CONTRIBUTING.md) for more details.
 
 ### Git Submodules
 
@@ -373,10 +373,6 @@ $ git submodule update --init --recursive
 6. Optionally verify which files npm will include: `irish-pub`
 7. Add changelog to the GitHub release
 8. Finally: `npm publish`
-
-### Windows
-
-A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) [@kjk](https://twitter.com/kjk), see his Windows LevelDB port [here](http://code.google.com/r/kkowalczyk-leveldb/). If you're using `leveldown` on Windows, you should give him your thanks!
 
 ## License
 
