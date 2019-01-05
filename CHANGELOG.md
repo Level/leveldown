@@ -26,7 +26,7 @@
 - Tweak copyright years for less maintenance ([`98cbb4f`](https://github.com/level/leveldown/commit/98cbb4f)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 - Document new platform support and prebuilt binaries ([#558](https://github.com/level/leveldown/issues/558), [#563](https://github.com/level/leveldown/issues/563)) ([**@vweevers**](https://github.com/vweevers))
 - Replace `remark-cli` with `hallmark` ([#548](https://github.com/level/leveldown/issues/548)) ([**@vweevers**](https://github.com/vweevers))
-- Update `.npmignore` (@vweevers)
+- Update `.npmignore` ([**@vweevers**](https://github.com/vweevers))
 
 ### Added
 
