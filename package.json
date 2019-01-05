@@ -1,17 +1,18 @@
 {
   "name": "leveldown",
-  "description": "A low-level Node.js LevelDB binding",
   "version": "5.0.0-1",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/level/leveldown.git"
-  },
-  "homepage": "https://github.com/level/leveldown",
-  "keywords": [
-    "leveldb",
-    "level"
-  ],
+  "description": "A low-level Node.js LevelDB binding",
+  "license": "MIT",
   "main": "leveldown.js",
+  "scripts": {
+    "install": "node-gyp-build",
+    "test": "standard && hallmark && nyc tape test/*-test.js",
+    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "rebuild": "node-gyp rebuild",
+    "prebuild": "prebuildify -t 8.14.0 -t electron@3.0.0 --napi --strip",
+    "download-prebuilds": "prebuildify-ci download",
+    "hallmark": "hallmark --fix"
+  },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
     "bindings": "~1.3.0",
@@ -24,7 +25,8 @@
     "coveralls": "^3.0.2",
     "delayed": "~1.0.1",
     "du": "~0.1.0",
-    "hallmark": "~0.1.0",
+    "hallmark": "^0.1.0",
+    "level-community": "^3.0.0",
     "level-concat-iterator": "^2.0.0",
     "mkfiletree": "~1.0.1",
     "monotonic-timestamp": "~0.0.8",
@@ -41,17 +43,22 @@
     "tempy": "^0.2.1",
     "uuid": "^3.2.1"
   },
-  "scripts": {
-    "install": "node-gyp-build",
-    "test": "standard && nyc tape test/*-test.js",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "rebuild": "node-gyp rebuild",
-    "prebuild": "prebuildify -t 8.14.0 -t electron@3.0.0 --napi --strip",
-    "download-prebuilds": "prebuildify-ci download",
-    "hallmark": "hallmark --fix UPGRADING.md CHANGELOG.md"
+  "hallmark": {
+    "community": "level-community",
+    "ignore": [
+      "README.md"
+    ]
   },
-  "license": "MIT",
   "gypfile": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Level/leveldown.git"
+  },
+  "homepage": "https://github.com/Level/leveldown",
+  "keywords": [
+    "leveldb",
+    "level"
+  ],
   "engines": {
     "node": ">=8.6.0"
   }
