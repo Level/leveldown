@@ -26,6 +26,7 @@
     "delayed": "~1.0.1",
     "du": "~0.1.0",
     "hallmark": "^0.1.0",
+    "level-community": "^3.0.0",
     "level-concat-iterator": "^2.0.0",
     "mkfiletree": "~1.0.1",
     "monotonic-timestamp": "~0.0.8",
