@@ -52,7 +52,7 @@
   "gypfile": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/level/leveldown.git"
+    "url": "https://github.com/Level/leveldown.git"
   },
   "homepage": "https://github.com/level/leveldown",
   "keywords": [
