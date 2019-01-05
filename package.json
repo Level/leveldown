@@ -6,12 +6,12 @@
   "main": "leveldown.js",
   "scripts": {
     "install": "node-gyp-build",
-    "test": "standard && nyc tape test/*-test.js",
+    "test": "standard && hallmark && nyc tape test/*-test.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "node-gyp rebuild",
     "prebuild": "prebuildify -t 8.14.0 -t electron@3.0.0 --napi --strip",
     "download-prebuilds": "prebuildify-ci download",
-    "hallmark": "hallmark --fix UPGRADING.md CHANGELOG.md"
+    "hallmark": "hallmark --fix"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
