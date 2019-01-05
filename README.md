@@ -380,10 +380,8 @@ A large portion of the Windows support comes from code by [Krzysztof Kowalczyk](
 
 ## License
 
-Copyright &copy; 2012-present `leveldown` [contributors](https://github.com/level/community#contributors).
+[MIT](LICENSE.md) © 2012-present Rod Vagg and [Contributors](CONTRIBUTORS.md).
 
-`leveldown` is licensed under the MIT license. All rights not explicitly granted in the MIT license are reserved. See the included `LICENSE.md` file for more details.
-
-*`leveldown` builds on the excellent work of the LevelDB and Snappy teams from Google and additional contributors. LevelDB and Snappy are both issued under the [New BSD Licence](http://opensource.org/licenses/BSD-3-Clause).*
+_`leveldown` builds on the excellent work of the LevelDB and Snappy teams from Google and additional contributors. LevelDB and Snappy are both issued under the [New BSD License](http://opensource.org/licenses/BSD-3-Clause). A large portion of `leveldown` Windows support comes from the [Windows LevelDB port](http://code.google.com/r/kkowalczyk-leveldb/) (archived) by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) ([`@kjk`](https://twitter.com/kjk)). If you're using `leveldown` on Windows, you should give him your thanks!_
 
 [level-badge]: http://leveldb.org/img/badge.svg
