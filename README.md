@@ -91,29 +91,29 @@ The `callback` function will be called with no arguments when the database has b
 
 The optional `options` argument may contain:
 
-* `createIfMissing` *(boolean, default: `true`)*: If `true`, will initialise an empty database at the specified location if one doesn't already exist. If `false` and a database doesn't exist you will receive an error in your `open()` callback and your database won't open.
+* `createIfMissing` (boolean, default: `true`): If `true`, will initialise an empty database at the specified location if one doesn't already exist. If `false` and a database doesn't exist you will receive an error in your `open()` callback and your database won't open.
 
-* `errorIfExists` *(boolean, default: `false`)*: If `true`, you will receive an error in your `open()` callback if the database exists at the specified location.
+* `errorIfExists` (boolean, default: `false`): If `true`, you will receive an error in your `open()` callback if the database exists at the specified location.
 
-* `compression` *(boolean, default: `true`)*: If `true`, all *compressible* data will be run through the Snappy compression algorithm before being stored. Snappy is very fast and shouldn't gain much speed by disabling so leave this on unless you have good reason to turn it off.
+* `compression` (boolean, default: `true`): If `true`, all *compressible* data will be run through the Snappy compression algorithm before being stored. Snappy is very fast and shouldn't gain much speed by disabling so leave this on unless you have good reason to turn it off.
 
-* `cacheSize` *(number, default: `8 * 1024 * 1024` = 8MB)*: The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents.
+* `cacheSize` (number, default: `8 * 1024 * 1024` = 8MB): The size (in bytes) of the in-memory [LRU](http://en.wikipedia.org/wiki/Cache_algorithms#Least_Recently_Used) cache with frequently used uncompressed block contents.
 
 **Advanced options**
 
 The following options are for advanced performance tuning. Modify them only if you can prove actual benefit for your particular application.
 
-* `writeBufferSize` *(number, default: `4 * 1024 * 1024` = 4MB)*: The maximum size (in bytes) of the log (in memory and stored in the .log file on disk). Beyond this size, LevelDB will convert the log data to the first level of sorted table files. From the LevelDB documentation:
+* `writeBufferSize` (number, default: `4 * 1024 * 1024` = 4MB): The maximum size (in bytes) of the log (in memory and stored in the .log file on disk). Beyond this size, LevelDB will convert the log data to the first level of sorted table files. From the LevelDB documentation:
 
 > Larger values increase performance, especially during bulk loads. Up to two write buffers may be held in memory at the same time, so you may wish to adjust this parameter to control memory usage. Also, a larger write buffer will result in a longer recovery time the next time the database is opened.
 
-* `blockSize` *(number, default `4096` = 4K)*: The *approximate* size of the blocks that make up the table files. The size related to uncompressed data (hence "approximate"). Blocks are indexed in the table file and entry-lookups involve reading an entire block and parsing to discover the required entry.
+* `blockSize` (number, default `4096` = 4K): The *approximate* size of the blocks that make up the table files. The size related to uncompressed data (hence "approximate"). Blocks are indexed in the table file and entry-lookups involve reading an entire block and parsing to discover the required entry.
 
-* `maxOpenFiles` *(number, default: `1000`)*: The maximum number of files that LevelDB is allowed to have open at a time. If your data store is likely to have a large working set, you may increase this value to prevent file descriptor churn. To calculate the number of files required for your working set, divide your total data by `'maxFileSize'`.
+* `maxOpenFiles` (number, default: `1000`): The maximum number of files that LevelDB is allowed to have open at a time. If your data store is likely to have a large working set, you may increase this value to prevent file descriptor churn. To calculate the number of files required for your working set, divide your total data by `'maxFileSize'`.
 
-* `blockRestartInterval` *(number, default: `16`)*: The number of entries before restarting the "delta encoding" of keys within blocks. Each "restart" point stores the full key for the entry, between restarts, the common prefix of the keys for those entries is omitted. Restarts are similar to the concept of keyframes in video encoding and are used to minimise the amount of space required to store keys. This is particularly helpful when using deep namespacing / prefixing in your keys.
+* `blockRestartInterval` (number, default: `16`): The number of entries before restarting the "delta encoding" of keys within blocks. Each "restart" point stores the full key for the entry, between restarts, the common prefix of the keys for those entries is omitted. Restarts are similar to the concept of keyframes in video encoding and are used to minimise the amount of space required to store keys. This is particularly helpful when using deep namespacing / prefixing in your keys.
 
-* `maxFileSize` *(number, default: `2* 1024 * 1024` = 2MB)*: The maximum amount of bytes to write to a file before switching to a new one. From the LevelDB documentation:
+* `maxFileSize` (number, default: `2* 1024 * 1024` = 2MB): The maximum amount of bytes to write to a file before switching to a new one. From the LevelDB documentation:
 
 > ... if your filesystem is more efficient with larger files, you could consider increasing the value. The downside will be longer compactions and hence longer latency/performance hiccups. Another reason to increase this parameter might be when you are initially populating a large database.
 
@@ -147,9 +147,9 @@ Values fetched via `get()` that are stored as zero-length character arrays (`nul
 
 The optional `options` object may contain:
 
-* `fillCache` *(boolean, default: `true`)*: LevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`.
+* `fillCache` (boolean, default: `true`): LevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`.
 
-* `asBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of the entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `{ asBuffer: false }` and you'll avoid this conversion cost.
+* `asBuffer` (boolean, default: `true`): Used to determine whether to return the `value` of the entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `{ asBuffer: false }` and you'll avoid this conversion cost.
 
 The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a string or Buffer depending on the `asBuffer` option.
 
@@ -176,7 +176,7 @@ Any entries where the `key` or `value` (in the case of `'put'`) is `null` or `un
 
 The optional `options` argument may contain:
 
-- `sync` *(boolean, default: `false`)*. See <a href="#leveldown_put"><code>db.put()</code></a> for details about this option.
+- `sync` (boolean, default: `false`). See <a href="#leveldown_put"><code>db.put()</code></a> for details about this option.
 
 The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason.
 
@@ -226,17 +226,17 @@ Returns a new [`iterator`](#iterator) instance. The optional `options` object ma
 
 * `reverse` *(boolean, default: `false`)*: a boolean, set to `true` if you want the stream to go in reverse order. Beware that due to the way LevelDB works, a reverse seek will be slower than a forward seek.
 
-* `keys` *(boolean, default: `true`)*: whether the callback to the `next()` method should receive a non-null `key`. There is a small efficiency gain if you ultimately don't care what the keys are as they don't need to be converted and copied into JavaScript.
+* `keys` (boolean, default: `true`): whether the callback to the `next()` method should receive a non-null `key`. There is a small efficiency gain if you ultimately don't care what the keys are as they don't need to be converted and copied into JavaScript.
 
-* `values` *(boolean, default: `true`)*: whether the callback to the `next()` method should receive a non-null `value`. There is a small efficiency gain if you ultimately don't care what the values are as they don't need to be converted and copied into JavaScript.
+* `values` (boolean, default: `true`): whether the callback to the `next()` method should receive a non-null `value`. There is a small efficiency gain if you ultimately don't care what the values are as they don't need to be converted and copied into JavaScript.
 
-* `limit` *(number, default: `-1`)*: limit the number of results collected by this iterator. This number represents a *maximum* number of results and may not be reached if you get to the end of the store or your `end` value first. A value of `-1` means there is no limit.
+* `limit` (number, default: `-1`): limit the number of results collected by this iterator. This number represents a *maximum* number of results and may not be reached if you get to the end of the store or your `end` value first. A value of `-1` means there is no limit.
 
-* `fillCache` *(boolean, default: `false`)*: whether LevelDB's LRU-cache should be filled with data read.
+* `fillCache` (boolean, default: `false`): whether LevelDB's LRU-cache should be filled with data read.
 
-* `keyAsBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `key` of each entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one.
+* `keyAsBuffer` (boolean, default: `true`): Used to determine whether to return the `key` of each entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one.
 
-* `valueAsBuffer` *(boolean, default: `true`)*: Used to determine whether to return the `value` of each entry as a string or a Buffer.
+* `valueAsBuffer` (boolean, default: `true`): Used to determine whether to return the `value` of each entry as a string or a Buffer.
 
 <a name="chainedbatch"></a>
 ### `chainedBatch`
@@ -263,7 +263,7 @@ Commit the queued operations for this batch. All operations will be written atom
 
 The optional `options` argument may contain:
 
-- `sync` *(boolean, default: `false`)*. See <a href="#leveldown_put"><code>db.put()</code></a> for details about this option.
+- `sync` (boolean, default: `false`). See <a href="#leveldown_put"><code>db.put()</code></a> for details about this option.
 
 The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason. After `write` has been called, no further operations are allowed.
 
