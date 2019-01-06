@@ -1,11 +1,10 @@
 # leveldown
 
-[![level badge][level-badge]](https://github.com/level/awesome)
+[![level badge][level-badge]](https://github.com/Level/awesome)
 [![npm](https://img.shields.io/npm/v/leveldown.svg?label=&logo=npm)](https://www.npmjs.com/package/leveldown)
 [![Node version](https://img.shields.io/node/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
-[![Travis](https://img.shields.io/travis/Level/leveldown.svg?logo=travis&label=)](http://travis-ci.org/Level/leveldown)
+[![Travis](https://img.shields.io/travis/Level/leveldown.svg?logo=travis&label=)](https://travis-ci.org/Level/leveldown)
 [![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?logo=appveyor&label=)](https://ci.appveyor.com/project/Level/leveldown)
-[![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown)
 [![npm](https://img.shields.io/npm/dm/leveldown.svg?label=dl)](https://www.npmjs.com/package/leveldown)
 [![Coverage Status](https://coveralls.io/repos/github/Level/leveldown/badge.svg)](https://coveralls.io/github/Level/leveldown)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
@@ -25,7 +24,7 @@
 
 ## Introduction
 
-This module was originally part of [`levelup`](https://github.com/level/levelup) but was later extracted and now serves as a stand-alone binding for LevelDB.
+This module was originally part of [`levelup`](https://github.com/Level/levelup) but was later extracted and now serves as a stand-alone binding for LevelDB.
 
 It is **strongly recommended** that you use `levelup` in preference to `leveldown` unless you have measurable performance reasons to do so. `levelup` is optimised for usability and safety. Although we are working to improve the safety of the `leveldown` interface it is still easy to crash your Node process if you don't do things in just the right way.
 
@@ -171,7 +170,7 @@ Perform multiple _put_ and/or _del_ operations in bulk. The `operations` argumen
 
 Each operation is contained in an object having the following properties: `type`, `key`, `value`, where the `type` is either `'put'` or `'del'`. In the case of `'del'` the `value` property is ignored.
 
-Any entries where the `key` or `value` (in the case of `'put'`) is `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the `type` is `'put'` that have a `value` of `[]`, `''` or `Buffer.alloc(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `Buffer.alloc(0)` depending on how they are requested. See [`levelup`](https://github.com/level/levelup#batch) for full documentation on how this works in practice.
+Any entries where the `key` or `value` (in the case of `'put'`) is `null` or `undefined` will cause an error to be returned on the `callback`. Any entries where the `type` is `'put'` that have a `value` of `[]`, `''` or `Buffer.alloc(0)` will be stored as a zero-length character array and therefore be fetched during reads as either `''` or `Buffer.alloc(0)` depending on how they are requested. See [`levelup`](https://github.com/Level/levelup#batch) for full documentation on how this works in practice.
 
 The optional `options` argument may contain:
 
