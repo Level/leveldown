@@ -1,14 +1,16 @@
 # leveldown
 
 [![level badge][level-badge]](https://github.com/level/awesome)
-[![npm](https://img.shields.io/npm/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
-![Node version](https://img.shields.io/node/v/leveldown.svg)
-[![Travis](https://img.shields.io/travis/Level/leveldown.svg?label=travis)](http://travis-ci.org/Level/leveldown)
-[![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?label=appveyor)](https://ci.appveyor.com/project/Level/leveldown)
+[![npm](https://img.shields.io/npm/v/leveldown.svg?label=&logo=npm)](https://www.npmjs.com/package/leveldown)
+[![Node version](https://img.shields.io/node/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
+[![Travis](https://img.shields.io/travis/Level/leveldown.svg?logo=travis&label=)](http://travis-ci.org/Level/leveldown)
+[![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?logo=appveyor&label=)](https://ci.appveyor.com/project/Level/leveldown)
 [![dependencies](https://david-dm.org/Level/leveldown.svg)](https://david-dm.org/level/leveldown)
-[![npm](https://img.shields.io/npm/dm/leveldown.svg)](https://www.npmjs.com/package/leveldown)
+[![npm](https://img.shields.io/npm/dm/leveldown.svg?label=dl)](https://www.npmjs.com/package/leveldown)
 [![Coverage Status](https://coveralls.io/repos/github/Level/leveldown/badge.svg)](https://coveralls.io/github/Level/leveldown)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Backers on Open Collective](https://opencollective.com/level/backers/badge.svg?color=orange)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/level/sponsors/badge.svg?color=orange)](#sponsors)
 
 * [Introduction](#introduction)
 * [Supported Platforms](#supported-platforms)
@@ -373,6 +375,18 @@ $ git submodule update --init --recursive
 6. Optionally verify which files npm will include: `irish-pub`
 7. Add changelog to the GitHub release
 8. Finally: `npm publish`
+
+## Donate
+
+To sustain [`Level`](https://github.com/Level) and its activities, become a backer or sponsor on [Open Collective](https://opencollective.com/level). Your logo or avatar will be displayed on our 28+ [GitHub repositories](https://github.com/Level), [npm](https://www.npmjs.com/) packages and (soon) [our website](http://leveldb.org). 💖
+
+### Backers
+
+[![Open Collective backers](https://opencollective.com/level/backers.svg?width=890)](https://opencollective.com/level)
+
+### Sponsors
+
+[![Open Collective sponsors](https://opencollective.com/level/sponsors.svg?width=890)](https://opencollective.com/level)
 
 ## License
 
