@@ -50,31 +50,31 @@ If you don't want to use the prebuilt binary for the platform you are installing
 
 ## API
 
-* [<code><b>leveldown()</b></code>](#ctor)
-* [<code>db.<b>open()</b></code>](#leveldown_open)
-* [<code>db.<b>close()</b></code>](#leveldown_close)
-* [<code>db.<b>put()</b></code>](#leveldown_put)
-* [<code>db.<b>get()</b></code>](#leveldown_get)
-* [<code>db.<b>del()</b></code>](#leveldown_del)
-* [<code>db.<b>batch()</b></code> _(array form)_](#leveldown_batch)
-* [<code>db.<b>batch()</b></code> _(chained form)_](#leveldown_chainedbatch)
-* [<code>db.<b>approximateSize()</b></code>](#leveldown_approximateSize)
-* [<code>db.<b>compactRange()</b></code>](#leveldown_compactRange)
-* [<code>db.<b>getProperty()</b></code>](#leveldown_getProperty)
-* [<code>db.<b>iterator()</b></code>](#leveldown_iterator)
-* [<code>chainedBatch</code>](#chainedbatch)
-  * [<code>chainedBatch.<b>put()</b></code>](#chainedbatch_put)
-  * [<code>chainedBatch.<b>del()</b></code>](#chainedbatch_del)
-  * [<code>chainedBatch.<b>clear()</b></code>](#chainedbatch_clear)
-  * [<code>chainedBatch.<b>write()</b></code>](#chainedbatch_write)
-  * [<code>chainedBatch.<b>db</b></code>](#chainedbatch_db)
-* [<code>iterator</b></code>](#iterator)
-  * [<code>iterator.<b>next()</b></code>](#iterator_next)
-  * [<code>iterator.<b>seek()</b></code>](#iterator_seek)
-  * [<code>iterator.<b>end()</b></code>](#iterator_end)
-  * [<code>iterator.<b>db</b></code>](#iterator_db)
-* [<code>leveldown.<b>destroy()</b></code>](#leveldown_destroy)
-* [<code>leveldown.<b>repair()</b></code>](#leveldown_repair)
+* <a href="#ctor"><code><b>leveldown()</b></code></a>
+* <a href="#leveldown_open"><code>db.<b>open()</b></code></a>
+* <a href="#leveldown_close"><code>db.<b>close()</b></code></a>
+* <a href="#leveldown_put"><code>db.<b>put()</b></code></a>
+* <a href="#leveldown_get"><code>db.<b>get()</b></code></a>
+* <a href="#leveldown_del"><code>db.<b>del()</b></code></a>
+* <a href="#leveldown_batch"><code>db.<b>batch()</b></code></a> _(array form)_
+* <a href="#leveldown_chainedbatch"><code>db.<b>batch()</b></code></a> _(chained form)_
+* <a href="#leveldown_approximateSize"><code>db.<b>approximateSize()</b></code></a>
+* <a href="#leveldown_compactRange"><code>db.<b>compactRange()</b></code></a>
+* <a href="#leveldown_getProperty"><code>db.<b>getProperty()</b></code></a>
+* <a href="#leveldown_iterator"><code>db.<b>iterator()</b></code></a>
+* <a href="#chainedbatch"><code>chainedBatch</code></a>
+  * <a href="#chainedbatch_put"><code>chainedBatch.<b>put()</b></code></a>
+  * <a href="#chainedbatch_del"><code>chainedBatch.<b>del()</b></code></a>
+  * <a href="#chainedbatch_clear"><code>chainedBatch.<b>clear()</b></code></a>
+  * <a href="#chainedbatch_write"><code>chainedBatch.<b>write()</b></code></a>
+  * <a href="#chainedbatch_db"><code>chainedBatch.<b>db</b></code></a>
+* <a href="#iterator"><code>iterator</b></code></a>
+  * <a href="#iterator_next"><code>iterator.<b>next()</b></code></a>
+  * <a href="#iterator_seek"><code>iterator.<b>seek()</b></code></a>
+  * <a href="#iterator_end"><code>iterator.<b>end()</b></code></a>
+  * <a href="#iterator_db"><code>iterator.<b>db</b></code></a>
+* <a href="leveldown_destroy"><code>leveldown.<b>destroy()</b></code></a>
+* <a href="leveldown_repair"><code>leveldown.<b>repair()</b></code></a>
 
 
 <a name="ctor"></a>
@@ -176,7 +176,7 @@ Any entries where the `key` or `value` (in the case of `'put'`) is `null` or `un
 
 The optional `options` argument may contain:
 
-- `sync` *(boolean, default: `false`)*. See [`db.put()`](#leveldown_put) for details about this option.
+- `sync` *(boolean, default: `false`)*. See <a href="#leveldown_put"><code>db.put()</code></a> for details about this option.
 
 The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason.
 
@@ -244,7 +244,7 @@ Returns a new [`iterator`](#iterator) instance. The optional `options` object ma
 <a name="chainedbatch_put"></a>
 #### `chainedBatch.put(key, value)`
 
-Queue a `put` operation on this batch. This may throw if `key` or `value` is invalid, following the same rules as the [array form of `db.batch()`](#leveldown_batch).
+Queue a `put` operation on this batch. This may throw if `key` or `value` is invalid, following the same rules as the <a href="#leveldown_batch">array form of <code>db.batch()</code></a>.
 
 <a name="chainedbatch_del"></a>
 #### `chainedBatch.del(key)`
@@ -263,7 +263,7 @@ Commit the queued operations for this batch. All operations will be written atom
 
 The optional `options` argument may contain:
 
-- `sync` *(boolean, default: `false`)*. See [`db.put()`](#leveldown_put) for details about this option.
+- `sync` *(boolean, default: `false`)*. See <a href="#leveldown_put"><code>db.put()</code></a> for details about this option.
 
 The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason. After `write` has been called, no further operations are allowed.
 
