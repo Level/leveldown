@@ -11,7 +11,9 @@
     "rebuild": "node-gyp rebuild",
     "prebuild": "prebuildify -t 8.14.0 -t electron@3.0.0 --napi --strip",
     "download-prebuilds": "prebuildify-ci download",
-    "hallmark": "hallmark --fix"
+    "hallmark": "hallmark --fix",
+    "dependency-check": "dependency-check . test/*.js bench/*.js",
+    "prepublishOnly": "npm run dependency-check"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
@@ -24,6 +26,7 @@
     "async": "^2.0.1",
     "coveralls": "^3.0.2",
     "delayed": "~1.0.1",
+    "dependency-check": "^3.3.0",
     "du": "~0.1.0",
     "hallmark": "^0.1.0",
     "level-community": "^3.0.0",
