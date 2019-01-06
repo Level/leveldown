@@ -47,10 +47,7 @@
     "uuid": "^3.2.1"
   },
   "hallmark": {
-    "community": "level-community",
-    "ignore": [
-      "README.md"
-    ]
+    "community": "level-community"
   },
   "gypfile": true,
   "repository": {
