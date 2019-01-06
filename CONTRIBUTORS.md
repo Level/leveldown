@@ -4,8 +4,8 @@
 | :------------------------- | :----------------------------------------------------- | :----------------------------------------------------------------------- |
 | **Lars-Magnus Skog**       | [**@ralphtheninja**](https://github.com/ralphtheninja) | [**@ralph@social.weho.st**](https://social.weho.st/@ralph)               |
 | **Rod Vagg**               | [**@rvagg**](https://github.com/rvagg)                 | [**@rvagg@twitter**](https://twitter.com/rvagg)                          |
-| **Vincent Weevers**        | [**@vweevers**](https://github.com/vweevers)           | [**@vweevers@twitter**](https://twitter.com/vweevers)                    |
 | **David Björklund**        | [**@kesla**](https://github.com/kesla)                 | [**@david_bjorklund@twitter**](https://twitter.com/david_bjorklund)      |
+| **Vincent Weevers**        | [**@vweevers**](https://github.com/vweevers)           | [**@vweevers@twitter**](https://twitter.com/vweevers)                    |
 | **Julian Gruber**          | [**@juliangruber**](https://github.com/juliangruber)   | [**@juliangruber@twitter**](https://twitter.com/juliangruber)            |
 | **Yichao 'Peak' Ji**       | [**@peakji**](https://github.com/peakji)               |                                                                          |
 | **Mathias Buus**           | [**@mafintosh**](https://github.com/mafintosh)         | [**@mafintosh@twitter**](https://twitter.com/mafintosh)                  |
