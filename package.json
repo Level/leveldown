@@ -11,7 +11,9 @@
     "rebuild": "node-gyp rebuild",
     "prebuild": "prebuildify -t 8.14.0 -t electron@3.0.0 --napi --strip",
     "download-prebuilds": "prebuildify-ci download",
-    "hallmark": "hallmark --fix"
+    "hallmark": "hallmark --fix",
+    "dependency-check": "dependency-check . test/*.js bench/*.js",
+    "prepublishOnly": "npm run dependency-check"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
@@ -23,12 +25,13 @@
   "devDependencies": {
     "async": "^2.0.1",
     "coveralls": "^3.0.2",
-    "delayed": "~1.0.1",
+    "delayed": "^1.0.1",
+    "dependency-check": "^3.3.0",
     "du": "~0.1.0",
     "hallmark": "^0.1.0",
     "level-community": "^3.0.0",
     "level-concat-iterator": "^2.0.0",
-    "mkfiletree": "~1.0.1",
+    "mkfiletree": "^1.0.1",
     "monotonic-timestamp": "~0.0.8",
     "node-gyp": "^3.8.0",
     "nyc": "^12.0.2",
@@ -37,17 +40,14 @@
     "prebuildify-ci": "^1.0.4",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
-    "slump": "~3.0.0",
+    "slump": "^3.0.0",
     "standard": "^12.0.0",
     "tape": "^4.5.1",
     "tempy": "^0.2.1",
     "uuid": "^3.2.1"
   },
   "hallmark": {
-    "community": "level-community",
-    "ignore": [
-      "README.md"
-    ]
+    "community": "level-community"
   },
   "gypfile": true,
   "repository": {
