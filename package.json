@@ -19,7 +19,7 @@
     "abstract-leveldown": "~6.0.0",
     "fast-future": "~1.0.2",
     "napi-macros": "~1.8.1",
-    "node-gyp-build": "~3.7.0"
+    "node-gyp-build": "vweevers/node-gyp-build#libc-and-arm-flavors"
   },
   "devDependencies": {
     "async": "^2.0.1",
