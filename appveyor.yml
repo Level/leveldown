@@ -17,6 +17,7 @@ install:
   - set PATH=%APPDATA%\npm;%APPVEYOR_BUILD_FOLDER%\node_modules\.bin;%PATH%
   - git submodule update --init --recursive
   - npm i
+  - SET
 
 test_script:
   - node --version
