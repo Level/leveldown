@@ -35,7 +35,7 @@
     "node-gyp": "^3.8.0",
     "nyc": "^12.0.2",
     "optimist": "~0.6.1",
-    "prebuildify": "ahdinosaur/prebuildify#2e6da5d",
+    "prebuildify": "ralphtheninja/prebuildify#PREBUILD_PLATFORM",
     "prebuildify-ci": "^1.0.4",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
