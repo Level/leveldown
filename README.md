@@ -76,8 +76,8 @@ If you don't want to use the prebuilt binary for the platform you are installing
   - <a href="#iterator_seek"><code>iterator.<b>seek()</b></code></a>
   - <a href="#iterator_end"><code>iterator.<b>end()</b></code></a>
   - <a href="#iterator_db"><code>iterator.<b>db</b></code></a>
-- <a href="leveldown_destroy"><code>leveldown.<b>destroy()</b></code></a>
-- <a href="leveldown_repair"><code>leveldown.<b>repair()</b></code></a>
+- <a href="#leveldown_destroy"><code>leveldown.<b>destroy()</b></code></a>
+- <a href="#leveldown_repair"><code>leveldown.<b>repair()</b></code></a>
 
 <a name="ctor"></a>
 
