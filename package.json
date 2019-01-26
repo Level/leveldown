@@ -13,7 +13,8 @@
     "download-prebuilds": "prebuildify-ci download",
     "hallmark": "hallmark --fix",
     "dependency-check": "dependency-check . test/*.js bench/*.js",
-    "prepublishOnly": "npm run dependency-check"
+    "prepublishOnly": "npm run dependency-check",
+    "prebuildify-cross": "prebuildify-cross --args=\"-t 8.14.0 --napi --strip\" --platform=linux --arch=arm --arm-version=7"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
@@ -37,6 +38,7 @@
     "optimist": "~0.6.1",
     "prebuildify": "prebuild/prebuildify#override-platform",
     "prebuildify-ci": "^1.0.4",
+    "prebuildify-cross": "ralphtheninja/prebuildify-cross#TARGET_PLATFORM",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
     "slump": "^3.0.0",
