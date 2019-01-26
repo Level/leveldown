@@ -13,13 +13,14 @@
     "download-prebuilds": "prebuildify-ci download",
     "hallmark": "hallmark --fix",
     "dependency-check": "dependency-check . test/*.js bench/*.js",
-    "prepublishOnly": "npm run dependency-check"
+    "prepublishOnly": "npm run dependency-check",
+    "prebuildify-cross-armv7": "prebuildify-cross --platform=linux --arch=arm --arm-version=7 -- -t 8.14.0 --napi --strip"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
     "fast-future": "~1.0.2",
     "napi-macros": "~1.8.1",
-    "node-gyp-build": "~3.7.0"
+    "node-gyp-build": "~3.8.0"
   },
   "devDependencies": {
     "async": "^2.0.1",
@@ -35,8 +36,9 @@
     "node-gyp": "^3.8.0",
     "nyc": "^12.0.2",
     "optimist": "~0.6.1",
-    "prebuildify": "^2.10.0",
+    "prebuildify": "prebuild/prebuildify#override-platform",
     "prebuildify-ci": "^1.0.4",
+    "prebuildify-cross": "ralphtheninja/prebuildify-cross#TARGET_PLATFORM",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
     "slump": "^3.0.0",
