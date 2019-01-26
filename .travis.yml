@@ -15,7 +15,10 @@ after_success:
   - npm run coverage
 
 before_deploy:
-  - ./scripts/travis-before-deploy
+  - export ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$TRAVIS_OS_NAME.tar"
+  - npm run prebuild
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run prebuildify-cross-armv7; fi
+  - tar --create --verbose --file="$ARCHIVE_NAME" --directory "$TRAVIS_BUILD_DIR/prebuilds" .
 
 deploy:
   provider: releases
