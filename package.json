@@ -14,7 +14,7 @@
     "hallmark": "hallmark --fix",
     "dependency-check": "dependency-check . test/*.js bench/*.js",
     "prepublishOnly": "npm run dependency-check",
-    "prebuildify-cross": "prebuildify-cross --args=\"-t 8.14.0 --napi --strip\" --platform=linux --arch=arm --arm-version=7"
+    "prebuildify-cross": "prebuildify-cross --platform=linux --arch=arm --arm-version=7 -- -t 8.14.0 --napi --strip"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
