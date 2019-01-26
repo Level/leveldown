@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -ex
+
+if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  ARCHIVE_NAME="${TRAVIS_TAG:-latest}-linux-and-cross-compiled.tar"
+elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+  ARCHIVE_NAME="${TRAVIS_TAG:-latest}-osx-`uname -m`.tar"
+fi
+
+npm run prebuild
+
+if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+  npm run prebuildify-cross-armv7
+fi
+
+tar --create --verbose --file="$ARCHIVE_NAME" --directory "$TRAVIS_BUILD_DIR/prebuilds" .
