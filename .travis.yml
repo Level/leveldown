@@ -1,24 +1,41 @@
-sudo: false
-
 language: node_js
 
-os:
-  - osx
-  - linux
+jobs:
+  include:
+    - os: linux
+      node_js: 8
+      env: [TEST_CMD=test]
+    - os: linux
+      node_js: 10
+      env: [TEST_CMD=test]
+    - os: linux
+      node_js: node
+      env: [TEST_CMD=test, BUILD_CMD=prebuild, BUILD_GROUP=linux-x64]
+    - os: osx
+      node_js: 8
+      env: [TEST_CMD=test]
+    - os: osx
+      node_js: 10
+      env: [TEST_CMD=test]
+    - os: osx
+      node_js: node
+      env: [TEST_CMD=test, BUILD_CMD=prebuild, BUILD_GROUP=darwin-x64]
+    - name: arm
+      os: linux
+      node_js: node
+      env: [BUILD_CMD=prebuildify-cross-armv7, BUILD_GROUP=arm]
+      if: tag is present
 
-node_js:
-  - 8
-  - 10
-  - node
+script:
+  - if [[ ! -z "$TEST_CMD" ]]; then npm run $TEST_CMD; fi
 
 after_success:
-  - npm run coverage
+  - if [[ ! -z "$TEST_CMD" ]]; then npm run coverage; fi
 
 before_deploy:
-  - export ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$TRAVIS_OS_NAME.tar"
-  - npm run prebuild
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then npm run prebuildify-cross-armv7; fi
-  - tar --create --verbose --file="$ARCHIVE_NAME" --directory "$TRAVIS_BUILD_DIR/prebuilds" .
+  - export ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$BUILD_GROUP.tar.gz"
+  - npm run $BUILD_CMD
+  - tar -zcvf "$ARCHIVE_NAME" -C prebuilds .
 
 deploy:
   provider: releases
@@ -28,4 +45,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    node: '8'
+    condition: "! -z $BUILD_CMD"
