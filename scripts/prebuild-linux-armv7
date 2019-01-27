@@ -1,0 +1,3 @@
+#!/bin/bash
+exec docker run --rm -it -v $(pwd):/app prebuild/linux-armv7 \
+     bash -c "npm i --ignore-scripts && npx prebuildify -t 8.14.0 --napi --strip"
