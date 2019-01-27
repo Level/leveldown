@@ -14,10 +14,10 @@
     "hallmark": "hallmark --fix",
     "dependency-check": "dependency-check . test/*.js bench/*.js",
     "prepublishOnly": "npm run dependency-check",
-    "prebuild-arm": "npm run prebuild-linux-armv7 && npm run prebuild-linux-arm64",
+    "prebuild-arm": "npm run prebuild-linux-armv7 && npm run prebuild-linux-arm64 && npm run prebuild-android-armv7",
     "prebuild-linux-armv7": "./scripts/prebuild-linux-armv7",
     "prebuild-linux-arm64": "./scripts/prebuild-linux-arm64",
-    "prebuild-android-arm": "prebuildify-cross --platform=android --arch=arm --arm-version=7 -- -t 8.14.0 --napi --strip",
+    "prebuild-android-armv7": "./scripts/prebuild-android-armv7",
     "prebuild-android-arm64": "prebuildify-cross --platform=android --arch=arm64 -- -t 8.14.0 --napi --strip"
   },
   "dependencies": {
