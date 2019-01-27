@@ -23,7 +23,7 @@ jobs:
     - name: arm
       os: linux
       node_js: node
-      env: [BUILD_CMD=prebuildify-cross-armv7, BUILD_GROUP=arm]
+      env: [BUILD_CMD=prebuild-arm, BUILD_GROUP=arm]
       if: tag is present
 
 script:
