@@ -1,6 +1,6 @@
 {
   "name": "leveldown",
-  "version": "5.0.0-2",
+  "version": "5.0.0-2-arm",
   "description": "A low-level Node.js LevelDB binding",
   "license": "MIT",
   "main": "leveldown.js",
