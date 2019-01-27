@@ -23,20 +23,18 @@ test_script:
   - npm --version
   - npm test
 
-after_test:
-  - ps: If ($env:nodejs_version -eq "8") { npm run prebuild }
-
-artifacts:
-  - path: prebuilds
-    name: $(APPVEYOR_REPO_TAG_NAME)-win-$(PLATFORM)
-    type: zip
+before_deploy:
+  - SET ARCHIVE_NAME=%APPVEYOR_REPO_TAG_NAME%-win32-%PLATFORM%.tar.gz
+  - npm run prebuild
+  - tar -zcvf "%ARCHIVE_NAME%" -C prebuilds .
+  - appveyor PushArtifact %ARCHIVE_NAME%
 
 deploy:
   - provider: GitHub
-    artifact: /.*\.zip/
+    artifact: $(ARCHIVE_NAME)
     auth_token:
       secure: AjmYV2zeogfen7F6tXvR9PO1zynJVF/jhMCExQ9RMtqEHDMH8Frclym3GniZkEB0
     draft: false
     on:
       appveyor_repo_tag: true
-      nodejs_version: "8"
+      nodejs_version: "Current"
