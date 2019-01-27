@@ -18,7 +18,7 @@
     "prebuild-linux-armv7": "./scripts/prebuild-linux-armv7",
     "prebuild-linux-arm64": "./scripts/prebuild-linux-arm64",
     "prebuild-android-armv7": "./scripts/prebuild-android-armv7",
-    "prebuild-android-arm64": "prebuildify-cross --platform=android --arch=arm64 -- -t 8.14.0 --napi --strip"
+    "prebuild-android-arm64": "./scripts/prebuild-android-arm64"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
