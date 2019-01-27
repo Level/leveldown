@@ -27,11 +27,6 @@ jobs:
       if: tag is present
 
 script:
-  - env
-  - cat /etc/passwd
-  - cat /etc/group
-  - groups
-  - whoami
   - if [[ ! -z "$TEST_CMD" ]]; then npm run $TEST_CMD; fi
 
 after_success:
