@@ -27,6 +27,7 @@ jobs:
       if: tag is present
 
 script:
+  - env
   - cat /etc/passwd
   - cat /etc/group
   - groups
