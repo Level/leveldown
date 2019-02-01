@@ -3,5 +3,5 @@
 DOCKER_USER="node"
 if [[ "$TRAVIS" == "true" ]]; then DOCKER_USER="travis"; fi
 
-exec docker run -u ${DOCKER_USER} --rm -it -v $(pwd):/app prebuild/${IMAGE} \
+exec docker run -u ${DOCKER_USER} --rm -v $(pwd):/app prebuild/${IMAGE} \
      bash -c "npm i --ignore-scripts && npx prebuildify -t 8.14.0 --napi --strip"
