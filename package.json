@@ -14,7 +14,11 @@
     "hallmark": "hallmark --fix",
     "dependency-check": "dependency-check . test/*.js bench/*.js",
     "prepublishOnly": "npm run dependency-check",
-    "prebuildify-cross-armv7": "prebuildify-cross --platform=linux --arch=arm --arm-version=7 -- -t 8.14.0 --napi --strip"
+    "prebuild-arm": "npm run prebuild-linux-armv7 && npm run prebuild-linux-arm64 && npm run prebuild-android-armv7 && npm run prebuild-android-arm64",
+    "prebuild-linux-armv7": "IMAGE=linux-armv7 ./scripts/cross-compile",
+    "prebuild-linux-arm64": "IMAGE=linux-arm64 ./scripts/cross-compile",
+    "prebuild-android-armv7": "IMAGE=android-armv7 ./scripts/cross-compile",
+    "prebuild-android-arm64": "IMAGE=android-arm64 ./scripts/cross-compile"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.0",
@@ -38,7 +42,6 @@
     "optimist": "~0.6.1",
     "prebuildify": "prebuild/prebuildify#override-platform",
     "prebuildify-ci": "^1.0.4",
-    "prebuildify-cross": "ralphtheninja/prebuildify-cross#TARGET_PLATFORM",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
     "slump": "^3.0.0",
