@@ -40,7 +40,8 @@ const cycle = function (db, compression, t, callback) {
   })
 }
 
-test('Compression', function (t) {
+test('compression', function (t) {
+  t.plan(4)
   t.test('set up', testCommon.setUp)
 
   t.test('test data is compressed by default (db.put())', function (t) {
