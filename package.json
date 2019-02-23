@@ -47,7 +47,7 @@
     "mkfiletree": "~1.0.1",
     "monotonic-timestamp": "~0.0.8",
     "optimist": "~0.6.1",
-    "prebuild": "^7.0.0",
+    "prebuild": "^8.1.2",
     "prebuild-ci": "^2.0.0",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
