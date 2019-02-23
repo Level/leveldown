@@ -34,7 +34,7 @@
     "abstract-leveldown": "~5.0.0",
     "bindings": "~1.3.0",
     "fast-future": "~1.0.2",
-    "nan": "~2.10.0",
+    "nan": "~2.12.1",
     "prebuild-install": "^4.0.0"
   },
   "devDependencies": {
