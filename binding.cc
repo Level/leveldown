@@ -514,6 +514,7 @@ struct Iterator {
     if (gte_ != NULL) {
       delete gte_;
     }
+    delete options_;
   }
 
   void ReleaseTarget () {
