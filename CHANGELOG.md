@@ -2,6 +2,18 @@
 
 ## [Unreleased]
 
+## [4.0.2] - 2019-03-02
+
+### Changed
+
+* Upgrade `nan` from `~2.10.0` to `~2.12.1` ([#596](https://github.com/Level/leveldown/pull/596)) (@vweevers)
+* Upgrade `prebuild-install` from `^4.0.0` to `~5.2.4` ([#596](https://github.com/Level/leveldown/pull/596)) (@vweevers)
+* Upgrade `prebuild` devDependency from `^7.0.0` to `^8.1.2` ([#596](https://github.com/Level/leveldown/pull/596)) (@vweevers)
+
+### Added
+
+* Add Node.js 11 to Travis and AppVeyor ([#596](https://github.com/Level/leveldown/pull/596)) (@vweevers)
+
 ## [4.0.1] - 2018-05-22
 
 ### Changed
@@ -696,7 +708,8 @@
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package (@rvagg)
 
-[Unreleased]: https://github.com/level/leveldown/compare/v4.0.1...HEAD
+[Unreleased]: https://github.com/level/leveldown/compare/v4.0.2...HEAD
+[4.0.2]: https://github.com/level/leveldown/compare/v4.0.1...v4.0.2
 [4.0.1]: https://github.com/level/leveldown/compare/v4.0.0...v4.0.1
 [4.0.0]: https://github.com/level/leveldown/compare/v3.0.2...v4.0.0
 [3.0.2]: https://github.com/level/leveldown/compare/v3.0.1...v3.0.2
