@@ -1,8 +1,8 @@
 const test = require('tape')
 const testCommon = require('./common')
 
-// Open issue: https://github.com/Level/leveldown/issues/157
-test.skip('close() does not segfault if there is a pending write', function (t) {
+// See https://github.com/Level/leveldown/issues/157
+test('close() does not segfault if there is a pending write', function (t) {
   t.plan(3)
 
   const db = testCommon.factory()

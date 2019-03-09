@@ -2,6 +2,7 @@
 
 #include <napi-macros.h>
 #include <node_api.h>
+#include <assert.h>
 
 #include <leveldb/db.h>
 #include <leveldb/write_batch.h>
@@ -289,7 +290,7 @@ struct BaseWorker {
     delete self;
   }
 
-  void DoComplete () {
+  virtual void DoComplete () {
     if (status_.ok()) {
       return HandleOKCallback();
     }
@@ -308,7 +309,7 @@ struct BaseWorker {
     CallFunction(env_, callback, 1, &argv);
   }
 
-  void Queue () {
+  virtual void Queue () {
     napi_queue_async_work(env_, asyncWork_);
   }
 
@@ -332,6 +333,7 @@ struct Database {
       blockCache_(NULL),
       filterPolicy_(leveldb::NewBloomFilterPolicy(10)),
       currentIteratorId_(0),
+      priorityWork_(0),
       pendingCloseWorker_(NULL) {}
 
   ~Database () {
@@ -404,12 +406,29 @@ struct Database {
     return db_->ReleaseSnapshot(snapshot);
   }
 
-  void ReleaseIterator (uint32_t id) {
+  void AttachIterator (uint32_t id, Iterator* iterator) {
+    iterators_[id] = iterator;
+    IncrementPriorityWork();
+  }
+
+  void DetachIterator (uint32_t id) {
     iterators_.erase(id);
-    if (iterators_.empty() && pendingCloseWorker_ != NULL) {
+    DecrementPriorityWork();
+  }
+
+  void IncrementPriorityWork () {
+    ++priorityWork_;
+  }
+
+  void DecrementPriorityWork () {
+    if (--priorityWork_ == 0 && pendingCloseWorker_ != NULL) {
       pendingCloseWorker_->Queue();
       pendingCloseWorker_ = NULL;
     }
+  }
+
+  bool HasPriorityWork () {
+    return priorityWork_ > 0;
   }
 
   napi_env env_;
@@ -419,6 +438,9 @@ struct Database {
   uint32_t currentIteratorId_;
   BaseWorker *pendingCloseWorker_;
   std::map< uint32_t, Iterator * > iterators_;
+
+private:
+  uint32_t priorityWork_;
 };
 
 /**
@@ -429,6 +451,28 @@ static void FinalizeDatabase (napi_env env, void* data, void* hint) {
     delete (Database*)data;
   }
 }
+
+/**
+ * Base worker class for doing async work that defers closing the database.
+ * @TODO Use this for Get-, Del-, Batch-, BatchWrite-, ApproximateSize- and CompactRangeWorker too.
+ */
+struct PriorityWorker : public BaseWorker {
+  PriorityWorker (napi_env env, Database* database, napi_value callback, const char* resourceName)
+    : BaseWorker(env, database, callback, resourceName) {
+  }
+
+  virtual ~PriorityWorker () {}
+
+  void Queue () final {
+    database_->IncrementPriorityWork();
+    BaseWorker::Queue();
+  }
+
+  void DoComplete () final {
+    database_->DecrementPriorityWork();
+    BaseWorker::DoComplete();
+  }
+};
 
 /**
  * Owns a leveldb iterator.
@@ -472,13 +516,15 @@ struct Iterator {
       landed_(false),
       nexting_(false),
       ended_(false),
-      endWorker_(NULL) {
+      endWorker_(NULL),
+      ref_(NULL) {
     options_ = new leveldb::ReadOptions();
     options_->fill_cache = fillCache;
     options_->snapshot = database->NewSnapshot();
   }
 
   ~Iterator () {
+    assert(ended_);
     ReleaseTarget();
     if (start_ != NULL) {
       // Special case for `start` option: it won't be
@@ -506,6 +552,7 @@ struct Iterator {
     if (gte_ != NULL) {
       delete gte_;
     }
+    delete options_;
   }
 
   void ReleaseTarget () {
@@ -518,8 +565,14 @@ struct Iterator {
     }
   }
 
-  void Release () {
-    database_->ReleaseIterator(id_);
+  void Attach (napi_ref ref) {
+    ref_ = ref;
+    database_->AttachIterator(id_, this);
+  }
+
+  napi_ref Detach () {
+    database_->DetachIterator(id_);
+    return ref_;
   }
 
   leveldb::Status IteratorStatus () {
@@ -681,6 +734,9 @@ struct Iterator {
 
   leveldb::ReadOptions* options_;
   EndWorker* endWorker_;
+
+private:
+  napi_ref ref_;
 };
 
 /**
@@ -803,7 +859,7 @@ NAPI_METHOD(db_close) {
   napi_value callback = argv[1];
   CloseWorker* worker = new CloseWorker(env, database, callback);
 
-  if (database->iterators_.empty()) {
+  if (!database->HasPriorityWork()) {
     worker->Queue();
     NAPI_RETURN_UNDEFINED();
   }
@@ -813,13 +869,11 @@ NAPI_METHOD(db_close) {
   napi_value noop;
   napi_create_function(env, NULL, 0, noop_callback, NULL, &noop);
 
-  std::map< uint32_t, Iterator * >::iterator it;
-  for (it = database->iterators_.begin();
-       it != database->iterators_.end(); ++it) {
-    Iterator *iterator = it->second;
-    if (!iterator->ended_) {
-      iterator_end_do(env, iterator, noop);
-    }
+  std::map<uint32_t, Iterator*> iterators = database->iterators_;
+  std::map<uint32_t, Iterator*>::iterator it;
+
+  for (it = iterators.begin(); it != iterators.end(); ++it) {
+    iterator_end_do(env, it->second, noop);
   }
 
   NAPI_RETURN_UNDEFINED();
@@ -828,14 +882,14 @@ NAPI_METHOD(db_close) {
 /**
  * Worker class for putting key/value to the database
  */
-struct PutWorker : public BaseWorker {
+struct PutWorker : public PriorityWorker {
   PutWorker (napi_env env,
              Database* database,
              napi_value callback,
              leveldb::Slice key,
              leveldb::Slice value,
              bool sync)
-    : BaseWorker(env, database, callback, "leveldown.db.put"),
+    : PriorityWorker(env, database, callback, "leveldown.db.put"),
       key_(key), value_(value) {
     options_.sync = sync;
   }
@@ -1292,12 +1346,18 @@ NAPI_METHOD(iterator_init) {
   Iterator* iterator = new Iterator(database, id, start, end, reverse, keys,
                                     values, limit, lt, lte, gt, gte, fillCache,
                                     keyAsBuffer, valueAsBuffer, highWaterMark);
-  database->iterators_[id] = iterator;
-
   napi_value result;
+  napi_ref ref;
+
   NAPI_STATUS_THROWS(napi_create_external(env, iterator,
                                           FinalizeIterator,
                                           NULL, &result));
+
+  // Prevent GC of JS object before the iterator is ended (explicitly or on
+  // db close) and keep track of non-ended iterators to end them on db close.
+  NAPI_STATUS_THROWS(napi_create_reference(env, result, 1, &ref));
+  iterator->Attach(ref);
+
   return result;
 }
 
@@ -1372,7 +1432,7 @@ struct EndWorker : public BaseWorker {
   }
 
   virtual void HandleOKCallback () {
-    iterator_->Release();
+    napi_delete_reference(env_, iterator_->Detach());
     BaseWorker::HandleOKCallback();
   }
 
