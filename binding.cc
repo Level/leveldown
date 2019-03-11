@@ -333,8 +333,8 @@ struct Database {
       blockCache_(NULL),
       filterPolicy_(leveldb::NewBloomFilterPolicy(10)),
       currentIteratorId_(0),
-      priorityWork_(0),
-      pendingCloseWorker_(NULL) {}
+      pendingCloseWorker_(NULL),
+      priorityWork_(0) {}
 
   ~Database () {
     if (db_ != NULL) {
