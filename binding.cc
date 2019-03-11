@@ -333,8 +333,8 @@ struct Database {
       blockCache_(NULL),
       filterPolicy_(leveldb::NewBloomFilterPolicy(10)),
       currentIteratorId_(0),
-      priorityWork_(0),
-      pendingCloseWorker_(NULL) {}
+      pendingCloseWorker_(NULL),
+      priorityWork_(0) {}
 
   ~Database () {
     if (db_ != NULL) {
@@ -461,7 +461,7 @@ struct PriorityWorker : public BaseWorker {
     : BaseWorker(env, database, callback, resourceName) {
   }
 
-  virtual ~PriorityWorker () {}
+  ~PriorityWorker () {}
 
   void Queue () final {
     database_->IncrementPriorityWork();
@@ -755,7 +755,7 @@ NAPI_METHOD(db_init) {
 /**
  * Worker class for opening a database.
  */
-struct OpenWorker : public BaseWorker {
+struct OpenWorker final : public BaseWorker {
   OpenWorker (napi_env env,
               Database* database,
               napi_value callback,
@@ -784,9 +784,9 @@ struct OpenWorker : public BaseWorker {
     options_.max_file_size = maxFileSize;
   }
 
-  virtual ~OpenWorker () {}
+  ~OpenWorker () {}
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     SetStatus(database_->Open(options_, location_.c_str()));
   }
 
@@ -832,15 +832,15 @@ NAPI_METHOD(db_open) {
 /**
  * Worker class for closing a database
  */
-struct CloseWorker : public BaseWorker {
+struct CloseWorker final : public BaseWorker {
   CloseWorker (napi_env env,
                Database* database,
                napi_value callback)
     : BaseWorker(env, database, callback, "leveldown.db.close") {}
 
-  virtual ~CloseWorker () {}
+  ~CloseWorker () {}
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     database_->CloseDatabase();
   }
 };
@@ -882,7 +882,7 @@ NAPI_METHOD(db_close) {
 /**
  * Worker class for putting key/value to the database
  */
-struct PutWorker : public PriorityWorker {
+struct PutWorker final : public PriorityWorker {
   PutWorker (napi_env env,
              Database* database,
              napi_value callback,
@@ -894,12 +894,12 @@ struct PutWorker : public PriorityWorker {
     options_.sync = sync;
   }
 
-  virtual ~PutWorker () {
+  ~PutWorker () {
     DisposeSliceBuffer(key_);
     DisposeSliceBuffer(value_);
   }
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     SetStatus(database_->Put(options_, key_, value_));
   }
 
@@ -929,7 +929,7 @@ NAPI_METHOD(db_put) {
 /**
  * Worker class for getting a value from a database.
  */
-struct GetWorker : public BaseWorker {
+struct GetWorker final : public BaseWorker {
   GetWorker (napi_env env,
              Database* database,
              napi_value callback,
@@ -942,15 +942,15 @@ struct GetWorker : public BaseWorker {
     options_.fill_cache = fillCache;
   }
 
-  virtual ~GetWorker () {
+  ~GetWorker () {
     DisposeSliceBuffer(key_);
   }
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     SetStatus(database_->Get(options_, key_, value_));
   }
 
-  virtual void HandleOKCallback() {
+  void HandleOKCallback () override {
     napi_value argv[2];
     napi_get_null(env_, &argv[0]);
 
@@ -994,7 +994,7 @@ NAPI_METHOD(db_get) {
 /**
  * Worker class for deleting a value from a database.
  */
-struct DelWorker : public BaseWorker {
+struct DelWorker final : public BaseWorker {
   DelWorker (napi_env env,
              Database* database,
              napi_value callback,
@@ -1005,11 +1005,11 @@ struct DelWorker : public BaseWorker {
     options_.sync = sync;
   }
 
-  virtual ~DelWorker () {
+  ~DelWorker () {
     DisposeSliceBuffer(key_);
   }
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     SetStatus(database_->Del(options_, key_));
   }
 
@@ -1037,7 +1037,7 @@ NAPI_METHOD(db_del) {
 /**
  * Worker class for calculating the size of a range.
  */
-struct ApproximateSizeWorker : public BaseWorker {
+struct ApproximateSizeWorker final : public BaseWorker {
   ApproximateSizeWorker (napi_env env,
                          Database* database,
                          napi_value callback,
@@ -1046,17 +1046,17 @@ struct ApproximateSizeWorker : public BaseWorker {
     : BaseWorker(env, database, callback, "leveldown.db.approximate_size"),
       start_(start), end_(end) {}
 
-  virtual ~ApproximateSizeWorker () {
+  ~ApproximateSizeWorker () {
     DisposeSliceBuffer(start_);
     DisposeSliceBuffer(end_);
   }
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     leveldb::Range range(start_, end_);
     size_ = database_->ApproximateSize(&range);
   }
 
-  virtual void HandleOKCallback() {
+  void HandleOKCallback () override {
     napi_value argv[2];
     napi_get_null(env_, &argv[0]);
     napi_create_uint32(env_, (uint32_t)size_, &argv[1]);
@@ -1093,7 +1093,7 @@ NAPI_METHOD(db_approximate_size) {
 /**
  * Worker class for compacting a range in a database.
  */
-struct CompactRangeWorker : public BaseWorker {
+struct CompactRangeWorker final : public BaseWorker {
   CompactRangeWorker (napi_env env,
                       Database* database,
                       napi_value callback,
@@ -1102,12 +1102,12 @@ struct CompactRangeWorker : public BaseWorker {
     : BaseWorker(env, database, callback, "leveldown.db.compact_range"),
       start_(start), end_(end) {}
 
-  virtual ~CompactRangeWorker () {
+  ~CompactRangeWorker () {
     DisposeSliceBuffer(start_);
     DisposeSliceBuffer(end_);
   }
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     database_->CompactRange(&start_, &end_);
   }
 
@@ -1156,16 +1156,16 @@ NAPI_METHOD(db_get_property) {
 /**
  * Worker class for destroying a database.
  */
-struct DestroyWorker : public BaseWorker {
+struct DestroyWorker final : public BaseWorker {
   DestroyWorker (napi_env env,
                  const std::string& location,
                  napi_value callback)
     : BaseWorker(env, NULL, callback, "leveldown.destroy_db"),
       location_(location) {}
 
-  virtual ~DestroyWorker () {}
+  ~DestroyWorker () {}
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     leveldb::Options options;
     SetStatus(leveldb::DestroyDB(location_, options));
   }
@@ -1192,16 +1192,16 @@ NAPI_METHOD(destroy_db) {
 /**
  * Worker class for repairing a database.
  */
-struct RepairWorker : public BaseWorker {
+struct RepairWorker final : public BaseWorker {
   RepairWorker (napi_env env,
                 const std::string& location,
                 napi_value callback)
     : BaseWorker(env, NULL, callback, "leveldown.repair_db"),
       location_(location) {}
 
-  virtual ~RepairWorker () {}
+  ~RepairWorker () {}
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     leveldb::Options options;
     SetStatus(leveldb::RepairDB(location_, options));
   }
@@ -1418,20 +1418,20 @@ NAPI_METHOD(iterator_seek) {
 /**
  * Worker class for ending an iterator
  */
-struct EndWorker : public BaseWorker {
+struct EndWorker final : public BaseWorker {
   EndWorker (napi_env env,
              Iterator* iterator,
              napi_value callback)
     : BaseWorker(env, iterator->database_, callback, "leveldown.iterator.end"),
       iterator_(iterator) {}
 
-  virtual ~EndWorker () {}
+  ~EndWorker () {}
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     iterator_->IteratorEnd();
   }
 
-  virtual void HandleOKCallback () {
+  void HandleOKCallback () override {
     napi_delete_reference(env_, iterator_->Detach());
     BaseWorker::HandleOKCallback();
   }
@@ -1484,7 +1484,7 @@ void CheckEndCallback (Iterator* iterator) {
 /**
  * Worker class for nexting an iterator.
  */
-struct NextWorker : public BaseWorker {
+struct NextWorker final : public BaseWorker {
   NextWorker (napi_env env,
               Iterator* iterator,
               napi_value callback,
@@ -1494,16 +1494,16 @@ struct NextWorker : public BaseWorker {
       iterator_(iterator),
       localCallback_(localCallback) {}
 
-  virtual ~NextWorker () {}
+  ~NextWorker () {}
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     ok_ = iterator_->IteratorNext(result_);
     if (!ok_) {
       SetStatus(iterator_->IteratorStatus());
     }
   }
 
-  virtual void HandleOKCallback () {
+  void HandleOKCallback () override {
     size_t arraySize = result_.size() * 2;
     napi_value jsArray;
     napi_create_array_with_length(env_, arraySize, &jsArray);
@@ -1579,7 +1579,7 @@ NAPI_METHOD(iterator_next) {
 /**
  * Worker class for batch write operation.
  */
-struct BatchWorker : public BaseWorker {
+struct BatchWorker final : public BaseWorker {
   BatchWorker (napi_env env,
                Database* database,
                napi_value callback,
@@ -1590,11 +1590,11 @@ struct BatchWorker : public BaseWorker {
     options_.sync = sync;
   }
 
-  virtual ~BatchWorker () {
+  ~BatchWorker () {
     delete batch_;
   }
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     SetStatus(database_->WriteBatch(options_, batch_));
   }
 
@@ -1772,7 +1772,7 @@ NAPI_METHOD(batch_clear) {
 /**
  * Worker class for batch write operation.
  */
-struct BatchWriteWorker : public BaseWorker {
+struct BatchWriteWorker final : public BaseWorker {
   BatchWriteWorker (napi_env env,
                     Batch* batch,
                     napi_value callback,
@@ -1781,9 +1781,9 @@ struct BatchWriteWorker : public BaseWorker {
       batch_(batch),
       sync_(sync) {}
 
-  virtual ~BatchWriteWorker () {}
+  ~BatchWriteWorker () {}
 
-  virtual void DoExecute () {
+  void DoExecute () override {
     SetStatus(batch_->Write(sync_));
   }
 
