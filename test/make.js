@@ -1,7 +1,16 @@
 const test = require('tape')
 const testCommon = require('./common')
 
-function makeTest (name, testFn) {
+function makeTest (name, testFn, repeat) {
+  // Temporary
+  if (repeat !== false) {
+    for (let i = 0; i < 50; i++) {
+      makeTest(`${name} (${i})`, testFn, false)
+    }
+
+    return
+  }
+
   test(name, function (t) {
     var db = testCommon.factory()
     var done = function (err, close) {
