@@ -103,3 +103,37 @@ makeTest('test legacy ended iterators', function (db, t, done) {
     done()
   })
 })
+
+makeTest('test accessing an iterator after close', function (db, t, done) {
+  var it = db.iterator({ highWaterMark: 0 })
+
+  db.close(function (err) {
+    t.ifError(err, 'no error from close()')
+
+    // Because we have a reference here, the iterator is not GC-ed yet, only
+    // ended. The object should still be safe to access.
+    it.next(function (err) {
+      t.is(err.message, 'iterator has ended')
+      done(null, false)
+    })
+  })
+})
+
+makeTest('test accessing an iterator after close and reopen', function (db, t, done) {
+  var it = db.iterator({ highWaterMark: 0 })
+
+  db.close(function (err) {
+    t.ifError(err, 'no error from close()')
+
+    db.open(function (err) {
+      t.ifError(err, 'no error from open()')
+
+      // The state of an iterator should not be tied to the open-state of the
+      // database, but to the singular database "life" of when it was created.
+      it.next(function (err) {
+        t.is(err.message, 'iterator has ended')
+        done()
+      })
+    })
+  })
+})
