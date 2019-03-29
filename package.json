@@ -6,7 +6,7 @@
   "main": "leveldown.js",
   "scripts": {
     "install": "node-gyp-build",
-    "test": "standard && hallmark && nyc tape test/*-test.js",
+    "test": "standard && nyc tape test/*-test.js",
     "test-gc": "npx -n=--expose-gc tape test/{cleanup,iterator-gc}*-test.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "node-gyp rebuild",
