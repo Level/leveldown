@@ -4,19 +4,17 @@ This document describes breaking changes and how to upgrade. For a complete list
 
 ## v5
 
-_Currently available as prerelease: `npm i leveldown@next`._
-
 This is a rewrite to N-API - which is a huge milestone, achieved without an impact on write performance - and an upgrade to `abstract-leveldown` v6, which solves long-standing issues around serialization and type support.
 
 ### N-API rewrite
 
 N-API is the latest interface for native addons in Node.js. Main benefit is that `leveldown` became independent of the V8 version, which means it will be compatible with future versions of Node.js. As long as the native code doesn't change, it doesn't need to be recompiled as new versions of Node.js are released. This helps greatly with both maintenance and when delivering code to consumers.
 
-Because N-API has an experimental status in node 6 and early 8.x releases, support of node 6 has been dropped and the minimum node version for `leveldown` is now 8.6.0.
+Because N-API has an experimental status in node 6 and early 8.x releases, support of node 6 has been dropped and the minimum node version for `leveldown` is now 8.6.0. Conversely, for node >= 12, `leveldown@5` is the minimum version.
 
 ### Prebuilt binaries are now shipped in npm package
 
-Previously, they were downloaded from GitHub by an npm `postinstall` script.
+Previously, they were downloaded from GitHub by an npm `postinstall` script. In addition, `leveldown` now includes prebuilt binaries for Linux ARMv7, Linux ARM64, Android ARMv7 and Android ARM64. The latter target node core (rather than the formerly needed [`nodejs-mobile`](https://github.com/janeasystems/nodejs-mobile) fork).
 
 ### Range options are now serialized
 
@@ -43,6 +41,22 @@ Though this was already the case, `abstract-leveldown` has replaced the behavior
 ### The `sync` option of `chainedBatch` has moved
 
 The `sync` option has moved to `chainedBatch.write(options)`. Previously, `sync` was half-documented and half-implemented.
+
+### Various segmentation faults have been fixed
+
+It is now safe to call `db.close()` before `db.put()` completes, to call `db.iterator()` on a non-open db and to call `db.close()` having created many iterators regardless of their state (idle, nexting, ending or ended). To achieve this, `leveldown` waits for pending operations before closing:
+
+```js
+db.put('key', 'value', function (err) {
+  console.log('this happens first')
+})
+
+db.close(function (err) {
+  console.log('this happens second')
+})
+```
+
+A future release will do the same for other operations like `get` and `batch`.
 
 ## v4
 

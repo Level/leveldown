@@ -39,7 +39,7 @@ See the section on <a href="#safety">safety</a> below for details of known unsaf
 
 We aim to support _at least_ Active LTS and Current Node.js releases, Electron 3.0.0, as well as any future Node.js and Electron releases thanks to [N-API](https://nodejs.org/api/n-api.html). Because N-API has an experimental status in node 6 and early 8.x releases, the minimum node version for `leveldown` is `8.6.0`.
 
-The `leveldown` npm package ships with prebuilt binaries for popular 64-bit platforms and is known to work on:
+The `leveldown` npm package ships with prebuilt binaries for popular 64-bit platforms as well as ARM and Android and is known to work on:
 
 - **Linux** (including ARM platforms such as Raspberry Pi _and Kindle!_)
 - **Mac OS**
@@ -47,11 +47,13 @@ The `leveldown` npm package ships with prebuilt binaries for popular 64-bit plat
 - **FreeBSD**
 - **Windows**
 
-When installing `leveldown`, [`node-gyp-build`](https://github.com/mafintosh/node-gyp-build) will check if a compatible binary exists and fallback to a compile step if it doesn't. In that case you'll need a [valid `node-gyp` installation](https://github.com/nodejs/node-gyp#installation).
+When installing `leveldown`, [`node-gyp-build`](https://github.com/prebuild/node-gyp-build) will check if a compatible binary exists and fallback to a compile step if it doesn't. In that case you'll need a [valid `node-gyp` installation](https://github.com/nodejs/node-gyp#installation).
 
 If you don't want to use the prebuilt binary for the platform you are installing on, specify the `--build-from-source` flag when you install. If you are working on `leveldown` itself and want to re-compile the C++ code it's enough to do `npm install`.
 
 ## API
+
+**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md).
 
 - <a href="#ctor"><code><b>leveldown()</b></code></a>
 - <a href="#leveldown_open"><code>db.<b>open()</b></code></a>
