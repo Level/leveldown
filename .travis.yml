@@ -11,6 +11,13 @@ jobs:
     - os: linux
       node_js: node
       env: [TEST=1, TEST_ELECTRON=1, BUILD_CMD=prebuild, BUILD_GROUP=linux-x64]
+      addons:
+        apt:
+          packages:
+            - xvfb
+      install:
+        - export DISPLAY=':99.0'
+        - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     - os: osx
       node_js: 8
       env: [TEST=1]
