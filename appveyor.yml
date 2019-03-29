@@ -22,6 +22,7 @@ test_script:
   - node --version
   - npm --version
   - npm test
+  - ps: if ($env:nodejs_version -eq "Current") { npm run test-electron }
 
 before_deploy:
   - SET ARCHIVE_NAME=%APPVEYOR_REPO_TAG_NAME%-win32-%PLATFORM%.tar.gz
