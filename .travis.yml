@@ -4,22 +4,29 @@ jobs:
   include:
     - os: linux
       node_js: 8
-      env: [TEST_CMD=test]
+      env: [TEST=1]
     - os: linux
       node_js: 10
-      env: [TEST_CMD=test]
+      env: [TEST=1]
     - os: linux
       node_js: node
-      env: [TEST_CMD=test, BUILD_CMD=prebuild, BUILD_GROUP=linux-x64]
+      env: [TEST=1, TEST_ELECTRON=1, BUILD_CMD=prebuild, BUILD_GROUP=linux-x64]
+      addons:
+        apt:
+          packages:
+            - xvfb
+      before_script:
+        - export DISPLAY=':99.0'
+        - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     - os: osx
       node_js: 8
-      env: [TEST_CMD=test]
+      env: [TEST=1]
     - os: osx
       node_js: 10
-      env: [TEST_CMD=test]
+      env: [TEST=1]
     - os: osx
       node_js: node
-      env: [TEST_CMD=test, BUILD_CMD=prebuild, BUILD_GROUP=darwin-x64]
+      env: [TEST=1, TEST_ELECTRON=1, BUILD_CMD=prebuild, BUILD_GROUP=darwin-x64]
     - name: arm
       os: linux
       node_js: node
@@ -27,10 +34,11 @@ jobs:
       if: tag is present
 
 script:
-  - if [[ ! -z "$TEST_CMD" ]]; then npm run $TEST_CMD; fi
+  - if [[ ! -z "$TEST" ]]; then npm run test; fi
+  - if [[ ! -z "$TEST_ELECTRON" ]]; then npm run test-electron; fi
 
 after_success:
-  - if [[ ! -z "$TEST_CMD" ]]; then npm run coverage; fi
+  - if [[ ! -z "$TEST" ]]; then npm run coverage; fi
 
 before_deploy:
   - export ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$BUILD_GROUP.tar.gz"
