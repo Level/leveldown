@@ -1,6 +1,10 @@
 # Changelog
 
+_**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
+
 ## [Unreleased][unreleased]
+
+## [5.0.0] - 2019-03-29
 
 ### Changed
 
@@ -27,11 +31,14 @@
 - Document new platform support and prebuilt binaries ([#558](https://github.com/level/leveldown/issues/558), [#563](https://github.com/level/leveldown/issues/563)) ([**@vweevers**](https://github.com/vweevers))
 - Replace `remark-cli` with `hallmark` ([#548](https://github.com/level/leveldown/issues/548)) ([**@vweevers**](https://github.com/vweevers))
 - Update `.npmignore` ([**@vweevers**](https://github.com/vweevers))
+- Apply common project tweaks ([#580](https://github.com/Level/leveldown/issues/580), [#582](https://github.com/Level/leveldown/issues/582), [`1c90e8f`](https://github.com/Level/leveldown/commit/1c90e8f)) ([**@vweevers**](https://github.com/vweevers), [**@ralphtheninja**](https://github.com/ralphtheninja))
+- Introduce `override` and `final` keywords following C++ Core Guidelines ([#600](https://github.com/Level/leveldown/issues/600)) ([**@vweevers**](https://github.com/vweevers))
 
 ### Added
 
+- Add `linux-armv7`, `linux-arm64`, `android-armv7` and `android-arm64` prebuilds ([#584](https://github.com/Level/leveldown/issues/584), [#585](https://github.com/Level/leveldown/issues/585), [#587](https://github.com/Level/leveldown/issues/587)) ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers))
 - Add segfault tests ([#514](https://github.com/level/leveldown/issues/514)) ([**@vweevers**](https://github.com/vweevers))
-- Add `nyc` and `coveralls` for code coverage ([#497](https://github.com/level/leveldown/issues/497)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Add `nyc` and `coveralls` for code coverage ([#497](https://github.com/level/leveldown/issues/497), [#591](https://github.com/Level/leveldown/issues/591)) ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers))
 - Copy type checks of `approximateSize()` to `compactRange()` ([#517](https://github.com/level/leveldown/issues/517)) ([**@vweevers**](https://github.com/vweevers))
 - Document that value may not be `null` or `undefined` ([#511](https://github.com/level/leveldown/issues/511)) ([**@vweevers**](https://github.com/vweevers))
 - Document `batch()` (array and chained form), `sync` option and `db` references ([#556](https://github.com/level/leveldown/issues/556)) ([**@vweevers**](https://github.com/vweevers))
@@ -50,11 +57,28 @@
 - Moved seek tests to `abstract-leveldown` ([#508](https://github.com/level/leveldown/issues/508)) ([**@vweevers**](https://github.com/vweevers))
 - Remove unused `iota-array` and `lexicographic-integer` devDependencies ([#508](https://github.com/level/leveldown/issues/508)) ([**@vweevers**](https://github.com/vweevers))
 - Remove `xcacheSize` and `xmaxOpenFiles` from leak tests ([#569](https://github.com/level/leveldown/issues/569)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Remove legacy `bindings` dependency ([#583](https://github.com/Level/leveldown/issues/583)) ([**@peakji**](https://github.com/peakji))
 
 ### Fixed
 
 - Serialize `compactRange()` arguments ([#517](https://github.com/level/leveldown/issues/517)) ([**@vweevers**](https://github.com/vweevers))
-- Prevent segfault when calling `iterator()` on non-open db ([#514](https://github.com/level/leveldown/issues/514)) ([**@vweevers**](https://github.com/vweevers))
+- Prevent segfault: when calling `iterator()` on non-open db ([#514](https://github.com/level/leveldown/issues/514)) ([**@vweevers**](https://github.com/vweevers))
+- Prevent segfault: add `PriorityWorker` to defer closing until `put` is done ([#597](https://github.com/Level/leveldown/issues/597)) ([**@vweevers**](https://github.com/vweevers))
+- Prevent segfault: keep persistent references to iterators until they are ended ([#597](https://github.com/Level/leveldown/issues/597)) ([**@vweevers**](https://github.com/vweevers))
+- Gitignore Debug builds of LevelDB and Snappy ([#597](https://github.com/Level/leveldown/issues/597)) ([**@vweevers**](https://github.com/vweevers))
+- Fix subtests by adding `t.plan()` ([#594](https://github.com/Level/leveldown/issues/594)) ([**@vweevers**](https://github.com/vweevers))
+
+## [4.0.2] - 2019-03-02
+
+### Changed
+
+- Upgrade `nan` from `~2.10.0` to `~2.12.1` ([#596](https://github.com/Level/leveldown/pull/596)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `prebuild-install` from `^4.0.0` to `~5.2.4` ([#596](https://github.com/Level/leveldown/pull/596)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `prebuild` devDependency from `^7.0.0` to `^8.1.2` ([#596](https://github.com/Level/leveldown/pull/596)) ([**@vweevers**](https://github.com/vweevers))
+
+### Added
+
+- Add Node.js 11 to Travis and AppVeyor ([#596](https://github.com/Level/leveldown/pull/596)) ([**@vweevers**](https://github.com/vweevers))
 
 ## [4.0.1] - 2018-05-22
 
@@ -882,7 +906,11 @@
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
-[unreleased]: https://github.com/level/leveldown/compare/v4.0.1...HEAD
+[unreleased]: https://github.com/level/leveldown/compare/v5.0.0...HEAD
+
+[5.0.0]: https://github.com/level/leveldown/compare/v4.0.2...v5.0.0
+
+[4.0.2]: https://github.com/level/leveldown/compare/v4.0.1...v4.0.2
 
 [4.0.1]: https://github.com/level/leveldown/compare/v4.0.0...v4.0.1
 
