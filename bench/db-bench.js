@@ -6,6 +6,7 @@ const du = require('du')
 const path = require('path')
 const rimraf = require('rimraf')
 const argv = require('optimist').argv
+const crypto = require('crypto')
 
 const options = {
   db: argv.db || path.join(__dirname, 'db'),
@@ -17,7 +18,6 @@ const options = {
   out: argv.out || path.join(__dirname, 'db-bench.csv')
 }
 
-const randomString = require('slump').string
 const keyTmpl = '0000000000000000'
 
 rimraf.sync(options.db)
@@ -85,7 +85,7 @@ function start () {
     }
 
     var key = make16CharPaddedKey()
-    var value = randomString({ length: options.valueSize })
+    var value = crypto.randomBytes(options.valueSize).toString('hex')
     var start = process.hrtime()
 
     db.put(key, value, function (err) {
