@@ -11,7 +11,7 @@
     "test-electron": "electron test/electron.js",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "node-gyp rebuild",
-    "prebuild": "prebuildify -t 8.14.0 -t electron@3.0.0 --napi --strip",
+    "prebuild": "prebuildify -t 8.14.0 --napi --strip",
     "download-prebuilds": "prebuildify-ci download",
     "hallmark": "hallmark --fix",
     "dependency-check": "dependency-check . test/*.js bench/*.js",
