@@ -4,6 +4,23 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [Unreleased][unreleased]
 
+## [5.0.1] - 2019-04-07
+
+### Added
+
+- Test Electron in Travis and AppVeyor ([#607](https://github.com/Level/leveldown/issues/607)) ([**@vweevers**](https://github.com/vweevers))
+
+### Removed
+
+- Remove `slump` devDependency ([`38ff274`](https://github.com/Level/leveldown/commit/38ff274)) ([**@vweevers**](https://github.com/vweevers))
+- Remove Electron prebuilds in favor of runtime-agnostic prebuilds ([#608](https://github.com/Level/leveldown/issues/608)) ([**@vweevers**](https://github.com/vweevers))
+
+### Fixed
+
+- Temporarily skip `hallmark` test because it breaks CITGM ([#606](https://github.com/Level/leveldown/issues/606)) ([**@vweevers**](https://github.com/vweevers))
+
+**Historical Note** Although CITGM landed support for git repositories in response to v5.0.0 which fixes our use of git submodules and `hallmark`, we're keeping `hallmark` disabled because it is still experimental and technically out of scope for CITGM.
+
 ## [5.0.0] - 2019-03-29
 
 ### Changed
@@ -906,7 +923,9 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
-[unreleased]: https://github.com/level/leveldown/compare/v5.0.0...HEAD
+[unreleased]: https://github.com/level/leveldown/compare/v5.0.1...HEAD
+
+[5.0.1]: https://github.com/level/leveldown/compare/v5.0.0...v5.0.1
 
 [5.0.0]: https://github.com/level/leveldown/compare/v4.0.2...v5.0.0
 
