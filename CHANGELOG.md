@@ -4,6 +4,19 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [Unreleased][unreleased]
 
+## [5.0.2] - 2019-04-23
+
+### Changed
+
+- Upgrade `nyc` devDependency from `^13.2.0`  to `^14.0.0` ([#610](https://github.com/Level/leveldown/issues/610)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `tempy` devDependency from `^0.2.1` to `^0.3.0` ([#611](https://github.com/Level/leveldown/issues/611)) ([**@vweevers**](https://github.com/vweevers))
+
+### Fixed
+
+- Prevent segfaults: defer closing until all operations are done ([#612](https://github.com/Level/leveldown/issues/612)) ([**@vweevers**](https://github.com/vweevers))
+- Fix level badge ([`0ce45db`](https://github.com/Level/leveldown/commit/0ce45db)) ([**@vweevers**](https://github.com/vweevers))
+- Remove link to dead website ([`091f784`](https://github.com/Level/leveldown/commit/091f784)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.0.1] - 2019-04-07
 
 ### Added
@@ -923,7 +936,9 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
-[unreleased]: https://github.com/level/leveldown/compare/v5.0.1...HEAD
+[unreleased]: https://github.com/level/leveldown/compare/v5.0.2...HEAD
+
+[5.0.2]: https://github.com/level/leveldown/compare/v5.0.1...v5.0.2
 
 [5.0.1]: https://github.com/level/leveldown/compare/v5.0.0...v5.0.1
 
