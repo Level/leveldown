@@ -454,7 +454,6 @@ static void FinalizeDatabase (napi_env env, void* data, void* hint) {
 
 /**
  * Base worker class for doing async work that defers closing the database.
- * @TODO Use this for Get-, Del-, Batch-, BatchWrite-, ApproximateSize- and CompactRangeWorker too.
  */
 struct PriorityWorker : public BaseWorker {
   PriorityWorker (napi_env env, Database* database, napi_value callback, const char* resourceName)
@@ -929,14 +928,14 @@ NAPI_METHOD(db_put) {
 /**
  * Worker class for getting a value from a database.
  */
-struct GetWorker final : public BaseWorker {
+struct GetWorker final : public PriorityWorker {
   GetWorker (napi_env env,
              Database* database,
              napi_value callback,
              leveldb::Slice key,
              bool asBuffer,
              bool fillCache)
-    : BaseWorker(env, database, callback, "leveldown.db.get"),
+    : PriorityWorker(env, database, callback, "leveldown.db.get"),
       key_(key),
       asBuffer_(asBuffer) {
     options_.fill_cache = fillCache;
@@ -994,13 +993,13 @@ NAPI_METHOD(db_get) {
 /**
  * Worker class for deleting a value from a database.
  */
-struct DelWorker final : public BaseWorker {
+struct DelWorker final : public PriorityWorker {
   DelWorker (napi_env env,
              Database* database,
              napi_value callback,
              leveldb::Slice key,
              bool sync)
-    : BaseWorker(env, database, callback, "leveldown.db.del"),
+    : PriorityWorker(env, database, callback, "leveldown.db.del"),
       key_(key) {
     options_.sync = sync;
   }
@@ -1037,13 +1036,13 @@ NAPI_METHOD(db_del) {
 /**
  * Worker class for calculating the size of a range.
  */
-struct ApproximateSizeWorker final : public BaseWorker {
+struct ApproximateSizeWorker final : public PriorityWorker {
   ApproximateSizeWorker (napi_env env,
                          Database* database,
                          napi_value callback,
                          leveldb::Slice start,
                          leveldb::Slice end)
-    : BaseWorker(env, database, callback, "leveldown.db.approximate_size"),
+    : PriorityWorker(env, database, callback, "leveldown.db.approximate_size"),
       start_(start), end_(end) {}
 
   ~ApproximateSizeWorker () {
@@ -1093,13 +1092,13 @@ NAPI_METHOD(db_approximate_size) {
 /**
  * Worker class for compacting a range in a database.
  */
-struct CompactRangeWorker final : public BaseWorker {
+struct CompactRangeWorker final : public PriorityWorker {
   CompactRangeWorker (napi_env env,
                       Database* database,
                       napi_value callback,
                       leveldb::Slice start,
                       leveldb::Slice end)
-    : BaseWorker(env, database, callback, "leveldown.db.compact_range"),
+    : PriorityWorker(env, database, callback, "leveldown.db.compact_range"),
       start_(start), end_(end) {}
 
   ~CompactRangeWorker () {
@@ -1579,13 +1578,13 @@ NAPI_METHOD(iterator_next) {
 /**
  * Worker class for batch write operation.
  */
-struct BatchWorker final : public BaseWorker {
+struct BatchWorker final : public PriorityWorker {
   BatchWorker (napi_env env,
                Database* database,
                napi_value callback,
                leveldb::WriteBatch* batch,
                bool sync)
-    : BaseWorker(env, database, callback, "leveldown.batch.do"),
+    : PriorityWorker(env, database, callback, "leveldown.batch.do"),
       batch_(batch) {
     options_.sync = sync;
   }
@@ -1772,12 +1771,12 @@ NAPI_METHOD(batch_clear) {
 /**
  * Worker class for batch write operation.
  */
-struct BatchWriteWorker final : public BaseWorker {
+struct BatchWriteWorker final : public PriorityWorker {
   BatchWriteWorker (napi_env env,
                     Batch* batch,
                     napi_value callback,
                     bool sync)
-    : BaseWorker(env, batch->database_, callback, "leveldown.batch.write"),
+    : PriorityWorker(env, batch->database_, callback, "leveldown.batch.write"),
       batch_(batch),
       sync_(sync) {}
 
