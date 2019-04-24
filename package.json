@@ -41,7 +41,7 @@
     "level-concat-iterator": "^2.0.0",
     "mkfiletree": "^1.0.1",
     "monotonic-timestamp": "~0.0.8",
-    "node-gyp": "^3.8.0",
+    "node-gyp": "^4.0.0",
     "nyc": "^14.0.0",
     "optimist": "~0.6.1",
     "prebuildify": "prebuild/prebuildify#override-platform",
