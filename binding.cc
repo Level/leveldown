@@ -1367,6 +1367,10 @@ NAPI_METHOD(iterator_seek) {
   NAPI_ARGV(2);
   NAPI_ITERATOR_CONTEXT();
 
+  if (iterator->ended_) {
+    napi_throw_error(env, NULL, "iterator has ended");
+  }
+
   iterator->ReleaseTarget();
   iterator->target_ = new leveldb::Slice(ToSlice(env, argv[1]));
   iterator->GetIterator();
