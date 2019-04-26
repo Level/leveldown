@@ -82,6 +82,16 @@ global.gc && makeTest('test multiple non-ended iterators with forced gc', functi
   }, Math.floor(Math.random() * 50))
 })
 
+global.gc && makeTest('test multiple iterators with forced gc in next()', function (db, t, done) {
+  for (let i = 0; i < 10; i++) {
+    db.iterator({ highWaterMark: 0 }).next(function () {
+      global.gc()
+    })
+  }
+
+  setImmediate(done)
+})
+
 makeTest('test ending iterators', function (db, t, done) {
   // At least one end() should be in progress when we try to close the db.
   var it1 = db.iterator().next(function () {

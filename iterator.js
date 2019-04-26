@@ -53,9 +53,4 @@ Iterator.prototype._next = function (callback) {
   return this
 }
 
-Iterator.prototype._end = function (callback) {
-  delete this.cache
-  binding.iterator_end(this.context, callback)
-}
-
 module.exports = Iterator

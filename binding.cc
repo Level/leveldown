@@ -17,8 +17,6 @@
  */
 struct Database;
 struct Iterator;
-struct EndWorker;
-static void iterator_end_do (napi_env env, Iterator* iterator, napi_value cb);
 
 /**
  * Macros.
@@ -413,14 +411,29 @@ struct Database {
     return db_->ReleaseSnapshot(snapshot);
   }
 
+  /**
+   * Keep track of non-gc'ed iterators to explicitly end them on db close.
+   */
   void AttachIterator (uint32_t id, Iterator* iterator) {
     iterators_[id] = iterator;
-    IncrementPriorityWork();
   }
 
   void DetachIterator (uint32_t id) {
     iterators_.erase(id);
-    DecrementPriorityWork();
+  }
+
+  template<typename Func>
+  void VisitIterators (const Func& visitor) {
+    std::map<uint32_t, Iterator*>::iterator it;
+
+    // Do not erase elements while iterating.
+    for (it = iterators_.begin(); it != iterators_.end(); ++it) {
+      visitor(it->second);
+    }
+  }
+
+  void DetachIterators () {
+    iterators_.clear();
   }
 
   void IncrementPriorityWork () {
@@ -434,8 +447,12 @@ struct Database {
     }
   }
 
-  bool HasPriorityWork () {
-    return priorityWork_ > 0;
+  void ScheduleClose (BaseWorker* worker) {
+    if (priorityWork_ > 0) {
+      pendingCloseWorker_ = worker;
+    } else {
+      worker->Queue();
+    }
   }
 
   napi_env env_;
@@ -443,10 +460,10 @@ struct Database {
   leveldb::Cache* blockCache_;
   const leveldb::FilterPolicy* filterPolicy_;
   uint32_t currentIteratorId_;
-  BaseWorker *pendingCloseWorker_;
-  std::map< uint32_t, Iterator * > iterators_;
 
 private:
+  std::map< uint32_t, Iterator * > iterators_;
+  BaseWorker *pendingCloseWorker_;
   uint32_t priorityWork_;
 };
 
@@ -515,17 +532,14 @@ struct Iterator {
       target_(NULL),
       seeking_(false),
       landed_(false),
-      nexting_(false),
       ended_(false),
-      endWorker_(NULL),
-      ref_(NULL) {
+      refCount_(1) {
     options_ = new leveldb::ReadOptions();
     options_->fill_cache = fillCache;
     options_->snapshot = database->NewSnapshot();
   }
 
   ~Iterator () {
-    assert(ended_);
     ReleaseTarget();
     if (start_ != NULL) {
       // Special case for `start` option: it won't be
@@ -566,24 +580,53 @@ struct Iterator {
     }
   }
 
-  void Attach (napi_ref ref) {
-    ref_ = ref;
-    database_->AttachIterator(id_, this);
+  /**
+   * This can be called by Finalize() on the main thread (triggered by JS
+   * garbage collection) or by the database's CloseWorker in a worker pool
+   * thread, but only once. If called by Finalize(), afterwards the database
+   * no longer knows of the iterator. If first called by the CloseWorker,
+   * Finalize() subsequently skips the call. Note that we don't release all
+   * associated resources here; only those that would prohibit closing the
+   * database. The destructor always does the last and final cleanup.
+   */
+  void End () {
+    delete dbIterator_;
+    dbIterator_ = NULL;
+    database_->ReleaseSnapshot(options_->snapshot);
   }
 
-  napi_ref Detach () {
-    database_->DetachIterator(id_);
-    return ref_;
+  /**
+   * Increment a reference counter to prevent Finalize() while nexting or while
+   * we're closing the database. Any code that accesses refCount must run on
+   * the main thread. The initial value of refCount is 1 so that GC can follow
+   * the same code path.
+   *
+   * @TODO (when 8 is EOL or nodejs/node#24494 is backported): use a napi_ref,
+   * replacing refCount. Then have GC (and only GC) call Finalize().
+   */
+  void IncrementReferenceCount () {
+    ++refCount_;
+  }
+
+  void DecrementReferenceCount () {
+    assert(refCount_ > 0);
+
+    if (--refCount_ == 0) {
+      Finalize();
+    }
+  }
+
+  void Finalize () {
+    if (!ended_) {
+      End();
+      database_->DetachIterator(id_);
+    }
+
+    delete this;
   }
 
   leveldb::Status IteratorStatus () {
     return dbIterator_->status();
-  }
-
-  void IteratorEnd () {
-    delete dbIterator_;
-    dbIterator_ = NULL;
-    database_->ReleaseSnapshot(options_->snapshot);
   }
 
   bool GetIterator () {
@@ -730,14 +773,11 @@ struct Iterator {
   leveldb::Slice* target_;
   bool seeking_;
   bool landed_;
-  bool nexting_;
   bool ended_;
-
   leveldb::ReadOptions* options_;
-  EndWorker* endWorker_;
 
 private:
-  napi_ref ref_;
+  uint32_t refCount_;
 };
 
 /**
@@ -837,18 +877,36 @@ struct CloseWorker final : public BaseWorker {
   CloseWorker (napi_env env,
                Database* database,
                napi_value callback)
-    : BaseWorker(env, database, callback, "leveldown.db.close") {}
+    : BaseWorker(env, database, callback, "leveldown.db.close") {
+      // Visit iterators on the main thread and prevent GC so that we can safely
+      // visit them again in the asynchronous worker to end them explicitly.
+      // Mark as ended to disallow further operations to be scheduled.
+      database_->VisitIterators([&] (Iterator* iterator) {
+        iterator->IncrementReferenceCount();
+        iterator->ended_ = true;
+      });
+    }
 
   ~CloseWorker () {}
 
   void DoExecute () override {
+    database_->VisitIterators([&] (Iterator* iterator) {
+      iterator->End();
+    });
+
     database_->CloseDatabase();
   }
-};
 
-napi_value noop_callback (napi_env env, napi_callback_info info) {
-  return 0;
-}
+  void DoFinally () override {
+    // Back on the main thread, the iterators are now ready to be GC-ed.
+    // Do not access them after this visit, they may have been deleted.
+    database_->VisitIterators([&] (Iterator* iterator) {
+      iterator->DecrementReferenceCount();
+    });
+
+    database_->DetachIterators();
+  }
+};
 
 /**
  * Close a database.
@@ -859,23 +917,7 @@ NAPI_METHOD(db_close) {
 
   napi_value callback = argv[1];
   CloseWorker* worker = new CloseWorker(env, database, callback);
-
-  if (!database->HasPriorityWork()) {
-    worker->Queue();
-    NAPI_RETURN_UNDEFINED();
-  }
-
-  database->pendingCloseWorker_ = worker;
-
-  napi_value noop;
-  napi_create_function(env, NULL, 0, noop_callback, NULL, &noop);
-
-  std::map<uint32_t, Iterator*> iterators = database->iterators_;
-  std::map<uint32_t, Iterator*>::iterator it;
-
-  for (it = iterators.begin(); it != iterators.end(); ++it) {
-    iterator_end_do(env, it->second, noop);
-  }
+  database->ScheduleClose(worker);
 
   NAPI_RETURN_UNDEFINED();
 }
@@ -1231,7 +1273,8 @@ NAPI_METHOD(repair_db) {
  */
 static void FinalizeIterator (napi_env env, void* data, void* hint) {
   if (data) {
-    delete (Iterator*)data;
+    Iterator* iterator = (Iterator*) data;
+    iterator->DecrementReferenceCount();
   }
 }
 
@@ -1348,17 +1391,11 @@ NAPI_METHOD(iterator_init) {
                                     values, limit, lt, lte, gt, gte, fillCache,
                                     keyAsBuffer, valueAsBuffer, highWaterMark);
   napi_value result;
-  napi_ref ref;
-
   NAPI_STATUS_THROWS(napi_create_external(env, iterator,
                                           FinalizeIterator,
                                           NULL, &result));
 
-  // Prevent GC of JS object before the iterator is ended (explicitly or on
-  // db close) and keep track of non-ended iterators to end them on db close.
-  NAPI_STATUS_THROWS(napi_create_reference(env, result, 1, &ref));
-  iterator->Attach(ref);
-
+  database->AttachIterator(id, iterator);
   return result;
 }
 
@@ -1417,87 +1454,22 @@ NAPI_METHOD(iterator_seek) {
     }
   }
 
-  NAPI_RETURN_UNDEFINED();
-}
-
-/**
- * Worker class for ending an iterator
- */
-struct EndWorker final : public BaseWorker {
-  EndWorker (napi_env env,
-             Iterator* iterator,
-             napi_value callback)
-    : BaseWorker(env, iterator->database_, callback, "leveldown.iterator.end"),
-      iterator_(iterator) {}
-
-  ~EndWorker () {}
-
-  void DoExecute () override {
-    iterator_->IteratorEnd();
-  }
-
-  void HandleOKCallback () override {
-    napi_delete_reference(env_, iterator_->Detach());
-    BaseWorker::HandleOKCallback();
-  }
-
-  Iterator* iterator_;
-};
-
-/**
- * Called by NAPI_METHOD(iterator_end) and also when closing
- * open iterators during NAPI_METHOD(db_close).
- */
-static void iterator_end_do (napi_env env, Iterator* iterator, napi_value cb) {
-  if (!iterator->ended_) {
-    EndWorker* worker = new EndWorker(env, iterator, cb);
-    iterator->ended_ = true;
-
-    if (iterator->nexting_) {
-      iterator->endWorker_ = worker;
-    } else {
-      worker->Queue();
-    }
-  }
-}
-
-/**
- * Ends an iterator.
- */
-NAPI_METHOD(iterator_end) {
-  NAPI_ARGV(2);
-  NAPI_ITERATOR_CONTEXT();
-
-  iterator_end_do(env, iterator, argv[1]);
-
-  NAPI_RETURN_UNDEFINED();
-}
-
-/**
- * TODO Move this to Iterator. There isn't any reason
- * for this function being a separate function pointer.
- */
-void CheckEndCallback (Iterator* iterator) {
   iterator->ReleaseTarget();
-  iterator->nexting_ = false;
-  if (iterator->endWorker_ != NULL) {
-    iterator->endWorker_->Queue();
-    iterator->endWorker_ = NULL;
-  }
+  NAPI_RETURN_UNDEFINED();
 }
 
 /**
  * Worker class for nexting an iterator.
  */
-struct NextWorker final : public BaseWorker {
+struct NextWorker final : public PriorityWorker {
   NextWorker (napi_env env,
               Iterator* iterator,
-              napi_value callback,
-              void (*localCallback)(Iterator*))
-    : BaseWorker(env, iterator->database_, callback,
+              napi_value callback)
+    : PriorityWorker(env, iterator->database_, callback,
                  "leveldown.iterator.next"),
-      iterator_(iterator),
-      localCallback_(localCallback) {}
+      iterator_(iterator) {
+        iterator_->IncrementReferenceCount();
+      }
 
   ~NextWorker () {}
 
@@ -1537,10 +1509,6 @@ struct NextWorker final : public BaseWorker {
       napi_set_element(env_, jsArray, static_cast<int>(arraySize - idx * 2 - 2), returnValue);
     }
 
-    // clean up & handle the next/end state
-    // TODO this should just do iterator_->CheckEndCallback();
-    localCallback_(iterator_);
-
     napi_value argv[3];
     napi_get_null(env_, &argv[0]);
     argv[1] = jsArray;
@@ -1550,9 +1518,12 @@ struct NextWorker final : public BaseWorker {
     CallFunction(env_, callback, 3, argv);
   }
 
+  void DoFinally () override {
+    iterator_->DecrementReferenceCount();
+    PriorityWorker::DoFinally();
+  }
+
   Iterator* iterator_;
-  // TODO why do we need a function pointer for this?
-  void (*localCallback_)(Iterator*);
   std::vector<std::pair<std::string, std::string> > result_;
   bool ok_;
 };
@@ -1569,14 +1540,10 @@ NAPI_METHOD(iterator_next) {
   if (iterator->ended_) {
     napi_value argv = CreateError(env, "iterator has ended");
     CallFunction(env, callback, 1, &argv);
-
-    NAPI_RETURN_UNDEFINED();
+  } else {
+    NextWorker* worker = new NextWorker(env, iterator, callback);
+    worker->Queue();
   }
-
-  NextWorker* worker = new NextWorker(env, iterator, callback,
-                                      CheckEndCallback);
-  iterator->nexting_ = true;
-  worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
 }
@@ -1840,7 +1807,6 @@ NAPI_INIT() {
 
   NAPI_EXPORT_FUNCTION(iterator_init);
   NAPI_EXPORT_FUNCTION(iterator_seek);
-  NAPI_EXPORT_FUNCTION(iterator_end);
   NAPI_EXPORT_FUNCTION(iterator_next);
 
   NAPI_EXPORT_FUNCTION(batch_do);
