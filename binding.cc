@@ -237,7 +237,12 @@ static napi_status CallFunction (napi_env env,
 }
 
 /**
- * Base worker class. Handles the async work.
+ * Base worker class. Handles the async work. Derived classes can override the
+ * following virtual methods (listed in the order in which they're called):
+ *
+ * - DoExecute (abstract, worker pool thread): main work
+ * - HandleOKCallback (main thread): call JS callback on success
+ * - DoFinally (main thread): do cleanup regardless of success
  */
 struct BaseWorker {
   BaseWorker (napi_env env,
@@ -283,14 +288,16 @@ struct BaseWorker {
   }
 
   virtual void DoExecute () = 0;
+  virtual void DoFinally () {};
 
   static void Complete (napi_env env, napi_status status, void* data) {
     BaseWorker* self = (BaseWorker*)data;
     self->DoComplete();
+    self->DoFinally();
     delete self;
   }
 
-  virtual void DoComplete () {
+  void DoComplete () {
     if (status_.ok()) {
       return HandleOKCallback();
     }
@@ -309,7 +316,7 @@ struct BaseWorker {
     CallFunction(env_, callback, 1, &argv);
   }
 
-  virtual void Queue () {
+  void Queue () {
     napi_queue_async_work(env_, asyncWork_);
   }
 
@@ -458,18 +465,13 @@ static void FinalizeDatabase (napi_env env, void* data, void* hint) {
 struct PriorityWorker : public BaseWorker {
   PriorityWorker (napi_env env, Database* database, napi_value callback, const char* resourceName)
     : BaseWorker(env, database, callback, resourceName) {
+      database_->IncrementPriorityWork();
   }
 
   ~PriorityWorker () {}
 
-  void Queue () final {
-    database_->IncrementPriorityWork();
-    BaseWorker::Queue();
-  }
-
-  void DoComplete () final {
+  void DoFinally () override {
     database_->DecrementPriorityWork();
-    BaseWorker::DoComplete();
   }
 };
 
