@@ -1776,14 +1776,20 @@ NAPI_METHOD(batch_clear) {
  */
 struct BatchWriteWorker final : public PriorityWorker {
   BatchWriteWorker (napi_env env,
+                    napi_value context,
                     Batch* batch,
                     napi_value callback,
                     bool sync)
     : PriorityWorker(env, batch->database_, callback, "leveldown.batch.write"),
       batch_(batch),
-      sync_(sync) {}
+      sync_(sync) {
+        // Prevent GC of batch object before we execute
+        NAPI_STATUS_THROWS(napi_create_reference(env_, context, 1, &contextRef_));
+      }
 
-  ~BatchWriteWorker () {}
+  ~BatchWriteWorker () {
+    napi_delete_reference(env_, contextRef_);
+  }
 
   void DoExecute () override {
     if (batch_->hasData_) {
@@ -1793,6 +1799,9 @@ struct BatchWriteWorker final : public PriorityWorker {
 
   Batch* batch_;
   bool sync_;
+
+private:
+  napi_ref contextRef_;
 };
 
 /**
@@ -1806,7 +1815,7 @@ NAPI_METHOD(batch_write) {
   bool sync = BooleanProperty(env, options, "sync", false);
   napi_value callback = argv[2];
 
-  BatchWriteWorker* worker  = new BatchWriteWorker(env, batch, callback, sync);
+  BatchWriteWorker* worker  = new BatchWriteWorker(env, argv[0], batch, callback, sync);
   worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
