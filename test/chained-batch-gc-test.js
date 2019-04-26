@@ -3,15 +3,9 @@
 const test = require('tape')
 const testCommon = require('./common')
 
-function repeat (name, fn) {
-  for (let i = 0; i < 100; i++) {
-    test(`${name} (${i})`, fn)
-  }
-}
-
 // When we have a chained batch object without a reference, V8 might GC it
 // before we get a chance to (asynchronously) write the batch.
-repeat('chained batch without ref does not get GCed before write', function (t) {
+test('chained batch without ref does not get GCed before write', function (t) {
   t.plan(2)
 
   const db = testCommon.factory()
@@ -21,7 +15,7 @@ repeat('chained batch without ref does not get GCed before write', function (t) 
 
     let batch = db.batch()
 
-    for (let i = 0; i < 1e5; i++) {
+    for (let i = 0; i < 1e3; i++) {
       batch.put(String(i), 'value')
     }
 
