@@ -71,8 +71,10 @@ make('close db with open iterator', function (db, t, done) {
 
   ite.next(function loop (err, key, value) {
     if (cnt++ === 0) {
+      // The first call should succeed, because it was scheduled before close()
       t.ifError(err, 'no error from next()')
     } else {
+      // The second call should fail, because it was scheduled after close()
       t.equal(err.message, 'iterator has ended')
       hadError = true
     }
