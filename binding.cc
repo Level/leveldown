@@ -1773,7 +1773,7 @@ NAPI_METHOD(batch_clear) {
  */
 struct BatchWriteWorker final : public PriorityWorker {
   BatchWriteWorker (napi_env env,
-                    napi_value thisObj,
+                    napi_value context,
                     Batch* batch,
                     napi_value callback,
                     bool sync)
@@ -1781,11 +1781,11 @@ struct BatchWriteWorker final : public PriorityWorker {
       batch_(batch),
       sync_(sync) {
         // Prevent GC of batch object before we execute
-        NAPI_STATUS_THROWS(napi_create_reference(env_, thisObj, 1, &thisRef_));
+        NAPI_STATUS_THROWS(napi_create_reference(env_, context, 1, &contextRef_));
       }
 
   ~BatchWriteWorker () {
-    napi_delete_reference(env_, thisRef_);
+    napi_delete_reference(env_, contextRef_);
   }
 
   void DoExecute () override {
@@ -1796,7 +1796,7 @@ struct BatchWriteWorker final : public PriorityWorker {
   bool sync_;
 
 private:
-  napi_ref thisRef_;
+  napi_ref contextRef_;
 };
 
 /**
