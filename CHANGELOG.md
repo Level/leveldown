@@ -4,6 +4,23 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [Unreleased][unreleased]
 
+## [5.0.3] - 2019-04-26
+
+### Changed
+
+- Upgrade `node-gyp` from `^3.8.0` to `^4.0.0` ([#614](https://github.com/Level/leveldown/issues/614)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Refactor worker cleanup into `BaseWorker::DoFinally()` ([#617](https://github.com/Level/leveldown/issues/617)) ([**@vweevers**](https://github.com/vweevers))
+
+### Added
+
+- Clarify expected behavior in `iterator-test` ([`31b66cf`](https://github.com/Level/leveldown/commit/31b66cf)) ([**@vweevers**](https://github.com/vweevers))
+
+### Fixed
+
+- Prevent segfault: create reference to chained batch object ([#621](https://github.com/Level/leveldown/issues/621)) ([**@vweevers**](https://github.com/vweevers))
+- Skip writing empty (chained) batch and make callbacks asynchronous ([#619](https://github.com/Level/leveldown/issues/619)) ([**@vweevers**](https://github.com/vweevers))
+- Throw error in `iterator_seek` if iterator has ended ([#618](https://github.com/Level/leveldown/issues/618)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.0.2] - 2019-04-23
 
 ### Changed
@@ -936,7 +953,9 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
-[unreleased]: https://github.com/level/leveldown/compare/v5.0.2...HEAD
+[unreleased]: https://github.com/level/leveldown/compare/v5.0.3...HEAD
+
+[5.0.3]: https://github.com/level/leveldown/compare/v5.0.2...v5.0.3
 
 [5.0.2]: https://github.com/level/leveldown/compare/v5.0.1...v5.0.2
 
