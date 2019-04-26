@@ -1583,9 +1583,10 @@ struct BatchWorker final : public PriorityWorker {
                Database* database,
                napi_value callback,
                leveldb::WriteBatch* batch,
-               bool sync)
+               bool sync,
+               bool hasData)
     : PriorityWorker(env, database, callback, "leveldown.batch.do"),
-      batch_(batch) {
+      batch_(batch), hasData_(hasData) {
     options_.sync = sync;
   }
 
@@ -1594,11 +1595,14 @@ struct BatchWorker final : public PriorityWorker {
   }
 
   void DoExecute () override {
-    SetStatus(database_->WriteBatch(options_, batch_));
+    if (hasData_) {
+      SetStatus(database_->WriteBatch(options_, batch_));
+    }
   }
 
   leveldb::WriteOptions options_;
   leveldb::WriteBatch* batch_;
+  bool hasData_;
 };
 
 /**
@@ -1649,15 +1653,8 @@ NAPI_METHOD(batch_do) {
     }
   }
 
-  if (hasData) {
-    BatchWorker* worker = new BatchWorker(env, database, callback, batch, sync);
-    worker->Queue();
-  } else {
-    delete batch;
-    napi_value argv;
-    napi_get_null(env, &argv);
-    CallFunction(env, callback, 1, &argv);
-  }
+  BatchWorker* worker = new BatchWorker(env, database, callback, batch, sync, hasData);
+  worker->Queue();
 
   NAPI_RETURN_UNDEFINED();
 }
@@ -1783,7 +1780,9 @@ struct BatchWriteWorker final : public PriorityWorker {
   ~BatchWriteWorker () {}
 
   void DoExecute () override {
-    SetStatus(batch_->Write(sync_));
+    if (batch_->hasData_) {
+      SetStatus(batch_->Write(sync_));
+    }
   }
 
   Batch* batch_;
