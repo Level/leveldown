@@ -17,10 +17,10 @@
     "dependency-check": "dependency-check . test/*.js bench/*.js",
     "prepublishOnly": "npm run dependency-check",
     "prebuild-arm": "npm run prebuild-linux-armv7 && npm run prebuild-linux-arm64 && npm run prebuild-android-armv7 && npm run prebuild-android-arm64",
-    "prebuild-linux-armv7": "IMAGE=linux-armv7 ./scripts/cross-compile",
-    "prebuild-linux-arm64": "IMAGE=linux-arm64 ./scripts/cross-compile",
-    "prebuild-android-armv7": "IMAGE=android-armv7 ./scripts/cross-compile",
-    "prebuild-android-arm64": "IMAGE=android-arm64 ./scripts/cross-compile"
+    "prebuild-linux-armv7": "IMAGE=linux-armv7 ./scripts/cross-compile --tag-armv",
+    "prebuild-linux-arm64": "IMAGE=linux-arm64 ./scripts/cross-compile --tag-armv",
+    "prebuild-android-armv7": "IMAGE=android-armv7 ./scripts/cross-compile --tag-armv",
+    "prebuild-android-arm64": "IMAGE=android-arm64 ./scripts/cross-compile --tag-armv"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.3",
