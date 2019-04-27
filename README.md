@@ -414,7 +414,7 @@ $ git submodule update --init --recursive
 2. Push to GitHub: `git push --follow-tags`
 3. Wait for Travis and AppVeyor builds to complete
 4. Download prebuilds into `./prebuilds`: `npm run download-prebuilds`
-5. Optionally verify loading a prebuild: `rimraf build && npm t`
+5. Optionally verify loading a prebuild: `npm run test-prebuild`
 6. Optionally verify which files npm will include: `irish-pub`
 7. Add changelog to the GitHub release
 8. Finally: `npm publish`

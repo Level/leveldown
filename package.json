@@ -9,6 +9,7 @@
     "test": "standard && nyc tape test/*-test.js",
     "test-gc": "npx -n=--expose-gc tape test/{cleanup,iterator-gc,chained-batch-gc}*-test.js",
     "test-electron": "electron test/electron.js",
+    "test-prebuild": "cross-env PREBUILDS_ONLY=1 npm t",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "node-gyp rebuild",
     "prebuild": "prebuildify -t 8.14.0 --napi --strip",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "async": "^2.0.1",
     "coveralls": "^3.0.2",
+    "cross-env": "^5.2.0",
     "delayed": "^1.0.1",
     "dependency-check": "^3.3.0",
     "du": "~0.1.0",
