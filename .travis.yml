@@ -32,6 +32,11 @@ jobs:
       node_js: node
       env: [BUILD_CMD=prebuild-arm, BUILD_GROUP=arm, NPM_CONFIG_IGNORE_SCRIPTS=1]
       if: tag is present
+    - name: alpine
+      os: linux
+      node_js: node
+      env: [BUILD_CMD=prebuild-alpine, BUILD_GROUP=alpine, NPM_CONFIG_IGNORE_SCRIPTS=1]
+      if: tag is present
 
 script:
   - if [[ ! -z "$TEST" ]]; then npm run test; fi

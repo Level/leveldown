@@ -21,7 +21,8 @@
     "prebuild-linux-armv7": "IMAGE=linux-armv7 ./scripts/cross-compile --tag-armv",
     "prebuild-linux-arm64": "IMAGE=linux-arm64 ./scripts/cross-compile --tag-armv",
     "prebuild-android-armv7": "IMAGE=android-armv7 ./scripts/cross-compile --tag-armv",
-    "prebuild-android-arm64": "IMAGE=android-arm64 ./scripts/cross-compile --tag-armv"
+    "prebuild-android-arm64": "IMAGE=android-arm64 ./scripts/cross-compile --tag-armv",
+    "prebuild-alpine": "IMAGE=alpine ./scripts/cross-compile --tag-libc"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.3",
