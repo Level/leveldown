@@ -37,11 +37,11 @@ See the section on <a href="#safety">safety</a> below for details of known unsaf
 
 ## Supported Platforms
 
-We aim to support _at least_ Active LTS and Current Node.js releases, Electron 3.0.0, as well as any future Node.js and Electron releases thanks to [N-API](https://nodejs.org/api/n-api.html). Because N-API has an experimental status in node 6 and early 8.x releases, the minimum node version for `leveldown` is `8.6.0`.
+We aim to support _at least_ Active LTS and Current Node.js releases, Electron 4.0.0, as well as any future Node.js and Electron releases thanks to [N-API](https://nodejs.org/api/n-api.html). Because N-API has an experimental status in node 6 and early 8.x releases, the minimum node version for `leveldown` is `8.6.0`.
 
-The `leveldown` npm package ships with prebuilt binaries for popular 64-bit platforms as well as ARM and Android and is known to work on:
+The `leveldown` npm package ships with prebuilt binaries for popular 64-bit platforms as well as ARM, Android and Alpine (musl) and is known to work on:
 
-- **Linux** (including ARM platforms such as Raspberry Pi _and Kindle!_)
+- **Linux** (including ARM platforms such as Raspberry Pi and Kindle)
 - **Mac OS**
 - **Solaris** (SmartOS & Nodejitsu)
 - **FreeBSD**
