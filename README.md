@@ -131,6 +131,18 @@ The following options are for advanced performance tuning. Modify them only if y
 
 <code>close()</code> is an instance method on an existing database object. The underlying LevelDB database will be closed and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
+`leveldown` waits for any pending operations to finish before closing. For example:
+
+```js
+db.put('key', 'value', function (err) {
+  // This happens first
+})
+
+db.close(function (err) {
+  // This happens second
+})
+```
+
 <a name="leveldown_put"></a>
 
 ### `db.put(key, value[, options], callback)`
