@@ -9,6 +9,7 @@
     "test": "standard && nyc tape test/*-test.js",
     "test-gc": "npx -n=--expose-gc tape test/{cleanup,iterator-gc,chained-batch-gc}*-test.js",
     "test-electron": "electron test/electron.js",
+    "test-prebuild": "cross-env PREBUILDS_ONLY=1 npm t",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "rebuild": "node-gyp rebuild",
     "prebuild": "prebuildify -t 8.14.0 --napi --strip",
@@ -17,20 +18,22 @@
     "dependency-check": "dependency-check . test/*.js bench/*.js",
     "prepublishOnly": "npm run dependency-check",
     "prebuild-arm": "npm run prebuild-linux-armv7 && npm run prebuild-linux-arm64 && npm run prebuild-android-armv7 && npm run prebuild-android-arm64",
-    "prebuild-linux-armv7": "IMAGE=linux-armv7 ./scripts/cross-compile",
-    "prebuild-linux-arm64": "IMAGE=linux-arm64 ./scripts/cross-compile",
-    "prebuild-android-armv7": "IMAGE=android-armv7 ./scripts/cross-compile",
-    "prebuild-android-arm64": "IMAGE=android-arm64 ./scripts/cross-compile"
+    "prebuild-linux-armv7": "IMAGE=linux-armv7 ./scripts/cross-compile --tag-armv",
+    "prebuild-linux-arm64": "IMAGE=linux-arm64 ./scripts/cross-compile --tag-armv",
+    "prebuild-android-armv7": "IMAGE=android-armv7 ./scripts/cross-compile --tag-armv",
+    "prebuild-android-arm64": "IMAGE=android-arm64 ./scripts/cross-compile --tag-armv",
+    "prebuild-alpine": "IMAGE=alpine ./scripts/cross-compile --tag-libc"
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.3",
     "fast-future": "~1.0.2",
     "napi-macros": "~1.8.1",
-    "node-gyp-build": "~3.8.0"
+    "node-gyp-build": "~4.1.0"
   },
   "devDependencies": {
     "async": "^2.0.1",
     "coveralls": "^3.0.2",
+    "cross-env": "^5.2.0",
     "delayed": "^1.0.1",
     "dependency-check": "^3.3.0",
     "du": "~0.1.0",
@@ -44,7 +47,7 @@
     "node-gyp": "^4.0.0",
     "nyc": "^14.0.0",
     "optimist": "~0.6.1",
-    "prebuildify": "prebuild/prebuildify#override-platform",
+    "prebuildify": "^3.0.0",
     "prebuildify-ci": "^1.0.4",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",

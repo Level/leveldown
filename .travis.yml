@@ -30,7 +30,12 @@ jobs:
     - name: arm
       os: linux
       node_js: node
-      env: [BUILD_CMD=prebuild-arm, BUILD_GROUP=arm]
+      env: [BUILD_CMD=prebuild-arm, BUILD_GROUP=arm, NPM_CONFIG_IGNORE_SCRIPTS=1]
+      if: tag is present
+    - name: alpine
+      os: linux
+      node_js: node
+      env: [BUILD_CMD=prebuild-alpine, BUILD_GROUP=alpine, NPM_CONFIG_IGNORE_SCRIPTS=1]
       if: tag is present
 
 script:
@@ -42,7 +47,7 @@ after_success:
 
 before_deploy:
   - export ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$BUILD_GROUP.tar.gz"
-  - npm run $BUILD_CMD
+  - NPM_CONFIG_IGNORE_SCRIPTS= npm run $BUILD_CMD
   - file prebuilds/*/*
   - tar -zcvf "$ARCHIVE_NAME" -C prebuilds .
 
