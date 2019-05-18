@@ -4,6 +4,27 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [Unreleased][unreleased]
 
+## [5.1.0] - 2019-05-18
+
+### Changed
+
+- Upgrade `node-gyp-build` from `~3.8.0` to `~4.1.0` ([#625](https://github.com/Level/leveldown/issues/625)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `prebuildify` devDependency from `prebuild/prebuildify#override-platform` to `^3.0.0` ([#625](https://github.com/Level/leveldown/issues/625)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `electron` devDependency from `^4.1.2` to `^5.0.0` ([#616](https://github.com/Level/leveldown/issues/616)) ([**@vweevers**](https://github.com/vweevers))
+- CI optimization: skip initial compilation in Travis `arm` job ([#625](https://github.com/Level/leveldown/issues/625)) ([**@vweevers**](https://github.com/vweevers))
+- CI optimization: skip redundant `npm install` in `arm` containers ([#625](https://github.com/Level/leveldown/issues/625)) ([**@vweevers**](https://github.com/vweevers))
+
+### Added
+
+- Add Alpine (musl) prebuild ([#625](https://github.com/Level/leveldown/issues/625)) ([**@vweevers**](https://github.com/vweevers))
+- Add `test-prebuild` npm script ([#625](https://github.com/Level/leveldown/issues/625)) ([**@vweevers**](https://github.com/vweevers))
+- Document behavior of pending operations on close ([`687a6a1`](https://github.com/Level/leveldown/commit/687a6a1)) ([**@vweevers**](https://github.com/vweevers))
+- Update `Supported Platforms` in `README.md` ([`4f5c9cc`](https://github.com/Level/leveldown/commit/4f5c9cc)) ([**@vweevers**](https://github.com/vweevers))
+
+### Fixed
+
+- Add `armv` tag to ARM prebuilds (to ensure ARM version matches) ([#625](https://github.com/Level/leveldown/issues/625)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.0.3] - 2019-04-26
 
 ### Changed
@@ -953,7 +974,9 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
-[unreleased]: https://github.com/level/leveldown/compare/v5.0.3...HEAD
+[unreleased]: https://github.com/level/leveldown/compare/v5.1.0...HEAD
+
+[5.1.0]: https://github.com/level/leveldown/compare/v5.0.3...v5.1.0
 
 [5.0.3]: https://github.com/level/leveldown/compare/v5.0.2...v5.0.3
 
