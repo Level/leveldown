@@ -31,8 +31,8 @@ libleveldb.a
 *.vcxproj.filters
 
 # Benchmarks and tests
-bench/
 test/
+.benchmarks/
 *.csv
 
 # Misc

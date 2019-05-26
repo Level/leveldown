@@ -43,18 +43,15 @@
     "level-community": "^3.0.0",
     "level-concat-iterator": "^2.0.0",
     "mkfiletree": "^1.0.1",
-    "monotonic-timestamp": "~0.0.8",
     "node-gyp": "^4.0.0",
     "nyc": "^14.0.0",
-    "optimist": "~0.6.1",
     "prebuildify": "^3.0.0",
     "prebuildify-ci": "^1.0.4",
     "readfiletree": "~0.0.1",
     "rimraf": "^2.6.1",
     "standard": "^12.0.0",
     "tape": "^4.10.0",
-    "tempy": "^0.3.0",
-    "uuid": "^3.2.1"
+    "tempy": "^0.3.0"
   },
   "hallmark": {
     "community": "level-community"
