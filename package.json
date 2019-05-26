@@ -31,7 +31,7 @@
     "node-gyp-build": "~4.1.0"
   },
   "devDependencies": {
-    "async": "^2.0.1",
+    "async": "^3.0.1",
     "coveralls": "^3.0.2",
     "cross-env": "^5.2.0",
     "delayed": "^1.0.1",
