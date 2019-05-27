@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.3",
-    "fast-future": "~1.0.2",
     "napi-macros": "~1.8.1",
     "node-gyp-build": "~4.1.0"
   },
