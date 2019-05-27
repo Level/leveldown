@@ -42,10 +42,7 @@ test('iterator does not starve event loop', function (t) {
           if (err || (key === undefined && value === undefined)) {
             t.ifError(err, 'no next error')
             t.is(entries, sourceData.length, 'got all data')
-            t.ok(breaths > 1, 'breathed while iterating: ' + breaths)
-
-            // More precise assertion (only works for cache size limit, not fast-future):
-            // t.is(breaths, sourceData.length / 1000, 'breathed while iterating')
+            t.is(breaths, sourceData.length / 1000, 'breathed while iterating')
 
             return db.close(function (err) {
               t.ifError(err, 'no close error')
