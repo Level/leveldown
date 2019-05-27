@@ -68,4 +68,57 @@ test('iterator does not starve event loop', function (t) {
   })
 })
 
+test('iterator with seeks does not starve event loop', function (t) {
+  t.plan(6)
+
+  const db = testCommon.factory()
+
+  db.open(function (err) {
+    t.ifError(err, 'no open error')
+
+    db.batch(sourceData.slice(), function (err) {
+      t.ifError(err, 'no batch error')
+
+      const it = db.iterator({ highWaterMark: Math.pow(1024, 3), limit: sourceData.length })
+
+      let breaths = 0
+      let entries = 0
+      let scheduled = false
+
+      const next = function () {
+        it.next(function (err, key, value) {
+          if (err || (key === undefined && value === undefined)) {
+            t.ifError(err, 'no next error')
+            t.is(entries, sourceData.length, 'got all data')
+            t.is(breaths, sourceData.length, 'breathed while iterating')
+
+            return db.close(function (err) {
+              t.ifError(err, 'no close error')
+            })
+          }
+
+          entries++
+
+          if (!scheduled) {
+            // Seeking clears the cache, which should only have a positive
+            // effect because it means the cache must be refilled, which
+            // again gives us time to breathe. This is a smoke test, really.
+            it.seek(sourceData[0].key)
+
+            scheduled = true
+            setImmediate(function () {
+              breaths++
+              scheduled = false
+            })
+          }
+
+          next()
+        })
+      }
+
+      next()
+    })
+  })
+})
+
 test('tearDown', testCommon.tearDown)
