@@ -1,4 +1,4 @@
-const async = require('async')
+const each = require('async-each')
 const du = require('du')
 const delayed = require('delayed')
 const testCommon = require('./common')
@@ -48,7 +48,7 @@ test('compression', function (t) {
     var db = testCommon.factory()
     db.open(function (err) {
       t.error(err)
-      async.forEach(
+      each(
         Array.apply(null, Array(multiples)).map(function (e, i) {
           return [ i, compressableData ]
         }), function (args, callback) {
@@ -62,7 +62,7 @@ test('compression', function (t) {
     var db = testCommon.factory()
     db.open({ compression: false }, function (err) {
       t.error(err)
-      async.forEach(
+      each(
         Array.apply(null, Array(multiples)).map(function (e, i) {
           return [ i, compressableData ]
         }), function (args, callback) {
