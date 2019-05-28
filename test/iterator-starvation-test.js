@@ -35,7 +35,7 @@ test('iterator does not starve event loop', function (t) {
       let entries = 0
       let scheduled = false
 
-      // Iterate continously while also scheduling work with setImmediate(),
+      // Iterate continuously while also scheduling work with setImmediate(),
       // which should be given a chance to run because we limit the tick depth.
       const next = function () {
         it.next(function (err, key, value) {
