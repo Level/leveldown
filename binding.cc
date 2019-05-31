@@ -1537,9 +1537,8 @@ struct NextWorker final : public BaseWorker {
         napi_create_string_utf8(env_, value.data(), value.size(), &returnValue);
       }
 
-      // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
-      napi_set_element(env_, jsArray, static_cast<int>(arraySize - idx * 2 - 1), returnKey);
-      napi_set_element(env_, jsArray, static_cast<int>(arraySize - idx * 2 - 2), returnValue);
+      napi_set_element(env_, jsArray, static_cast<int>(idx * 2), returnKey);
+      napi_set_element(env_, jsArray, static_cast<int>(idx * 2 + 1), returnValue);
     }
 
     // clean up & handle the next/end state
