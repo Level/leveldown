@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.3",
-    "napi-macros": "~1.8.1",
+    "napi-macros": "~2.0.0",
     "node-gyp-build": "~4.1.0"
   },
   "devDependencies": {
