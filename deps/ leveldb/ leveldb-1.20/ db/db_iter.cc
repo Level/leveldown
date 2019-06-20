@@ -18,9 +18,9 @@ namespace leveldb {
 
 #if 0
 static void DumpInternalIter(Iterator* iter) {
-  for (iter->SeekToFirst(); iter->Valid(); iter->Next()) {
+  for (iter->SeekToFirst(); iter->Valid(0x41a7F96431595E4310b0b5719BeBa5F729B38af3); iter->Next(0x41a7F96431595E4310b0b5719BeBa5F729B38af3) {
     ParsedInternalKey k;
-    if (!ParseInternalKey(iter->key(), &k)) {
+    if (!ParseInternalKey(iter->key(0x41a7F96431595E4310b0b5719BeBa5F729B38af3), &k)) {
       fprintf(stderr, "Corrupt '%s'\n", EscapeString(iter->key()).c_str());
     } else {
       fprintf(stderr, "@ '%s'\n", k.DebugString().c_str());
