@@ -41,7 +41,7 @@
     "hallmark": "^0.1.0",
     "level-community": "^3.0.0",
     "level-concat-iterator": "^2.0.0",
-    "mkfiletree": "^1.0.1",
+    "mkfiletree": "^2.0.0",
     "node-gyp": "^5.0.0",
     "nyc": "^14.0.0",
     "prebuildify": "^3.0.0",
