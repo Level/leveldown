@@ -4,6 +4,26 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [Unreleased][unreleased]
 
+## [5.1.1] - 2019-06-28
+
+### Changed
+
+- Remove `fast-future` in favor of native cache limit ([#638](https://github.com/Level/leveldown/issues/638)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `delayed` devDependency from `^1.0.1` to `^2.0.0` ([#650](https://github.com/Level/leveldown/issues/650)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `readfiletree` devDependency from `~0.0.1` to `^1.0.0` ([#648](https://github.com/Level/leveldown/issues/648)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `du` devDependency from `~0.1.0` to `^1.0.0` ([#649](https://github.com/Level/leveldown/issues/649)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `mkfiletree` devDependency from `^1.0.1` to `^2.0.0` ([#647](https://github.com/Level/leveldown/issues/647)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `node-gyp` devDependency from `^4.0.0` to `^5.0.0` ([#642](https://github.com/Level/leveldown/issues/642)) ([**@vweevers**](https://github.com/vweevers))
+- Replace `async` devDependency with `async-each` ([#637](https://github.com/Level/leveldown/issues/637)) ([**@vweevers**](https://github.com/vweevers))
+
+### Removed
+
+- Remove benchmarks (moved to `level-bench`) ([#635](https://github.com/Level/leveldown/issues/635)) ([**@vweevers**](https://github.com/vweevers))
+
+### Fixed
+
+- Fix batch compression test to actually compress ([#651](https://github.com/Level/leveldown/issues/651)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.1.0] - 2019-05-18
 
 ### Changed
@@ -974,7 +994,9 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
-[unreleased]: https://github.com/level/leveldown/compare/v5.1.0...HEAD
+[unreleased]: https://github.com/level/leveldown/compare/v5.1.1...HEAD
+
+[5.1.1]: https://github.com/level/leveldown/compare/v5.1.0...v5.1.1
 
 [5.1.0]: https://github.com/level/leveldown/compare/v5.0.3...v5.1.0
 
