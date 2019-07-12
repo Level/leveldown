@@ -15,7 +15,7 @@ app.on('ready', function () {
   tape.onFinish(() => app.quit())
   tape.onFailure(() => app.exit(1))
 
-  for (let file of glob.sync('test/*-test.js')) {
+  for (const file of glob.sync('test/*-test.js')) {
     require(path.resolve('.', file))
   }
 })

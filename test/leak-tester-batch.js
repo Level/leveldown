@@ -7,7 +7,6 @@ const assert = require('assert')
 
 let writeCount = 0
 let rssBase
-let db
 
 function print () {
   if (writeCount % 100 === 0) {
@@ -24,17 +23,14 @@ function print () {
   }
 }
 
-var run = CHAINED
+const run = CHAINED
   ? function () {
-    var batch = db.batch()
-    var i = 0
-    var key
-    var value
+    const batch = db.batch()
 
-    for (i = 0; i < 100; i++) {
-      key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
+    for (let i = 0; i < 100; i++) {
+      let key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
       if (BUFFERS) key = Buffer.from(key)
-      value = crypto.randomBytes(1024)
+      let value = crypto.randomBytes(1024)
       if (!BUFFERS) value = value.toString('hex')
       batch.put(key, value)
     }
@@ -45,19 +41,15 @@ var run = CHAINED
     })
 
     writeCount++
-
     print()
   }
   : function () {
-    var batch = []
-    var i
-    var key
-    var value
+    const batch = []
 
-    for (i = 0; i < 100; i++) {
-      key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
+    for (let i = 0; i < 100; i++) {
+      let key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
       if (BUFFERS) key = Buffer.from(key)
-      value = crypto.randomBytes(1024)
+      let value = crypto.randomBytes(1024)
       if (!BUFFERS) value = value.toString('hex')
       batch.push({ type: 'put', key: key, value: value })
     }
@@ -68,11 +60,11 @@ var run = CHAINED
     })
 
     writeCount++
-
     print()
   }
 
-db = testCommon.factory()
+const db = testCommon.factory()
+
 db.open(function () {
   rssBase = process.memoryUsage().rss
   run()

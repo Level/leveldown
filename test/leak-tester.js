@@ -6,10 +6,9 @@ const crypto = require('crypto')
 let putCount = 0
 let getCount = 0
 let rssBase
-let db
 
 function run () {
-  var key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
+  let key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
 
   if (BUFFERS) key = Buffer.from(key)
 
@@ -17,7 +16,7 @@ function run () {
     getCount++
 
     if (err) {
-      var putValue = crypto.randomBytes(1024)
+      let putValue = crypto.randomBytes(1024)
       if (!BUFFERS) putValue = putValue.toString('hex')
 
       return db.put(key, putValue, function () {
@@ -40,7 +39,8 @@ function run () {
   }
 }
 
-db = testCommon.factory()
+const db = testCommon.factory()
+
 db.open(function () {
   rssBase = process.memoryUsage().rss
   run()

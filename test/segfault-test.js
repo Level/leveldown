@@ -81,7 +81,7 @@ testPending('compactRange()', 1, function (db, next) {
 
 // Test multiple pending operations, using all of the above.
 testPending('operations', operations.length, function (db, next) {
-  for (let fn of operations.slice(0, -1)) {
+  for (const fn of operations.slice(0, -1)) {
     fn(db, next)
   }
 })
