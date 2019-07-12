@@ -26,8 +26,8 @@ test('try to create an iterator with a blown stack', function (t) {
   // Reducing the stack size down from the default 984 for the child node
   // process makes it easier to trigger the bug condition. But making it too low
   // causes the child process to die for other reasons.
-  var opts = { execArgv: [ '--stack-size=128' ] }
-  var child = fork(path.join(__dirname, 'stack-blower.js'), [ 'run' ], opts)
+  var opts = { execArgv: ['--stack-size=128'] }
+  var child = fork(path.join(__dirname, 'stack-blower.js'), ['run'], opts)
 
   t.plan(2)
 

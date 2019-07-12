@@ -50,7 +50,7 @@ test('compression', function (t) {
       t.error(err)
       each(
         Array.apply(null, Array(multiples)).map(function (e, i) {
-          return [ i, compressableData ]
+          return [i, compressableData]
         }), function (args, callback) {
           db.put.apply(db, args.concat([callback]))
         }, cycle.bind(null, db, true, t, delayed.delayed(verify.bind(null, db.location, true, t), 0.01))
@@ -64,7 +64,7 @@ test('compression', function (t) {
       t.error(err)
       each(
         Array.apply(null, Array(multiples)).map(function (e, i) {
-          return [ i, compressableData ]
+          return [i, compressableData]
         }), function (args, callback) {
           db.put.apply(db, args.concat([callback]))
         }, cycle.bind(null, db, false, t, delayed.delayed(verify.bind(null, db.location, false, t), 0.01))
