@@ -34,7 +34,7 @@
     "coveralls": "^3.0.2",
     "cross-env": "^5.2.0",
     "delayed": "^2.0.0",
-    "dependency-check": "^3.3.0",
+    "dependency-check": "^4.0.0",
     "du": "^1.0.0",
     "electron": "^5.0.0",
     "glob": "^7.1.3",
