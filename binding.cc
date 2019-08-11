@@ -250,12 +250,12 @@ struct BaseWorker {
               napi_value callback,
               const char* resourceName)
     : env_(env), database_(database), errMsg_(NULL) {
-    NAPI_STATUS_THROWS(napi_create_reference(env_, callback, 1, &callbackRef_));
+    NAPI_STATUS_THROWS_VOID(napi_create_reference(env_, callback, 1, &callbackRef_));
     napi_value asyncResourceName;
-    NAPI_STATUS_THROWS(napi_create_string_utf8(env_, resourceName,
+    NAPI_STATUS_THROWS_VOID(napi_create_string_utf8(env_, resourceName,
                                                NAPI_AUTO_LENGTH,
                                                &asyncResourceName));
-    NAPI_STATUS_THROWS(napi_create_async_work(env_, callback,
+    NAPI_STATUS_THROWS_VOID(napi_create_async_work(env_, callback,
                                               asyncResourceName,
                                               BaseWorker::Execute,
                                               BaseWorker::Complete,
@@ -1789,7 +1789,7 @@ struct BatchWriteWorker final : public PriorityWorker {
       batch_(batch),
       sync_(sync) {
         // Prevent GC of batch object before we execute
-        NAPI_STATUS_THROWS(napi_create_reference(env_, context, 1, &contextRef_));
+        NAPI_STATUS_THROWS_VOID(napi_create_reference(env_, context, 1, &contextRef_));
       }
 
   ~BatchWriteWorker () {
