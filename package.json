@@ -11,7 +11,7 @@
     "test-electron": "electron test/electron.js",
     "test-prebuild": "cross-env PREBUILDS_ONLY=1 npm t",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "rebuild": "node-gyp rebuild",
+    "rebuild": "npm run install --build-from-source",
     "prebuild": "prebuildify -t 8.14.0 --napi --strip",
     "download-prebuilds": "prebuildify-ci download",
     "hallmark": "hallmark --fix",
@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "abstract-leveldown": "~6.0.3",
-    "napi-macros": "~1.8.1",
+    "napi-macros": "~2.0.0",
     "node-gyp-build": "~4.1.0"
   },
   "devDependencies": {
