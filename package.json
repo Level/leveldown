@@ -25,7 +25,7 @@
     "prebuild-alpine": "IMAGE=alpine ./scripts/cross-compile --tag-libc"
   },
   "dependencies": {
-    "abstract-leveldown": "~6.0.3",
+    "abstract-leveldown": "github:Level/abstract-leveldown#clear",
     "napi-macros": "~2.0.0",
     "node-gyp-build": "~4.1.0"
   },
