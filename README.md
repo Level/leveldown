@@ -67,6 +67,7 @@ If you don't want to use the prebuilt binary for the platform you are installing
 - <a href="#leveldown_compactRange"><code>db.<b>compactRange()</b></code></a>
 - <a href="#leveldown_getProperty"><code>db.<b>getProperty()</b></code></a>
 - <a href="#leveldown_iterator"><code>db.<b>iterator()</b></code></a>
+- <a href="#leveldown_clear"><code>db.<b>clear()</b></code></a>
 - <a href="#chainedbatch"><code>chainedBatch</code></a>
   - <a href="#chainedbatch_put"><code>chainedBatch.<b>put()</b></code></a>
   - <a href="#chainedbatch_del"><code>chainedBatch.<b>del()</b></code></a>
@@ -274,6 +275,19 @@ Returns a new [`iterator`](#iterator) instance. The optional `options` object ma
 - `keyAsBuffer` (boolean, default: `true`): Used to determine whether to return the `key` of each entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one.
 
 - `valueAsBuffer` (boolean, default: `true`): Used to determine whether to return the `value` of each entry as a string or a Buffer.
+
+<a name="leveldown_clear"></a>
+
+### `db.clear([options, ]callback)`
+
+Delete all entries or a range. Not guaranteed to be atomic. Accepts the following range options (with the same rules as on iterators):
+
+- `gt` (greater than), `gte` (greater than or equal) define the lower bound of the range to be deleted. Only entries where the key is greater than (or equal to) this option will be included in the range. When `reverse=true` the order will be reversed, but the entries deleted will be the same.
+- `lt` (less than), `lte` (less than or equal) define the higher bound of the range to be deleted. Only entries where the key is less than (or equal to) this option will be included in the range. When `reverse=true` the order will be reversed, but the entries deleted will be the same.
+- `reverse` _(boolean, default: `false`)_: delete entries in reverse order. Only effective in combination with `limit`, to remove the last N records.
+- `limit` _(number, default: `-1`)_: limit the number of entries to be deleted. This number represents a _maximum_ number of entries and may not be reached if you get to the end of the range first. A value of `-1` means there is no limit. When `reverse=true` the entries with the highest keys will be deleted instead of the lowest keys.
+
+If no options are provided, all entries will be deleted. The `callback` function will be called with no arguments if the operation was successful or with an `Error` if it failed for any reason.
 
 <a name="chainedbatch"></a>
 
