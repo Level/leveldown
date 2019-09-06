@@ -2,8 +2,6 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
-## [Unreleased][unreleased]
-
 ## [5.1.1] - 2019-06-28
 
 ### Changed
@@ -96,28 +94,28 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Changed
 
-- Rewrite as N-API addon ([#540](https://github.com/level/leveldown/issues/540), [#559](https://github.com/level/leveldown/issues/559)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Use `prebuildify` instead of `prebuild` ([#549](https://github.com/level/leveldown/issues/549), [#562](https://github.com/level/leveldown/issues/562), [#571](https://github.com/level/leveldown/issues/571)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Update minimum node version required ([#552](https://github.com/level/leveldown/issues/552)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Upgrade Snappy from `1.1.4` to `1.1.7` as a git submodule ([#522](https://github.com/level/leveldown/issues/522), [#535](https://github.com/level/leveldown/issues/535)) ([**@filoozom**](https://github.com/filoozom))
-- Upgrade `abstract-leveldown` from `~5.0.0` to `~6.0.0` ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers)) ([#511](https://github.com/level/leveldown/issues/511))
-- Implement abstract `_serializeKey()` and `_serializeValue()` ([#506](https://github.com/level/leveldown/issues/506)) ([**@vweevers**](https://github.com/vweevers))
-- Implement abstract `_seek()` instead of `seek()` ([#506](https://github.com/level/leveldown/issues/506)) ([**@vweevers**](https://github.com/vweevers))
-- Invoke abstract tests from single function ([#495](https://github.com/level/leveldown/issues/495)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Use `suite.common()` in `test/common.js` ([`7b0f6d9`](https://github.com/level/leveldown/commit/7b0f6d9)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Handle `location` in `LevelDOWN` constructor, as `location` was removed from `abstract-leveldown` ([#494](https://github.com/level/leveldown/issues/494)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Pass a factory function to abstract tests ([#494](https://github.com/level/leveldown/issues/494)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Use `tempy` in tests, removing need for cleanup ([#494](https://github.com/level/leveldown/issues/494)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Use `level-concat-iterator` in tests ([#494](https://github.com/level/leveldown/issues/494)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Make callback of `makeTest` an error-first callback ([#518](https://github.com/level/leveldown/issues/518)) ([**@vweevers**](https://github.com/vweevers))
-- Upgrade `standard` devDependency from `^11.0.1` to `^12.0.0` ([#503](https://github.com/level/leveldown/issues/503)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Upgrade `slump` devDependency from `~2.0.0` to `~3.0.0` ([#504](https://github.com/level/leveldown/issues/504)) ([**@vweevers**](https://github.com/vweevers))
-- Normalize gyp files (indentation and double quotes) ([#539](https://github.com/level/leveldown/issues/539)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Tweak benchmarks ([#545](https://github.com/level/leveldown/issues/545), [#546](https://github.com/level/leveldown/issues/546)) ([**@vweevers**](https://github.com/vweevers), [**@ralphtheninja**](https://github.com/ralphtheninja))
-- Tweak changelog ([#483](https://github.com/level/leveldown/issues/483)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Tweak copyright years for less maintenance ([`98cbb4f`](https://github.com/level/leveldown/commit/98cbb4f)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Document new platform support and prebuilt binaries ([#558](https://github.com/level/leveldown/issues/558), [#563](https://github.com/level/leveldown/issues/563)) ([**@vweevers**](https://github.com/vweevers))
-- Replace `remark-cli` with `hallmark` ([#548](https://github.com/level/leveldown/issues/548)) ([**@vweevers**](https://github.com/vweevers))
+- Rewrite as N-API addon ([#540](https://github.com/Level/leveldown/issues/540), [#559](https://github.com/Level/leveldown/issues/559)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Use `prebuildify` instead of `prebuild` ([#549](https://github.com/Level/leveldown/issues/549), [#562](https://github.com/Level/leveldown/issues/562), [#571](https://github.com/Level/leveldown/issues/571)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Update minimum node version required ([#552](https://github.com/Level/leveldown/issues/552)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Upgrade Snappy from `1.1.4` to `1.1.7` as a git submodule ([#522](https://github.com/Level/leveldown/issues/522), [#535](https://github.com/Level/leveldown/issues/535)) ([**@filoozom**](https://github.com/filoozom))
+- Upgrade `abstract-leveldown` from `~5.0.0` to `~6.0.0` ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers)) ([#511](https://github.com/Level/leveldown/issues/511))
+- Implement abstract `_serializeKey()` and `_serializeValue()` ([#506](https://github.com/Level/leveldown/issues/506)) ([**@vweevers**](https://github.com/vweevers))
+- Implement abstract `_seek()` instead of `seek()` ([#506](https://github.com/Level/leveldown/issues/506)) ([**@vweevers**](https://github.com/vweevers))
+- Invoke abstract tests from single function ([#495](https://github.com/Level/leveldown/issues/495)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Use `suite.common()` in `test/common.js` ([`7b0f6d9`](https://github.com/Level/leveldown/commit/7b0f6d9)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Handle `location` in `LevelDOWN` constructor, as `location` was removed from `abstract-leveldown` ([#494](https://github.com/Level/leveldown/issues/494)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Pass a factory function to abstract tests ([#494](https://github.com/Level/leveldown/issues/494)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Use `tempy` in tests, removing need for cleanup ([#494](https://github.com/Level/leveldown/issues/494)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Use `level-concat-iterator` in tests ([#494](https://github.com/Level/leveldown/issues/494)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Make callback of `makeTest` an error-first callback ([#518](https://github.com/Level/leveldown/issues/518)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `standard` devDependency from `^11.0.1` to `^12.0.0` ([#503](https://github.com/Level/leveldown/issues/503)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Upgrade `slump` devDependency from `~2.0.0` to `~3.0.0` ([#504](https://github.com/Level/leveldown/issues/504)) ([**@vweevers**](https://github.com/vweevers))
+- Normalize gyp files (indentation and double quotes) ([#539](https://github.com/Level/leveldown/issues/539)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Tweak benchmarks ([#545](https://github.com/Level/leveldown/issues/545), [#546](https://github.com/Level/leveldown/issues/546)) ([**@vweevers**](https://github.com/vweevers), [**@ralphtheninja**](https://github.com/ralphtheninja))
+- Tweak changelog ([#483](https://github.com/Level/leveldown/issues/483)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Tweak copyright years for less maintenance ([`98cbb4f`](https://github.com/Level/leveldown/commit/98cbb4f)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Document new platform support and prebuilt binaries ([#558](https://github.com/Level/leveldown/issues/558), [#563](https://github.com/Level/leveldown/issues/563)) ([**@vweevers**](https://github.com/vweevers))
+- Replace `remark-cli` with `hallmark` ([#548](https://github.com/Level/leveldown/issues/548)) ([**@vweevers**](https://github.com/vweevers))
 - Update `.npmignore` ([**@vweevers**](https://github.com/vweevers))
 - Apply common project tweaks ([#580](https://github.com/Level/leveldown/issues/580), [#582](https://github.com/Level/leveldown/issues/582), [`1c90e8f`](https://github.com/Level/leveldown/commit/1c90e8f)) ([**@vweevers**](https://github.com/vweevers), [**@ralphtheninja**](https://github.com/ralphtheninja))
 - Introduce `override` and `final` keywords following C++ Core Guidelines ([#600](https://github.com/Level/leveldown/issues/600)) ([**@vweevers**](https://github.com/vweevers))
@@ -125,32 +123,32 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ### Added
 
 - Add `linux-armv7`, `linux-arm64`, `android-armv7` and `android-arm64` prebuilds ([#584](https://github.com/Level/leveldown/issues/584), [#585](https://github.com/Level/leveldown/issues/585), [#587](https://github.com/Level/leveldown/issues/587)) ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers))
-- Add segfault tests ([#514](https://github.com/level/leveldown/issues/514)) ([**@vweevers**](https://github.com/vweevers))
-- Add `nyc` and `coveralls` for code coverage ([#497](https://github.com/level/leveldown/issues/497), [#591](https://github.com/Level/leveldown/issues/591)) ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers))
-- Copy type checks of `approximateSize()` to `compactRange()` ([#517](https://github.com/level/leveldown/issues/517)) ([**@vweevers**](https://github.com/vweevers))
-- Document that value may not be `null` or `undefined` ([#511](https://github.com/level/leveldown/issues/511)) ([**@vweevers**](https://github.com/vweevers))
-- Document `batch()` (array and chained form), `sync` option and `db` references ([#556](https://github.com/level/leveldown/issues/556)) ([**@vweevers**](https://github.com/vweevers))
-- Add publish instructions and `download-prebuilds` npm script ([#564](https://github.com/level/leveldown/issues/564)) ([**@vweevers**](https://github.com/vweevers))
+- Add segfault tests ([#514](https://github.com/Level/leveldown/issues/514)) ([**@vweevers**](https://github.com/vweevers))
+- Add `nyc` and `coveralls` for code coverage ([#497](https://github.com/Level/leveldown/issues/497), [#591](https://github.com/Level/leveldown/issues/591)) ([**@ralphtheninja**](https://github.com/ralphtheninja), [**@vweevers**](https://github.com/vweevers))
+- Copy type checks of `approximateSize()` to `compactRange()` ([#517](https://github.com/Level/leveldown/issues/517)) ([**@vweevers**](https://github.com/vweevers))
+- Document that value may not be `null` or `undefined` ([#511](https://github.com/Level/leveldown/issues/511)) ([**@vweevers**](https://github.com/vweevers))
+- Document `batch()` (array and chained form), `sync` option and `db` references ([#556](https://github.com/Level/leveldown/issues/556)) ([**@vweevers**](https://github.com/vweevers))
+- Add publish instructions and `download-prebuilds` npm script ([#564](https://github.com/Level/leveldown/issues/564)) ([**@vweevers**](https://github.com/vweevers))
 
 ### Removed
 
-- Remove node 6 and 9 from Travis ([`0f5f554`](https://github.com/level/leveldown/commit/0f5f554), [#562](https://github.com/level/leveldown/issues/562)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Remove 32 bits from AppVeyor ([#560](https://github.com/level/leveldown/issues/560)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Remove unused `.jshintrc` ([`1d122b0`](https://github.com/level/leveldown/commit/1d122b0)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Remove copyright headers from code ([`508027d`](https://github.com/level/leveldown/commit/508027d)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Remove contributors from `package.json` ([`8a29ecc`](https://github.com/level/leveldown/commit/8a29ecc)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Remove `g++-4.8` apt package from Travis ([#489](https://github.com/level/leveldown/issues/489)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Remove unused `key` argument from `ChainedBatch#_clear` ([#519](https://github.com/level/leveldown/issues/519)) ([**@vweevers**](https://github.com/vweevers))
-- Remove redundant `db.close()` from `test/approximate-size-test.js` ([`d04f233`](https://github.com/level/leveldown/commit/d04f233)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
-- Moved seek tests to `abstract-leveldown` ([#508](https://github.com/level/leveldown/issues/508)) ([**@vweevers**](https://github.com/vweevers))
-- Remove unused `iota-array` and `lexicographic-integer` devDependencies ([#508](https://github.com/level/leveldown/issues/508)) ([**@vweevers**](https://github.com/vweevers))
-- Remove `xcacheSize` and `xmaxOpenFiles` from leak tests ([#569](https://github.com/level/leveldown/issues/569)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Remove node 6 and 9 from Travis ([`0f5f554`](https://github.com/Level/leveldown/commit/0f5f554), [#562](https://github.com/Level/leveldown/issues/562)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Remove 32 bits from AppVeyor ([#560](https://github.com/Level/leveldown/issues/560)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Remove unused `.jshintrc` ([`1d122b0`](https://github.com/Level/leveldown/commit/1d122b0)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Remove copyright headers from code ([`508027d`](https://github.com/Level/leveldown/commit/508027d)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Remove contributors from `package.json` ([`8a29ecc`](https://github.com/Level/leveldown/commit/8a29ecc)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Remove `g++-4.8` apt package from Travis ([#489](https://github.com/Level/leveldown/issues/489)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Remove unused `key` argument from `ChainedBatch#_clear` ([#519](https://github.com/Level/leveldown/issues/519)) ([**@vweevers**](https://github.com/vweevers))
+- Remove redundant `db.close()` from `test/approximate-size-test.js` ([`d04f233`](https://github.com/Level/leveldown/commit/d04f233)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
+- Moved seek tests to `abstract-leveldown` ([#508](https://github.com/Level/leveldown/issues/508)) ([**@vweevers**](https://github.com/vweevers))
+- Remove unused `iota-array` and `lexicographic-integer` devDependencies ([#508](https://github.com/Level/leveldown/issues/508)) ([**@vweevers**](https://github.com/vweevers))
+- Remove `xcacheSize` and `xmaxOpenFiles` from leak tests ([#569](https://github.com/Level/leveldown/issues/569)) ([**@ralphtheninja**](https://github.com/ralphtheninja))
 - Remove legacy `bindings` dependency ([#583](https://github.com/Level/leveldown/issues/583)) ([**@peakji**](https://github.com/peakji))
 
 ### Fixed
 
-- Serialize `compactRange()` arguments ([#517](https://github.com/level/leveldown/issues/517)) ([**@vweevers**](https://github.com/vweevers))
-- Prevent segfault: when calling `iterator()` on non-open db ([#514](https://github.com/level/leveldown/issues/514)) ([**@vweevers**](https://github.com/vweevers))
+- Serialize `compactRange()` arguments ([#517](https://github.com/Level/leveldown/issues/517)) ([**@vweevers**](https://github.com/vweevers))
+- Prevent segfault: when calling `iterator()` on non-open db ([#514](https://github.com/Level/leveldown/issues/514)) ([**@vweevers**](https://github.com/vweevers))
 - Prevent segfault: add `PriorityWorker` to defer closing until `put` is done ([#597](https://github.com/Level/leveldown/issues/597)) ([**@vweevers**](https://github.com/vweevers))
 - Prevent segfault: keep persistent references to iterators until they are ended ([#597](https://github.com/Level/leveldown/issues/597)) ([**@vweevers**](https://github.com/vweevers))
 - Gitignore Debug builds of LevelDB and Snappy ([#597](https://github.com/Level/leveldown/issues/597)) ([**@vweevers**](https://github.com/vweevers))
@@ -455,7 +453,7 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Fixed
 
-- Fix build problems on windows ([#247](https://github.com/level/leveldown/issues/247)) ([**@obastemur**](https://github.com/obastemur))
+- Fix build problems on windows ([#247](https://github.com/Level/leveldown/issues/247)) ([**@obastemur**](https://github.com/obastemur))
 
 ## [1.4.3] - 2015-12-14
 
@@ -472,7 +470,7 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Fixed
 
-- Fix build problems on windows ([#196](https://github.com/level/leveldown/issues/196)) ([**@obastemur**](https://github.com/obastemur))
+- Fix build problems on windows ([#196](https://github.com/Level/leveldown/issues/196)) ([**@obastemur**](https://github.com/obastemur))
 
 ## [1.4.2] - 2015-10-21
 
@@ -729,8 +727,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Fixed
 
-- Fix array-batch memory leak ([level/levelup#171](https://github.com/level/levelup/issues/171)) ([**@rvagg**](https://github.com/rvagg))
-- Fix chained-batch `write()` segfaults (details in [#73](https://github.com/level/leveldown/issues/73)), ([**@rvagg**](https://github.com/rvagg) and [**@mcollina**](https://github.com/mcollina))
+- Fix array-batch memory leak ([level/levelup#171](https://github.com/Level/levelup/issues/171)) ([**@rvagg**](https://github.com/rvagg))
+- Fix chained-batch `write()` segfaults (details in [#73](https://github.com/Level/leveldown/issues/73)), ([**@rvagg**](https://github.com/rvagg) and [**@mcollina**](https://github.com/mcollina))
 
 ## [0.9.2] - 2013-11-02
 
@@ -848,7 +846,7 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Fixed
 
-- Fix memory leak caused when passing String objects in as keys and values, conversion to Slice created `new char[]` but wasn't being disposed. Buffers are automatically disposed (reported by [**@kylegetson**](https://github.com/kylegetson) levelup/[#140](https://github.com/level/leveldown/issues/140)) ([**@rvagg**](https://github.com/rvagg))
+- Fix memory leak caused when passing String objects in as keys and values, conversion to Slice created `new char[]` but wasn't being disposed. Buffers are automatically disposed (reported by [**@kylegetson**](https://github.com/kylegetson) levelup/[#140](https://github.com/Level/leveldown/issues/140)) ([**@rvagg**](https://github.com/rvagg))
 
 ## [0.4.0] - 2013-05-15
 
@@ -880,9 +878,9 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 **Historical Note** In the early days minor versions were looked upon as major versions. Semver practices we use today was not adopted fully at this time. This is why the history might look a bit confusing.
 
-## 0.2.4 - 2013-05-21
+<!-- ## 0.2.4 - 2013-05-21
 
-**Historical Note** Did not publish as a tag and `package.json` was never committed with this version number. Most likely due to a locally modified `package.json`.
+**Historical Note** Did not publish as a tag and `package.json` was never committed with this version number. Most likely due to a locally modified `package.json`. -->
 
 ## [0.2.3] - 2013-05-17
 
@@ -911,7 +909,7 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Fixed
 
-- Fix iterator to start on correct value when `reverse=true`, also handle end-of-store case ([#27](https://github.com/level/leveldown/issues/27)) ([**@kesla**](https://github.com/kesla))
+- Fix iterator to start on correct value when `reverse=true`, also handle end-of-store case ([#27](https://github.com/Level/leveldown/issues/27)) ([**@kesla**](https://github.com/kesla))
 
 ## [0.2.0] - 2013-03-30
 
@@ -994,176 +992,174 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
-[unreleased]: https://github.com/level/leveldown/compare/v5.1.1...HEAD
+[5.1.1]: https://github.com/Level/leveldown/compare/v5.1.0...v5.1.1
 
-[5.1.1]: https://github.com/level/leveldown/compare/v5.1.0...v5.1.1
+[5.1.0]: https://github.com/Level/leveldown/compare/v5.0.3...v5.1.0
 
-[5.1.0]: https://github.com/level/leveldown/compare/v5.0.3...v5.1.0
+[5.0.3]: https://github.com/Level/leveldown/compare/v5.0.2...v5.0.3
 
-[5.0.3]: https://github.com/level/leveldown/compare/v5.0.2...v5.0.3
+[5.0.2]: https://github.com/Level/leveldown/compare/v5.0.1...v5.0.2
 
-[5.0.2]: https://github.com/level/leveldown/compare/v5.0.1...v5.0.2
+[5.0.1]: https://github.com/Level/leveldown/compare/v5.0.0...v5.0.1
 
-[5.0.1]: https://github.com/level/leveldown/compare/v5.0.0...v5.0.1
+[5.0.0]: https://github.com/Level/leveldown/compare/v4.0.2...v5.0.0
 
-[5.0.0]: https://github.com/level/leveldown/compare/v4.0.2...v5.0.0
+[4.0.2]: https://github.com/Level/leveldown/compare/v4.0.1...v4.0.2
 
-[4.0.2]: https://github.com/level/leveldown/compare/v4.0.1...v4.0.2
+[4.0.1]: https://github.com/Level/leveldown/compare/v4.0.0...v4.0.1
 
-[4.0.1]: https://github.com/level/leveldown/compare/v4.0.0...v4.0.1
+[4.0.0]: https://github.com/Level/leveldown/compare/v3.0.2...v4.0.0
 
-[4.0.0]: https://github.com/level/leveldown/compare/v3.0.2...v4.0.0
+[3.0.2]: https://github.com/Level/leveldown/compare/v3.0.1...v3.0.2
 
-[3.0.2]: https://github.com/level/leveldown/compare/v3.0.1...v3.0.2
+[3.0.1]: https://github.com/Level/leveldown/compare/v3.0.0...v3.0.1
 
-[3.0.1]: https://github.com/level/leveldown/compare/v3.0.0...v3.0.1
+[3.0.0]: https://github.com/Level/leveldown/compare/v2.1.1...v3.0.0
 
-[3.0.0]: https://github.com/level/leveldown/compare/v2.1.1...v3.0.0
+[2.1.1]: https://github.com/Level/leveldown/compare/v2.1.0...v2.1.1
 
-[2.1.1]: https://github.com/level/leveldown/compare/v2.1.0...v2.1.1
+[2.1.0]: https://github.com/Level/leveldown/compare/v2.0.2...v2.1.0
 
-[2.1.0]: https://github.com/level/leveldown/compare/v2.0.2...v2.1.0
+[2.0.2]: https://github.com/Level/leveldown/compare/v2.0.1...v2.0.2
 
-[2.0.2]: https://github.com/level/leveldown/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/Level/leveldown/compare/v2.0.0...v2.0.1
 
-[2.0.1]: https://github.com/level/leveldown/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Level/leveldown/compare/v1.9.0...v2.0.0
 
-[2.0.0]: https://github.com/level/leveldown/compare/v1.9.0...v2.0.0
+[1.9.0]: https://github.com/Level/leveldown/compare/v1.8.0...v1.9.0
 
-[1.9.0]: https://github.com/level/leveldown/compare/v1.8.0...v1.9.0
+[1.8.0]: https://github.com/Level/leveldown/compare/v1.7.2...v1.8.0
 
-[1.8.0]: https://github.com/level/leveldown/compare/v1.7.2...v1.8.0
+[1.7.2]: https://github.com/Level/leveldown/compare/v1.7.1...v1.7.2
 
-[1.7.2]: https://github.com/level/leveldown/compare/v1.7.1...v1.7.2
+[1.7.1]: https://github.com/Level/leveldown/compare/v1.7.0...v1.7.1
 
-[1.7.1]: https://github.com/level/leveldown/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/Level/leveldown/compare/v1.7.0-0...v1.7.0
 
-[1.7.0]: https://github.com/level/leveldown/compare/v1.7.0-0...v1.7.0
+[1.7.0-0]: https://github.com/Level/leveldown/compare/v1.6.0...v1.7.0-0
 
-[1.7.0-0]: https://github.com/level/leveldown/compare/v1.6.0...v1.7.0-0
+[1.6.0]: https://github.com/Level/leveldown/compare/v1.5.3...v1.6.0
 
-[1.6.0]: https://github.com/level/leveldown/compare/v1.5.3...v1.6.0
+[1.5.3]: https://github.com/Level/leveldown/compare/v1.5.2...v1.5.3
 
-[1.5.3]: https://github.com/level/leveldown/compare/v1.5.2...v1.5.3
+[1.5.2]: https://github.com/Level/leveldown/compare/v1.5.1...v1.5.2
 
-[1.5.2]: https://github.com/level/leveldown/compare/v1.5.1...v1.5.2
+[1.5.1]: https://github.com/Level/leveldown/compare/v1.5.0...v1.5.1
 
-[1.5.1]: https://github.com/level/leveldown/compare/v1.5.0...v1.5.1
+[1.5.0]: https://github.com/Level/leveldown/compare/v1.4.6...v1.5.0
 
-[1.5.0]: https://github.com/level/leveldown/compare/v1.4.6...v1.5.0
+[1.4.6]: https://github.com/Level/leveldown/compare/v1.4.5...v1.4.6
 
-[1.4.6]: https://github.com/level/leveldown/compare/v1.4.5...v1.4.6
+[1.4.5]: https://github.com/Level/leveldown/compare/v1.4.4...v1.4.5
 
-[1.4.5]: https://github.com/level/leveldown/compare/v1.4.4...v1.4.5
+[1.4.4]: https://github.com/Level/leveldown/compare/v1.4.3...v1.4.4
 
-[1.4.4]: https://github.com/level/leveldown/compare/v1.4.3...v1.4.4
+[1.4.3]: https://github.com/Level/leveldown/compare/v1.4.2...v1.4.3
 
-[1.4.3]: https://github.com/level/leveldown/compare/v1.4.2...v1.4.3
+[1.4.2]: https://github.com/Level/leveldown/compare/v1.4.1...v1.4.2
 
-[1.4.2]: https://github.com/level/leveldown/compare/v1.4.1...v1.4.2
+[1.4.1]: https://github.com/Level/leveldown/compare/v1.4.0...v1.4.1
 
-[1.4.1]: https://github.com/level/leveldown/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Level/leveldown/compare/v1.3.1-0...v1.4.0
 
-[1.4.0]: https://github.com/level/leveldown/compare/v1.3.1-0...v1.4.0
+[1.3.1-0]: https://github.com/Level/leveldown/compare/v1.3.0...v1.3.1-0
 
-[1.3.1-0]: https://github.com/level/leveldown/compare/v1.3.0...v1.3.1-0
+[1.3.0]: https://github.com/Level/leveldown/compare/v1.2.2...v1.3.0
 
-[1.3.0]: https://github.com/level/leveldown/compare/v1.2.2...v1.3.0
+[1.2.2]: https://github.com/Level/leveldown/compare/v1.2.1...v1.2.2
 
-[1.2.2]: https://github.com/level/leveldown/compare/v1.2.1...v1.2.2
+[1.2.1]: https://github.com/Level/leveldown/compare/v1.2.0...v1.2.1
 
-[1.2.1]: https://github.com/level/leveldown/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Level/leveldown/compare/v1.1.0...v1.2.0
 
-[1.2.0]: https://github.com/level/leveldown/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/Level/leveldown/compare/v1.0.7...v1.1.0
 
-[1.1.0]: https://github.com/level/leveldown/compare/v1.0.7...v1.1.0
+[1.0.7]: https://github.com/Level/leveldown/compare/v1.0.6...v1.0.7
 
-[1.0.7]: https://github.com/level/leveldown/compare/v1.0.6...v1.0.7
+[1.0.6]: https://github.com/Level/leveldown/compare/v1.0.5...v1.0.6
 
-[1.0.6]: https://github.com/level/leveldown/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/Level/leveldown/compare/v1.0.4...v1.0.5
 
-[1.0.5]: https://github.com/level/leveldown/compare/v1.0.4...v1.0.5
+[1.0.4]: https://github.com/Level/leveldown/compare/v1.0.3...v1.0.4
 
-[1.0.4]: https://github.com/level/leveldown/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/Level/leveldown/compare/v1.0.2...v1.0.3
 
-[1.0.3]: https://github.com/level/leveldown/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/Level/leveldown/compare/v1.0.1...v1.0.2
 
-[1.0.2]: https://github.com/level/leveldown/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Level/leveldown/compare/v1.0.0...v1.0.1
 
-[1.0.1]: https://github.com/level/leveldown/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Level/leveldown/compare/v0.10.6...v1.0.0
 
-[1.0.0]: https://github.com/level/leveldown/compare/v0.10.6...v1.0.0
+[0.10.6]: https://github.com/Level/leveldown/compare/v0.10.5...v0.10.6
 
-[0.10.6]: https://github.com/level/leveldown/compare/v0.10.5...v0.10.6
+[0.10.5]: https://github.com/Level/leveldown/compare/v0.10.4...v0.10.5
 
-[0.10.5]: https://github.com/level/leveldown/compare/v0.10.4...v0.10.5
+[0.10.4]: https://github.com/Level/leveldown/compare/v0.10.3...v0.10.4
 
-[0.10.4]: https://github.com/level/leveldown/compare/v0.10.3...v0.10.4
+[0.10.3]: https://github.com/Level/leveldown/compare/v0.10.2...v0.10.3
 
-[0.10.3]: https://github.com/level/leveldown/compare/v0.10.2...v0.10.3
+[0.10.2]: https://github.com/Level/leveldown/compare/v0.10.1...v0.10.2
 
-[0.10.2]: https://github.com/level/leveldown/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/Level/leveldown/compare/0.10.0...v0.10.1
 
-[0.10.1]: https://github.com/level/leveldown/compare/0.10.0...v0.10.1
+[0.10.0]: https://github.com/Level/leveldown/compare/0.9.2...0.10.0
 
-[0.10.0]: https://github.com/level/leveldown/compare/0.9.2...0.10.0
+[0.9.2]: https://github.com/Level/leveldown/compare/0.9.1...0.9.2
 
-[0.9.2]: https://github.com/level/leveldown/compare/0.9.1...0.9.2
+[0.9.1]: https://github.com/Level/leveldown/compare/0.9.0...0.9.1
 
-[0.9.1]: https://github.com/level/leveldown/compare/0.9.0...0.9.1
+[0.9.0]: https://github.com/Level/leveldown/compare/0.8.3...0.9.0
 
-[0.9.0]: https://github.com/level/leveldown/compare/0.8.3...0.9.0
+[0.8.3]: https://github.com/Level/leveldown/compare/0.8.2...0.8.3
 
-[0.8.3]: https://github.com/level/leveldown/compare/0.8.2...0.8.3
+[0.8.2]: https://github.com/Level/leveldown/compare/0.8.1...0.8.2
 
-[0.8.2]: https://github.com/level/leveldown/compare/0.8.1...0.8.2
+[0.8.1]: https://github.com/Level/leveldown/compare/0.8.0...0.8.1
 
-[0.8.1]: https://github.com/level/leveldown/compare/0.8.0...0.8.1
+[0.8.0]: https://github.com/Level/leveldown/compare/0.7.0...0.8.0
 
-[0.8.0]: https://github.com/level/leveldown/compare/0.7.0...0.8.0
+[0.7.0]: https://github.com/Level/leveldown/compare/0.6.2...0.7.0
 
-[0.7.0]: https://github.com/level/leveldown/compare/0.6.2...0.7.0
+[0.6.2]: https://github.com/Level/leveldown/compare/0.6.1...0.6.2
 
-[0.6.2]: https://github.com/level/leveldown/compare/0.6.1...0.6.2
+[0.6.1]: https://github.com/Level/leveldown/compare/0.6.0...0.6.1
 
-[0.6.1]: https://github.com/level/leveldown/compare/0.6.0...0.6.1
+[0.6.0]: https://github.com/Level/leveldown/compare/0.5.0...0.6.0
 
-[0.6.0]: https://github.com/level/leveldown/compare/0.5.0...0.6.0
+[0.5.0]: https://github.com/Level/leveldown/compare/0.4.4...0.5.0
 
-[0.5.0]: https://github.com/level/leveldown/compare/0.4.4...0.5.0
+[0.4.4]: https://github.com/Level/leveldown/compare/0.4.3...0.4.4
 
-[0.4.4]: https://github.com/level/leveldown/compare/0.4.3...0.4.4
+[0.4.3]: https://github.com/Level/leveldown/compare/0.4.2...0.4.3
 
-[0.4.3]: https://github.com/level/leveldown/compare/0.4.2...0.4.3
+[0.4.2]: https://github.com/Level/leveldown/compare/0.4.1...0.4.2
 
-[0.4.2]: https://github.com/level/leveldown/compare/0.4.1...0.4.2
+[0.4.1]: https://github.com/Level/leveldown/compare/0.4.0...0.4.1
 
-[0.4.1]: https://github.com/level/leveldown/compare/0.4.0...0.4.1
+[0.4.0]: https://github.com/Level/leveldown/compare/0.3.1...0.4.0
 
-[0.4.0]: https://github.com/level/leveldown/compare/0.3.1...0.4.0
+[0.3.1]: https://github.com/Level/leveldown/compare/0.3.0...0.3.1
 
-[0.3.1]: https://github.com/level/leveldown/compare/0.3.0...0.3.1
+[0.3.0]: https://github.com/Level/leveldown/compare/0.2.3...0.3.0
 
-[0.3.0]: https://github.com/level/leveldown/compare/0.2.3...0.3.0
+[0.2.3]: https://github.com/Level/leveldown/compare/0.2.2...0.2.3
 
-[0.2.3]: https://github.com/level/leveldown/compare/0.2.2...0.2.3
+[0.2.2]: https://github.com/Level/leveldown/compare/0.2.1...0.2.2
 
-[0.2.2]: https://github.com/level/leveldown/compare/0.2.1...0.2.2
+[0.2.1]: https://github.com/Level/leveldown/compare/0.2.0...0.2.1
 
-[0.2.1]: https://github.com/level/leveldown/compare/0.2.0...0.2.1
+[0.2.0]: https://github.com/Level/leveldown/compare/0.1.4...0.2.0
 
-[0.2.0]: https://github.com/level/leveldown/compare/0.1.4...0.2.0
+[0.1.4]: https://github.com/Level/leveldown/compare/0.1.3...0.1.4
 
-[0.1.4]: https://github.com/level/leveldown/compare/0.1.3...0.1.4
+[0.1.3]: https://github.com/Level/leveldown/compare/0.1.2...0.1.3
 
-[0.1.3]: https://github.com/level/leveldown/compare/0.1.2...0.1.3
+[0.1.2]: https://github.com/Level/leveldown/compare/0.1.1...0.1.2
 
-[0.1.2]: https://github.com/level/leveldown/compare/0.1.1...0.1.2
+[0.1.1]: https://github.com/Level/leveldown/compare/0.1.0...0.1.1
 
-[0.1.1]: https://github.com/level/leveldown/compare/0.1.0...0.1.1
+[0.1.0]: https://github.com/Level/leveldown/compare/0.0.2...0.1.0
 
-[0.1.0]: https://github.com/level/leveldown/compare/0.0.2...0.1.0
+[0.0.2]: https://github.com/Level/leveldown/compare/0.0.1...0.0.2
 
-[0.0.2]: https://github.com/level/leveldown/compare/0.0.1...0.0.2
-
-[0.0.1]: https://github.com/level/leveldown/compare/0.0.0...0.0.1
+[0.0.1]: https://github.com/Level/leveldown/compare/0.0.0...0.0.1
