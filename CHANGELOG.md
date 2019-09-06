@@ -2,6 +2,21 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
+## [5.2.0] - 2019-09-06
+
+### Changed
+
+- Upgrade `abstract-leveldown` from `~6.0.3` to `~6.1.1` ([#660](https://github.com/Level/leveldown/issues/660)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `napi-macros` from `~1.8.1` to `~2.0.0` ([#657](https://github.com/Level/leveldown/issues/657)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `hallmark` devDependency from `^0.1.0` to `^2.0.0` ([#654](https://github.com/Level/leveldown/issues/654), [#663](https://github.com/Level/leveldown/issues/663)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `standard` devDependency from `^12.0.0` to `^14.0.0` ([#653](https://github.com/Level/leveldown/issues/653), [#661](https://github.com/Level/leveldown/issues/661)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `rimraf` devDependency from `^2.6.1` to `^3.0.0` ([#658](https://github.com/Level/leveldown/issues/658)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `electron` devDependency from `^5.0.0` to `^6.0.0` ([#656](https://github.com/Level/leveldown/issues/656)) ([**@vweevers**](https://github.com/vweevers))
+
+### Added
+
+- Add [`db.clear()`](https://github.com/Level/abstract-leveldown#dbclearoptions-callback) method (courtesy of `abstract-leveldown`) ([#660](https://github.com/Level/leveldown/issues/660)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.1.1] - 2019-06-28
 
 ### Changed
@@ -991,6 +1006,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[5.2.0]: https://github.com/Level/leveldown/compare/v5.1.1...v5.2.0
 
 [5.1.1]: https://github.com/Level/leveldown/compare/v5.1.0...v5.1.1
 
