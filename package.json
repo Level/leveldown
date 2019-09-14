@@ -6,7 +6,7 @@
   "main": "leveldown.js",
   "scripts": {
     "install": "node-gyp-build",
-    "test": "standard && nyc tape test/*-test.js",
+    "test": "standard && (nyc -s tape test/*-test.js | faucet) && nyc report",
     "test-gc": "npx -n=--expose-gc tape test/{cleanup,iterator-gc,chained-batch-gc}*-test.js",
     "test-electron": "electron test/electron.js",
     "test-prebuild": "cross-env PREBUILDS_ONLY=1 npm t",
@@ -37,6 +37,7 @@
     "dependency-check": "^3.3.0",
     "du": "^1.0.0",
     "electron": "^6.0.0",
+    "faucet": "^0.0.1",
     "glob": "^7.1.3",
     "hallmark": "^2.0.0",
     "level-community": "^3.0.0",
