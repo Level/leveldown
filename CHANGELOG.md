@@ -2,6 +2,16 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
+## [5.2.1] - 2019-09-20
+
+### Added
+
+- Document minimum version for node 12 ([`9748454`](https://github.com/Level/leveldown/commit/9748454)) ([**@vweevers**](https://github.com/vweevers))
+
+### Fixed
+
+- Close db in `stack-blower` test ([#668](https://github.com/Level/leveldown/issues/668)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.2.0] - 2019-09-06
 
 ### Changed
@@ -1006,6 +1016,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[5.2.1]: https://github.com/Level/leveldown/compare/v5.2.0...v5.2.1
 
 [5.2.0]: https://github.com/Level/leveldown/compare/v5.1.1...v5.2.0
 
