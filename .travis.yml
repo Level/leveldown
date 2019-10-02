@@ -10,7 +10,7 @@ jobs:
       env: [TEST=1]
     - os: linux
       node_js: node
-      env: [TEST=1, TEST_ELECTRON=1, BUILD_CMD=prebuild, BUILD_GROUP=linux-x64]
+      env: [TEST=1, TEST_ELECTRON=1]
       addons:
         apt:
           packages:
@@ -27,6 +27,11 @@ jobs:
     - os: osx
       node_js: node
       env: [TEST=1, TEST_ELECTRON=1, BUILD_CMD=prebuild, BUILD_GROUP=darwin-x64]
+    - name: centos7
+      os: linux
+      node_js: node
+      env: [BUILD_CMD=prebuild-centos7, BUILD_GROUP=linux-x64, NPM_CONFIG_IGNORE_SCRIPTS=1]
+      if: tag is present
     - name: arm
       os: linux
       node_js: node
