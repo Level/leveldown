@@ -49,7 +49,22 @@ The `leveldown` npm package ships with prebuilt binaries for popular 64-bit plat
 
 When installing `leveldown`, [`node-gyp-build`](https://github.com/prebuild/node-gyp-build) will check if a compatible binary exists and fallback to a compile step if it doesn't. In that case you'll need a [valid `node-gyp` installation](https://github.com/nodejs/node-gyp#installation).
 
-If you don't want to use the prebuilt binary for the platform you are installing on, specify the `--build-from-source` flag when you install. If you are working on `leveldown` itself and want to re-compile the C++ code it's enough to do `npm install`.
+If you don't want to use the prebuilt binary for the platform you are installing on, specify the `--build-from-source` flag when you install. One of:
+
+```
+npm install --build-from-source
+npm install leveldown --build-from-source
+```
+
+If you are working on `leveldown` itself and want to re-compile the C++ code, run `npm run rebuild`.
+
+### Notes
+
+- If you get compilation errors on Node.js 12, please ensure you have `leveldown` >= 5. This can be checked by running `npm ls leveldown`.
+- On Debian 8 you must either update glibc through external sources like Ubuntu (to be able to load prebuilt binaries) or use `--build-from-source`.
+- On Alpine 3 it was previously necessary to use `--build-from-source`. This is no longer the case.
+- FreeBSD hasn't been tested in a while. Let us know if it works!
+- The Android prebuilds are made for and built against Node.js core rather than the [`nodejs-mobile`](https://github.com/JaneaSystems/nodejs-mobile) fork.
 
 ## API
 
