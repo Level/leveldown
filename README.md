@@ -61,7 +61,7 @@ If you are working on `leveldown` itself and want to re-compile the C++ code, ru
 ### Notes
 
 - If you get compilation errors on Node.js 12, please ensure you have `leveldown` >= 5. This can be checked by running `npm ls leveldown`.
-- On Linux flavors with an old glibc (Debian 8, Ubuntu 14.04, RHEL 7, CentOS 7, Fedora 20) you must either update `leveldown` to >= 5.3.0 or use `--build-from-source`.
+- On Linux flavors with an old glibc (Debian 8, Ubuntu 14.04, RHEL 7, CentOS 7) you must either update `leveldown` to >= 5.3.0 or use `--build-from-source`.
 - On Alpine 3 it was previously necessary to use `--build-from-source`. This is no longer the case.
 - FreeBSD hasn't been tested in a while. Let us know if it works!
 - The Android prebuilds are made for and built against Node.js core rather than the [`nodejs-mobile`](https://github.com/JaneaSystems/nodejs-mobile) fork.
