@@ -1,0 +1,14 @@
+#!/bin/bash
+
+images=(
+  "node:lts-jessie"
+  "node:lts-stretch"
+  "node:lts-buster"
+  "node:lts-alpine"
+  "centos/nodejs-10-centos7"
+)
+
+for image in "${images[@]}"; do
+  echo "Test $image"
+  docker run --rm -v $(pwd):/app:ro -w /app $image npm run test-prebuild
+done
