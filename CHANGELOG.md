@@ -2,15 +2,19 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
-## [5.3.0-0] - 2019-10-04
+## [5.3.0] - 2019-10-04
 
 ### Changed
 
-- Replace Ubuntu 16.04 with CentOS 7 for prebuilds ([#674](https://github.com/Level/leveldown/issues/674)) ([**@rvagg**](https://github.com/rvagg))
+- Replace Ubuntu 16.04 with CentOS 7 for prebuilds ([#674](https://github.com/Level/leveldown/issues/674)) ([**@rvagg**](https://github.com/rvagg)). This makes the prebuilt binary for linux compatible with Debian 8, Ubuntu 14.04, RHEL 7, CentOS 7 and other flavors with an old glibc.
 
 ### Added
 
-- Add platform-specific notes ([#672](https://github.com/Level/leveldown/issues/672)) ([**@vweevers**](https://github.com/vweevers))
+- Add platform-specific notes ([#672](https://github.com/Level/leveldown/issues/672), [`e359e7a`](https://github.com/Level/leveldown/commit/e359e7a)) ([**@vweevers**](https://github.com/vweevers))
+
+## [5.3.0-0] - 2019-10-04
+
+**Historical Note** This was a prerelease of 5.3.0 for testing purposes. Changes listed above.
 
 ## [5.2.1] - 2019-09-20
 
@@ -1026,6 +1030,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[5.3.0]: https://github.com/Level/leveldown/compare/v5.3.0-0...v5.3.0
 
 [5.3.0-0]: https://github.com/Level/leveldown/compare/v5.2.1...v5.3.0-0
 
