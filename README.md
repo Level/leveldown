@@ -5,6 +5,7 @@
 [![Node version](https://img.shields.io/node/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
 [![Travis](https://img.shields.io/travis/com/Level/leveldown.svg?logo=travis&label=)](https://travis-ci.com/Level/leveldown)
 [![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?logo=appveyor&label=)](https://ci.appveyor.com/project/Level/leveldown)
+[![Cirrus CI](https://img.shields.io/cirrus/github/Level/leveldown?logo=cirrus-ci&label=)](https://cirrus-ci.com/github/Level/leveldown)
 [![npm](https://img.shields.io/npm/dm/leveldown.svg?label=dl)](https://www.npmjs.com/package/leveldown)
 [![Coverage Status](https://coveralls.io/repos/github/Level/leveldown/badge.svg)](https://coveralls.io/github/Level/leveldown)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
