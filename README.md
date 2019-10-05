@@ -3,7 +3,7 @@
 [![level badge][level-badge]](https://github.com/Level/awesome)
 [![npm](https://img.shields.io/npm/v/leveldown.svg?label=&logo=npm)](https://www.npmjs.com/package/leveldown)
 [![Node version](https://img.shields.io/node/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
-[![Travis](https://img.shields.io/travis/Level/leveldown.svg?logo=travis&label=)](https://travis-ci.org/Level/leveldown)
+[![Travis](https://img.shields.io/travis/com/Level/leveldown.svg?logo=travis&label=)](https://travis-ci.com/Level/leveldown)
 [![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?logo=appveyor&label=)](https://ci.appveyor.com/project/Level/leveldown)
 [![npm](https://img.shields.io/npm/dm/leveldown.svg?label=dl)](https://www.npmjs.com/package/leveldown)
 [![Coverage Status](https://coveralls.io/repos/github/Level/leveldown/badge.svg)](https://coveralls.io/github/Level/leveldown)
