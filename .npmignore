@@ -41,6 +41,7 @@ yarn.lock
 .dntrc
 .gitmodules
 .travis.yml
+.cirrus.yml
 appveyor.yml
 
 # Unknown
