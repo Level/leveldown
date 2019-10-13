@@ -531,7 +531,6 @@ struct Iterator {
       highWaterMark_(highWaterMark),
       dbIterator_(NULL),
       count_(0),
-      target_(NULL),
       seeking_(false),
       landed_(false),
       nexting_(false),
@@ -545,7 +544,6 @@ struct Iterator {
 
   ~Iterator () {
     assert(ended_);
-    ReleaseTarget();
 
     if (start_ != NULL) delete start_;
     if (end_ != NULL) delete end_;
@@ -555,16 +553,6 @@ struct Iterator {
     if (gte_ != NULL) delete gte_;
 
     delete options_;
-  }
-
-  void ReleaseTarget () {
-    if (target_ != NULL) {
-      if (!target_->empty()) {
-        delete [] target_->data();
-      }
-      delete target_;
-      target_ = NULL;
-    }
   }
 
   void Attach (napi_ref ref) {
@@ -671,21 +659,21 @@ struct Iterator {
     return false;
   }
 
-  bool OutOfRange (leveldb::Slice* target) {
-    if ((lt_ != NULL && target->compare(*lt_) >= 0) ||
-        (lte_ != NULL && target->compare(*lte_) > 0) ||
-        (start_ != NULL && reverse_ && target->compare(*start_) > 0)) {
+  bool OutOfRange (leveldb::Slice& target) {
+    if ((lt_ != NULL && target.compare(*lt_) >= 0) ||
+        (lte_ != NULL && target.compare(*lte_) > 0) ||
+        (start_ != NULL && reverse_ && target.compare(*start_) > 0)) {
       return true;
     }
 
     if (end_ != NULL) {
-      int d = target->compare(*end_);
+      int d = target.compare(*end_);
       if (reverse_ ? d < 0 : d > 0) return true;
     }
 
-    return ((gt_ != NULL && target->compare(*gt_) <= 0) ||
-            (gte_ != NULL && target->compare(*gte_) < 0) ||
-            (start_ != NULL && !reverse_ && target->compare(*start_) < 0));
+    return ((gt_ != NULL && target.compare(*gt_) <= 0) ||
+            (gte_ != NULL && target.compare(*gte_) < 0) ||
+            (start_ != NULL && !reverse_ && target.compare(*start_) < 0));
   }
 
   bool IteratorNext (std::vector<std::pair<std::string, std::string> >& result) {
@@ -733,7 +721,6 @@ struct Iterator {
   uint32_t highWaterMark_;
   leveldb::Iterator* dbIterator_;
   int count_;
-  leveldb::Slice* target_;
   bool seeking_;
   bool landed_;
   bool nexting_;
@@ -1302,17 +1289,16 @@ NAPI_METHOD(iterator_seek) {
     napi_throw_error(env, NULL, "iterator has ended");
   }
 
-  iterator->ReleaseTarget();
-  iterator->target_ = new leveldb::Slice(ToSlice(env, argv[1]));
+  leveldb::Slice target = ToSlice(env, argv[1]);
   iterator->GetIterator();
 
   leveldb::Iterator* dbIterator = iterator->dbIterator_;
-  dbIterator->Seek(*iterator->target_);
+  dbIterator->Seek(target);
 
   iterator->seeking_ = true;
   iterator->landed_ = false;
 
-  if (iterator->OutOfRange(iterator->target_)) {
+  if (iterator->OutOfRange(target)) {
     if (iterator->reverse_) {
       dbIterator->SeekToFirst();
       dbIterator->Prev();
@@ -1322,7 +1308,7 @@ NAPI_METHOD(iterator_seek) {
     }
   }
   else if (dbIterator->Valid()) {
-    int cmp = dbIterator->key().compare(*iterator->target_);
+    int cmp = dbIterator->key().compare(target);
     if (cmp > 0 && iterator->reverse_) {
       dbIterator->Prev();
     } else if (cmp < 0 && !iterator->reverse_) {
@@ -1335,7 +1321,7 @@ NAPI_METHOD(iterator_seek) {
       dbIterator->SeekToFirst();
     }
     if (dbIterator->Valid()) {
-      int cmp = dbIterator->key().compare(*iterator->target_);
+      int cmp = dbIterator->key().compare(target);
       if (cmp > 0 && iterator->reverse_) {
         dbIterator->SeekToFirst();
         dbIterator->Prev();
@@ -1346,6 +1332,7 @@ NAPI_METHOD(iterator_seek) {
     }
   }
 
+  DisposeSliceBuffer(target);
   NAPI_RETURN_UNDEFINED();
 }
 
@@ -1407,7 +1394,6 @@ NAPI_METHOD(iterator_end) {
  * for this function being a separate function pointer.
  */
 void CheckEndCallback (Iterator* iterator) {
-  iterator->ReleaseTarget();
   iterator->nexting_ = false;
   if (iterator->endWorker_ != NULL) {
     iterator->endWorker_->Queue();
