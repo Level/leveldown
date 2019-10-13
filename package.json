@@ -26,7 +26,7 @@
     "prebuild-centos7": "IMAGE=centos7-devtoolset7 ./scripts/cross-compile"
   },
   "dependencies": {
-    "abstract-leveldown": "~6.1.1",
+    "abstract-leveldown": "~6.2.1",
     "napi-macros": "~2.0.0",
     "node-gyp-build": "~4.1.0"
   },

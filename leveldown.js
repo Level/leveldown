@@ -13,7 +13,19 @@ function LevelDOWN (location) {
     throw new Error('constructor requires a location string argument')
   }
 
-  AbstractLevelDOWN.call(this)
+  AbstractLevelDOWN.call(this, {
+    bufferKeys: true,
+    snapshots: true,
+    permanence: true,
+    seek: true,
+    clear: true,
+    createIfMissing: true,
+    errorIfExists: true,
+    additionalMethods: {
+      approximateSize: true,
+      compactRange: true
+    }
+  })
 
   this.location = location
   this.context = binding.db_init()
