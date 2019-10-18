@@ -13,6 +13,16 @@
 #include <vector>
 
 /**
+ * Produce a unique namespace at compile time so that symbols don't
+ * clash when multiple versions of the addon are loaded into node.
+ */
+#define CONCAT_(a,b) a##b
+#define CONCAT(a,b) CONCAT_(a,b)
+#define NS CONCAT(NODE_GYP_MODULE_NAME,MODULE_SEED)
+
+namespace NS {
+
+/**
  * Forward declarations.
  */
 struct Database;
@@ -1764,4 +1774,6 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(batch_del);
   NAPI_EXPORT_FUNCTION(batch_clear);
   NAPI_EXPORT_FUNCTION(batch_write);
+}
+
 }

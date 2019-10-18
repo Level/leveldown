@@ -1,6 +1,9 @@
 {
   "targets": [{
     "target_name": "leveldown",
+    "defines": [
+      "MODULE_SEED=<!(node -p \"crypto.randomBytes(16).toString('hex')\")"
+    ],
     "conditions": [
       ["OS == 'win'", {
         "defines": [
