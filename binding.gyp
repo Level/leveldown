@@ -19,6 +19,12 @@
         "cflags": [],
         "cflags!": [ "-fno-tree-vrp"]
       }],
+      ["OS == 'mac'", {
+        "cflags+": ["-fvisibility=hidden"],
+        "xcode_settings": {
+          "GCC_SYMBOLS_PRIVATE_EXTERN": "YES" # -fvisibility=hidden
+        }
+      }],
       ["OS == 'android'", {
         "cflags": [ "-fPIC" ],
         "ldflags": [ "-fPIC" ],
