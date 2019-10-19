@@ -2,6 +2,21 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
+## [5.4.0] - 2019-10-19
+
+### Changed
+
+- Refactor initialization of range options ([#681](https://github.com/Level/leveldown/issues/681)) ([**@vweevers**](https://github.com/vweevers))
+- Make iterator seek target a local variable ([#683](https://github.com/Level/leveldown/issues/683)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `node-gyp` devDependency from `^5.0.0` to `^6.0.0` ([#677](https://github.com/Level/leveldown/issues/677)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `dependency-check` devDependency from `^3.3.0` to `^4.1.0` ([`8965e58`](https://github.com/Level/leveldown/commit/8965e58)) ([**@vweevers**](https://github.com/vweevers))
+
+### Added
+
+- Add manifest ([Level/community#83](https://github.com/Level/community/issues/83)) ([#685](https://github.com/Level/leveldown/issues/685)) ([**@vweevers**](https://github.com/vweevers))
+- Add Cirrus CI for FreeBSD tests :sparkles: ([#678](https://github.com/Level/leveldown/issues/678), [`55f30a3`](https://github.com/Level/leveldown/commit/55f30a3)) ([**@vweevers**](https://github.com/vweevers))
+- Test that empty range options are ignored ([#684](https://github.com/Level/leveldown/issues/684)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.3.0] - 2019-10-04
 
 ### Changed
@@ -1030,6 +1045,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[5.4.0]: https://github.com/Level/leveldown/compare/v5.3.0...v5.4.0
 
 [5.3.0]: https://github.com/Level/leveldown/compare/v5.3.0-0...v5.3.0
 
