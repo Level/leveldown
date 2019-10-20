@@ -587,27 +587,22 @@ struct Iterator {
         if (!dbIterator_->Valid()) {
           dbIterator_->SeekToLast();
         } else {
-          std::string keyStr = dbIterator_->key().ToString();
+          leveldb::Slice key = dbIterator_->key();
 
-          if (lt_ != NULL) {
-            if (lt_->compare(keyStr) <= 0)
-              dbIterator_->Prev();
-          } else if (lte_ != NULL) {
-            if (lte_->compare(keyStr) < 0)
-              dbIterator_->Prev();
-          } else if (start_ != NULL) {
-            if (start_->compare(keyStr))
-              dbIterator_->Prev();
+          if ((lt_ != NULL && key.compare(*lt_) >= 0) ||
+              (lte_ != NULL && key.compare(*lte_) > 0) ||
+              (start_ != NULL && key.compare(*start_) > 0)) {
+            dbIterator_->Prev();
           }
         }
 
         if (dbIterator_->Valid() && lt_ != NULL) {
-          if (lt_->compare(dbIterator_->key().ToString()) <= 0)
+          if (dbIterator_->key().compare(*lt_) >= 0)
             dbIterator_->Prev();
         }
       } else {
         if (dbIterator_->Valid() && gt_ != NULL
-            && gt_->compare(dbIterator_->key().ToString()) == 0)
+            && dbIterator_->key().compare(*gt_) == 0)
           dbIterator_->Next();
       }
     } else if (reverse_) {
@@ -1306,8 +1301,7 @@ NAPI_METHOD(iterator_seek) {
       dbIterator->SeekToLast();
       dbIterator->Next();
     }
-  }
-  else if (dbIterator->Valid()) {
+  } else if (dbIterator->Valid()) {
     int cmp = dbIterator->key().compare(target);
     if (cmp > 0 && iterator->reverse_) {
       dbIterator->Prev();
