@@ -598,7 +598,7 @@ struct Iterator {
 
         if (dbIterator_->Valid() && lt_ != NULL) {
           if (dbIterator_->key().compare(*lt_) >= 0)
-            dbIterator_->Prev();
+            assert(false);
         }
       } else {
         if (dbIterator_->Valid() && gt_ != NULL
