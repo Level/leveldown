@@ -7,7 +7,7 @@
   "scripts": {
     "install": "node-gyp-build",
     "test": "standard && (nyc -s tape test/*-test.js | faucet) && nyc report",
-    "test-gc": "npx -n=--expose-gc tape test/{cleanup,iterator-gc,chained-batch-gc}*-test.js",
+    "test-gc": "node --expose-gc test/gc.js",
     "test-electron": "electron test/electron.js",
     "test-prebuild": "cross-env PREBUILDS_ONLY=1 npm t",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
