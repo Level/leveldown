@@ -596,9 +596,11 @@ struct Iterator {
           }
         }
 
+        // TODO: this looks like dead code. Remove it in a
+        // next major release together with Level/community#86.
         if (dbIterator_->Valid() && lt_ != NULL) {
           if (dbIterator_->key().compare(*lt_) >= 0)
-            assert(false);
+            dbIterator_->Prev();
         }
       } else {
         if (dbIterator_->Valid() && gt_ != NULL
