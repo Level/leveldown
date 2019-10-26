@@ -2,6 +2,13 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
+## [5.4.1] - 2019-10-26
+
+### Fixed
+
+- Hide symbols on mac with `-fvisibility=hidden` ([#688](https://github.com/Level/leveldown/issues/688)) ([**@vweevers**](https://github.com/vweevers))
+- Fix `test-gc` npm script ([#691](https://github.com/Level/leveldown/issues/691)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.4.0] - 2019-10-19
 
 ### Changed
@@ -1045,6 +1052,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[5.4.1]: https://github.com/Level/leveldown/compare/v5.4.0...v5.4.1
 
 [5.4.0]: https://github.com/Level/leveldown/compare/v5.3.0...v5.4.0
 
