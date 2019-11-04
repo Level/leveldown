@@ -15,7 +15,7 @@
     "prebuild": "prebuildify -t 8.14.0 --napi --strip",
     "download-prebuilds": "prebuildify-ci download",
     "hallmark": "hallmark --fix",
-    "dependency-check": "dependency-check --no-dev -i napi-macros . test/*.js bench/*.js",
+    "dependency-check": "dependency-check --no-dev -i napi-macros . test/*.js",
     "prepublishOnly": "npm run dependency-check",
     "prebuild-arm": "npm run prebuild-linux-armv7 && npm run prebuild-linux-arm64 && npm run prebuild-android-armv7 && npm run prebuild-android-arm64",
     "prebuild-linux-armv7": "IMAGE=linux-armv7 ./scripts/cross-compile --tag-armv",
