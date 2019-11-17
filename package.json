@@ -17,13 +17,11 @@
     "hallmark": "hallmark --fix",
     "dependency-check": "dependency-check --no-dev -i napi-macros . test/*.js",
     "prepublishOnly": "npm run dependency-check",
-    "prebuild-arm": "npm run prebuild-linux-armv7 && npm run prebuild-linux-arm64 && npm run prebuild-android-armv7 && npm run prebuild-android-arm64",
-    "prebuild-linux-armv7": "IMAGE=linux-armv7 ./scripts/cross-compile --tag-armv",
-    "prebuild-linux-arm64": "IMAGE=linux-arm64 ./scripts/cross-compile --tag-armv",
-    "prebuild-android-armv7": "IMAGE=android-armv7 ./scripts/cross-compile --tag-armv",
-    "prebuild-android-arm64": "IMAGE=android-arm64 ./scripts/cross-compile --tag-armv",
-    "prebuild-alpine": "IMAGE=alpine ./scripts/cross-compile --tag-libc",
-    "prebuild-centos7": "IMAGE=centos7-devtoolset7 ./scripts/cross-compile"
+    "prebuild-arm": "npm run prebuild-linux-arm && npm run prebuild-android-arm",
+    "prebuild-linux-arm": "prebuildify-cross -i linux-armv7 -i linux-arm64 -t 8.14.0 --napi --strip",
+    "prebuild-android-arm": "prebuildify-cross -i android-armv7 -i android-arm64 -t 8.14.0 --napi --strip",
+    "prebuild-linux-x64": "prebuildify-cross -i centos7-devtoolset7 -i alpine -t 8.14.0 --napi --strip",
+    "prebuild-darwin-x64": "prebuildify -t 8.14.0 --napi --strip"
   },
   "dependencies": {
     "abstract-leveldown": "~6.2.1",
@@ -48,6 +46,7 @@
     "nyc": "^14.0.0",
     "prebuildify": "^3.0.0",
     "prebuildify-ci": "^1.0.4",
+    "prebuildify-cross": "github:prebuild/prebuildify-cross#v4.0.0",
     "readfiletree": "^1.0.0",
     "rimraf": "^3.0.0",
     "standard": "^14.0.0",

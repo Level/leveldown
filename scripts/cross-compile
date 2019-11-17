@@ -1,7 +1,0 @@
-#!/bin/bash
-
-DOCKER_USER="node"
-if [[ "$TRAVIS" == "true" ]]; then DOCKER_USER="travis"; fi
-
-exec docker run -u ${DOCKER_USER} --rm -v $(pwd):/app prebuild/${IMAGE} \
-     npm run prebuild -- $@

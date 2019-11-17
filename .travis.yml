@@ -10,7 +10,7 @@ jobs:
       env: [TEST=1]
     - os: linux
       node_js: node
-      env: [TEST=1, TEST_ELECTRON=1]
+      env: [TEST=1, TEST_ELECTRON=1, BUILD_GROUP=linux-x64]
       addons:
         apt:
           packages:
@@ -26,21 +26,11 @@ jobs:
       env: [TEST=1]
     - os: osx
       node_js: node
-      env: [TEST=1, TEST_ELECTRON=1, BUILD_CMD=prebuild, BUILD_GROUP=darwin-x64]
-    - name: centos7
-      os: linux
-      node_js: node
-      env: [BUILD_CMD=prebuild-centos7, BUILD_GROUP=linux-x64, NPM_CONFIG_IGNORE_SCRIPTS=1]
-      if: tag is present
+      env: [TEST=1, TEST_ELECTRON=1, BUILD_GROUP=darwin-x64]
     - name: arm
       os: linux
       node_js: node
-      env: [BUILD_CMD=prebuild-arm, BUILD_GROUP=arm, NPM_CONFIG_IGNORE_SCRIPTS=1]
-      if: tag is present
-    - name: alpine
-      os: linux
-      node_js: node
-      env: [BUILD_CMD=prebuild-alpine, BUILD_GROUP=alpine, NPM_CONFIG_IGNORE_SCRIPTS=1]
+      env: [BUILD_GROUP=arm, NPM_CONFIG_IGNORE_SCRIPTS=1]
       if: tag is present
 
 script:
@@ -52,7 +42,7 @@ after_success:
 
 before_deploy:
   - export ARCHIVE_NAME="${TRAVIS_TAG:-latest}-$BUILD_GROUP.tar.gz"
-  - NPM_CONFIG_IGNORE_SCRIPTS= npm run $BUILD_CMD
+  - NPM_CONFIG_IGNORE_SCRIPTS= npm run prebuild-$BUILD_GROUP
   - file prebuilds/*/*
   - tar -zcvf "$ARCHIVE_NAME" -C prebuilds .
 
@@ -64,7 +54,7 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    condition: "! -z $BUILD_CMD"
+    condition: "! -z $BUILD_GROUP"
 
 notifications:
   email: false
