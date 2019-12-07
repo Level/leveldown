@@ -17,7 +17,6 @@
  */
 struct Database;
 struct Iterator;
-struct EndWorker;
 static void iterator_end_do (napi_env env, Iterator* iterator, napi_value cb);
 
 /**
@@ -575,6 +574,15 @@ struct Iterator {
     database_->ReleaseSnapshot(options_->snapshot);
   }
 
+  void CheckEndCallback () {
+    nexting_ = false;
+
+    if (endWorker_ != NULL) {
+      endWorker_->Queue();
+      endWorker_ = NULL;
+    }
+  }
+
   bool GetIterator () {
     if (dbIterator_ != NULL) return false;
 
@@ -724,7 +732,7 @@ struct Iterator {
   bool ended_;
 
   leveldb::ReadOptions* options_;
-  EndWorker* endWorker_;
+  BaseWorker* endWorker_;
 
 private:
   napi_ref ref_;
@@ -1386,29 +1394,15 @@ NAPI_METHOD(iterator_end) {
 }
 
 /**
- * TODO Move this to Iterator. There isn't any reason
- * for this function being a separate function pointer.
- */
-void CheckEndCallback (Iterator* iterator) {
-  iterator->nexting_ = false;
-  if (iterator->endWorker_ != NULL) {
-    iterator->endWorker_->Queue();
-    iterator->endWorker_ = NULL;
-  }
-}
-
-/**
  * Worker class for nexting an iterator.
  */
 struct NextWorker final : public BaseWorker {
   NextWorker (napi_env env,
               Iterator* iterator,
-              napi_value callback,
-              void (*localCallback)(Iterator*))
+              napi_value callback)
     : BaseWorker(env, iterator->database_, callback,
                  "leveldown.iterator.next"),
-      iterator_(iterator),
-      localCallback_(localCallback) {}
+      iterator_(iterator) {}
 
   ~NextWorker () {}
 
@@ -1449,8 +1443,7 @@ struct NextWorker final : public BaseWorker {
     }
 
     // clean up & handle the next/end state
-    // TODO this should just do iterator_->CheckEndCallback();
-    localCallback_(iterator_);
+    iterator_->CheckEndCallback();
 
     napi_value argv[3];
     napi_get_null(env_, &argv[0]);
@@ -1462,8 +1455,6 @@ struct NextWorker final : public BaseWorker {
   }
 
   Iterator* iterator_;
-  // TODO why do we need a function pointer for this?
-  void (*localCallback_)(Iterator*);
   std::vector<std::pair<std::string, std::string> > result_;
   bool ok_;
 };
@@ -1484,8 +1475,7 @@ NAPI_METHOD(iterator_next) {
     NAPI_RETURN_UNDEFINED();
   }
 
-  NextWorker* worker = new NextWorker(env, iterator, callback,
-                                      CheckEndCallback);
+  NextWorker* worker = new NextWorker(env, iterator, callback);
   iterator->nexting_ = true;
   worker->Queue();
 
