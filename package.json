@@ -43,7 +43,7 @@
     "level-concat-iterator": "^2.0.0",
     "mkfiletree": "^2.0.0",
     "node-gyp": "^6.0.0",
-    "nyc": "^14.0.0",
+    "nyc": "^15.0.0",
     "prebuildify": "^3.0.0",
     "prebuildify-ci": "^1.0.4",
     "prebuildify-cross": "github:prebuild/prebuildify-cross#v4.0.0",
