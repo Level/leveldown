@@ -2,6 +2,19 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
+## [5.5.0] - 2020-02-19
+
+### Changed
+
+- Refactor initial seek ([#689](https://github.com/Level/leveldown/issues/689)) ([**@vweevers**](https://github.com/vweevers))
+- Refactor: move `CheckEndCallback` to `Iterator` ([#690](https://github.com/Level/leveldown/issues/690)) ([**@vweevers**](https://github.com/vweevers))
+- Use `prebuildify-cross` ([#694](https://github.com/Level/leveldown/issues/694)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `electron` devDependency from `^6.0.12` to `^7.0.1` ([`d092e6b`](https://github.com/Level/leveldown/commit/d092e6b)) ([**@vweevers**](https://github.com/vweevers))
+
+### Added
+
+- Add ARMv6 prebuild ([#704](https://github.com/Level/leveldown/issues/704)) ([**@christianbundy**](https://github.com/christianbundy))
+
 ## [5.4.1] - 2019-10-26
 
 ### Fixed
@@ -1052,6 +1065,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[5.5.0]: https://github.com/Level/leveldown/compare/v5.4.1...v5.5.0
 
 [5.4.1]: https://github.com/Level/leveldown/compare/v5.4.0...v5.4.1
 

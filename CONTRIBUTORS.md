@@ -20,26 +20,27 @@
 | **Meirion Hughes**         | [**@MeirionHughes**](https://github.com/MeirionHughes) |                                                                          |
 | **Amine Mouafik**          | [**@kytwb**](https://github.com/kytwb)                 |                                                                          |
 | **Braydon Fuller**         | [**@braydonf**](https://github.com/braydonf)           |                                                                          |
+| **duralog**                |                                                        |                                                                          |
 | **James Butler**           | [**@sandfox**](https://github.com/sandfox)             |                                                                          |
 | **Oguz Bastemur**          | [**@obastemur**](https://github.com/obastemur)         | [**@obastemur@twitter**](https://twitter.com/obastemur)                  |
-| **duralog**                |                                                        |                                                                          |
 | **Aaron Bieber**           | [**@qbit**](https://github.com/qbit)                   |                                                                          |
 | **Adam Bliss**             | [**@abliss**](https://github.com/abliss)               |                                                                          |
 | **Alex Gentile**           | [**@agentilela**](https://github.com/agentilela)       |                                                                          |
 | **Andre Staltz**           |                                                        |                                                                          |
 | **Andrew Kelley**          | [**@andrewrk**](https://github.com/andrewrk)           |                                                                          |
+| **Christian Bundy**        |                                                        |                                                                          |
 | **Dean Landolt**           | [**@deanlandolt**](https://github.com/deanlandolt)     |                                                                          |
+| **flames of love**         |                                                        |                                                                          |
 | **Huan LI**                | [**@zixia**](https://github.com/zixia)                 | [**@zixia@twitter**](https://twitter.com/zixia)                          |
 | **Joyee Cheung**           | [**@joyeecheung**](https://github.com/joyeecheung)     | [**@joyeecheung@twitter**](https://twitter.com/joyeecheung)              |
 | **Luandro**                | [**@luandro**](https://github.com/luandro)             |                                                                          |
 | **Mark Wolfe**             | [**@wolfeidau**](https://github.com/wolfeidau)         |                                                                          |
 | **Michael Ihde**           |                                                        |                                                                          |
 | **Michael Nisi**           | [**@michaelnisi**](https://github.com/michaelnisi)     |                                                                          |
+| **mscdex**                 | [**@mscdex**](https://github.com/mscdex)               |                                                                          |
 | **Nathan Shively-Sanders** | [**@sandersn**](https://github.com/sandersn)           |                                                                          |
 | **No9**                    |                                                        |                                                                          |
 | **Sharvil Nanavati**       | [**@sharvil**](https://github.com/sharvil)             |                                                                          |
 | **Super-User**             |                                                        |                                                                          |
 | **Thorsten Lorenz**        | [**@thlorenz**](https://github.com/thlorenz)           |                                                                          |
 | **Tim Kuijsten**           | [**@timkuijsten**](https://github.com/timkuijsten)     | [**@timkuijsten@mastodon.social**](https://mastodon.social/@timkuijsten) |
-| **flames of love**         |                                                        |                                                                          |
-| **mscdex**                 | [**@mscdex**](https://github.com/mscdex)               |                                                                          |
