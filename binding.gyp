@@ -30,11 +30,9 @@
         "ldflags": [ "-fPIC" ],
         "cflags!": [
           "-fno-tree-vrp",
-          "-fno-exceptions",
           "-mfloat-abi=hard",
           "-fPIE"
         ],
-        "cflags_cc!": [ "-fno-exceptions" ],
         "ldflags!": [ "-fPIE" ]
       }],
       ["target_arch == 'arm'", {
