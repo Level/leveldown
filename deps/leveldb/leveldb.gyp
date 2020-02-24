@@ -166,19 +166,16 @@
         ],
         "ccflags": [
           "-pthread",
-          "-fno-builtin-memcmp",
-          "-fexceptions"
+          "-fno-builtin-memcmp"
         ],
         "cflags": [
           "-fPIC"
         ],
         "cflags!": [
-          "-fno-exceptions",
           "-fPIE",
           "-mfloat-abi=hard",
           "-Wno-unused-but-set-variable"
-        ],
-        "cflags_cc!": [ "-fno-exceptions" ]
+        ]
       }],
       ["target_arch == 'arm'", {
         "cflags": [
