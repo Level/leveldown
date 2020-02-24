@@ -2,6 +2,12 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
+## [5.5.1] - 2020-02-24
+
+### Fixed
+
+- Fix android arm64 prebuild by disabling exceptions ([#706](https://github.com/Level/leveldown/issues/706)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.5.0] - 2020-02-19
 
 ### Changed
@@ -1065,6 +1071,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[5.5.1]: https://github.com/Level/leveldown/compare/v5.5.0...v5.5.1
 
 [5.5.0]: https://github.com/Level/leveldown/compare/v5.4.1...v5.5.0
 
