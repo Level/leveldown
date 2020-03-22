@@ -10,6 +10,7 @@ environment:
 configuration: Release
 platform:
   - x64
+  - x86
 
 install:
   - SET PATH=C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin;%PATH%
