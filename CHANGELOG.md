@@ -2,6 +2,17 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
+## [5.6.0] - 2020-03-27
+
+### Changed
+
+- Upgrade `nyc` devDependency from `^14.0.0` to `^15.0.0` ([#696](https://github.com/Level/leveldown/issues/696)) ([**@vweevers**](https://github.com/vweevers))
+- Upgrade `electron` devDependency from `^7.0.1` to `^8.0.0` ([#700](https://github.com/Level/leveldown/issues/700)) ([**@vweevers**](https://github.com/vweevers))
+
+### Added
+
+- Restore Windows 32-bit prebuild ([#711](https://github.com/Level/leveldown/issues/711)) ([**@vweevers**](https://github.com/vweevers))
+
 ## [5.5.1] - 2020-02-24
 
 ### Fixed
@@ -1071,6 +1082,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[5.6.0]: https://github.com/Level/leveldown/compare/v5.5.1...v5.6.0
 
 [5.5.1]: https://github.com/Level/leveldown/compare/v5.5.0...v5.5.1
 
