@@ -24,7 +24,7 @@
     "prebuild-darwin-x64": "prebuildify -t 8.14.0 --napi --strip"
   },
   "dependencies": {
-    "abstract-leveldown": "~6.2.1",
+    "abstract-leveldown": "^6.3.0",
     "napi-macros": "~2.0.0",
     "node-gyp-build": "~4.2.1"
   },
