@@ -6,7 +6,7 @@
   "main": "leveldown.js",
   "scripts": {
     "install": "node-gyp-build",
-    "vendor": "cp node_modules/abstract-leveldown/abstract-chained-batch.js ./vendor/abstract-chained-batch.js; cp node_modules/abstract-leveldown/abstract-iterator.js ./vendor/abstract-iterator.js; cp node_modules/abstract-leveldown/abstract-leveldown.js ./vendor/abstract-leveldown.js",
+    "vendor": "cp node_modules/abstract-leveldown/abstract-chained-batch.js ./vendor/abstract-chained-batch.js; cp node_modules/abstract-leveldown/abstract-iterator.js ./vendor/abstract-iterator.js; cp node_modules/abstract-leveldown/abstract-leveldown.js ./vendor/abstract-leveldown.js; cp node_modules/level-supports/index.js ./vendor/level-supports.js",
     "test": "standard && (nyc -s tape test/*-test.js | faucet) && nyc report",
     "test-gc": "node --expose-gc test/gc.js",
     "test-electron": "electron test/electron.js",
@@ -42,6 +42,7 @@
     "hallmark": "^2.0.0",
     "level-community": "^3.0.0",
     "level-concat-iterator": "^2.0.0",
+    "level-supports": "1.0.1",
     "mkfiletree": "^2.0.0",
     "node-gyp": "^6.0.0",
     "nyc": "^15.0.0",
