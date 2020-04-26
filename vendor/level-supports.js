@@ -1,13 +1,12 @@
 'use strict'
 
-// For (old) browser support
-var xtend = require('xtend')
-var assign = require('xtend/mutable')
-
 module.exports = function supports () {
-  var manifest = xtend.apply(null, arguments)
+  var manifest = {}
+  for (let i = 0; i < arguments.length; i++) {
+    Object.assign(manifest, arguments[i])
+  }
 
-  return assign(manifest, {
+  return Object.assign(manifest, {
     // Features of abstract-leveldown
     bufferKeys: manifest.bufferKeys || false,
     snapshots: manifest.snapshots || false,
