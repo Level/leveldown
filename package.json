@@ -6,6 +6,7 @@
   "main": "leveldown.js",
   "scripts": {
     "install": "node-gyp-build",
+    "vendor": "cp node_modules/abstract-leveldown/abstract-chained-batch.js ./vendor/abstract-chained-batch.js; cp node_modules/abstract-leveldown/abstract-iterator.js ./vendor/abstract-iterator.js; cp node_modules/abstract-leveldown/abstract-leveldown.js ./vendor/abstract-leveldown.js",
     "test": "standard && (nyc -s tape test/*-test.js | faucet) && nyc report",
     "test-gc": "node --expose-gc test/gc.js",
     "test-electron": "electron test/electron.js",
@@ -24,11 +25,11 @@
     "prebuild-darwin-x64": "prebuildify -t 8.14.0 --napi --strip"
   },
   "dependencies": {
-    "abstract-leveldown": "~6.2.1",
     "napi-macros": "~2.0.0",
     "node-gyp-build": "~4.1.0"
   },
   "devDependencies": {
+    "abstract-leveldown": "6.2.2",
     "async-each": "^1.0.3",
     "coveralls": "^3.0.2",
     "cross-env": "^6.0.0",
