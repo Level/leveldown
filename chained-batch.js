@@ -1,5 +1,5 @@
 const util = require('util')
-const AbstractChainedBatch = require('abstract-leveldown').AbstractChainedBatch
+const AbstractChainedBatch = require('./vendor/abstract-chained-batch')
 const binding = require('./binding')
 
 function ChainedBatch (db) {

@@ -1,5 +1,5 @@
 const util = require('util')
-const AbstractIterator = require('abstract-leveldown').AbstractIterator
+const AbstractIterator = require('./vendor/abstract-iterator')
 const binding = require('./binding')
 
 function Iterator (db, options) {
