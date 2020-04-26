@@ -1,5 +1,4 @@
-var xtend = require('xtend')
-var supports = require('level-supports')
+var supports = require('./level-supports')
 var AbstractIterator = require('./abstract-iterator')
 var AbstractChainedBatch = require('./abstract-chained-batch')
 var hasOwnProperty = Object.prototype.hasOwnProperty
@@ -161,7 +160,7 @@ AbstractLevelDOWN.prototype.batch = function (array, options, callback) {
       return process.nextTick(callback, new Error('batch(array) element must be an object and not `null`'))
     }
 
-    var e = xtend(array[i])
+    var e = Object.assign({}, array[i])
 
     if (e.type !== 'put' && e.type !== 'del') {
       return process.nextTick(callback, new Error("`type` must be 'put' or 'del'"))
