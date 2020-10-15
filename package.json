@@ -42,7 +42,7 @@
     "level-community": "^3.0.0",
     "level-concat-iterator": "^2.0.0",
     "mkfiletree": "^2.0.0",
-    "node-gyp": "^6.0.0",
+    "node-gyp": "^7.1.1",
     "nyc": "^15.0.0",
     "prebuildify": "^3.0.0",
     "prebuildify-ci": "^1.0.4",
