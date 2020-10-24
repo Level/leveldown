@@ -25,24 +25,24 @@ function print () {
 
 const run = CHAINED
   ? function () {
-    const batch = db.batch()
+      const batch = db.batch()
 
-    for (let i = 0; i < 100; i++) {
-      let key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
-      if (BUFFERS) key = Buffer.from(key)
-      let value = crypto.randomBytes(1024)
-      if (!BUFFERS) value = value.toString('hex')
-      batch.put(key, value)
+      for (let i = 0; i < 100; i++) {
+        let key = 'long key to test memory usage ' + String(Math.floor(Math.random() * 10000000))
+        if (BUFFERS) key = Buffer.from(key)
+        let value = crypto.randomBytes(1024)
+        if (!BUFFERS) value = value.toString('hex')
+        batch.put(key, value)
+      }
+
+      batch.write(function (err) {
+        assert(!err)
+        process.nextTick(run)
+      })
+
+      writeCount++
+      print()
     }
-
-    batch.write(function (err) {
-      assert(!err)
-      process.nextTick(run)
-    })
-
-    writeCount++
-    print()
-  }
   : function () {
     const batch = []
 
