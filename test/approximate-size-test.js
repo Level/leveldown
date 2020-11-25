@@ -13,7 +13,7 @@ test('setUp db', function (t) {
 test('test argument-less approximateSize() throws', function (t) {
   t.throws(
     db.approximateSize.bind(db)
-    , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+    , /^Error: approximateSize\(\) requires valid `start` and `end` arguments/
     , 'no-arg approximateSize() throws'
   )
   t.end()
@@ -22,7 +22,7 @@ test('test argument-less approximateSize() throws', function (t) {
 test('test callback-less, 1-arg, approximateSize() throws', function (t) {
   t.throws(
     db.approximateSize.bind(db, 'foo')
-    , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+    , /^Error: approximateSize\(\) requires valid `start` and `end` arguments/
     , 'callback-less, 1-arg approximateSize() throws'
   )
   t.end()
@@ -31,7 +31,7 @@ test('test callback-less, 1-arg, approximateSize() throws', function (t) {
 test('test callback-less, 2-arg, approximateSize() throws', function (t) {
   t.throws(
     db.approximateSize.bind(db, 'foo', 'bar')
-    , { name: 'Error', message: 'approximateSize() requires a callback argument' }
+    , /^Error: approximateSize\(\) requires a callback argument/
     , 'callback-less, 2-arg approximateSize() throws'
   )
   t.end()
@@ -40,7 +40,7 @@ test('test callback-less, 2-arg, approximateSize() throws', function (t) {
 test('test callback-less, 3-arg, approximateSize() throws', function (t) {
   t.throws(
     db.approximateSize.bind(db, function () {})
-    , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+    , /^Error: approximateSize\(\) requires valid `start` and `end` arguments/
     , 'callback-only approximateSize() throws'
   )
   t.end()
@@ -49,7 +49,7 @@ test('test callback-less, 3-arg, approximateSize() throws', function (t) {
 test('test callback-only approximateSize() throws', function (t) {
   t.throws(
     db.approximateSize.bind(db, function () {})
-    , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+    , /^Error: approximateSize\(\) requires valid `start` and `end` arguments/
     , 'callback-only approximateSize() throws'
   )
   t.end()
@@ -58,7 +58,7 @@ test('test callback-only approximateSize() throws', function (t) {
 test('test 1-arg + callback approximateSize() throws', function (t) {
   t.throws(
     db.approximateSize.bind(db, 'foo', function () {})
-    , { name: 'Error', message: 'approximateSize() requires valid `start`, `end` and `callback` arguments' }
+    , /^Error: approximateSize\(\) requires valid `start` and `end` arguments/
     , '1-arg + callback approximateSize() throws'
   )
   t.end()
