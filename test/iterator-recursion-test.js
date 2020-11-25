@@ -22,23 +22,37 @@ const sourceData = (function () {
 
 test('setUp common', testCommon.setUp)
 
-test('try to create an iterator with a blown stack', function (t) {
-  // Reducing the stack size down from the default 984 for the child node
-  // process makes it easier to trigger the bug condition. But making it too low
-  // causes the child process to die for other reasons.
-  var opts = { execArgv: ['--stack-size=128'] }
-  var child = fork(path.join(__dirname, 'stack-blower.js'), ['run'], opts)
+// TODO: fix this test. It asserted that we didn't segfault if user code had an
+// infinite loop leading to stack exhaustion, which caused a node::FatalException()
+// call in our Iterator to segfault. This was fixed in 2014 (commit 85e6a38).
+//
+// Today (2020), we see occasional failures in CI again. We no longer call
+// node::FatalException() so there's a new reason. Possibly related to
+// https://github.com/Level/leveldown/issues/667.
+test.skip('try to create an iterator with a blown stack', function (t) {
+  for (let i = 0; i < 100; i++) {
+    t.test(`try to create an iterator with a blown stack (${i})`, function (t) {
+      t.plan(3)
 
-  t.plan(2)
+      // Reducing the stack size down from the default 984 for the child node
+      // process makes it easier to trigger the bug condition. But making it too low
+      // causes the child process to die for other reasons.
+      var opts = { execArgv: ['--stack-size=128'] }
+      var child = fork(path.join(__dirname, 'stack-blower.js'), ['run'], opts)
 
-  child.on('message', function (m) {
-    t.ok(true, m)
-    child.disconnect()
-  })
+      child.on('message', function (m) {
+        t.ok(true, m)
+        child.disconnect()
+      })
 
-  child.on('exit', function (code, sig) {
-    t.equal(code, 0, 'child exited normally')
-  })
+      child.on('exit', function (code, sig) {
+        t.is(code, 0, 'child exited normally')
+        t.is(sig, null, 'not terminated due to signal')
+      })
+    })
+  }
+
+  t.end()
 })
 
 test('setUp db', function (t) {
