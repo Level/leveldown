@@ -10,7 +10,3 @@ updates:
       - dependency-name: node-gyp
       - dependency-name: standard
       - dependency-name: tempy
-  - package-ecosystem: gitsubmodule
-    directory: /
-    schedule:
-      interval: monthly
