@@ -41,6 +41,8 @@
 #define ARCH_CPU_PPC_FAMILY 1
 #elif defined(__mips__)
 #define ARCH_CPU_MIPS_FAMILY 1
+#elif defined(__s390__) || defined(__s390x__) || defined(__zarch__)
+#define ARCH_CPU_S390X_FAMILY 1
 #endif
 
 namespace leveldb {
@@ -119,6 +121,13 @@ inline void MemoryBarrier() {
 }
 #define LEVELDB_HAVE_MEMORY_BARRIER
 
+
+// S390X Linux
+#elif defined(ARCH_CPU_S390X_FAMILY)
+inline void MemoryBarrier() {  
+	__asm__ __volatile__("sync" : : : "memory");
+}
+#define LEVELDB_HAVE_MEMORY_BARRIER
 #endif
 
 // AtomicPointer built using platform-specific MemoryBarrier()
@@ -226,8 +235,7 @@ class AtomicPointer {
 
 // We have neither MemoryBarrier(), nor <atomic>
 #else
-#error Please implement AtomicPointer for this platform.
-
+#error Please implement AtomicPointer for this platformmmmmmmmm. 
 #endif
 
 #undef LEVELDB_HAVE_MEMORY_BARRIER
