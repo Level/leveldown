@@ -125,7 +125,7 @@ inline void MemoryBarrier() {
 // S390X Linux
 #elif defined(ARCH_CPU_S390X_FAMILY)
 inline void MemoryBarrier() {  
-	__asm__ __volatile__("sync" : : : "memory");
+	__asm__ __volatile__("" : : : "memory");
 }
 #define LEVELDB_HAVE_MEMORY_BARRIER
 #endif
