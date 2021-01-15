@@ -32,6 +32,10 @@ jobs:
       node_js: node
       env: [BUILD_GROUP=arm, NPM_CONFIG_IGNORE_SCRIPTS=1]
       if: tag is present
+    - name: s390x
+      os: linux
+      node_js: 10
+      env: [TEST=1, BUILD_GROUP=s390x]
 
 script:
   - if [[ ! -z "$TEST" ]]; then npm run test; fi
