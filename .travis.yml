@@ -34,6 +34,7 @@ jobs:
       if: tag is present
     - name: s390x
       os: linux
+      arch: s390x
       node_js: 10
       env: [TEST=1, BUILD_GROUP=s390x]
 
