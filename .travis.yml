@@ -36,7 +36,7 @@ jobs:
       os: linux
       arch: s390x
       node_js: 10
-      env: [TEST=1, BUILD_GROUP=s390x]
+      env: [TEST=1, BUILD_GROUP=s390x, ELECTRON_SKIP_BINARY_DOWNLOAD=1]
 
 script:
   - if [[ ! -z "$TEST" ]]; then npm run test; fi
