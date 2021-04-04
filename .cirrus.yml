@@ -1,10 +1,10 @@
 freebsd_instance:
-  image_family: freebsd-12-1
+  image_family: freebsd-12-2
 
 task:
   name: FreeBSD
   provision_script:
-    - pkg install -y git libnghttp2 node npm
+    - pkg install -y git node npm
   install_script:
     - git submodule update --init --recursive
     - env ELECTRON_SKIP_BINARY_DOWNLOAD=1 npm i --unsafe-perm
