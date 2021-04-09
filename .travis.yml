@@ -3,10 +3,13 @@ language: node_js
 jobs:
   include:
     - os: linux
-      node_js: 8
+      node_js: 10
       env: [TEST=1]
     - os: linux
-      node_js: 10
+      node_js: 12
+      env: [TEST=1]
+    - os: linux
+      node_js: 14
       env: [TEST=1]
     - os: linux
       node_js: node
@@ -19,10 +22,13 @@ jobs:
         - export DISPLAY=':99.0'
         - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     - os: osx
-      node_js: 8
+      node_js: 10
       env: [TEST=1]
     - os: osx
-      node_js: 10
+      node_js: 12
+      env: [TEST=1]
+    - os: osx
+      node_js: 14
       env: [TEST=1]
     - os: osx
       node_js: node
