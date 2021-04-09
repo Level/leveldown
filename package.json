@@ -42,7 +42,7 @@
     "level-community": "^3.0.0",
     "level-concat-iterator": "^3.0.0",
     "mkfiletree": "^2.0.0",
-    "node-gyp": "^6.0.0",
+    "node-gyp": "^7.1.2",
     "nyc": "^15.0.0",
     "prebuildify": "^4.1.0",
     "prebuildify-ci": "^1.0.4",
@@ -67,6 +67,6 @@
     "level"
   ],
   "engines": {
-    "node": ">=10"
+    "node": ">=10.12.0"
   }
 }
