@@ -68,8 +68,10 @@ test('iterate over a large iterator with a large watermark', function (t) {
     highWaterMark: 10000000
   })
   const read = function () {
-    iterator.next(function () {
-      if (!arguments.length) {
+    iterator.next(function (err, key, value) {
+      if (err) throw err
+
+      if (key === undefined && value === undefined) {
         t.end()
       } else {
         read()

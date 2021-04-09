@@ -13,7 +13,7 @@ if (process.argv[2] === 'run') {
 
   db.open(function () {
     function recurse () {
-      db.iterator({ start: '0' })
+      db.iterator({ gte: '0' })
       depth++
       recurse()
     }

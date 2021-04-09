@@ -275,8 +275,6 @@ Returns a new [`iterator`](#iterator) instance. The optional `options` object ma
 
 - `lt` (less than), `lte` (less than or equal) define the higher bound of the range to be fetched and will determine the starting point where `reverse` is _not_ `true`. Only records where the key is less than (or equal to) this option will be included in the range. When `reverse` is `true` the order will be reversed, but the records returned will be the same.
 
-- `start, end` legacy ranges - instead use `gte, lte`
-
 - `reverse` _(boolean, default: `false`)_: a boolean, set to `true` if you want the stream to go in reverse order. Beware that due to the way LevelDB works, a reverse seek will be slower than a forward seek.
 
 - `keys` (boolean, default: `true`): whether the callback to the `next()` method should receive a non-null `key`. There is a small efficiency gain if you ultimately don't care what the keys are as they don't need to be converted and copied into JavaScript.
