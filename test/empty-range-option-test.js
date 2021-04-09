@@ -1,7 +1,7 @@
 const test = require('tape')
 const concat = require('level-concat-iterator')
 const testCommon = require('./common')
-const rangeOptions = 'start end gt gte lt lte'.split(' ')
+const rangeOptions = ['gt', 'gte', 'lt', 'lte']
 
 test('empty range options are ignored', function (t) {
   const db = testCommon.factory()
