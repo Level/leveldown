@@ -3,7 +3,7 @@ const repeats = 200
 
 makeTest('test ended iterator', function (db, t, done) {
   // First test normal and proper usage: calling it.end() before db.close()
-  var it = db.iterator({ keyAsBuffer: false, valueAsBuffer: false })
+  const it = db.iterator({ keyAsBuffer: false, valueAsBuffer: false })
 
   it.next(function (err, key, value) {
     t.ifError(err, 'no error from next()')
@@ -19,7 +19,7 @@ makeTest('test ended iterator', function (db, t, done) {
 makeTest('test likely-ended iterator', function (db, t, done) {
   // Test improper usage: not calling it.end() before db.close(). Cleanup of the
   // database will crash Node if not handled properly.
-  var it = db.iterator({ keyAsBuffer: false, valueAsBuffer: false })
+  const it = db.iterator({ keyAsBuffer: false, valueAsBuffer: false })
 
   it.next(function (err, key, value) {
     t.ifError(err, 'no error from next()')
@@ -33,7 +33,7 @@ makeTest('test non-ended iterator', function (db, t, done) {
   // Same as the test above but with a highWaterMark of 0 so that we don't
   // preemptively fetch all records, to ensure that the iterator is still
   // active when we (attempt to) close the database.
-  var it = db.iterator({
+  const it = db.iterator({
     highWaterMark: 0,
     keyAsBuffer: false,
     valueAsBuffer: false
@@ -84,10 +84,10 @@ global.gc && makeTest('test multiple non-ended iterators with forced gc', functi
 
 makeTest('test ending iterators', function (db, t, done) {
   // At least one end() should be in progress when we try to close the db.
-  var it1 = db.iterator().next(function () {
+  const it1 = db.iterator().next(function () {
     it1.end(function () {})
   })
-  var it2 = db.iterator().next(function () {
+  const it2 = db.iterator().next(function () {
     it2.end(function () {})
     done()
   })

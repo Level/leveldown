@@ -1,3 +1,5 @@
+'use strict'
+
 const util = require('util')
 const AbstractLevelDOWN = require('abstract-leveldown').AbstractLevelDOWN
 const binding = require('./binding')

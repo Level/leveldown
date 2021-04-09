@@ -6,9 +6,9 @@ const path = require('path')
 let db
 
 const sourceData = (function () {
-  var d = []
-  var i = 0
-  var k
+  const d = []
+  let i = 0
+  let k
   for (; i < 100000; i++) {
     k = (i < 10 ? '0' : '') + i
     d.push({
@@ -37,8 +37,8 @@ test.skip('try to create an iterator with a blown stack', function (t) {
       // Reducing the stack size down from the default 984 for the child node
       // process makes it easier to trigger the bug condition. But making it too low
       // causes the child process to die for other reasons.
-      var opts = { execArgv: ['--stack-size=128'] }
-      var child = fork(path.join(__dirname, 'stack-blower.js'), ['run'], opts)
+      const opts = { execArgv: ['--stack-size=128'] }
+      const child = fork(path.join(__dirname, 'stack-blower.js'), ['run'], opts)
 
       child.on('message', function (m) {
         t.ok(true, m)
@@ -64,10 +64,10 @@ test('setUp db', function (t) {
 })
 
 test('iterate over a large iterator with a large watermark', function (t) {
-  var iterator = db.iterator({
+  const iterator = db.iterator({
     highWaterMark: 10000000
   })
-  var read = function () {
+  const read = function () {
     iterator.next(function () {
       if (!arguments.length) {
         t.end()
