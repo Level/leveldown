@@ -8,7 +8,7 @@ if (!global.gc) {
 }
 
 function run () {
-  var it = db.iterator()
+  const it = db.iterator()
 
   it.next(function (err) {
     if (err) throw err

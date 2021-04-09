@@ -27,8 +27,8 @@ test('test callback-less, 1-arg, destroy() throws', function (t) {
 test('test destroy non-existent directory', function (t) {
   t.plan(4)
 
-  var location = tempy.directory()
-  var parent = path.dirname(location)
+  const location = tempy.directory()
+  const parent = path.dirname(location)
 
   // For symmetry with the opposite test below.
   t.ok(fs.existsSync(parent), 'parent exists before')
@@ -50,8 +50,8 @@ test('test destroy non-existent directory', function (t) {
 test('test destroy non-existent parent directory', function (t) {
   t.plan(3)
 
-  var location = '/1/2/3/4'
-  var parent = path.dirname(location)
+  const location = '/1/2/3/4'
+  const parent = path.dirname(location)
 
   t.notOk(fs.existsSync(parent), 'parent does not exist before')
 
@@ -62,7 +62,7 @@ test('test destroy non-existent parent directory', function (t) {
 })
 
 test('test destroy non leveldb directory', function (t) {
-  var tree = {
+  const tree = {
     foo: 'FOO',
     bar: { one: 'ONE', two: 'TWO', three: 'THREE' }
   }
@@ -87,7 +87,7 @@ test('test destroy non leveldb directory', function (t) {
 })
 
 makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, done) {
-  var location = db.location
+  const location = db.location
   db.close(function (err) {
     t.ifError(err, 'no error from close()')
 
@@ -101,7 +101,7 @@ makeTest('test destroy() cleans and removes leveldb-only dir', function (db, t, 
 })
 
 makeTest('test destroy() cleans and removes only leveldb parts of a dir', function (db, t, done) {
-  var location = db.location
+  const location = db.location
   fs.writeFileSync(path.join(location, 'foo'), 'FOO')
 
   db.close(function (err) {

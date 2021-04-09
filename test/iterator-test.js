@@ -3,12 +3,12 @@ const make = require('./make')
 // This test isn't included in abstract-leveldown because
 // the empty-check is currently performed by leveldown.
 make('iterator#seek throws if target is empty', function (db, t, done) {
-  var targets = ['', Buffer.alloc(0), []]
-  var pending = targets.length
+  const targets = ['', Buffer.alloc(0), []]
+  let pending = targets.length
 
   targets.forEach(function (target) {
-    var ite = db.iterator()
-    var error
+    const ite = db.iterator()
+    let error
 
     try {
       ite.seek(target)
@@ -27,7 +27,7 @@ make('iterator#seek throws if target is empty', function (db, t, done) {
 })
 
 make('iterator optimized for seek', function (db, t, done) {
-  var batch = db.batch()
+  const batch = db.batch()
   batch.put('a', 1)
   batch.put('b', 1)
   batch.put('c', 1)
@@ -36,7 +36,7 @@ make('iterator optimized for seek', function (db, t, done) {
   batch.put('f', 1)
   batch.put('g', 1)
   batch.write(function (err) {
-    var ite = db.iterator()
+    const ite = db.iterator()
     t.ifError(err, 'no error from batch()')
     ite.next(function (err, key, value) {
       t.ifError(err, 'no error from next()')
@@ -65,9 +65,9 @@ make('iterator optimized for seek', function (db, t, done) {
 })
 
 make('close db with open iterator', function (db, t, done) {
-  var ite = db.iterator()
-  var cnt = 0
-  var hadError = false
+  const ite = db.iterator()
+  let cnt = 0
+  let hadError = false
 
   ite.next(function loop (err, key, value) {
     if (cnt++ === 0) {

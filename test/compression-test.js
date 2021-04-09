@@ -26,7 +26,7 @@ const verify = function (location, compression, t) {
 
 // close, open, close again.. 'compaction' is also performed on open()s
 const cycle = function (db, compression, t, callback) {
-  var location = db.location
+  const location = db.location
   db.close(function (err) {
     t.error(err)
     db = leveldown(location)
@@ -45,7 +45,7 @@ test('compression', function (t) {
   t.test('set up', testCommon.setUp)
 
   t.test('test data is compressed by default (db.put())', function (t) {
-    var db = testCommon.factory()
+    const db = testCommon.factory()
     db.open(function (err) {
       t.error(err)
       each(
@@ -59,7 +59,7 @@ test('compression', function (t) {
   })
 
   t.test('test data is not compressed with compression=false on open() (db.put())', function (t) {
-    var db = testCommon.factory()
+    const db = testCommon.factory()
     db.open({ compression: false }, function (err) {
       t.error(err)
       each(
@@ -73,7 +73,7 @@ test('compression', function (t) {
   })
 
   t.test('test data is compressed by default (db.batch())', function (t) {
-    var db = testCommon.factory()
+    const db = testCommon.factory()
     db.open(function (err) {
       t.error(err)
       db.batch(

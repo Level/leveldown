@@ -33,7 +33,7 @@ test('test invalid getProperty() returns empty string', function (t) {
 })
 
 test('test invalid getProperty("leveldb.num-files-at-levelN") returns numbers', function (t) {
-  for (var i = 0; i < 7; i++) {
+  for (let i = 0; i < 7; i++) {
     t.equal(db.getProperty('leveldb.num-files-at-level' + i),
       '0', '"leveldb.num-files-at-levelN" === "0"')
   }
@@ -46,7 +46,7 @@ test('test invalid getProperty("leveldb.stats")', function (t) {
 })
 
 test('test invalid getProperty("leveldb.sstables")', function (t) {
-  var expected = [0, 1, 2, 3, 4, 5, 6].map(function (l) {
+  const expected = [0, 1, 2, 3, 4, 5, 6].map(function (l) {
     return '--- level ' + l + ' ---'
   }).join('\n') + '\n'
   t.equal(db.getProperty('leveldb.sstables'), expected, 'leveldb.sstables')

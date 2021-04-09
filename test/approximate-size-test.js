@@ -1,7 +1,7 @@
 const test = require('tape')
 const testCommon = require('./common')
 
-var db
+let db
 
 test('setUp common for approximate size', testCommon.setUp)
 
@@ -66,7 +66,7 @@ test('test 1-arg + callback approximateSize() throws', function (t) {
 
 test('test custom _serialize*', function (t) {
   t.plan(4)
-  var db = testCommon.factory()
+  const db = testCommon.factory()
   db._serializeKey = function (data) { return data }
   db.approximateSize = function (start, end, callback) {
     t.deepEqual(start, { foo: 'bar' })
@@ -82,7 +82,7 @@ test('test custom _serialize*', function (t) {
 })
 
 test('test approximateSize()', function (t) {
-  var data = Array.apply(null, Array(10000)).map(function () {
+  const data = Array.apply(null, Array(10000)).map(function () {
     return 'aaaaaaaaaa'
   }).join('')
 
