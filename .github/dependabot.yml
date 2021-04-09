@@ -6,5 +6,4 @@ updates:
       interval: monthly
     ignore:
       - dependency-name: dependency-check
-      - dependency-name: cross-env
       - dependency-name: node-gyp
