@@ -51,7 +51,7 @@
     "rimraf": "^3.0.0",
     "standard": "^16.0.3",
     "tape": "^5.0.1",
-    "tempy": "^0.3.0"
+    "tempy": "^1.0.1"
   },
   "hallmark": {
     "community": "level-community"
