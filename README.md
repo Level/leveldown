@@ -38,7 +38,7 @@ See the section on <a href="#safety">safety</a> below for details of known unsaf
 
 ## Supported Platforms
 
-We aim to support _at least_ Active LTS and Current Node.js releases, Electron 4.0.0, as well as any future Node.js and Electron releases thanks to [N-API](https://nodejs.org/api/n-api.html). The minimum node version for `leveldown` is `8.6.0`. Conversely, for node >= 12, the minimum `leveldown` version is `5.0.0`.
+We aim to support _at least_ Active LTS and Current Node.js releases, Electron 5.0.0, as well as any future Node.js and Electron releases thanks to [N-API](https://nodejs.org/api/n-api.html). The minimum node version for `leveldown` is `10.12.0`. Conversely, for node >= 12, the minimum `leveldown` version is `5.0.0`.
 
 The `leveldown` npm package ships with prebuilt binaries for popular 64-bit platforms as well as ARM, Android and Alpine (musl) and is known to work on:
 
@@ -454,7 +454,7 @@ $ git submodule update --init --recursive
 3. Wait for Travis and AppVeyor builds to complete
 4. Download prebuilds into `./prebuilds`: `npm run download-prebuilds`
 5. Optionally verify loading a prebuild: `npm run test-prebuild`
-6. Optionally verify which files npm will include: `irish-pub`
+6. Optionally verify which files npm will include: `canadian-pub`
 7. Add changelog to the GitHub release
 8. Finally: `npm publish`
 
