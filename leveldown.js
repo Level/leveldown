@@ -152,4 +152,4 @@ LevelDOWN.repair = function (location, callback) {
   binding.repair_db(location, callback)
 }
 
-module.exports = LevelDOWN.default = LevelDOWN
+module.exports = LevelDOWN
