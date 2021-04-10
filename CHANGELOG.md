@@ -2,6 +2,21 @@
 
 _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
+## [6.0.0] - 2021-04-10
+
+### Changed
+
+- **Breaking:** bump `abstract-leveldown` ([`15d5a9e`](https://github.com/Level/leveldown/commit/15d5a9e)) (Vincent Weevers)
+- **Breaking:** drop node 6 and 8 ([Level/community#98](https://github.com/Level/community/issues/98)) ([`8502b34`](https://github.com/Level/leveldown/commit/8502b34)) (Vincent Weevers)
+- Bump `node-gyp` from 6.x to 7.x ([`8bc5696`](https://github.com/Level/leveldown/commit/8bc5696)) (Vincent Weevers)
+- Bump `standard` from 14.x to 16.x ([`d39e232`](https://github.com/Level/leveldown/commit/d39e232), [`39e3ca3`](https://github.com/Level/leveldown/commit/39e3ca3)) (Vincent Weevers)
+- Bump `node-gyp-build` from 4.1.x to 4.2.x ([#708](https://github.com/Level/leveldown/issues/708)) ([`91711fa`](https://github.com/Level/leveldown/commit/91711fa)) (Vincent Weevers)
+- Skip stack exhaustion test ([`55a33b1`](https://github.com/Level/leveldown/commit/55a33b1)) (Vincent Weevers)
+
+### Removed
+
+- Remove default export ([Level/community#87](https://github.com/Level/community/issues/87)) ([`686d685`](https://github.com/Level/leveldown/commit/686d685)) (Vincent Weevers)
+
 ## [5.6.0] - 2020-03-27
 
 ### Changed
@@ -793,7 +808,7 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Changed
 
-- Upgrade to `nan@0.6` for Node@0.11.6 support, `v8::Local<T>::New(val)` rewritten to `NanNewLocal<T>(val)` ([**@rvagg**](https://github.com/rvagg))
+- Upgrade to `nan@0.6` for Node 0.11.6 support, `v8::Local<T>::New(val)` rewritten to `NanNewLocal<T>(val)` ([**@rvagg**](https://github.com/rvagg))
 
 **Historical Note** From this release and onward, tags in git start with the prefix `v`, i.e. this release corresponds to the tag `v0.10.1`.
 
@@ -1082,6 +1097,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 ## 0.0.0 - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[6.0.0]: https://github.com/Level/leveldown/compare/v5.6.0...v6.0.0
 
 [5.6.0]: https://github.com/Level/leveldown/compare/v5.5.1...v5.6.0
 

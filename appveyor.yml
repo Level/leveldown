@@ -35,7 +35,7 @@ deploy:
   - provider: GitHub
     artifact: $(ARCHIVE_NAME)
     auth_token:
-      secure: AjmYV2zeogfen7F6tXvR9PO1zynJVF/jhMCExQ9RMtqEHDMH8Frclym3GniZkEB0
+      secure: Oe6B6Pf/inZ0I5Ta2HVEMg8PAfwi95EtfvTKKMAvFdUPXF//sExugRdATtnMFiwu
     draft: false
     on:
       appveyor_repo_tag: true
