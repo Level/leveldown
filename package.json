@@ -10,18 +10,19 @@
     "test-gc": "node --expose-gc test/gc.js",
     "test-electron": "electron test/electron.js",
     "test-prebuild": "cross-env PREBUILDS_ONLY=1 npm t",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
+    "coverage": "nyc report -r lcovonly",
     "rebuild": "npm run install --build-from-source",
     "prebuild": "prebuildify -t 8.14.0 --napi --strip",
     "download-prebuilds": "prebuildify-ci download",
     "hallmark": "hallmark --fix",
     "dependency-check": "dependency-check --no-dev -i napi-macros . test/*.js",
     "prepublishOnly": "npm run dependency-check",
-    "prebuild-arm": "npm run prebuild-linux-arm && npm run prebuild-android-arm",
     "prebuild-linux-arm": "prebuildify-cross -i linux-armv6 -i linux-armv7 -i linux-arm64 -t 8.14.0 --napi --strip",
     "prebuild-android-arm": "prebuildify-cross -i android-armv7 -i android-arm64 -t 8.14.0 --napi --strip",
     "prebuild-linux-x64": "prebuildify-cross -i centos7-devtoolset7 -i alpine -t 8.14.0 --napi --strip",
-    "prebuild-darwin-x64": "prebuildify -t 8.14.0 --napi --strip"
+    "prebuild-darwin-x64": "prebuildify -t 8.14.0 --napi --strip",
+    "prebuild-win32-x86": "prebuildify -t 8.14.0 --napi --strip",
+    "prebuild-win32-x64": "prebuildify -t 8.14.0 --napi --strip"
   },
   "dependencies": {
     "abstract-leveldown": "^7.0.0",
@@ -30,7 +31,6 @@
   },
   "devDependencies": {
     "async-each": "^1.0.3",
-    "coveralls": "^3.0.2",
     "cross-env": "^7.0.3",
     "delayed": "^2.0.0",
     "dependency-check": "^4.1.0",

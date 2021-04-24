@@ -7,3 +7,7 @@ updates:
     ignore:
       - dependency-name: dependency-check
       - dependency-name: node-gyp
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

@@ -1,0 +1,77 @@
+name: Release
+on:
+  push:
+    tags: ['*']
+jobs:
+  build:
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+            build-group: linux-x64
+          - os: ubuntu-latest
+            arch: x64
+            build-group: linux-arm
+          - os: ubuntu-latest
+            arch: x64
+            build-group: android-arm
+          - os: macos-latest
+            arch: x64
+            build-group: darwin-x64
+          - os: windows-latest
+            arch: x86
+            build-group: win32-x86
+          - os: windows-latest
+            arch: x64
+            build-group: win32-x64
+    runs-on: ${{ matrix.os }}
+    name: Build ${{ matrix.build-group }}
+    env:
+      BUILD_GROUP: ${{ matrix.build-group }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Set up node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+          architecture: ${{ matrix.arch }}
+      - name: Install
+        run: npm install --ignore-scripts
+      - name: Prebuild
+        run: npm run prebuild-$BUILD_GROUP
+        shell: bash
+      - name: Prepare artifact
+        run: tar -zcvf $BUILD_GROUP.tar.gz -C prebuilds .
+        shell: bash
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.BUILD_GROUP }}
+          path: ${{ env.BUILD_GROUP }}.tar.gz
+          retention-days: 1
+  release:
+    needs: build
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    name: Release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          path: artifacts
+      - name: Create GitHub release
+        uses: docker://antonyurchenko/git-release:latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ALLOW_TAG_PREFIX: true
+        with:
+          args: artifacts/*/*.tar.gz
