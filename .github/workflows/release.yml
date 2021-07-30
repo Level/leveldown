@@ -69,9 +69,8 @@ jobs:
         with:
           path: artifacts
       - name: Create GitHub release
-        uses: docker://antonyurchenko/git-release:latest
+        uses: docker://antonyurchenko/git-release:v4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ALLOW_TAG_PREFIX: true
         with:
           args: artifacts/*/*.tar.gz

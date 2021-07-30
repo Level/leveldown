@@ -19,8 +19,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Fetch tags
-        run: git fetch --tags
       - name: Use node ${{ matrix.node }}
         uses: actions/setup-node@v2
         with:
