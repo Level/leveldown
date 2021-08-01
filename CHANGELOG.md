@@ -1,8 +1,14 @@
 # Changelog
 
-_**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
+## [6.0.1] - 2021-08-01
+
+### Fixed
+
+- Support `approximateSize()` on db bigger than 4 GB ([#777](https://github.com/Level/leveldown/issues/777)) ([`8740057`](https://github.com/Level/leveldown/commit/8740057)) (Lars Kuhtz)
 
 ## [6.0.0] - 2021-04-10
+
+_**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Changed
 
@@ -1098,196 +1104,198 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
-[6.0.0]: https://github.com/Level/leveldown/compare/v5.6.0...v6.0.0
+[6.0.1]: https://github.com/Level/leveldown/releases/tag/v6.0.1
 
-[5.6.0]: https://github.com/Level/leveldown/compare/v5.5.1...v5.6.0
+[6.0.0]: https://github.com/Level/leveldown/releases/tag/v6.0.0
 
-[5.5.1]: https://github.com/Level/leveldown/compare/v5.5.0...v5.5.1
+[5.6.0]: https://github.com/Level/leveldown/releases/tag/v5.6.0
 
-[5.5.0]: https://github.com/Level/leveldown/compare/v5.4.1...v5.5.0
+[5.5.1]: https://github.com/Level/leveldown/releases/tag/v5.5.1
 
-[5.4.1]: https://github.com/Level/leveldown/compare/v5.4.0...v5.4.1
+[5.5.0]: https://github.com/Level/leveldown/releases/tag/v5.5.0
 
-[5.4.0]: https://github.com/Level/leveldown/compare/v5.3.0...v5.4.0
+[5.4.1]: https://github.com/Level/leveldown/releases/tag/v5.4.1
 
-[5.3.0]: https://github.com/Level/leveldown/compare/v5.3.0-0...v5.3.0
+[5.4.0]: https://github.com/Level/leveldown/releases/tag/v5.4.0
 
-[5.3.0-0]: https://github.com/Level/leveldown/compare/v5.2.1...v5.3.0-0
+[5.3.0]: https://github.com/Level/leveldown/releases/tag/v5.3.0
 
-[5.2.1]: https://github.com/Level/leveldown/compare/v5.2.0...v5.2.1
+[5.3.0-0]: https://github.com/Level/leveldown/releases/tag/v5.3.0-0
 
-[5.2.0]: https://github.com/Level/leveldown/compare/v5.1.1...v5.2.0
+[5.2.1]: https://github.com/Level/leveldown/releases/tag/v5.2.1
 
-[5.1.1]: https://github.com/Level/leveldown/compare/v5.1.0...v5.1.1
+[5.2.0]: https://github.com/Level/leveldown/releases/tag/v5.2.0
 
-[5.1.0]: https://github.com/Level/leveldown/compare/v5.0.3...v5.1.0
+[5.1.1]: https://github.com/Level/leveldown/releases/tag/v5.1.1
 
-[5.0.3]: https://github.com/Level/leveldown/compare/v5.0.2...v5.0.3
+[5.1.0]: https://github.com/Level/leveldown/releases/tag/v5.1.0
 
-[5.0.2]: https://github.com/Level/leveldown/compare/v5.0.1...v5.0.2
+[5.0.3]: https://github.com/Level/leveldown/releases/tag/v5.0.3
 
-[5.0.1]: https://github.com/Level/leveldown/compare/v5.0.0...v5.0.1
+[5.0.2]: https://github.com/Level/leveldown/releases/tag/v5.0.2
 
-[5.0.0]: https://github.com/Level/leveldown/compare/v4.0.2...v5.0.0
+[5.0.1]: https://github.com/Level/leveldown/releases/tag/v5.0.1
 
-[4.0.2]: https://github.com/Level/leveldown/compare/v4.0.1...v4.0.2
+[5.0.0]: https://github.com/Level/leveldown/releases/tag/v5.0.0
 
-[4.0.1]: https://github.com/Level/leveldown/compare/v4.0.0...v4.0.1
+[4.0.2]: https://github.com/Level/leveldown/releases/tag/v4.0.2
 
-[4.0.0]: https://github.com/Level/leveldown/compare/v3.0.2...v4.0.0
+[4.0.1]: https://github.com/Level/leveldown/releases/tag/v4.0.1
 
-[3.0.2]: https://github.com/Level/leveldown/compare/v3.0.1...v3.0.2
+[4.0.0]: https://github.com/Level/leveldown/releases/tag/v4.0.0
 
-[3.0.1]: https://github.com/Level/leveldown/compare/v3.0.0...v3.0.1
+[3.0.2]: https://github.com/Level/leveldown/releases/tag/v3.0.2
 
-[3.0.0]: https://github.com/Level/leveldown/compare/v2.1.1...v3.0.0
+[3.0.1]: https://github.com/Level/leveldown/releases/tag/v3.0.1
 
-[2.1.1]: https://github.com/Level/leveldown/compare/v2.1.0...v2.1.1
+[3.0.0]: https://github.com/Level/leveldown/releases/tag/v3.0.0
 
-[2.1.0]: https://github.com/Level/leveldown/compare/v2.0.2...v2.1.0
+[2.1.1]: https://github.com/Level/leveldown/releases/tag/v2.1.1
 
-[2.0.2]: https://github.com/Level/leveldown/compare/v2.0.1...v2.0.2
+[2.1.0]: https://github.com/Level/leveldown/releases/tag/v2.1.0
 
-[2.0.1]: https://github.com/Level/leveldown/compare/v2.0.0...v2.0.1
+[2.0.2]: https://github.com/Level/leveldown/releases/tag/v2.0.2
 
-[2.0.0]: https://github.com/Level/leveldown/compare/v1.9.0...v2.0.0
+[2.0.1]: https://github.com/Level/leveldown/releases/tag/v2.0.1
 
-[1.9.0]: https://github.com/Level/leveldown/compare/v1.8.0...v1.9.0
+[2.0.0]: https://github.com/Level/leveldown/releases/tag/v2.0.0
 
-[1.8.0]: https://github.com/Level/leveldown/compare/v1.7.2...v1.8.0
+[1.9.0]: https://github.com/Level/leveldown/releases/tag/v1.9.0
 
-[1.7.2]: https://github.com/Level/leveldown/compare/v1.7.1...v1.7.2
+[1.8.0]: https://github.com/Level/leveldown/releases/tag/v1.8.0
 
-[1.7.1]: https://github.com/Level/leveldown/compare/v1.7.0...v1.7.1
+[1.7.2]: https://github.com/Level/leveldown/releases/tag/v1.7.2
 
-[1.7.0]: https://github.com/Level/leveldown/compare/v1.7.0-0...v1.7.0
+[1.7.1]: https://github.com/Level/leveldown/releases/tag/v1.7.1
 
-[1.7.0-0]: https://github.com/Level/leveldown/compare/v1.6.0...v1.7.0-0
+[1.7.0]: https://github.com/Level/leveldown/releases/tag/v1.7.0
 
-[1.6.0]: https://github.com/Level/leveldown/compare/v1.5.3...v1.6.0
+[1.7.0-0]: https://github.com/Level/leveldown/releases/tag/v1.7.0-0
 
-[1.5.3]: https://github.com/Level/leveldown/compare/v1.5.2...v1.5.3
+[1.6.0]: https://github.com/Level/leveldown/releases/tag/v1.6.0
 
-[1.5.2]: https://github.com/Level/leveldown/compare/v1.5.1...v1.5.2
+[1.5.3]: https://github.com/Level/leveldown/releases/tag/v1.5.3
 
-[1.5.1]: https://github.com/Level/leveldown/compare/v1.5.0...v1.5.1
+[1.5.2]: https://github.com/Level/leveldown/releases/tag/v1.5.2
 
-[1.5.0]: https://github.com/Level/leveldown/compare/v1.4.6...v1.5.0
+[1.5.1]: https://github.com/Level/leveldown/releases/tag/v1.5.1
 
-[1.4.6]: https://github.com/Level/leveldown/compare/v1.4.5...v1.4.6
+[1.5.0]: https://github.com/Level/leveldown/releases/tag/v1.5.0
 
-[1.4.5]: https://github.com/Level/leveldown/compare/v1.4.4...v1.4.5
+[1.4.6]: https://github.com/Level/leveldown/releases/tag/v1.4.6
 
-[1.4.4]: https://github.com/Level/leveldown/compare/v1.4.3...v1.4.4
+[1.4.5]: https://github.com/Level/leveldown/releases/tag/v1.4.5
 
-[1.4.3]: https://github.com/Level/leveldown/compare/v1.4.2...v1.4.3
+[1.4.4]: https://github.com/Level/leveldown/releases/tag/v1.4.4
 
-[1.4.2]: https://github.com/Level/leveldown/compare/v1.4.1...v1.4.2
+[1.4.3]: https://github.com/Level/leveldown/releases/tag/v1.4.3
 
-[1.4.1]: https://github.com/Level/leveldown/compare/v1.4.0...v1.4.1
+[1.4.2]: https://github.com/Level/leveldown/releases/tag/v1.4.2
 
-[1.4.0]: https://github.com/Level/leveldown/compare/v1.3.1-0...v1.4.0
+[1.4.1]: https://github.com/Level/leveldown/releases/tag/v1.4.1
 
-[1.3.1-0]: https://github.com/Level/leveldown/compare/v1.3.0...v1.3.1-0
+[1.4.0]: https://github.com/Level/leveldown/releases/tag/v1.4.0
 
-[1.3.0]: https://github.com/Level/leveldown/compare/v1.2.2...v1.3.0
+[1.3.1-0]: https://github.com/Level/leveldown/releases/tag/v1.3.1-0
 
-[1.2.2]: https://github.com/Level/leveldown/compare/v1.2.1...v1.2.2
+[1.3.0]: https://github.com/Level/leveldown/releases/tag/v1.3.0
 
-[1.2.1]: https://github.com/Level/leveldown/compare/v1.2.0...v1.2.1
+[1.2.2]: https://github.com/Level/leveldown/releases/tag/v1.2.2
 
-[1.2.0]: https://github.com/Level/leveldown/compare/v1.1.0...v1.2.0
+[1.2.1]: https://github.com/Level/leveldown/releases/tag/v1.2.1
 
-[1.1.0]: https://github.com/Level/leveldown/compare/v1.0.7...v1.1.0
+[1.2.0]: https://github.com/Level/leveldown/releases/tag/v1.2.0
 
-[1.0.7]: https://github.com/Level/leveldown/compare/v1.0.6...v1.0.7
+[1.1.0]: https://github.com/Level/leveldown/releases/tag/v1.1.0
 
-[1.0.6]: https://github.com/Level/leveldown/compare/v1.0.5...v1.0.6
+[1.0.7]: https://github.com/Level/leveldown/releases/tag/v1.0.7
 
-[1.0.5]: https://github.com/Level/leveldown/compare/v1.0.4...v1.0.5
+[1.0.6]: https://github.com/Level/leveldown/releases/tag/v1.0.6
 
-[1.0.4]: https://github.com/Level/leveldown/compare/v1.0.3...v1.0.4
+[1.0.5]: https://github.com/Level/leveldown/releases/tag/v1.0.5
 
-[1.0.3]: https://github.com/Level/leveldown/compare/v1.0.2...v1.0.3
+[1.0.4]: https://github.com/Level/leveldown/releases/tag/v1.0.4
 
-[1.0.2]: https://github.com/Level/leveldown/compare/v1.0.1...v1.0.2
+[1.0.3]: https://github.com/Level/leveldown/releases/tag/v1.0.3
 
-[1.0.1]: https://github.com/Level/leveldown/compare/v1.0.0...v1.0.1
+[1.0.2]: https://github.com/Level/leveldown/releases/tag/v1.0.2
 
-[1.0.0]: https://github.com/Level/leveldown/compare/v0.10.6...v1.0.0
+[1.0.1]: https://github.com/Level/leveldown/releases/tag/v1.0.1
 
-[0.10.6]: https://github.com/Level/leveldown/compare/v0.10.5...v0.10.6
+[1.0.0]: https://github.com/Level/leveldown/releases/tag/v1.0.0
 
-[0.10.5]: https://github.com/Level/leveldown/compare/v0.10.4...v0.10.5
+[0.10.6]: https://github.com/Level/leveldown/releases/tag/v0.10.6
 
-[0.10.4]: https://github.com/Level/leveldown/compare/v0.10.3...v0.10.4
+[0.10.5]: https://github.com/Level/leveldown/releases/tag/v0.10.5
 
-[0.10.3]: https://github.com/Level/leveldown/compare/v0.10.2...v0.10.3
+[0.10.4]: https://github.com/Level/leveldown/releases/tag/v0.10.4
 
-[0.10.2]: https://github.com/Level/leveldown/compare/v0.10.1...v0.10.2
+[0.10.3]: https://github.com/Level/leveldown/releases/tag/v0.10.3
 
-[0.10.1]: https://github.com/Level/leveldown/compare/0.10.0...v0.10.1
+[0.10.2]: https://github.com/Level/leveldown/releases/tag/v0.10.2
 
-[0.10.0]: https://github.com/Level/leveldown/compare/0.9.2...0.10.0
+[0.10.1]: https://github.com/Level/leveldown/releases/tag/v0.10.1
 
-[0.9.2]: https://github.com/Level/leveldown/compare/0.9.1...0.9.2
+[0.10.0]: https://github.com/Level/leveldown/releases/tag/0.10.0
 
-[0.9.1]: https://github.com/Level/leveldown/compare/0.9.0...0.9.1
+[0.9.2]: https://github.com/Level/leveldown/releases/tag/0.9.2
 
-[0.9.0]: https://github.com/Level/leveldown/compare/0.8.3...0.9.0
+[0.9.1]: https://github.com/Level/leveldown/releases/tag/0.9.1
 
-[0.8.3]: https://github.com/Level/leveldown/compare/0.8.2...0.8.3
+[0.9.0]: https://github.com/Level/leveldown/releases/tag/0.9.0
 
-[0.8.2]: https://github.com/Level/leveldown/compare/0.8.1...0.8.2
+[0.8.3]: https://github.com/Level/leveldown/releases/tag/0.8.3
 
-[0.8.1]: https://github.com/Level/leveldown/compare/0.8.0...0.8.1
+[0.8.2]: https://github.com/Level/leveldown/releases/tag/0.8.2
 
-[0.8.0]: https://github.com/Level/leveldown/compare/0.7.0...0.8.0
+[0.8.1]: https://github.com/Level/leveldown/releases/tag/0.8.1
 
-[0.7.0]: https://github.com/Level/leveldown/compare/0.6.2...0.7.0
+[0.8.0]: https://github.com/Level/leveldown/releases/tag/0.8.0
 
-[0.6.2]: https://github.com/Level/leveldown/compare/0.6.1...0.6.2
+[0.7.0]: https://github.com/Level/leveldown/releases/tag/0.7.0
 
-[0.6.1]: https://github.com/Level/leveldown/compare/0.6.0...0.6.1
+[0.6.2]: https://github.com/Level/leveldown/releases/tag/0.6.2
 
-[0.6.0]: https://github.com/Level/leveldown/compare/0.5.0...0.6.0
+[0.6.1]: https://github.com/Level/leveldown/releases/tag/0.6.1
 
-[0.5.0]: https://github.com/Level/leveldown/compare/0.4.4...0.5.0
+[0.6.0]: https://github.com/Level/leveldown/releases/tag/0.6.0
 
-[0.4.4]: https://github.com/Level/leveldown/compare/0.4.3...0.4.4
+[0.5.0]: https://github.com/Level/leveldown/releases/tag/0.5.0
 
-[0.4.3]: https://github.com/Level/leveldown/compare/0.4.2...0.4.3
+[0.4.4]: https://github.com/Level/leveldown/releases/tag/0.4.4
 
-[0.4.2]: https://github.com/Level/leveldown/compare/0.4.1...0.4.2
+[0.4.3]: https://github.com/Level/leveldown/releases/tag/0.4.3
 
-[0.4.1]: https://github.com/Level/leveldown/compare/0.4.0...0.4.1
+[0.4.2]: https://github.com/Level/leveldown/releases/tag/0.4.2
 
-[0.4.0]: https://github.com/Level/leveldown/compare/0.3.1...0.4.0
+[0.4.1]: https://github.com/Level/leveldown/releases/tag/0.4.1
 
-[0.3.1]: https://github.com/Level/leveldown/compare/0.3.0...0.3.1
+[0.4.0]: https://github.com/Level/leveldown/releases/tag/0.4.0
 
-[0.3.0]: https://github.com/Level/leveldown/compare/0.2.3...0.3.0
+[0.3.1]: https://github.com/Level/leveldown/releases/tag/0.3.1
 
-[0.2.3]: https://github.com/Level/leveldown/compare/0.2.2...0.2.3
+[0.3.0]: https://github.com/Level/leveldown/releases/tag/0.3.0
 
-[0.2.2]: https://github.com/Level/leveldown/compare/0.2.1...0.2.2
+[0.2.3]: https://github.com/Level/leveldown/releases/tag/0.2.3
 
-[0.2.1]: https://github.com/Level/leveldown/compare/0.2.0...0.2.1
+[0.2.2]: https://github.com/Level/leveldown/releases/tag/0.2.2
 
-[0.2.0]: https://github.com/Level/leveldown/compare/0.1.4...0.2.0
+[0.2.1]: https://github.com/Level/leveldown/releases/tag/0.2.1
 
-[0.1.4]: https://github.com/Level/leveldown/compare/0.1.3...0.1.4
+[0.2.0]: https://github.com/Level/leveldown/releases/tag/0.2.0
 
-[0.1.3]: https://github.com/Level/leveldown/compare/0.1.2...0.1.3
+[0.1.4]: https://github.com/Level/leveldown/releases/tag/0.1.4
 
-[0.1.2]: https://github.com/Level/leveldown/compare/0.1.1...0.1.2
+[0.1.3]: https://github.com/Level/leveldown/releases/tag/0.1.3
 
-[0.1.1]: https://github.com/Level/leveldown/compare/0.1.0...0.1.1
+[0.1.2]: https://github.com/Level/leveldown/releases/tag/0.1.2
 
-[0.1.0]: https://github.com/Level/leveldown/compare/0.0.2...0.1.0
+[0.1.1]: https://github.com/Level/leveldown/releases/tag/0.1.1
 
-[0.0.2]: https://github.com/Level/leveldown/compare/0.0.1...0.0.2
+[0.1.0]: https://github.com/Level/leveldown/releases/tag/0.1.0
 
-[0.0.1]: https://github.com/Level/leveldown/compare/0.0.0...0.0.1
+[0.0.2]: https://github.com/Level/leveldown/releases/tag/0.0.2
+
+[0.0.1]: https://github.com/Level/leveldown/releases/tag/0.0.1
 
 [0.0.0]: https://github.com/Level/leveldown/releases/tag/0.0.0
