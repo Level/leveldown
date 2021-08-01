@@ -46,7 +46,7 @@
     "nyc": "^15.0.0",
     "prebuildify": "^4.1.0",
     "prebuildify-ci": "^1.0.4",
-    "prebuildify-cross": "^4.0.0",
+    "prebuildify-cross": "^4.0.1",
     "readfiletree": "^1.0.0",
     "rimraf": "^3.0.0",
     "standard": "^16.0.3",
