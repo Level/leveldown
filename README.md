@@ -1,15 +1,13 @@
 # leveldown
 
 [![level badge][level-badge]](https://github.com/Level/awesome)
-[![npm](https://img.shields.io/npm/v/leveldown.svg?label=&logo=npm)](https://www.npmjs.com/package/leveldown)
+[![npm](https://img.shields.io/npm/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
 [![Node version](https://img.shields.io/node/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
-[![Test](https://github.com/Level/leveldown/actions/workflows/test.yml/badge.svg)](https://github.com/Level/leveldown/actions/workflows/test.yml)
-[![Cirrus CI](https://img.shields.io/cirrus/github/Level/leveldown?logo=cirrus-ci&label=)](https://cirrus-ci.com/github/Level/leveldown)
-[![npm](https://img.shields.io/npm/dm/leveldown.svg?label=dl)](https://www.npmjs.com/package/leveldown)
-[![Coverage Status](https://codecov.io/gh/Level/leveldown/branch/master/graph/badge.svg)](https://codecov.io/gh/Level/leveldown)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-[![Backers on Open Collective](https://opencollective.com/level/backers/badge.svg?color=orange)](#backers)
-[![Sponsors on Open Collective](https://opencollective.com/level/sponsors/badge.svg?color=orange)](#sponsors)
+[![Test](https://img.shields.io/github/workflow/status/Level/leveldown/Test?label=test)](https://github.com/Level/leveldown/actions/workflows/test.yml)
+[![Coverage](https://img.shields.io/codecov/c/github/Level/leveldown?label=&logo=codecov&logoColor=fff)](https://codecov.io/gh/Level/leveldown)
+[![Standard](https://img.shields.io/badge/standard-informational?logo=javascript&logoColor=fff)](https://standardjs.com)
+[![Common Changelog](https://common-changelog.org/badge.svg)](https://common-changelog.org)
+[![Donate](https://img.shields.io/badge/donate-orange?logo=open-collective&logoColor=fff)](https://opencollective.com/level)
 
 ## Table of Contents
 
@@ -57,8 +55,6 @@
   - [Git Submodules](#git-submodules)
   - [Publishing](#publishing)
 - [Donate](#donate)
-  - [Backers](#backers)
-  - [Sponsors](#sponsors)
 - [License](#license)
 
 </details>
@@ -454,11 +450,9 @@ Currently `leveldown` does not track the state of the underlying LevelDB instanc
 
 ## Getting Support
 
-There are multiple ways you can find help in using LevelDB in Node.js:
+You're welcome to open an issue on the [GitHub repository](https://github.com/Level/leveldown) if you have a question.
 
-- **IRC:** you'll find an active group of `levelup` users in the **##leveldb** channel on Freenode, including most of the contributors to this project.
-- **Mailing list:** there is an active [Node.js LevelDB](https://groups.google.com/forum/#!forum/node-levelup) Google Group.
-- **GitHub:** you're welcome to open an issue here on this GitHub repository if you have a question.
+Past and no longer active support channels include the `##leveldb` IRC channel on Freenode and the [Node.js LevelDB](https://groups.google.com/forum/#!forum/node-levelup) Google Group.
 
 ## Contributing
 
@@ -494,19 +488,11 @@ $ git submodule update --init --recursive
 
 ## Donate
 
-To sustain [`Level`](https://github.com/Level) and its activities, become a backer or sponsor on [Open Collective](https://opencollective.com/level). Your logo or avatar will be displayed on our 28+ [GitHub repositories](https://github.com/Level) and [npm](https://www.npmjs.com/) packages. 💖
-
-### Backers
-
-[![Open Collective backers](https://opencollective.com/level/backers.svg?width=890)](https://opencollective.com/level)
-
-### Sponsors
-
-[![Open Collective sponsors](https://opencollective.com/level/sponsors.svg?width=890)](https://opencollective.com/level)
+Support us with a monthly donation on [Open Collective](https://opencollective.com/level) and help us continue our work.
 
 ## License
 
-[MIT](LICENSE.md) © 2012-present Rod Vagg and [Contributors](CONTRIBUTORS.md).
+[MIT](LICENSE)
 
 _`leveldown` builds on the excellent work of the LevelDB and Snappy teams from Google and additional contributors. LevelDB and Snappy are both issued under the [New BSD License](http://opensource.org/licenses/BSD-3-Clause). A large portion of `leveldown` Windows support comes from the [Windows LevelDB port](http://code.google.com/r/kkowalczyk-leveldb/) (archived) by [Krzysztof Kowalczyk](http://blog.kowalczyk.info/) ([`@kjk`](https://twitter.com/kjk)). If you're using `leveldown` on Windows, you should give him your thanks!_
 
