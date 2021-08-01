@@ -3,11 +3,10 @@
 [![level badge][level-badge]](https://github.com/Level/awesome)
 [![npm](https://img.shields.io/npm/v/leveldown.svg?label=&logo=npm)](https://www.npmjs.com/package/leveldown)
 [![Node version](https://img.shields.io/node/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
-[![Travis](https://img.shields.io/travis/com/Level/leveldown.svg?logo=travis&label=)](https://travis-ci.com/Level/leveldown)
-[![AppVeyor](https://img.shields.io/appveyor/ci/Level/leveldown.svg?logo=appveyor&label=)](https://ci.appveyor.com/project/Level/leveldown)
+[![Test](https://github.com/Level/leveldown/actions/workflows/test.yml/badge.svg)](https://github.com/Level/leveldown/actions/workflows/test.yml)
 [![Cirrus CI](https://img.shields.io/cirrus/github/Level/leveldown?logo=cirrus-ci&label=)](https://cirrus-ci.com/github/Level/leveldown)
 [![npm](https://img.shields.io/npm/dm/leveldown.svg?label=dl)](https://www.npmjs.com/package/leveldown)
-[![Coverage Status](https://coveralls.io/repos/github/Level/leveldown/badge.svg)](https://coveralls.io/github/Level/leveldown)
+[![Coverage Status](https://codecov.io/gh/Level/leveldown/branch/master/graph/badge.svg)](https://codecov.io/gh/Level/leveldown)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 [![Backers on Open Collective](https://opencollective.com/level/backers/badge.svg?color=orange)](#backers)
 [![Sponsors on Open Collective](https://opencollective.com/level/sponsors/badge.svg?color=orange)](#sponsors)
@@ -487,12 +486,11 @@ $ git submodule update --init --recursive
 
 1. Increment the version: `npm version ..`
 2. Push to GitHub: `git push --follow-tags`
-3. Wait for Travis and AppVeyor builds to complete
+3. Wait for CI to complete
 4. Download prebuilds into `./prebuilds`: `npm run download-prebuilds`
 5. Optionally verify loading a prebuild: `npm run test-prebuild`
 6. Optionally verify which files npm will include: `canadian-pub`
-7. Add changelog to the GitHub release
-8. Finally: `npm publish`
+7. Finally: `npm publish`
 
 ## Donate
 
