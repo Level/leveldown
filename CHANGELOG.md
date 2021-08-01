@@ -1094,7 +1094,7 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 - Callback is not optional for `.close()` ([**@rvagg**](https://github.com/rvagg))
 
-## 0.0.0 - 2013-01-06
+## [0.0.0] - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
 
@@ -1289,3 +1289,5 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 [0.0.2]: https://github.com/Level/leveldown/compare/0.0.1...0.0.2
 
 [0.0.1]: https://github.com/Level/leveldown/compare/0.0.0...0.0.1
+
+[0.0.0]: https://github.com/Level/leveldown/releases/tag/0.0.0
