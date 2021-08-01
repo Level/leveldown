@@ -1033,7 +1033,7 @@ struct ApproximateSizeWorker final : public PriorityWorker {
   void HandleOKCallback () override {
     napi_value argv[2];
     napi_get_null(env_, &argv[0]);
-    napi_create_uint32(env_, (uint32_t)size_, &argv[1]);
+    napi_create_int64(env_, (uint64_t)size_, &argv[1]);
     napi_value callback;
     napi_get_reference_value(env_, callbackRef_, &callback);
     CallFunction(env_, callback, 2, argv);
