@@ -8,12 +8,12 @@
 
 ## [6.0.0] - 2021-04-10
 
-_**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Changed
 
 - **Breaking:** bump `abstract-leveldown` ([`15d5a9e`](https://github.com/Level/leveldown/commit/15d5a9e)) (Vincent Weevers)
-- **Breaking:** drop node 6 and 8 ([Level/community#98](https://github.com/Level/community/issues/98)) ([`8502b34`](https://github.com/Level/leveldown/commit/8502b34)) (Vincent Weevers)
+- **Breaking:** drop node 8 ([Level/community#98](https://github.com/Level/community/issues/98)) ([`8502b34`](https://github.com/Level/leveldown/commit/8502b34)) (Vincent Weevers)
 - Bump `node-gyp` from 6.x to 7.x ([`8bc5696`](https://github.com/Level/leveldown/commit/8bc5696)) (Vincent Weevers)
 - Bump `standard` from 14.x to 16.x ([`d39e232`](https://github.com/Level/leveldown/commit/d39e232), [`39e3ca3`](https://github.com/Level/leveldown/commit/39e3ca3)) (Vincent Weevers)
 - Bump `node-gyp-build` from 4.1.x to 4.2.x ([#708](https://github.com/Level/leveldown/issues/708)) ([`91711fa`](https://github.com/Level/leveldown/commit/91711fa)) (Vincent Weevers)
@@ -87,7 +87,7 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [5.3.0-0] - 2019-10-04
 
-**Historical Note** This was a prerelease of 5.3.0 for testing purposes. Changes listed above.
+_This was a prerelease of 5.3.0 for testing purposes. Changes listed above._
 
 ## [5.2.1] - 2019-09-20
 
@@ -198,11 +198,11 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Fixed
 
-- Temporarily skip `hallmark` test because it breaks CITGM ([#606](https://github.com/Level/leveldown/issues/606)) ([**@vweevers**](https://github.com/vweevers))
-
-**Historical Note** Although CITGM landed support for git repositories in response to v5.0.0 which fixes our use of git submodules and `hallmark`, we're keeping `hallmark` disabled because it is still experimental and technically out of scope for CITGM.
+- Skip `hallmark` test because it broke (and is out of scope for) CITGM ([#606](https://github.com/Level/leveldown/issues/606)) ([**@vweevers**](https://github.com/vweevers))
 
 ## [5.0.0] - 2019-03-29
+
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### Changed
 
@@ -812,11 +812,11 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [0.10.1] - 2013-11-21
 
+_From this release and onward, tags in git start with the prefix `v`, i.e. this release corresponds to the tag `v0.10.1`._
+
 ### Changed
 
 - Upgrade to `nan@0.6` for Node 0.11.6 support, `v8::Local<T>::New(val)` rewritten to `NanNewLocal<T>(val)` ([**@rvagg**](https://github.com/rvagg))
-
-**Historical Note** From this release and onward, tags in git start with the prefix `v`, i.e. this release corresponds to the tag `v0.10.1`.
 
 ## [0.10.0] - 2013-11-18
 
@@ -862,11 +862,11 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [0.8.3] - 2013-09-18
 
+_The diff between this version and the previous shows `0.8.4` in the commit message. This is incorrect, since that version was never released._
+
 ### Changed
 
 - Upgrade to `nan@0.4.0`, better support for latest Node master & support for installing within directory structures containing spaces in directory names ([**@rvagg**](https://github.com/rvagg))
-
-**Historical Note** The diff between this version and the previous shows `0.8.4` in the commit message. This is incorrect, since that version was never released.
 
 ## [0.8.2] - 2013-09-01
 
@@ -904,8 +904,6 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 - Use [nan](https://github.com/rvagg/nan) for Node 0.8->0.11 compatibility ([**@rvagg**](https://github.com/rvagg))
 - Minor perf improvements in C++ ([**@mscdex**](https://github.com/mscdex))
-
-**Historical Note** We started using `nan` in the form of a local `src/nan.h` header file.
 
 ## [0.6.2] - 2013-07-07
 
@@ -974,6 +972,8 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 ## [0.3.0] - 2013-05-14
 
+_In the early days minor versions were looked upon as major versions. Semver practices we use today was not adopted fully at this time. This is why the history might look a bit confusing._
+
 ### Added
 
 - Add [**@No9**](https://github.com/No9) to contributors ([**@rvagg**](https://github.com/rvagg))
@@ -988,11 +988,9 @@ _**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md)._
 
 - Remove browserify shim ([**@rvagg**](https://github.com/rvagg))
 
-**Historical Note** In the early days minor versions were looked upon as major versions. Semver practices we use today was not adopted fully at this time. This is why the history might look a bit confusing.
-
 <!-- ## 0.2.4 - 2013-05-21
 
-**Historical Note** Did not publish as a tag and `package.json` was never committed with this version number. Most likely due to a locally modified `package.json`. -->
+_Was not published as a tag and `package.json` was never committed with this version number. Most likely due to a locally modified `package.json`._ -->
 
 ## [0.2.3] - 2013-05-17
 
