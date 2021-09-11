@@ -27,8 +27,7 @@ test('setUp common', testCommon.setUp)
 // call in our Iterator to segfault. This was fixed in 2014 (commit 85e6a38).
 //
 // Today (2020), we see occasional failures in CI again. We no longer call
-// node::FatalException() so there's a new reason. Possibly related to
-// https://github.com/Level/leveldown/issues/667.
+// node::FatalException() so there's a new reason.
 test.skip('try to create an iterator with a blown stack', function (t) {
   for (let i = 0; i < 100; i++) {
     t.test(`try to create an iterator with a blown stack (${i})`, function (t) {
