@@ -398,9 +398,9 @@ Otherwise, the `callback` function will be called with the following 3 arguments
 
 #### `iterator.seek(key)`
 
-<code>seek()</code> is an instance method on an existing iterator object, used to seek the underlying LevelDB iterator to a given key.
+Seek the iterator to a given key or the closest key. Subsequent calls to `iterator.next()` will yield entries with keys equal to or larger than `target`, or equal to or smaller than `target` if the `reverse` option passed to `db.iterator()` was true.
 
-By calling <code>seek(key)</code>, subsequent calls to <code>next(cb)</code> will return key/values larger or smaller than `key`, based on your <code>reverse</code> setting in the iterator constructor.
+If range options like `gt` were passed to `db.iterator()` and `target` does not fall within that range, the iterator will reach its end.
 
 <a name="iterator_end"></a>
 
