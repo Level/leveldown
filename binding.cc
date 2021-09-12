@@ -469,15 +469,6 @@ private:
 };
 
 /**
- * Runs when a Database is garbage collected.
- */
-static void FinalizeDatabase (napi_env env, void* data, void* hint) {
-  if (data) {
-    delete (Database*)data;
-  }
-}
-
-/**
  * Base worker class for doing async work that defers closing the database.
  */
 struct PriorityWorker : public BaseWorker {
@@ -714,10 +705,54 @@ private:
 };
 
 /**
+ * Hook for when the environment exits. This hook will be called after
+ * already-scheduled napi_async_work items have finished, which gives us
+ * the guarantee that no db operations will be in-flight at this time.
+ */
+static void env_cleanup_hook (void* arg) {
+  Database* database = (Database*)arg;
+
+  // Do everything that db_close() does but synchronously. We're expecting that GC
+  // did not (yet) collect the database because that would be a user mistake (not
+  // closing their db) made during the lifetime of the environment. That's different
+  // from an environment being torn down (like the main process or a worker thread)
+  // where it's our responsibility to clean up. Note also, the following code must
+  // be a safe noop if called before db_open() or after db_close().
+  if (database && database->db_ != NULL) {
+    std::map<uint32_t, Iterator*> iterators = database->iterators_;
+    std::map<uint32_t, Iterator*>::iterator it;
+
+    for (it = iterators.begin(); it != iterators.end(); ++it) {
+      Iterator* iterator = it->second;
+
+      if (!iterator->ended_) {
+        iterator->ended_ = true;
+        iterator->IteratorEnd();
+      }
+    }
+
+    // Having ended the iterators (and released snapshots) we can safely close.
+    database->CloseDatabase();
+  }
+}
+
+/**
+ * Runs when a Database is garbage collected.
+ */
+static void FinalizeDatabase (napi_env env, void* data, void* hint) {
+  if (data) {
+    Database* database = (Database*)data;
+    napi_remove_env_cleanup_hook(env, env_cleanup_hook, database);
+    delete database;
+  }
+}
+
+/**
  * Returns a context object for a database.
  */
 NAPI_METHOD(db_init) {
   Database* database = new Database(env);
+  napi_add_env_cleanup_hook(env, env_cleanup_hook, database);
 
   napi_value result;
   NAPI_STATUS_THROWS(napi_create_external(env, database,

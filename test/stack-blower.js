@@ -21,12 +21,7 @@ if (process.argv[2] === 'run') {
     try {
       recurse()
     } catch (e) {
-      // Closing before process exit is normally not needed. This is a
-      // temporary workaround for Level/leveldown#667.
-      db.close(function (err) {
-        if (err) throw err
-        process.send('Catchable error at depth ' + depth)
-      })
+      process.send('Catchable error at depth ' + depth)
     }
   })
 }
