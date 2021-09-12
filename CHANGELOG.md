@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.0.2] - 2021-09-12
+
+### Fixed
+
+- Close database on environment exit ([#783](https://github.com/Level/leveldown/issues/783)) ([`8fdcaaa`](https://github.com/Level/leveldown/commit/8fdcaaa)) (Vincent Weevers).
+
 ## [6.0.1] - 2021-08-01
 
 ### Fixed
@@ -1101,6 +1107,8 @@ _Was not published as a tag and `package.json` was never committed with this ver
 ## [0.0.0] - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[6.0.2]: https://github.com/Level/leveldown/releases/tag/v6.0.2
 
 [6.0.1]: https://github.com/Level/leveldown/releases/tag/v6.0.1
 
