@@ -63,6 +63,10 @@ LevelDOWN.prototype._del = function (key, options, callback) {
   binding.db_del(this.context, key, options, callback)
 }
 
+LevelDOWN.prototype._clear = function (options, callback) {
+  binding.db_clear(this.context, options, callback)
+}
+
 LevelDOWN.prototype._chainedBatch = function () {
   return new ChainedBatch(this)
 }

@@ -88,3 +88,25 @@ make('close db with open iterator', function (db, t, done) {
     done(null, false)
   })
 })
+
+make('key-only iterator', function (db, t, done) {
+  const it = db.iterator({ values: false, keyAsBuffer: false, valueAsBuffer: false })
+
+  it.next(function (err, key, value) {
+    t.ifError(err, 'no next() error')
+    t.is(key, 'one')
+    t.is(value, '') // should this be undefined?
+    it.end(done)
+  })
+})
+
+make('value-only iterator', function (db, t, done) {
+  const it = db.iterator({ keys: false, keyAsBuffer: false, valueAsBuffer: false })
+
+  it.next(function (err, key, value) {
+    t.ifError(err, 'no next() error')
+    t.is(key, '') // should this be undefined?
+    t.is(value, '1')
+    it.end(done)
+  })
+})
