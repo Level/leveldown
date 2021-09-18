@@ -10,3 +10,4 @@ if (!global.gc) {
 require('./cleanup-hanging-iterators-test')
 require('./iterator-gc-test')
 require('./chained-batch-gc-test')
+require('./clear-gc-test')
