@@ -361,9 +361,14 @@ struct Database {
       filterPolicy_(leveldb::NewBloomFilterPolicy(10)),
       currentIteratorId_(0),
       pendingCloseWorker_(NULL),
+      ref_(NULL),
       priorityWork_(0) {}
 
   ~Database () {
+    if (ref_ != NULL) {
+      napi_delete_reference(env_, ref_);
+    }
+
     if (db_ != NULL) {
       delete db_;
       db_ = NULL;
@@ -444,11 +449,13 @@ struct Database {
   }
 
   void IncrementPriorityWork () {
-    ++priorityWork_;
+    napi_reference_ref(env_, ref_, &priorityWork_);
   }
 
   void DecrementPriorityWork () {
-    if (--priorityWork_ == 0 && pendingCloseWorker_ != NULL) {
+    napi_reference_unref(env_, ref_, &priorityWork_);
+
+    if (priorityWork_ == 0 && pendingCloseWorker_ != NULL) {
       pendingCloseWorker_->Queue();
       pendingCloseWorker_ = NULL;
     }
@@ -465,6 +472,7 @@ struct Database {
   uint32_t currentIteratorId_;
   BaseWorker *pendingCloseWorker_;
   std::map< uint32_t, Iterator * > iterators_;
+  napi_ref ref_;
 
 private:
   uint32_t priorityWork_;
@@ -828,11 +836,16 @@ NAPI_METHOD(db_init) {
   NAPI_STATUS_THROWS(napi_create_external(env, database,
                                           FinalizeDatabase,
                                           NULL, &result));
+
+  // Reference counter to prevent GC of database while priority workers are active
+  NAPI_STATUS_THROWS(napi_create_reference(env, result, 0, &database->ref_));
+
   return result;
 }
 
 /**
  * Worker class for opening a database.
+ * TODO: shouldn't this be a PriorityWorker?
  */
 struct OpenWorker final : public BaseWorker {
   OpenWorker (napi_env env,
@@ -1133,7 +1146,6 @@ struct ClearWorker final : public PriorityWorker {
   }
 
   ~ClearWorker () {
-    // TODO: write GC tests
     delete baseIterator_;
     delete writeOptions_;
   }
@@ -1476,6 +1488,7 @@ struct EndWorker final : public BaseWorker {
   }
 
   void HandleOKCallback () override {
+    // TODO: if we don't use EndWorker, do we still delete the reference?
     napi_delete_reference(env_, iterator_->Detach());
     BaseWorker::HandleOKCallback();
   }

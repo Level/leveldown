@@ -39,3 +39,5 @@ jobs:
         uses: GabrielBB/xvfb-action@v1
         with:
           run: npm run test-electron
+      - name: Test GC
+        run: npm run test-gc
