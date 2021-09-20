@@ -92,3 +92,27 @@ makeTest('test ending iterators', function (db, t, done) {
     done()
   })
 })
+
+makeTest('test recursive next', function (db, t, done) {
+  // Test that we're able to close when user keeps scheduling work
+  const it = db.iterator({ highWaterMark: 0 })
+
+  it.next(function loop (err, key) {
+    if (err && err.message !== 'iterator has ended') throw err
+    if (key !== undefined) it.next(loop)
+  })
+
+  done()
+})
+
+makeTest('test recursive next (random)', function (db, t, done) {
+  // Same as the test above but closing at a random time
+  const it = db.iterator({ highWaterMark: 0 })
+
+  it.next(function loop (err, key) {
+    if (err && err.message !== 'iterator has ended') throw err
+    if (key !== undefined) it.next(loop)
+  })
+
+  setTimeout(done, Math.floor(Math.random() * 50))
+})
