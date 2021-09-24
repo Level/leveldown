@@ -255,6 +255,64 @@ static napi_status CallFunction (napi_env env,
 }
 
 /**
+ * Whether to yield entries, keys or values.
+ */
+enum Mode {
+  entries,
+  keys,
+  values
+};
+
+/**
+ * Helper struct for caching and converting a key-value pair to napi_values.
+ */
+struct Entry {
+  Entry (const leveldb::Slice* key, const leveldb::Slice* value) {
+    key_ = key != NULL ? new std::string(key->data(), key->size()) : NULL;
+    value_ = value != NULL ? new std::string(value->data(), value->size()) : NULL;
+  }
+
+  ~Entry () {
+    if (key_ != NULL) delete key_;
+    if (value_ != NULL) delete value_;
+  }
+
+  // Not used yet.
+  void ConvertXX (napi_env env, Mode mode, bool keyAsBuffer, bool valueAsBuffer, napi_value* result) {
+    if (mode == Mode::entries) {
+      napi_create_array_with_length(env, 2, result);
+
+      napi_value valueElement;
+      napi_value keyElement;
+
+      Convert(env, key_, keyAsBuffer, &keyElement);
+      Convert(env, value_, valueAsBuffer, &valueElement);
+
+      napi_set_element(env, *result, 0, keyElement);
+      napi_set_element(env, *result, 1, valueElement);
+    } else if (mode == Mode::keys) {
+      Convert(env, key_, keyAsBuffer, result);
+    } else {
+      Convert(env, value_, valueAsBuffer, result);
+    }
+  }
+
+  static void Convert (napi_env env, const std::string* s, bool asBuffer, napi_value* result) {
+    if (s == NULL) {
+      napi_get_undefined(env, result);
+    } else if (asBuffer) {
+      napi_create_buffer_copy(env, s->size(), s->data(), NULL, result);
+    } else {
+      napi_create_string_utf8(env, s->data(), s->size(), result);
+    }
+  }
+
+private:
+  std::string* key_;
+  std::string* value_;
+};
+
+/**
  * Base worker class. Handles the async work. Derived classes can override the
  * following virtual methods (listed in the order in which they're called):
  *
@@ -1043,13 +1101,7 @@ struct GetWorker final : public PriorityWorker {
   void HandleOKCallback (napi_env env, napi_value callback) override {
     napi_value argv[2];
     napi_get_null(env, &argv[0]);
-
-    if (asBuffer_) {
-      napi_create_buffer_copy(env, value_.size(), value_.data(), NULL, &argv[1]);
-    } else {
-      napi_create_string_utf8(env, value_.data(), value_.size(), &argv[1]);
-    }
-
+    Entry::Convert(env, &value_, asBuffer_, &argv[1]);
     CallFunction(env, callback, 2, argv);
   }
 
@@ -1555,18 +1607,10 @@ struct NextWorker final : public BaseWorker {
       std::string value = iterator_->cache_[idx + 1];
 
       napi_value returnKey;
-      if (iterator_->keyAsBuffer_) {
-        napi_create_buffer_copy(env, key.size(), key.data(), NULL, &returnKey);
-      } else {
-        napi_create_string_utf8(env, key.data(), key.size(), &returnKey);
-      }
-
       napi_value returnValue;
-      if (iterator_->valueAsBuffer_) {
-        napi_create_buffer_copy(env, value.size(), value.data(), NULL, &returnValue);
-      } else {
-        napi_create_string_utf8(env, value.data(), value.size(), &returnValue);
-      }
+
+      Entry::Convert(env, &key, iterator_->keyAsBuffer_, &returnKey);
+      Entry::Convert(env, &value, iterator_->valueAsBuffer_, &returnValue);
 
       // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
       napi_set_element(env, jsArray, static_cast<int>(arraySize - idx - 1), returnKey);
