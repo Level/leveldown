@@ -255,6 +255,64 @@ static napi_status CallFunction (napi_env env,
 }
 
 /**
+ * Whether to yield entries, keys or values.
+ */
+enum Mode {
+  entries,
+  keys,
+  values
+};
+
+/**
+ * Helper struct for caching and converting a key-value pair to napi_values.
+ */
+struct Entry {
+  Entry (const leveldb::Slice* key, const leveldb::Slice* value) {
+    key_ = key != NULL ? new std::string(key->data(), key->size()) : NULL;
+    value_ = value != NULL ? new std::string(value->data(), value->size()) : NULL;
+  }
+
+  ~Entry () {
+    if (key_ != NULL) delete key_;
+    if (value_ != NULL) delete value_;
+  }
+
+  // Not used yet.
+  void ConvertXX (napi_env env, Mode mode, bool keyAsBuffer, bool valueAsBuffer, napi_value* result) {
+    if (mode == Mode::entries) {
+      napi_create_array_with_length(env, 2, result);
+
+      napi_value valueElement;
+      napi_value keyElement;
+
+      Convert(env, key_, keyAsBuffer, &keyElement);
+      Convert(env, value_, valueAsBuffer, &valueElement);
+
+      napi_set_element(env, *result, 0, keyElement);
+      napi_set_element(env, *result, 1, valueElement);
+    } else if (mode == Mode::keys) {
+      Convert(env, key_, keyAsBuffer, result);
+    } else {
+      Convert(env, value_, valueAsBuffer, result);
+    }
+  }
+
+  static void Convert (napi_env env, const std::string* s, bool asBuffer, napi_value* result) {
+    if (s == NULL) {
+      napi_get_undefined(env, result);
+    } else if (asBuffer) {
+      napi_create_buffer_copy(env, s->size(), s->data(), NULL, result);
+    } else {
+      napi_create_string_utf8(env, s->data(), s->size(), result);
+    }
+  }
+
+private:
+  std::string* key_;
+  std::string* value_;
+};
+
+/**
  * Base worker class. Handles the async work. Derived classes can override the
  * following virtual methods (listed in the order in which they're called):
  *
@@ -505,13 +563,13 @@ struct PriorityWorker : public BaseWorker {
  */
 struct BaseIterator {
   BaseIterator(Database* database,
-               bool reverse,
+               const bool reverse,
                std::string* lt,
                std::string* lte,
                std::string* gt,
                std::string* gte,
-               int limit,
-               bool fillCache)
+               const int limit,
+               const bool fillCache)
     : database_(database),
       hasEnded_(false),
       didSeek_(false),
@@ -676,12 +734,12 @@ struct BaseIterator {
 private:
   leveldb::Iterator* dbIterator_;
   bool didSeek_;
-  bool reverse_;
+  const bool reverse_;
   std::string* lt_;
   std::string* lte_;
   std::string* gt_;
   std::string* gte_;
-  int limit_;
+  const int limit_;
   int count_;
   leveldb::ReadOptions* options_;
 };
@@ -691,19 +749,19 @@ private:
  */
 struct Iterator final : public BaseIterator {
   Iterator (Database* database,
-            uint32_t id,
-            bool reverse,
-            bool keys,
-            bool values,
-            int limit,
+            const uint32_t id,
+            const bool reverse,
+            const bool keys,
+            const bool values,
+            const int limit,
             std::string* lt,
             std::string* lte,
             std::string* gt,
             std::string* gte,
-            bool fillCache,
-            bool keyAsBuffer,
-            bool valueAsBuffer,
-            uint32_t highWaterMark)
+            const bool fillCache,
+            const bool keyAsBuffer,
+            const bool valueAsBuffer,
+            const uint32_t highWaterMark)
     : BaseIterator(database, reverse, lt, lte, gt, gte, limit, fillCache),
       id_(id),
       keys_(keys),
@@ -767,12 +825,12 @@ struct Iterator final : public BaseIterator {
     return false;
   }
 
-  uint32_t id_;
-  bool keys_;
-  bool values_;
-  bool keyAsBuffer_;
-  bool valueAsBuffer_;
-  uint32_t highWaterMark_;
+  const uint32_t id_;
+  const bool keys_;
+  const bool values_;
+  const bool keyAsBuffer_;
+  const bool valueAsBuffer_;
+  const uint32_t highWaterMark_;
   bool landed_;
   bool nexting_;
   bool isEnding_;
@@ -850,14 +908,14 @@ struct OpenWorker final : public BaseWorker {
               Database* database,
               napi_value callback,
               const std::string& location,
-              bool createIfMissing,
-              bool errorIfExists,
-              bool compression,
-              uint32_t writeBufferSize,
-              uint32_t blockSize,
-              uint32_t maxOpenFiles,
-              uint32_t blockRestartInterval,
-              uint32_t maxFileSize)
+              const bool createIfMissing,
+              const bool errorIfExists,
+              const bool compression,
+              const uint32_t writeBufferSize,
+              const uint32_t blockSize,
+              const uint32_t maxOpenFiles,
+              const uint32_t blockRestartInterval,
+              const uint32_t maxFileSize)
     : BaseWorker(env, database, callback, "leveldown.db.open"),
       location_(location) {
     options_.block_cache = database->blockCache_;
@@ -893,17 +951,17 @@ NAPI_METHOD(db_open) {
   NAPI_ARGV_UTF8_NEW(location, 1);
 
   napi_value options = argv[2];
-  bool createIfMissing = BooleanProperty(env, options, "createIfMissing", true);
-  bool errorIfExists = BooleanProperty(env, options, "errorIfExists", false);
-  bool compression = BooleanProperty(env, options, "compression", true);
+  const bool createIfMissing = BooleanProperty(env, options, "createIfMissing", true);
+  const bool errorIfExists = BooleanProperty(env, options, "errorIfExists", false);
+  const bool compression = BooleanProperty(env, options, "compression", true);
 
-  uint32_t cacheSize = Uint32Property(env, options, "cacheSize", 8 << 20);
-  uint32_t writeBufferSize = Uint32Property(env, options , "writeBufferSize" , 4 << 20);
-  uint32_t blockSize = Uint32Property(env, options, "blockSize", 4096);
-  uint32_t maxOpenFiles = Uint32Property(env, options, "maxOpenFiles", 1000);
-  uint32_t blockRestartInterval = Uint32Property(env, options,
+  const uint32_t cacheSize = Uint32Property(env, options, "cacheSize", 8 << 20);
+  const uint32_t writeBufferSize = Uint32Property(env, options , "writeBufferSize" , 4 << 20);
+  const uint32_t blockSize = Uint32Property(env, options, "blockSize", 4096);
+  const uint32_t maxOpenFiles = Uint32Property(env, options, "maxOpenFiles", 1000);
+  const uint32_t blockRestartInterval = Uint32Property(env, options,
                                                  "blockRestartInterval", 16);
-  uint32_t maxFileSize = Uint32Property(env, options, "maxFileSize", 2 << 20);
+  const uint32_t maxFileSize = Uint32Property(env, options, "maxFileSize", 2 << 20);
 
   database->blockCache_ = leveldb::NewLRUCache(cacheSize);
 
@@ -1024,8 +1082,8 @@ struct GetWorker final : public PriorityWorker {
              Database* database,
              napi_value callback,
              leveldb::Slice key,
-             bool asBuffer,
-             bool fillCache)
+             const bool asBuffer,
+             const bool fillCache)
     : PriorityWorker(env, database, callback, "leveldown.db.get"),
       key_(key),
       asBuffer_(asBuffer) {
@@ -1043,20 +1101,15 @@ struct GetWorker final : public PriorityWorker {
   void HandleOKCallback (napi_env env, napi_value callback) override {
     napi_value argv[2];
     napi_get_null(env, &argv[0]);
-
-    if (asBuffer_) {
-      napi_create_buffer_copy(env, value_.size(), value_.data(), NULL, &argv[1]);
-    } else {
-      napi_create_string_utf8(env, value_.data(), value_.size(), &argv[1]);
-    }
-
+    Entry::Convert(env, &value_, asBuffer_, &argv[1]);
     CallFunction(env, callback, 2, argv);
   }
 
+private:
   leveldb::ReadOptions options_;
   leveldb::Slice key_;
   std::string value_;
-  bool asBuffer_;
+  const bool asBuffer_;
 };
 
 /**
@@ -1068,8 +1121,8 @@ NAPI_METHOD(db_get) {
 
   leveldb::Slice key = ToSlice(env, argv[1]);
   napi_value options = argv[2];
-  bool asBuffer = BooleanProperty(env, options, "asBuffer", true);
-  bool fillCache = BooleanProperty(env, options, "fillCache", true);
+  const bool asBuffer = BooleanProperty(env, options, "asBuffer", true);
+  const bool fillCache = BooleanProperty(env, options, "fillCache", true);
   napi_value callback = argv[3];
 
   GetWorker* worker = new GetWorker(env, database, callback, key, asBuffer,
@@ -1129,8 +1182,8 @@ struct ClearWorker final : public PriorityWorker {
   ClearWorker (napi_env env,
                Database* database,
                napi_value callback,
-               bool reverse,
-               int limit,
+               const bool reverse,
+               const int limit,
                std::string* lt,
                std::string* lte,
                std::string* gt,
@@ -1192,8 +1245,8 @@ NAPI_METHOD(db_clear) {
   napi_value options = argv[1];
   napi_value callback = argv[2];
 
-  bool reverse = BooleanProperty(env, options, "reverse", false);
-  int limit = Int32Property(env, options, "limit", -1);
+  const bool reverse = BooleanProperty(env, options, "reverse", false);
+  const int limit = Int32Property(env, options, "limit", -1);
 
   std::string* lt = RangeOption(env, options, "lt");
   std::string* lte = RangeOption(env, options, "lte");
@@ -1412,14 +1465,14 @@ NAPI_METHOD(iterator_init) {
   NAPI_DB_CONTEXT();
 
   napi_value options = argv[1];
-  bool reverse = BooleanProperty(env, options, "reverse", false);
-  bool keys = BooleanProperty(env, options, "keys", true);
-  bool values = BooleanProperty(env, options, "values", true);
-  bool fillCache = BooleanProperty(env, options, "fillCache", false);
-  bool keyAsBuffer = BooleanProperty(env, options, "keyAsBuffer", true);
-  bool valueAsBuffer = BooleanProperty(env, options, "valueAsBuffer", true);
-  int limit = Int32Property(env, options, "limit", -1);
-  uint32_t highWaterMark = Uint32Property(env, options, "highWaterMark",
+  const bool reverse = BooleanProperty(env, options, "reverse", false);
+  const bool keys = BooleanProperty(env, options, "keys", true);
+  const bool values = BooleanProperty(env, options, "values", true);
+  const bool fillCache = BooleanProperty(env, options, "fillCache", false);
+  const bool keyAsBuffer = BooleanProperty(env, options, "keyAsBuffer", true);
+  const bool valueAsBuffer = BooleanProperty(env, options, "valueAsBuffer", true);
+  const int limit = Int32Property(env, options, "limit", -1);
+  const uint32_t highWaterMark = Uint32Property(env, options, "highWaterMark",
                                           16 * 1024);
 
   std::string* lt = RangeOption(env, options, "lt");
@@ -1427,7 +1480,7 @@ NAPI_METHOD(iterator_init) {
   std::string* gt = RangeOption(env, options, "gt");
   std::string* gte = RangeOption(env, options, "gte");
 
-  uint32_t id = database->currentIteratorId_++;
+  const uint32_t id = database->currentIteratorId_++;
   Iterator* iterator = new Iterator(database, id, reverse, keys,
                                     values, limit, lt, lte, gt, gte, fillCache,
                                     keyAsBuffer, valueAsBuffer, highWaterMark);
@@ -1484,6 +1537,7 @@ struct EndWorker final : public BaseWorker {
     BaseWorker::DoFinally(env);
   }
 
+private:
   Iterator* iterator_;
 };
 
@@ -1525,7 +1579,7 @@ struct NextWorker final : public BaseWorker {
               napi_value callback)
     : BaseWorker(env, iterator->database_, callback,
                  "leveldown.iterator.next"),
-      iterator_(iterator) {}
+      iterator_(iterator), ok_() {}
 
   ~NextWorker () {}
 
@@ -1553,18 +1607,10 @@ struct NextWorker final : public BaseWorker {
       std::string value = iterator_->cache_[idx + 1];
 
       napi_value returnKey;
-      if (iterator_->keyAsBuffer_) {
-        napi_create_buffer_copy(env, key.size(), key.data(), NULL, &returnKey);
-      } else {
-        napi_create_string_utf8(env, key.data(), key.size(), &returnKey);
-      }
-
       napi_value returnValue;
-      if (iterator_->valueAsBuffer_) {
-        napi_create_buffer_copy(env, value.size(), value.data(), NULL, &returnValue);
-      } else {
-        napi_create_string_utf8(env, value.data(), value.size(), &returnValue);
-      }
+
+      Entry::Convert(env, &key, iterator_->keyAsBuffer_, &returnKey);
+      Entry::Convert(env, &value, iterator_->valueAsBuffer_, &returnValue);
 
       // put the key & value in a descending order, so that they can be .pop:ed in javascript-land
       napi_set_element(env, jsArray, static_cast<int>(arraySize - idx - 1), returnKey);
@@ -1590,6 +1636,7 @@ struct NextWorker final : public BaseWorker {
     BaseWorker::DoFinally(env);
   }
 
+private:
   Iterator* iterator_;
   bool ok_;
 };
@@ -1625,8 +1672,8 @@ struct BatchWorker final : public PriorityWorker {
                Database* database,
                napi_value callback,
                leveldb::WriteBatch* batch,
-               bool sync,
-               bool hasData)
+               const bool sync,
+               const bool hasData)
     : PriorityWorker(env, database, callback, "leveldown.batch.do"),
       batch_(batch), hasData_(hasData) {
     options_.sync = sync;
@@ -1642,9 +1689,10 @@ struct BatchWorker final : public PriorityWorker {
     }
   }
 
+private:
   leveldb::WriteOptions options_;
   leveldb::WriteBatch* batch_;
-  bool hasData_;
+  const bool hasData_;
 };
 
 /**
@@ -1655,7 +1703,7 @@ NAPI_METHOD(batch_do) {
   NAPI_DB_CONTEXT();
 
   napi_value array = argv[1];
-  bool sync = BooleanProperty(env, argv[2], "sync", false);
+  const bool sync = BooleanProperty(env, argv[2], "sync", false);
   napi_value callback = argv[3];
 
   uint32_t length;
@@ -1815,7 +1863,7 @@ struct BatchWriteWorker final : public PriorityWorker {
                     napi_value context,
                     Batch* batch,
                     napi_value callback,
-                    bool sync)
+                    const bool sync)
     : PriorityWorker(env, batch->database_, callback, "leveldown.batch.write"),
       batch_(batch),
       sync_(sync) {
@@ -1836,10 +1884,9 @@ struct BatchWriteWorker final : public PriorityWorker {
     PriorityWorker::DoFinally(env);
   }
 
-  Batch* batch_;
-  bool sync_;
-
 private:
+  Batch* batch_;
+  const bool sync_;
   napi_ref contextRef_;
 };
 
@@ -1851,7 +1898,7 @@ NAPI_METHOD(batch_write) {
   NAPI_BATCH_CONTEXT();
 
   napi_value options = argv[1];
-  bool sync = BooleanProperty(env, options, "sync", false);
+  const bool sync = BooleanProperty(env, options, "sync", false);
   napi_value callback = argv[2];
 
   BatchWriteWorker* worker  = new BatchWriteWorker(env, argv[0], batch, callback, sync);
