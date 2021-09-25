@@ -106,6 +106,7 @@ If you are working on `leveldown` itself and want to re-compile the C++ code, ru
 - <a href="#leveldown_close"><code>db.<b>close()</b></code></a>
 - <a href="#leveldown_put"><code>db.<b>put()</b></code></a>
 - <a href="#leveldown_get"><code>db.<b>get()</b></code></a>
+- <a href="#leveldown_get_many"><code>db.<b>getMany()</b></code></a>
 - <a href="#leveldown_del"><code>db.<b>del()</b></code></a>
 - <a href="#leveldown_batch"><code>db.<b>batch()</b></code></a> _(array form)_
 - <a href="#leveldown_chainedbatch"><code>db.<b>batch()</b></code></a> _(chained form)_
@@ -210,7 +211,7 @@ The `callback` function will be called with no arguments if the operation is suc
 
 ### `db.get(key[, options], callback)`
 
-<code>get()</code> is an instance method on an existing database object, used to fetch individual entries from the LevelDB store.
+Get a value from the LevelDB store by `key`.
 
 The `key` object may either be a string or a Buffer and cannot be `undefined` or `null`. Other object types are converted to strings with the `toString()` method and the resulting string _may not_ be a zero-length. A richer set of data-types is catered for in `levelup`.
 
@@ -220,11 +221,20 @@ Values fetched via `get()` that are stored as zero-length character arrays (`nul
 
 The optional `options` object may contain:
 
+- `asBuffer` (boolean, default: `true`): Used to determine whether to return the `value` of the entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `{ asBuffer: false }` and you'll avoid this conversion cost.
 - `fillCache` (boolean, default: `true`): LevelDB will by default fill the in-memory LRU Cache with data from a call to get. Disabling this is done by setting `fillCache` to `false`.
 
-- `asBuffer` (boolean, default: `true`): Used to determine whether to return the `value` of the entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one with `{ asBuffer: false }` and you'll avoid this conversion cost.
+The `callback` function will be called with a single `error` if the operation failed for any reason, including if the key was not found. If successful the first argument will be `null` and the second argument will be the `value` as a string or Buffer depending on the `asBuffer` option.
 
-The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the `value` as a string or Buffer depending on the `asBuffer` option.
+<a name="leveldown_get_many"></a>
+
+### `db.getMany(keys[, options][, callback])`
+
+Get multiple values from the store by an array of `keys`. The optional `options` object may contain `asBuffer` and `fillCache`, as described in [`get()`](#leveldown_get).
+
+The `callback` function will be called with an `Error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be an array of values with the same order as `keys`. If a key was not found, the relevant value will be `undefined`.
+
+If no callback is provided, a promise is returned.
 
 <a name="leveldown_del"></a>
 

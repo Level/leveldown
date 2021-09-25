@@ -21,6 +21,7 @@ function LevelDOWN (location) {
     permanence: true,
     seek: true,
     clear: true,
+    getMany: true,
     createIfMissing: true,
     errorIfExists: true,
     additionalMethods: {
@@ -57,6 +58,10 @@ LevelDOWN.prototype._put = function (key, value, options, callback) {
 
 LevelDOWN.prototype._get = function (key, options, callback) {
   binding.db_get(this.context, key, options, callback)
+}
+
+LevelDOWN.prototype._getMany = function (keys, options, callback) {
+  binding.db_get_many(this.context, keys, options, callback)
 }
 
 LevelDOWN.prototype._del = function (key, options, callback) {
