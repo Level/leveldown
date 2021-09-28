@@ -1,5 +1,15 @@
 # Changelog
 
+## [6.0.3] - 2021-09-28
+
+### Fixed
+
+- Build universal binary for M1 (Apple silicon) ([#781](https://github.com/Level/leveldown/issues/781)) ([`26ea717`](https://github.com/Level/leveldown/commit/26ea717)) (Vincent Weevers)
+- Make `db.clear()` 27x faster by doing it natively ([`aedf49e`](https://github.com/Level/leveldown/commit/aedf49e)) (Vincent Weevers)
+- Optimize `db.iterator()` ([`112906b`](https://github.com/Level/leveldown/commit/112906b)) (Vincent Weevers)
+- Cleanup hanging iterator also when `next()` errored ([`7356ba4`](https://github.com/Level/leveldown/commit/7356ba4)) (Vincent Weevers)
+- Prevent GC of db during `clear()` and other operations ([`9a3f59a`](https://github.com/Level/leveldown/commit/9a3f59a)) (Vincent Weevers).
+
 ## [6.0.2] - 2021-09-12
 
 ### Fixed
@@ -1107,6 +1117,8 @@ _Was not published as a tag and `package.json` was never committed with this ver
 ## [0.0.0] - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[6.0.3]: https://github.com/Level/leveldown/releases/tag/v6.0.3
 
 [6.0.2]: https://github.com/Level/leveldown/releases/tag/v6.0.2
 
