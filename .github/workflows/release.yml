@@ -18,9 +18,10 @@ jobs:
           - os: ubuntu-latest
             arch: x64
             build-group: android-arm
-          - os: macos-latest
+          # At the time of writing macos-latest is mac 10; we need 11 to build a universal binary.
+          - os: macos-11
             arch: x64
-            build-group: darwin-x64
+            build-group: darwin-x64+arm64
           - os: windows-latest
             arch: x86
             build-group: win32-x86
