@@ -25,6 +25,7 @@
     - [`options`](#options-1)
   - [`db.get(key[, options], callback)`](#dbgetkey-options-callback)
     - [`options`](#options-2)
+  - [`db.getMany(keys[, options][, callback])`](#dbgetmanykeys-options-callback)
   - [`db.del(key[, options], callback)`](#dbdelkey-options-callback)
     - [`options`](#options-3)
   - [`db.batch(operations[, options], callback)` _(array form)_](#dbbatchoperations-options-callback-array-form)
@@ -230,7 +231,7 @@ The `callback` function will be called with a single `error` if the operation fa
 
 ### `db.getMany(keys[, options][, callback])`
 
-Get multiple values from the store by an array of `keys`. The optional `options` object may contain `asBuffer` and `fillCache`, as described in [`get()`](#leveldown_get).
+Get multiple values from the store by an array of `keys`. The optional `options` object may contain `asBuffer` and `fillCache`, as described in [`get()`](#dbgetkey-options-callback).
 
 The `callback` function will be called with an `Error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be an array of values with the same order as `keys`. If a key was not found, the relevant value will be `undefined`.
 

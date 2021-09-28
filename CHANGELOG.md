@@ -1,5 +1,11 @@
 # Changelog
 
+## [6.1.0] - 2021-09-28
+
+### Added
+
+- Add `db.getMany(keys)` ([#787](https://github.com/Level/leveldown/issues/787)) ([`50dc50b`](https://github.com/Level/leveldown/commit/50dc50b)) (Vincent Weevers).
+
 ## [6.0.3] - 2021-09-28
 
 ### Fixed
@@ -1117,6 +1123,8 @@ _Was not published as a tag and `package.json` was never committed with this ver
 ## [0.0.0] - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[6.1.0]: https://github.com/Level/leveldown/releases/tag/v6.1.0
 
 [6.0.3]: https://github.com/Level/leveldown/releases/tag/v6.0.3
 
