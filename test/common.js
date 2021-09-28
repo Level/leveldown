@@ -9,6 +9,7 @@ module.exports = suite.common({
     return leveldown(tempy.directory())
   },
 
-  // Opt-in to new clear() tests
-  clear: true
+  // Opt-in to new tests
+  clear: true,
+  getMany: true
 })

@@ -243,6 +243,31 @@ static std::string* RangeOption (napi_env env, napi_value opts, const char* name
 }
 
 /**
+ * Converts an array containing Buffer or string keys to a vector.
+ * Empty elements are skipped.
+ */
+static std::vector<std::string>* KeyArray (napi_env env, napi_value arr) {
+  uint32_t length;
+  std::vector<std::string>* result = new std::vector<std::string>();
+
+  if (napi_get_array_length(env, arr, &length) == napi_ok) {
+    result->reserve(length);
+
+    for (uint32_t i = 0; i < length; i++) {
+      napi_value element;
+
+      if (napi_get_element(env, arr, i, &element) == napi_ok &&
+          StringOrBufferLength(env, element) > 0) {
+        LD_STRING_OR_BUFFER_TO_COPY(env, element, to);
+        result->emplace_back(toCh_, toSz_);
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
  * Calls a function.
  */
 static napi_status CallFunction (napi_env env,
@@ -1133,6 +1158,98 @@ NAPI_METHOD(db_get) {
 }
 
 /**
+ * Worker class for getting many values.
+ */
+struct GetManyWorker final : public PriorityWorker {
+  GetManyWorker (napi_env env,
+                 Database* database,
+                 const std::vector<std::string>* keys,
+                 napi_value callback,
+                 const bool valueAsBuffer,
+                 const bool fillCache)
+    : PriorityWorker(env, database, callback, "leveldown.get.many"),
+      keys_(keys), valueAsBuffer_(valueAsBuffer) {
+      options_.fill_cache = fillCache;
+      options_.snapshot = database->NewSnapshot();
+    }
+
+  ~GetManyWorker() {
+    delete keys_;
+  }
+
+  void DoExecute () override {
+    cache_.reserve(keys_->size());
+
+    for (const std::string& key: *keys_) {
+      std::string* value = new std::string();
+      leveldb::Status status = database_->Get(options_, key, *value);
+
+      if (status.ok()) {
+        cache_.push_back(value);
+      } else if (status.IsNotFound()) {
+        delete value;
+        cache_.push_back(NULL);
+      } else {
+        delete value;
+        for (const std::string* value: cache_) {
+          if (value != NULL) delete value;
+        }
+        SetStatus(status);
+        break;
+      }
+    }
+
+    database_->ReleaseSnapshot(options_.snapshot);
+  }
+
+  void HandleOKCallback (napi_env env, napi_value callback) override {
+    size_t size = cache_.size();
+    napi_value array;
+    napi_create_array_with_length(env, size, &array);
+
+    for (size_t idx = 0; idx < size; idx++) {
+      std::string* value = cache_[idx];
+      napi_value element;
+      Entry::Convert(env, value, valueAsBuffer_, &element);
+      napi_set_element(env, array, static_cast<uint32_t>(idx), element);
+      if (value != NULL) delete value;
+    }
+
+    napi_value argv[2];
+    napi_get_null(env, &argv[0]);
+    argv[1] = array;
+    CallFunction(env, callback, 2, argv);
+  }
+
+private:
+  leveldb::ReadOptions options_;
+  const std::vector<std::string>* keys_;
+  const bool valueAsBuffer_;
+  std::vector<std::string*> cache_;
+};
+
+/**
+ * Gets many values from a database.
+ */
+NAPI_METHOD(db_get_many) {
+  NAPI_ARGV(4);
+  NAPI_DB_CONTEXT();
+
+  const std::vector<std::string>* keys = KeyArray(env, argv[1]);
+  napi_value options = argv[2];
+  const bool asBuffer = BooleanProperty(env, options, "asBuffer", true);
+  const bool fillCache = BooleanProperty(env, options, "fillCache", true);
+  napi_value callback = argv[3];
+
+  GetManyWorker* worker = new GetManyWorker(
+    env, database, keys, callback, asBuffer, fillCache
+  );
+
+  worker->Queue(env);
+  NAPI_RETURN_UNDEFINED();
+}
+
+/**
  * Worker class for deleting a value from a database.
  */
 struct DelWorker final : public PriorityWorker {
@@ -1916,6 +2033,7 @@ NAPI_INIT() {
   NAPI_EXPORT_FUNCTION(db_close);
   NAPI_EXPORT_FUNCTION(db_put);
   NAPI_EXPORT_FUNCTION(db_get);
+  NAPI_EXPORT_FUNCTION(db_get_many);
   NAPI_EXPORT_FUNCTION(db_del);
   NAPI_EXPORT_FUNCTION(db_clear);
   NAPI_EXPORT_FUNCTION(db_approximate_size);
