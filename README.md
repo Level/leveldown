@@ -42,9 +42,10 @@
     - [`chainedBatch.write([options, ]callback)`](#chainedbatchwriteoptions-callback)
     - [`chainedBatch.db`](#chainedbatchdb)
   - [`iterator`](#iterator)
-    - [`iterator.next(callback)`](#iteratornextcallback)
+    - [`for await...of iterator`](#for-awaitof-iterator)
+    - [`iterator.next([callback])`](#iteratornextcallback)
     - [`iterator.seek(key)`](#iteratorseekkey)
-    - [`iterator.end(callback)`](#iteratorendcallback)
+    - [`iterator.end([callback])`](#iteratorendcallback)
     - [`iterator.db`](#iteratordb)
   - [`leveldown.destroy(location, callback)`](#leveldowndestroylocation-callback)
   - [`leveldown.repair(location, callback)`](#leveldownrepairlocation-callback)
@@ -66,7 +67,7 @@ This module was originally part of [`levelup`](https://github.com/Level/levelup)
 
 It is **strongly recommended** that you use `levelup` in preference to `leveldown` unless you have measurable performance reasons to do so. `levelup` is optimised for usability and safety. Although we are working to improve the safety of the `leveldown` interface it is still easy to crash your Node process if you don't do things in just the right way.
 
-See the section on <a href="#safety">safety</a> below for details of known unsafe operations with `leveldown`.
+See the section on [safety](#safety) below for details of known unsafe operations with `leveldown`.
 
 ## Supported Platforms
 
@@ -100,49 +101,15 @@ If you are working on `leveldown` itself and want to re-compile the C++ code, ru
 
 ## API
 
-**If you are upgrading:** please see [`UPGRADING.md`](UPGRADING.md).
-
-- <a href="#ctor"><code><b>leveldown()</b></code></a>
-- <a href="#leveldown_open"><code>db.<b>open()</b></code></a>
-- <a href="#leveldown_close"><code>db.<b>close()</b></code></a>
-- <a href="#leveldown_put"><code>db.<b>put()</b></code></a>
-- <a href="#leveldown_get"><code>db.<b>get()</b></code></a>
-- <a href="#leveldown_get_many"><code>db.<b>getMany()</b></code></a>
-- <a href="#leveldown_del"><code>db.<b>del()</b></code></a>
-- <a href="#leveldown_batch"><code>db.<b>batch()</b></code></a> _(array form)_
-- <a href="#leveldown_chainedbatch"><code>db.<b>batch()</b></code></a> _(chained form)_
-- <a href="#leveldown_approximateSize"><code>db.<b>approximateSize()</b></code></a>
-- <a href="#leveldown_compactRange"><code>db.<b>compactRange()</b></code></a>
-- <a href="#leveldown_getProperty"><code>db.<b>getProperty()</b></code></a>
-- <a href="#leveldown_iterator"><code>db.<b>iterator()</b></code></a>
-- <a href="#leveldown_clear"><code>db.<b>clear()</b></code></a>
-- <a href="#chainedbatch"><code>chainedBatch</code></a>
-  - <a href="#chainedbatch_put"><code>chainedBatch.<b>put()</b></code></a>
-  - <a href="#chainedbatch_del"><code>chainedBatch.<b>del()</b></code></a>
-  - <a href="#chainedbatch_clear"><code>chainedBatch.<b>clear()</b></code></a>
-  - <a href="#chainedbatch_write"><code>chainedBatch.<b>write()</b></code></a>
-  - <a href="#chainedbatch_db"><code>chainedBatch.<b>db</b></code></a>
-- <a href="#iterator"><code>iterator</b></code></a>
-  - <a href="#iterator_next"><code>iterator.<b>next()</b></code></a>
-  - <a href="#iterator_seek"><code>iterator.<b>seek()</b></code></a>
-  - <a href="#iterator_end"><code>iterator.<b>end()</b></code></a>
-  - <a href="#iterator_db"><code>iterator.<b>db</b></code></a>
-- <a href="#leveldown_destroy"><code>leveldown.<b>destroy()</b></code></a>
-- <a href="#leveldown_repair"><code>leveldown.<b>repair()</b></code></a>
-
-<a name="ctor"></a>
+_If you are upgrading: please see [`UPGRADING.md`](UPGRADING.md)._
 
 ### `db = leveldown(location)`
 
-<code>leveldown()</code> returns a new `leveldown` instance. `location` is a String pointing to the LevelDB location to be opened.
-
-<a name="leveldown_open"></a>
+Returns a new `leveldown` instance. `location` is a String pointing to the LevelDB location to be opened.
 
 ### `db.open([options, ]callback)`
 
-<code>open()</code> is an instance method on an existing database object.
-
-The `callback` function will be called with no arguments when the database has been successfully opened, or with a single `error` argument if the open operation failed for any reason.
+Open the store. The `callback` function will be called with no arguments when the database has been successfully opened, or with a single `error` argument if the open operation failed for any reason.
 
 #### `options`
 
@@ -174,11 +141,9 @@ The following options are for advanced performance tuning. Modify them only if y
 
 > ... if your filesystem is more efficient with larger files, you could consider increasing the value. The downside will be longer compactions and hence longer latency/performance hiccups. Another reason to increase this parameter might be when you are initially populating a large database.
 
-<a name="leveldown_close"></a>
-
 ### `db.close(callback)`
 
-<code>close()</code> is an instance method on an existing database object. The underlying LevelDB database will be closed and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
+`close()` is an instance method on an existing database object. The underlying LevelDB database will be closed and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
 `leveldown` waits for any pending operations to finish before closing. For example:
 
@@ -192,11 +157,9 @@ db.close(function (err) {
 })
 ```
 
-<a name="leveldown_put"></a>
-
 ### `db.put(key, value[, options], callback)`
 
-<code>put()</code> is an instance method on an existing database object, used to store new entries, or overwrite existing entries in the LevelDB store.
+Store a new entry or overwrite an existing entry.
 
 The `key` and `value` objects may either be strings or Buffers. Other object types are converted to strings with the `toString()` method. Keys may not be `null` or `undefined` and objects converted with `toString()` should not result in an empty-string. Values may not be `null` or `undefined`. Values of `''`, `[]` and `Buffer.alloc(0)` (and any object resulting in a `toString()` of one of these) will be stored as a zero-length character array and will therefore be retrieved as either `''` or `Buffer.alloc(0)` depending on the type requested.
 
@@ -207,8 +170,6 @@ A richer set of data-types is catered for in `levelup`.
 The only property currently available on the `options` object is `sync` _(boolean, default: `false`)_. If you provide a `sync` value of `true` in your `options` object, LevelDB will perform a synchronous write of the data; although the operation will be asynchronous as far as Node is concerned. Normally, LevelDB passes the data to the operating system for writing and returns immediately, however a synchronous write will use `fsync()` or equivalent so your callback won't be triggered until the data is actually on disk. Synchronous filesystem writes are **significantly** slower than asynchronous writes but if you want to be absolutely sure that the data is flushed then you can use `{ sync: true }`.
 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
-
-<a name="leveldown_get"></a>
 
 ### `db.get(key[, options], callback)`
 
@@ -227,8 +188,6 @@ The optional `options` object may contain:
 
 The `callback` function will be called with a single `error` if the operation failed for any reason, including if the key was not found. If successful the first argument will be `null` and the second argument will be the `value` as a string or Buffer depending on the `asBuffer` option.
 
-<a name="leveldown_get_many"></a>
-
 ### `db.getMany(keys[, options][, callback])`
 
 Get multiple values from the store by an array of `keys`. The optional `options` object may contain `asBuffer` and `fillCache`, as described in [`get()`](#dbgetkey-options-callback).
@@ -237,21 +196,15 @@ The `callback` function will be called with an `Error` if the operation failed f
 
 If no callback is provided, a promise is returned.
 
-<a name="leveldown_del"></a>
-
 ### `db.del(key[, options], callback)`
 
-<code>del()</code> is an instance method on an existing database object, used to delete entries from the LevelDB store.
-
-The `key` object may either be a string or a Buffer and cannot be `undefined` or `null`. Other object types are converted to strings with the `toString()` method and the resulting string _may not_ be a zero-length. A richer set of data-types is catered for in `levelup`.
+Delete an entry. The `key` object may either be a string or a Buffer and cannot be `undefined` or `null`. Other object types are converted to strings with the `toString()` method and the resulting string _may not_ be a zero-length. A richer set of data-types is catered for in `levelup`.
 
 #### `options`
 
-The only property currently available on the `options` object is `sync` _(boolean, default: `false`)_. See <a href="#leveldown_put">leveldown#put()</a> for details about this option.
+The only property currently available on the `options` object is `sync` _(boolean, default: `false`)_. See [`db.put()`](#dbputkey-value-options-callback) for details about this option.
 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
-
-<a name="leveldown_batch"></a>
 
 ### `db.batch(operations[, options], callback)` _(array form)_
 
@@ -263,75 +216,60 @@ Any entries where the `key` or `value` (in the case of `'put'`) is `null` or `un
 
 The optional `options` argument may contain:
 
-- `sync` (boolean, default: `false`). See <a href="#leveldown_put"><code>db.put()</code></a> for details about this option.
+- `sync` (boolean, default: `false`). See [`db.put()`](#dbputkey-value-options-callback) for details about this option.
 
 The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason.
-
-<a name="leveldown_chainedbatch"></a>
 
 ### `db.batch()` _(chained form)_
 
 Returns a new [`chainedBatch`](#chainedbatch) instance.
 
-<a name="leveldown_approximateSize"></a>
-
 ### `db.approximateSize(start, end, callback)`
 
-<code>approximateSize()</code> is an instance method on an existing database object. Used to get the approximate number of bytes of file system space used by the range `[start..end)`. The result may not include recently written data.
+`approximateSize()` is an instance method on an existing database object. Used to get the approximate number of bytes of file system space used by the range `[start..end)`. The result may not include recently written data.
 
 The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store.
 
 The `callback` function will be called with a single `error` if the operation failed for any reason. If successful the first argument will be `null` and the second argument will be the approximate size as a Number.
 
-<a name="leveldown_compactRange"></a>
-
 ### `db.compactRange(start, end, callback)`
 
-<code>compactRange()</code> is an instance method on an existing database object. Used to manually trigger a database compaction in the range `[start..end)`.
+`compactRange()` is an instance method on an existing database object. Used to manually trigger a database compaction in the range `[start..end)`.
 
 The `start` and `end` parameters may be strings or Buffers representing keys in the LevelDB store.
 
 The `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
 
-<a name="leveldown_getProperty"></a>
-
 ### `db.getProperty(property)`
 
-<code>getProperty</code> can be used to get internal details from LevelDB. When issued with a valid property string, a readable string will be returned (this method is synchronous).
+`getProperty` can be used to get internal details from LevelDB. When issued with a valid property string, a readable string will be returned (this method is synchronous).
 
 Currently, the only valid properties are:
 
-- <b><code>'leveldb.num-files-at-levelN'</code></b>: return the number of files at level _N_, where N is an integer representing a valid level (e.g. "0").
+- `leveldb.num-files-at-levelN`: return the number of files at level _N_, where N is an integer representing a valid level (e.g. "0").
 
-- <b><code>'leveldb.stats'</code></b>: returns a multi-line string describing statistics about LevelDB's internal operation.
+- `leveldb.stats`: returns a multi-line string describing statistics about LevelDB's internal operation.
 
-- <b><code>'leveldb.sstables'</code></b>: returns a multi-line string describing all of the _sstables_ that make up contents of the current database.
-
-<a name="leveldown_iterator"></a>
+- `leveldb.sstables`: returns a multi-line string describing all of the _sstables_ that make up contents of the current database.
 
 ### `db.iterator([options])`
 
-Returns a new [`iterator`](#iterator) instance. The optional `options` object may contain:
+Returns a new [`iterator`](#iterator) instance. Accepts the following range options:
 
-- `gt` (greater than), `gte` (greater than or equal) define the lower bound of the values to be fetched and will determine the starting point where `reverse` is _not_ `true`. Only records where the key is greater than (or equal to) this option will be included in the range. When `reverse` is `true` the order will be reversed, but the records returned will be the same.
+- `gt` (greater than), `gte` (greater than or equal) define the lower bound of the range to be iterated. Only entries where the key is greater than (or equal to) this option will be included in the range. When `reverse=true` the order will be reversed, but the entries iterated will be the same.
+- `lt` (less than), `lte` (less than or equal) define the higher bound of the range to be iterated. Only entries where the key is less than (or equal to) this option will be included in the range. When `reverse=true` the order will be reversed, but the entries iterated will be the same.
+- `reverse` _(boolean, default: `false`)_: iterate entries in reverse order. Beware that a reverse seek can be slower than a forward seek.
+- `limit` _(number, default: `-1`)_: limit the number of entries collected by this iterator. This number represents a _maximum_ number of entries and may not be reached if you get to the end of the range first. A value of `-1` means there is no limit. When `reverse=true` the entries with the highest keys will be returned instead of the lowest keys.
 
-- `lt` (less than), `lte` (less than or equal) define the higher bound of the range to be fetched and will determine the starting point where `reverse` is _not_ `true`. Only records where the key is less than (or equal to) this option will be included in the range. When `reverse` is `true` the order will be reversed, but the records returned will be the same.
+In addition to range options, `iterator()` takes the following options:
 
-- `reverse` _(boolean, default: `false`)_: a boolean, set to `true` if you want the stream to go in reverse order. Beware that due to the way LevelDB works, a reverse seek will be slower than a forward seek.
-
-- `keys` (boolean, default: `true`): whether the callback to the `next()` method should receive a non-null `key`. There is a small efficiency gain if you ultimately don't care what the keys are as they don't need to be converted and copied into JavaScript.
-
-- `values` (boolean, default: `true`): whether the callback to the `next()` method should receive a non-null `value`. There is a small efficiency gain if you ultimately don't care what the values are as they don't need to be converted and copied into JavaScript.
-
-- `limit` (number, default: `-1`): limit the number of results collected by this iterator. This number represents a _maximum_ number of results and may not be reached if you get to the end of the store or your `end` value first. A value of `-1` means there is no limit.
-
+- `keys` _(boolean, default: `true`)_: whether to return the key of each entry. If set to `false`, calls to `iterator.next(callback)` will yield keys with a value of `undefined` <sup>1</sup>. There is a small efficiency gain if you ultimately don't care what the keys are as they don't need to be converted and copied into JavaScript.
+- `values` _(boolean, default: `true`)_: whether to return the value of each entry. If set to `false`, calls to `iterator.next(callback)` will yield values with a value of `undefined`<sup>1</sup>.
+- `keyAsBuffer` _(boolean, default: `true`)_: Whether to return the key of each entry as a Buffer or string. Converting from a Buffer to a string incurs a cost so if you need a string (and the `key` can legitimately become a UTF8 string) then you should fetch it as one.
+- `valueAsBuffer` _(boolean, default: `true`)_: Whether to return the value of each entry as a Buffer or string.
 - `fillCache` (boolean, default: `false`): whether LevelDB's LRU-cache should be filled with data read.
 
-- `keyAsBuffer` (boolean, default: `true`): Used to determine whether to return the `key` of each entry as a string or a Buffer. Note that converting from a Buffer to a string incurs a cost so if you need a string (and the `value` can legitimately become a UTF8 string) then you should fetch it as one.
-
-- `valueAsBuffer` (boolean, default: `true`): Used to determine whether to return the `value` of each entry as a string or a Buffer.
-
-<a name="leveldown_clear"></a>
+<sup>1</sup> `leveldown` returns an empty string rather than `undefined` at the moment.
 
 ### `db.clear([options, ]callback)`
 
@@ -339,34 +277,24 @@ Delete all entries or a range. Not guaranteed to be atomic. Accepts the followin
 
 - `gt` (greater than), `gte` (greater than or equal) define the lower bound of the range to be deleted. Only entries where the key is greater than (or equal to) this option will be included in the range. When `reverse=true` the order will be reversed, but the entries deleted will be the same.
 - `lt` (less than), `lte` (less than or equal) define the higher bound of the range to be deleted. Only entries where the key is less than (or equal to) this option will be included in the range. When `reverse=true` the order will be reversed, but the entries deleted will be the same.
-- `reverse` _(boolean, default: `false`)_: delete entries in reverse order. Only effective in combination with `limit`, to remove the last N records.
+- `reverse` _(boolean, default: `false`)_: delete entries in reverse order. Only effective in combination with `limit`, to remove the last N entries.
 - `limit` _(number, default: `-1`)_: limit the number of entries to be deleted. This number represents a _maximum_ number of entries and may not be reached if you get to the end of the range first. A value of `-1` means there is no limit. When `reverse=true` the entries with the highest keys will be deleted instead of the lowest keys.
 
 If no options are provided, all entries will be deleted. The `callback` function will be called with no arguments if the operation was successful or with an `Error` if it failed for any reason.
 
-<a name="chainedbatch"></a>
-
 ### `chainedBatch`
-
-<a name="chainedbatch_put"></a>
 
 #### `chainedBatch.put(key, value)`
 
-Queue a `put` operation on this batch. This may throw if `key` or `value` is invalid, following the same rules as the <a href="#leveldown_batch">array form of <code>db.batch()</code></a>.
-
-<a name="chainedbatch_del"></a>
+Queue a `put` operation on this batch. This may throw if `key` or `value` is invalid, following the same rules as the [array form of `db.batch()`](#dbbatchoperations-options-callback-array-form).
 
 #### `chainedBatch.del(key)`
 
 Queue a `del` operation on this batch. This may throw if `key` is invalid.
 
-<a name="chainedbatch_clear"></a>
-
 #### `chainedBatch.clear()`
 
 Clear all queued operations on this batch.
-
-<a name="chainedbatch_write"></a>
 
 #### `chainedBatch.write([options, ]callback)`
 
@@ -374,11 +302,9 @@ Commit the queued operations for this batch. All operations will be written atom
 
 The optional `options` argument may contain:
 
-- `sync` (boolean, default: `false`). See <a href="#leveldown_put"><code>db.put()</code></a> for details about this option.
+- `sync` (boolean, default: `false`). See [`db.put()`](#dbputkey-value-options-callback) for details about this option.
 
 The `callback` function will be called with no arguments if the batch is successful or with an `Error` if the batch failed for any reason. After `write` has been called, no further operations are allowed.
-
-<a name="chainedbatch_db"></a>
 
 #### `chainedBatch.db`
 
@@ -386,58 +312,65 @@ A reference to the `db` that created this chained batch.
 
 ### `iterator`
 
-<a name="iterator_next"></a>
+An iterator allows you to _iterate_ the entire store or a range. It operates on a snapshot of the store, created at the time `db.iterator()` was called. This means reads on the iterator are unaffected by simultaneous writes.
 
-#### `iterator.next(callback)`
+Iterators can be consumed with [`for await...of`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for-await...of) or by manually calling `iterator.next()` in succession. In the latter mode, `iterator.end()` must always be called. In contrast, finishing, throwing or breaking from a `for await...of` loop automatically calls `iterator.end()`.
 
-<code>next()</code> is an instance method on an existing iterator object, used to increment the underlying LevelDB iterator and return the entry at that location.
+An iterator reaches its natural end in the following situations:
 
-the `callback` function will be called with no arguments in any of the following situations:
+- The end of the store has been reached
+- The end of the range has been reached
+- The last `iterator.seek()` was out of range.
 
-- the iterator comes to the end of the store
-- the `end` key has been reached; or
-- the `limit` has been reached; or
-- the last `seek()` was out of range
+An iterator keeps track of when a `next()` is in progress and when an `end()` has been called so it doesn't allow concurrent `next()` calls, it does allow `end()` while a `next()` is in progress and it doesn't allow either `next()` or `end()` after `end()` has been called.
 
-Otherwise, the `callback` function will be called with the following 3 arguments:
+#### `for await...of iterator`
 
-- `error` - any error that occurs while incrementing the iterator.
-- `key` - either a string or a Buffer depending on the `keyAsBuffer` argument when the `iterator()` was called.
-- `value` - either a string or a Buffer depending on the `valueAsBuffer` argument when the `iterator()` was called.
+Yields arrays containing a `key` and `value`. The type of `key` and `value` depends on the options passed to `db.iterator()`.
 
-<a name="iterator_seek"></a>
+```js
+try {
+  for await (const [key, value] of db.iterator()) {
+    console.log(key)
+  }
+} catch (err) {
+  console.error(err)
+}
+```
+
+#### `iterator.next([callback])`
+
+Advance the iterator and yield the entry at that key. If an error occurs, the `callback` function will be called with an `Error`. Otherwise, the `callback` receives `null`, a `key` and a `value`. The type of `key` and `value` depends on the options passed to `db.iterator()`. If the iterator has reached its natural end, both `key` and `value` will be `undefined`.
+
+If no callback is provided, a promise is returned for either an array (containing a `key` and `value`) or `undefined` if the iterator reached its natural end.
+
+**Note:** Always call `iterator.end()`, even if you received an error and even if the iterator reached its natural end.
 
 #### `iterator.seek(key)`
 
-Seek the iterator to a given key or the closest key. Subsequent calls to `iterator.next()` will yield entries with keys equal to or larger than `target`, or equal to or smaller than `target` if the `reverse` option passed to `db.iterator()` was true.
+Seek the iterator to a given key or the closest key. Subsequent calls to `iterator.next()` will yield entries with keys equal to or larger than `target`, or equal to or smaller than `target` if the `reverse` option passed to `db.iterator()` was true. The same applies to implicit `iterator.next()` calls in a `for await...of` loop.
 
-If range options like `gt` were passed to `db.iterator()` and `target` does not fall within that range, the iterator will reach its end.
+If range options like `gt` were passed to `db.iterator()` and `target` does not fall within that range, the iterator will reach its natural end.
 
-<a name="iterator_end"></a>
+#### `iterator.end([callback])`
 
-#### `iterator.end(callback)`
+End iteration and free up underlying resources. The `callback` function will be called with no arguments on success or with an `Error` if ending failed for any reason.
 
-<code>end()</code> is an instance method on an existing iterator object. The underlying LevelDB iterator will be deleted and the `callback` function will be called with no arguments if the operation is successful or with a single `error` argument if the operation failed for any reason.
-
-<a name="iterator_db"></a>
+If no callback is provided, a promise is returned.
 
 #### `iterator.db`
 
 A reference to the `db` that created this iterator.
 
-<a name="leveldown_destroy"></a>
-
 ### `leveldown.destroy(location, callback)`
 
-<code>destroy()</code> is used to completely remove an existing LevelDB database directory. You can use this function in place of a full directory _rm_ if you want to be sure to only remove LevelDB-related files. If the directory only contains LevelDB files, the directory itself will be removed as well. If there are additional, non-LevelDB files in the directory, those files, and the directory, will be left alone.
+Completely remove an existing LevelDB database directory. You can use this function in place of a full directory `rm` if you want to be sure to only remove LevelDB-related files. If the directory only contains LevelDB files, the directory itself will be removed as well. If there are additional, non-LevelDB files in the directory, those files, and the directory, will be left alone.
 
 The callback will be called when the destroy operation is complete, with a possible `error` argument.
 
-<a name="leveldown_repair"></a>
-
 ### `leveldown.repair(location, callback)`
 
-<code>repair()</code> can be used to attempt a restoration of a damaged LevelDB store. From the LevelDB documentation:
+Attempt a restoration of a damaged LevelDB store. From the LevelDB documentation:
 
 > If a DB cannot be opened, you may attempt to call this method to resurrect as much of the contents of the database as possible. Some data may be lost, so be careful when calling this function on a database that contains important information.
 
