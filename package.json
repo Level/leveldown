@@ -43,7 +43,7 @@
     "mkfiletree": "^2.0.0",
     "node-gyp": "^7.1.2",
     "nyc": "^15.0.0",
-    "prebuildify": "^4.2.1",
+    "prebuildify": "^5.0.0",
     "prebuildify-ci": "^1.0.4",
     "prebuildify-cross": "^4.0.1",
     "readfiletree": "^1.0.0",
