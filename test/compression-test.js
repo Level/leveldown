@@ -30,7 +30,7 @@ const cycle = function (db, compression, t, callback) {
   db.close(function (err) {
     t.error(err)
     db = leveldown(location)
-    db.open({ errorIfExists: false, compression: compression }, function () {
+    db.open({ errorIfExists: false, compression }, function () {
       t.error(err)
       db.close(function (err) {
         t.error(err)
