@@ -38,7 +38,7 @@ jobs:
         with:
           submodules: recursive
       - name: Set up node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 14
           architecture: ${{ matrix.arch }}
