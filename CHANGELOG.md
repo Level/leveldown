@@ -1,5 +1,12 @@
 # Changelog
 
+## [6.1.1] - 2022-03-25
+
+### Fixed
+
+- Fix `getMany()` memory leak ([#804](https://github.com/Level/leveldown/issues/804)) ([`51979d1`](https://github.com/Level/leveldown/commit/51979d1)) (Vincent Weevers)
+- Document new features ([`ba729d2`](https://github.com/Level/leveldown/commit/ba729d2)) (Vincent Weevers).
+
 ## [6.1.0] - 2021-09-28
 
 ### Added
@@ -1074,7 +1081,7 @@ _Was not published as a tag and `package.json` was never committed with this ver
 ### Changed
 
 - Upgrade to `LevelDB@1.9.0`, fairly minor changes since 1.7.0 ([**@rvagg**](https://github.com/rvagg))
-- Upgrade to `Snappy@1.1.0`, changes block size to improve compression ~3%, slight decrease in speed ([**@rvagg**](https://github.com/rvagg))
+- Upgrade to `Snappy@1.1.0`, changes block size to improve compression \~3%, slight decrease in speed ([**@rvagg**](https://github.com/rvagg))
 
 ## [0.1.1] - 2013-02-24
 
@@ -1123,6 +1130,8 @@ _Was not published as a tag and `package.json` was never committed with this ver
 ## [0.0.0] - 2013-01-06
 
 :seedling: First release. Extracted from `levelup` as a stand-alone package ([**@rvagg**](https://github.com/rvagg))
+
+[6.1.1]: https://github.com/Level/leveldown/releases/tag/v6.1.1
 
 [6.1.0]: https://github.com/Level/leveldown/releases/tag/v6.1.0
 
