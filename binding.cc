@@ -260,6 +260,7 @@ static std::vector<std::string>* KeyArray (napi_env env, napi_value arr) {
           StringOrBufferLength(env, element) > 0) {
         LD_STRING_OR_BUFFER_TO_COPY(env, element, to);
         result->emplace_back(toCh_, toSz_);
+        delete [] toCh_;
       }
     }
   }
