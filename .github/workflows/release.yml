@@ -34,7 +34,7 @@ jobs:
       BUILD_GROUP: ${{ matrix.build-group }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
       - name: Set up node
@@ -64,7 +64,7 @@ jobs:
     name: Release
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
