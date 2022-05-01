@@ -37,7 +37,7 @@
     "du": "^1.0.0",
     "electron": "^18.0.1",
     "faucet": "^0.0.1",
-    "glob": "^7.1.3",
+    "glob": "^8.0.1",
     "hallmark": "^4.0.0",
     "level-concat-iterator": "^3.0.0",
     "mkfiletree": "^2.0.0",
