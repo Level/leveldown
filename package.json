@@ -47,7 +47,7 @@
     "prebuildify-ci": "^1.0.4",
     "prebuildify-cross": "^5.0.0",
     "readfiletree": "^1.0.0",
-    "rimraf": "^3.0.0",
+    "rimraf": "^4.1.2",
     "standard": "^16.0.3",
     "tape": "^5.0.1",
     "tempy": "^1.0.1"
