@@ -1,15 +1,6 @@
 # leveldown
 
-> :pushpin: This module will soon be [deprecated](https://github.com/Level/community/issues/113), because it is superseded by [`classic-level`](https://github.com/Level/classic-level).
-
-[![level badge][level-badge]](https://github.com/Level/awesome)
-[![npm](https://img.shields.io/npm/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
-[![Node version](https://img.shields.io/node/v/leveldown.svg)](https://www.npmjs.com/package/leveldown)
-[![Test](https://img.shields.io/github/workflow/status/Level/leveldown/Test?label=test)](https://github.com/Level/leveldown/actions/workflows/test.yml)
-[![Coverage](https://img.shields.io/codecov/c/github/Level/leveldown?label=&logo=codecov&logoColor=fff)](https://codecov.io/gh/Level/leveldown)
-[![Standard](https://img.shields.io/badge/standard-informational?logo=javascript&logoColor=fff)](https://standardjs.com)
-[![Common Changelog](https://common-changelog.org/badge.svg)](https://common-changelog.org)
-[![Donate](https://img.shields.io/badge/donate-orange?logo=open-collective&logoColor=fff)](https://opencollective.com/level)
+**Superseded by [`classic-level`](https://github.com/Level/classic-level). Please see [Frequently Asked Questions](https://github.com/Level/community#faq).**
 
 ## Table of Contents
 
